@@ -28,7 +28,7 @@ namespace Website.Controllers
         {
             var www = HttpContext.Request.Headers ;
             
-            Console.WriteLine($"CurrentCulture:{CultureInfo.CurrentCulture.Name}, CurrentUICulture:{CultureInfo.CurrentUICulture.Name}");
+            //Console.WriteLine($"CurrentCulture:{CultureInfo.CurrentCulture.Name}, CurrentUICulture:{CultureInfo.CurrentUICulture.Name}");
             return View();
         }
 
