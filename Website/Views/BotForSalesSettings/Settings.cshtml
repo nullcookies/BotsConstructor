@@ -172,7 +172,7 @@
 
                 <div class="row">
                     <button type="button" class="btn btn-success btn-lg btn-block" onclick="runBot()">Запустить каталог из черновика</button>
-                    <button type="button" class="btn btn-danger btn-lg btn-block">Остановить</button>
+                    <button type="button" class="btn btn-danger btn-lg btn-block" onabort="stopBot()">Остановить</button>
                 </div>
             </div>
         </div>
@@ -431,6 +431,24 @@
                 alert('OK');
             },
             error: function (xhr, ajaxOptions, thrownError) {        
+                console.log(thrownError);
+            }
+        });
+    }
+
+    function stopBot() {
+        var url_string = window.location.href;
+        var url = new URL(url_string);
+        var botId = url.searchParams.get("botId");
+        var url = `/BotForSalesSettings/StopBot?botId=${botId}`
+        $.ajax({
+            cache: false,
+            type: "POST",
+            url: url,
+            success: function () {
+                alert('OK');
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
                 console.log(thrownError);
             }
         });

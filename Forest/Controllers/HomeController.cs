@@ -63,7 +63,14 @@ namespace DeleteMeWebhook.Controllers
             //проверка возможности запуска
             var bot = _context.Bots.Find(botId);
 
+            BotsContainer.BotsDictionary.TryGetValue(bot.BotUsername, out BotWrapper _botWrapper);
 
+            if (_botWrapper != null)
+            {
+                _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, $"Лес. Попытка запуска бота, которые уже работает в этом лесу. botId={botId}");
+                return StatusCode(403, "Markup was null.");
+
+            }
 
 
             ////проверить наличие адекватной разметки
@@ -322,29 +329,39 @@ namespace DeleteMeWebhook.Controllers
         /// <param name="botId"></param>
         /// <returns></returns>
         private bool RecordOfTheLaunchOfTheBotWasMadeSuccessfully(int botId)
-        {            
+        {
 
-            RouteRecord existingRouteRecord = _context.RouteRecords.Where(_rr => _rr.BotId == botId).SingleOrDefault();
-
-            Console.WriteLine($"existingRouteRecord==null = {existingRouteRecord==null}");
-            if (existingRouteRecord != null)
-            {
-                //В базе уже запись о том, что бот запущен
-                _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, $"Лес. Запуск бота. В БД уже существует запись о том, что бот запущен. botId={botId}");
-                return false;
-            }
-
-
+            //Создание новой записи
             string domain = HttpContext.Request.Host.Value;
             var link = $"http://{domain}";
-
             RouteRecord rr = new RouteRecord()
             {
                 BotId = botId,
                 ForestLink = link
             };
 
-            _context.RouteRecords.Add(rr);
+            //Выбор записи из БД
+            RouteRecord rrDb = _context.RouteRecords.Where(_rr => _rr.BotId == botId).SingleOrDefault();
+
+            if (rrDb != null)
+            {
+                //В базе уже запись о том, что бот запущен
+                _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, $"Лес. Запуск бота. В БД уже существует запись о том, что бот запущен. botId={botId}");
+
+                //перезапись значения
+                _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, $"Лес. Запуск бота. Перезапись значения. botId={botId}");
+
+                rrDb.ForestLink = rr.ForestLink;
+
+                //return false;
+            }
+            else
+            {
+                _context.RouteRecords.Add(rr);
+            }
+
+
+
             _context.SaveChanges();
             return true;
         }
