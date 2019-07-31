@@ -1,7 +1,7 @@
 ﻿using System;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Mvc;
-using Website.Models;
+using DataLayer.Models;
 using Website.Other;
 using Newtonsoft.Json.Linq;
 using Microsoft.AspNetCore.Hosting;

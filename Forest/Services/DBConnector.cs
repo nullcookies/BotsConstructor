@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Website.Models;
+using DataLayer.Models;
 
 namespace DeleteMeWebhook.Services
 {

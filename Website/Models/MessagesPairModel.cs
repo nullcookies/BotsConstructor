@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Website.Models
+namespace DataLayer.Models
 {
     public class MessagesPairModel
     {

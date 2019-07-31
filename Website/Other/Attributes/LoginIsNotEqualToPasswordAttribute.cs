@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
-using Website.Models;
+using DataLayer.Models;
 using Website.ViewModels;
 
 namespace Website.Other.Attributes

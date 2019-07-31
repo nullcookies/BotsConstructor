@@ -4,7 +4,7 @@ using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Website.Models;
+using DataLayer.Models;
 using System.Collections.Generic;
 using Website.Other;
 

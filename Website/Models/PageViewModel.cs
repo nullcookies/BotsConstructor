@@ -1,4 +1,4 @@
-﻿namespace Website.Models
+﻿namespace DataLayer.Models
 {
 	public class PageViewModel
     {

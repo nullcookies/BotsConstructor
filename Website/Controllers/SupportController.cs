@@ -7,7 +7,7 @@ using System.Net;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using Website.Models;
+using DataLayer.Models;
 using Website.Other;
 
 namespace Website.Controllers

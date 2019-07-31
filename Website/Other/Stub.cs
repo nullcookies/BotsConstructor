@@ -7,7 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Website.Models;
+using DataLayer.Models;
 
 namespace Website.Other
 {
