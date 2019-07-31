@@ -39,7 +39,7 @@ namespace Website.Controllers
 			int i = 1;
 			foreach (var bot in bots)
 			{
-				modelBots.Add(new BotOnHomePage() { Number = i++, Name = bot.BotName, BotId = bot.Id, Status = "Работает" });
+				modelBots.Add(new BotOnHomePage() { Number = i++, Name = bot.BotUsername, BotId = bot.Id, Status = "Работает" });
 			}
             ViewData["bots"] = modelBots;
             

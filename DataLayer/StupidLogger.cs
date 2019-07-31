@@ -7,7 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DataLayer.Models;
 
-namespace Website.Services
+namespace DataLayer.Services
 {
     public class StupidLogger
     {

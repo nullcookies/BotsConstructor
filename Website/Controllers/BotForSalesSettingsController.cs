@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Text;
 using System.Threading;
 using Website.Services;
+using DataLayer.Services;
 
 namespace Website.Controllers
 {
@@ -28,8 +29,6 @@ namespace Website.Controllers
             this.logger = logger;
         }
 
-
-        //TokenReplacement 
 
         [HttpGet]
         [TypeFilter(typeof(CheckAccessToTheBot))]
@@ -146,11 +145,21 @@ namespace Website.Controllers
                         try
                         {
                             //запрос на остановку бота
-                            string result  = await Stub.SendPost("https://" + forestLink + "/StopBot?botId=" + bot.Id, "ostanovites");
+                            await Stub.SendPost("https://" + forestLink + "/StopBot?botId=" + bot.Id, "chtoto=ostanovites");
 
-                            Console.WriteLine("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-                            Console.WriteLine(result);
-                            Console.WriteLine("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+                            RouteRecord rr = context.RouteRecords.Find(botId);
+
+                            if (rr == null)
+                            {
+                                //лес нормально удалил запись о боте
+                            }
+                            else
+                            {
+                                logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, $"При остановке бота botId={botId}," +
+                                    $" accountId={accountId}. Лес ответил Ok, но не удалил RouteRecord из БД ");
+
+                                return StatusCode(500);
+                            }
 
                         }catch(Exception exe)
                         {

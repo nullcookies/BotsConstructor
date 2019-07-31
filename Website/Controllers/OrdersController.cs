@@ -175,7 +175,7 @@ namespace Website.Controllers
 			}
 
 			var bots = context.Bots.Where(_bot => _bot.OwnerId == ownerId).
-				Select(_bot => new { _bot.Id, _bot.BotName }).ToDictionary(_bot => _bot.Id, _bot => _bot.BotName);
+				Select(_bot => new { _bot.Id, _bot.BotUsername }).ToDictionary(_bot => _bot.Id, _bot => _bot.BotUsername);
 
 			var items = context.Items.Where(_item => _item.Bot.OwnerId == ownerId).ToDictionary(
 				_item => _item.Id, _item => new

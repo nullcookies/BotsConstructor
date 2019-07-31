@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using DataLayer.Models;
+using DataLayer.Services;
 
 namespace DeleteMeWebhook
 {
@@ -30,7 +31,10 @@ namespace DeleteMeWebhook
             services.AddEntityFrameworkNpgsql().AddDbContext<ApplicationContext>(opt => opt.UseNpgsql(connection)).BuildServiceProvider();
 
 			services.AddSingleton<DBConnector>();
-		}
+            services.AddSingleton<StupidLogger>();
+
+
+        }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {

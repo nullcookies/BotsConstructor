@@ -14,6 +14,7 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using DataLayer.Models;
+using DataLayer.Services;
 
 namespace DeleteMeWebhook.Controllers
 {
@@ -22,11 +23,13 @@ namespace DeleteMeWebhook.Controllers
 
         private readonly ApplicationContext _context;
 		private readonly DBConnector connector;
+        private readonly StupidLogger _logger;
 
-		public HomeController(ApplicationContext context, DBConnector dBConnector)
+		public HomeController(ApplicationContext context, DBConnector dBConnector, StupidLogger logger)
         {
             _context = context;
 			connector = dBConnector;
+            _logger = logger;
         }
 
         [Route("{telegramBotUsername}")]
@@ -293,6 +296,53 @@ namespace DeleteMeWebhook.Controllers
 			Stub.RunAndRegisterBot(botWrapper);
 
 			return Ok();
+        }
+
+        [HttpPost]
+        public IActionResult StopBot(int botId)
+        {
+
+
+            string requestParameter = HttpContext.Request.Query["chtoto"];
+            Console.WriteLine("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+            Console.WriteLine(requestParameter);
+            Console.WriteLine("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+            //TODO Авторизация
+
+            string botUsername = _context.Bots.Find(botId).BotUsername;
+
+            if( BotsContainer.BotsDictionary.TryGetValue(botUsername, out BotWrapper botWrapper))
+            {
+
+                if (botWrapper != null)
+                {
+                    //TODO написать остановку бота
+                    //botWrapper.Stop();
+
+                    //удаление бота из памяти
+                    BotsContainer.BotsDictionary.Remove(botUsername);
+
+                    //очистка БД
+                    RouteRecord rr = _context.RouteRecords.Find(botUsername);
+                    _context.RouteRecords.Remove(rr);
+                    _context.SaveChanges();
+
+                    //ответ сайту 
+                    return Ok();
+                }
+                else
+                {
+                    _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, $"Лес принял запрос на остановку " +
+                        $"бота, которого у него нет. botId={botId} botUsername={botUsername}. В словаре" +
+                        $" ботов хранился botWrapper==null.");
+                }
+            }
+            else
+            {
+                _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, $"Лес принял запрос на остановку бота," +
+                    $" которого у него нет. botId={botId} botUsername={botUsername}");
+            }
+            return StatusCode(500);
         }
     }
 
