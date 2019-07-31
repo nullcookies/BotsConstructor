@@ -5,7 +5,6 @@ using System.Configuration;
 using System.Net;
 using System.Runtime.InteropServices;
 using Telegram.Bot;
-using TelegramBot;
 using LogicalCore;
 
 namespace DeleteMeWebhook
