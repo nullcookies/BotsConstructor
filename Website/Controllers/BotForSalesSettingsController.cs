@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading;
 using Website.Services;
 using DataLayer.Services;
+using System.Linq;
 
 namespace Website.Controllers
 {
@@ -121,9 +122,12 @@ namespace Website.Controllers
 
         }
 
-
+        [HttpPost]
         public async Task<IActionResult>StopBot(int botId)
         {
+            Console.WriteLine("StopBot");
+
+
             int accountId = 0;
             try{
                 accountId = Stub.GetAccountIdByHttpContext(HttpContext, context) ?? throw new Exception("Аккаунт с таким id  не найден.");
@@ -131,30 +135,64 @@ namespace Website.Controllers
                 return StatusCode(403);
             }
 
+            Console.WriteLine("accountId");
             BotDB bot = context.Bots.Find(botId);
 
             if (bot != null)
             {
+                Console.WriteLine("bot!=null");
                 if (bot.OwnerId == accountId)
                 {
+                    bot.BotUsername = "ping_uin_bot";
+                    context.SaveChanges();
+                    Console.WriteLine("bot.OwnerId == accountId");
+
                     RouteRecord record = context.RouteRecords.Find(bot.Id);
+                    
+
                     if (record != null)
                     {
-                        string forestLink = record.ForestLink;
+                        Console.WriteLine(" record != null) ");
+
+                        //string forestLink = record.ForestLink;
+                        string forestLink = "localhost:8080/Home"; ;
+                        Console.WriteLine("forestLink = "+ forestLink);
 
                         try
                         {
+                            Console.WriteLine("try");
+
                             //запрос на остановку бота
-                            await Stub.SendPost("https://" + forestLink + "/StopBot?botId=" + bot.Id, "chtoto=ostanovites");
+                            
+                            string forestUrl = "http://localhost:8080/Home/StopBot";
 
-                            RouteRecord rr = context.RouteRecords.Find(botId);
 
-                            if (rr == null)
+
+                            Console.WriteLine(forestUrl);
+                            string data = "botId=" + bot.Id;
+                            Console.WriteLine("data="+data);
+                            var test63286 = Stub.SendPost(forestUrl, data).Result;
+
+                            Console.WriteLine(" await Stub.SendPost(" + forestLink );
+
+
+                            //эта хрень говорит, что запись есть, но её на самом деле нет
+                            //оно, похоже, использует какой-то кэш
+                            //RouteRecord rr = context.RouteRecords.Find(botId);
+
+                            RouteRecord normal_rr = context.RouteRecords.Where(_rr => _rr.BotId == botId).SingleOrDefault();
+
+                            Console.WriteLine("uteRecord rr = context.RouteRecords.Find(b");
+
+                            if (normal_rr == null)
                             {
                                 //лес нормально удалил запись о боте
+                                Console.WriteLine("//лес нормально удалил запись о боте");
+                                return Ok();
                             }
                             else
                             {
+                                Console.WriteLine("//лес не нормально удалил запись о боте");
                                 logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, $"При остановке бота botId={botId}," +
                                     $" accountId={accountId}. Лес ответил Ok, но не удалил RouteRecord из БД ");
 
@@ -176,7 +214,7 @@ namespace Website.Controllers
                             $"ownerId={bot.OwnerId}, пользователем accountId={accountId}) в БД не была найдена" +
                             $"запись о сервере на котором бот работает. Возможно, она была удалена или не добавлена.");
                     }
-                    return Ok();
+                    
                 }
                 else
                 {
@@ -187,6 +225,8 @@ namespace Website.Controllers
             {
                 return StatusCode(404);
             }
+
+            return StatusCode(418);
         }
 
 
@@ -196,6 +236,14 @@ namespace Website.Controllers
         [TypeFilter(typeof(CheckAccessToTheBot))]
         public IActionResult RunBotForSalesFromDraft(int botId)
         {
+            BotDB bot = context.Bots.Find(botId);
+            if (bot.Token == null)
+            {
+                Console.WriteLine("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+                Console.WriteLine("Установите токен");
+                Console.WriteLine("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+                return StatusCode(510);
+            }
 
             string forestUrl = "http://localhost:8080/Home/RunNewBot";
 
@@ -204,10 +252,14 @@ namespace Website.Controllers
 			try
 			{
 				var test63286 = Stub.SendPost(forestUrl, data).Result;
+                
 				return Ok();
 			}
 			catch(Exception ex)
 			{
+                Console.WriteLine("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+                Console.WriteLine(ex.Message);
+                Console.WriteLine("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 				return StatusCode(403, ex.Message);
 			}
         }

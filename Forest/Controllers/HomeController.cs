@@ -15,6 +15,7 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using DataLayer.Models;
 using DataLayer.Services;
+using System.Threading;
 
 namespace DeleteMeWebhook.Controllers
 {
@@ -301,32 +302,55 @@ namespace DeleteMeWebhook.Controllers
         [HttpPost]
         public IActionResult StopBot(int botId)
         {
-
+                       
 
             string requestParameter = HttpContext.Request.Query["chtoto"];
             Console.WriteLine("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-            Console.WriteLine(requestParameter);
+            Console.WriteLine(botId);
             Console.WriteLine("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+
+      
             //TODO Авторизация
 
             string botUsername = _context.Bots.Find(botId).BotUsername;
+            Console.WriteLine("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+            Console.WriteLine(botUsername);
+            Console.WriteLine("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 
-            if( BotsContainer.BotsDictionary.TryGetValue(botUsername, out BotWrapper botWrapper))
+            if ( BotsContainer.BotsDictionary.TryGetValue(botUsername, out BotWrapper botWrapper))
             {
-
+                Console.WriteLine("  BotsContainer.BotsDictionary.TryGetValue(botUsername, out BotWrapper botWrappe              ");
                 if (botWrapper != null)
                 {
                     //TODO написать остановку бота
                     //botWrapper.Stop();
+                    Console.WriteLine("         if (botWrapper != null)        ");
 
                     //удаление бота из памяти
                     BotsContainer.BotsDictionary.Remove(botUsername);
+                    Console.WriteLine("         BotsContainer.BotsDictionary.Remove(bot       ");
 
                     //очистка БД
-                    RouteRecord rr = _context.RouteRecords.Find(botUsername);
-                    _context.RouteRecords.Remove(rr);
-                    _context.SaveChanges();
+                    RouteRecord rr = _context.RouteRecords.Find(botId);
+                    if (rr != null)
+                    {
+                        _context.RouteRecords.Remove(rr);
+                        _context.SaveChanges();
+                        Thread.Sleep(1000);
+                        Console.WriteLine("     ye boy           ");
+                        Console.WriteLine("     ye boy           ");
+                        Console.WriteLine("     ye boy           ");
 
+                    }
+                    else
+                    {
+                        _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, "Куда успела деться RouteRecord?");
+                        Console.WriteLine("     ogger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, Куда успела деться RouteRecord ? )   ");
+
+                        _logger.SaveNow();
+                    }
+                
+                   
                     //ответ сайту 
                     return Ok();
                 }

@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using DataLayer.Models;
 using DataLayer.Services;
+using System.Runtime.InteropServices;
 
 namespace DeleteMeWebhook
 {
@@ -27,7 +28,19 @@ namespace DeleteMeWebhook
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
-            string connection = Configuration.GetConnectionString("PostgresConnection");
+            string connection;
+
+            bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+
+            if (isWindows)
+            {
+                connection = Configuration.GetConnectionString("PostgresConnectionDevelopment");
+            }
+            else
+            {
+                connection = Configuration.GetConnectionString("PostgresConnectionLinux");
+            }
+
             services.AddEntityFrameworkNpgsql().AddDbContext<ApplicationContext>(opt => opt.UseNpgsql(connection)).BuildServiceProvider();
 
 			services.AddSingleton<DBConnector>();

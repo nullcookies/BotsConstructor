@@ -1,7 +1,7 @@
 ﻿using DeleteMeWebhook.Models;
 using LogicalCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+
 using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Concurrent;
@@ -10,6 +10,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DataLayer.Models;
+using System.Runtime.InteropServices;
+using Microsoft.Extensions.Configuration;
 
 namespace DeleteMeWebhook.Services
 {
@@ -19,11 +21,24 @@ namespace DeleteMeWebhook.Services
 
 		public DBConnector(IConfiguration configuration)
 		{
-			string connectionString = configuration.GetConnectionString("PostgresConnection");
 
-			contextDb = new ApplicationContext(
+            string connection;
+
+            bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+
+            if (isWindows)
+            {
+                connection = configuration.GetConnectionString("PostgresConnectionDevelopment");
+            }
+            else
+            {
+                connection = configuration.GetConnectionString("PostgresConnectionLinux");
+            }
+
+
+            contextDb = new ApplicationContext(
 				new DbContextOptionsBuilder<ApplicationContext>()
-				.UseNpgsql(connectionString)
+				.UseNpgsql(connection)
 				.Options
 			);
 		}

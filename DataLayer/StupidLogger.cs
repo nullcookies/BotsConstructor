@@ -33,19 +33,19 @@ namespace DataLayer.Services
                 .Options
             );
 
-            PeriodicFooAsync(TimeSpan.FromSeconds(100), CancellationToken.None);
+            PeriodicFooAsync(TimeSpan.FromSeconds(1), CancellationToken.None);
         }
 
         public async Task PeriodicFooAsync(TimeSpan interval, CancellationToken cancellationToken)
         {
             while (true)
             {
-                await OnTimedEvent();
+                await SaveLogsToDb();
                 await Task.Delay(interval, cancellationToken);
             }
         }
 
-        private async Task OnTimedEvent()
+        private async Task SaveLogsToDb()
         {
             if (logMessages.Count == 0)
                 return;
@@ -75,5 +75,11 @@ namespace DataLayer.Services
 
             logMessages.Enqueue(logRecord);
         }
+
+        public void SaveNow()
+        {
+            SaveLogsToDb().Wait();
+        }
+
     }
 }

@@ -83,6 +83,12 @@ namespace Website.Other
             }
         }
 
+        /// <summary>
+        /// Using Stub.SendPost("https://localhost:8080/StopBot", "botId=" + bot.Id);
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
         internal static async Task<string> SendPost(string url, string data)
         {
             WebRequest request = WebRequest.Create(url);

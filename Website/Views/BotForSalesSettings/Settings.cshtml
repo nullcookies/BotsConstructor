@@ -440,9 +440,8 @@
             success: function () {
                 alert('OK');
             },
-            error: function (xhr) {
-                alert("Error occurred.  "
-                    + xhr.statusCode);
+            error: function (xhr, ajaxOptions, thrownError) {        
+                console.log(thrownError);
             }
         });
     }
@@ -497,7 +496,7 @@
     }
 </script>
 
-<script>
+@*<script>
     (function () {
         var getWebSocketMessages = function (onMessageReceived) {
             //Для боевой версии
@@ -521,4 +520,4 @@
         });
     }());
 
-</script>
+</script>*@

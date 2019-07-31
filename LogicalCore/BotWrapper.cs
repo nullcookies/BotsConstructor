@@ -35,9 +35,16 @@ namespace LogicalCore
 		protected override void AcceptMessage(Message message)
         {
             int telegramId = message.From.Id;
-            
-            Session session = GetSessionByTelegramId(telegramId);
-            session.TakeControl(message);
+
+            try
+            {
+                Session session = GetSessionByTelegramId(telegramId);
+                session.TakeControl(message);
+            }
+            catch
+            {
+                Console.WriteLine("Some dich");
+            }
         }
 
         protected override void AcceptCallbackQuery(CallbackQuery callbackQuerry)
