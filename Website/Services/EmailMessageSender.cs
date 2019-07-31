@@ -1,5 +1,4 @@
-﻿using OpenPop.Mime;
-using OpenPop.Pop3;
+﻿
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
