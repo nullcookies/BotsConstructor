@@ -202,7 +202,7 @@ namespace DataLayer.Models
 
         public string Token { get; set; }
 
-        public string BotUsername { get; set; }
+        public string BotName { get; set; }
 
 		[Required]
 		public int OwnerId { get; set; }
