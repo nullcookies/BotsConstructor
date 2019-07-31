@@ -1,0 +1,79 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using System;
+using System.Collections.Concurrent;
+using System.Runtime.InteropServices;
+using System.Threading;
+using System.Threading.Tasks;
+using Website.Models;
+
+namespace Website.Services
+{
+    public class StupidLogger
+    {
+        ApplicationContext contextDb;
+        ConcurrentQueue<LogMessage> logMessages;
+
+        public StupidLogger(IConfiguration configuration)
+        {
+            logMessages = new ConcurrentQueue<LogMessage>();
+
+            //Дублирование кода
+            string connectionString;
+            bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+
+            if (isWindows)
+                connectionString = configuration.GetConnectionString("PostgresConnectionDevelopment");
+            else
+                connectionString = configuration.GetConnectionString("PostgresConnectionLinux");                    
+
+            contextDb = new ApplicationContext(
+                new DbContextOptionsBuilder<ApplicationContext>()
+                .UseNpgsql(connectionString)
+                .Options
+            );
+
+            PeriodicFooAsync(TimeSpan.FromSeconds(100), CancellationToken.None);
+        }
+
+        public async Task PeriodicFooAsync(TimeSpan interval, CancellationToken cancellationToken)
+        {
+            while (true)
+            {
+                await OnTimedEvent();
+                await Task.Delay(interval, cancellationToken);
+            }
+        }
+
+        private async Task OnTimedEvent()
+        {
+            if (logMessages.Count == 0)
+                return;
+
+            LogMessage[] _logMessages = new LogMessage[logMessages.Count];
+            for (int i = 0; i < logMessages.Count; i++)
+            {
+                //Почему так не красиво?
+                logMessages.TryDequeue(out _logMessages[i]);
+            }
+
+            contextDb.LogMessages.AddRange(_logMessages);
+            await contextDb.SaveChangesAsync();
+
+        }
+
+
+        public void Log(LogLevelMyDich logLevel, string comment = "", Exception ex = null)
+        {
+            LogMessage logRecord = new LogMessage()
+            {
+                DateTime = DateTime.Now,
+                LogLevel = logLevel,
+                LogLevelString = logLevel.ToString(),
+                Message = comment + " " + ex?.Message
+            };
+
+            logMessages.Enqueue(logRecord);
+        }
+    }
+}

@@ -1,0 +1,524 @@
+﻿@{
+    Layout = "_LayoutHome";
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" />
+
+<style>
+    .card-counter {
+        box-shadow: 2px 2px 10px #DADADA;
+        margin: 5px;
+        padding: 20px 10px;
+        background-color: #fff;
+        height: 100px;
+        border-radius: 5px;
+        transition: .3s linear all;
+    }
+
+        .card-counter:hover {
+            box-shadow: 4px 4px 20px #DADADA;
+            transition: .3s linear all;
+        }
+
+        .card-counter.primary {
+            background-color: #007bff;
+            color: #FFF;
+        }
+
+        .card-counter.danger {
+            background-color: #ef5350;
+            color: #FFF;
+        }
+
+        .card-counter.success {
+            background-color: #66bb6a;
+            color: #FFF;
+        }
+
+        .card-counter.info {
+            background-color: #26c6da;
+            color: #FFF;
+        }
+
+        .card-counter i {
+            font-size: 5em;
+            opacity: 0.2;
+        }
+
+        .card-counter .count-numbers {
+            position: absolute;
+            right: 35px;
+            top: 20px;
+            font-size: 32px;
+            display: block;
+        }
+
+        .card-counter .count-name {
+            position: absolute;
+            right: 35px;
+            top: 65px;
+            font-style: italic;
+            /*text-transform: capitalize;*/
+            opacity: 0.5;
+            display: block;
+            font-size: 18px;
+        }
+</style>
+
+<div class="container p-2 ">
+
+    @* Псевдостатистика *@
+    <div class="container border border-info rounded " style="margin-bottom:1.5rem;">
+
+        <div class="row p-2">
+
+
+            <div class="col-md-3" id="botStatus_stub" style="visibility:hidden;">
+                <div class="card-counter success">
+                    <i class="fa fa-check"></i>
+                    <span class="count-numbers"></span>
+                    <span class="count-name"></span>
+                </div>
+            </div>
+
+            <div class="col-md-3" id="botStatus_working" style="display:none;">
+                <div class="card-counter success">
+                    <i class="fa fa-check"></i>
+                    <span class="count-numbers">Работает</span>
+                    <span class="count-name">Статус</span>
+                </div>
+            </div>
+
+            <div class="col-md-3" id="botStatus_fail" style="display:none;">
+                <div class="card-counter danger">
+                    <i class="fa fa-ban"></i>
+                    <span class="count-numbers">Сбой</span>
+                    <span class="count-name">Статус</span>
+                </div>
+            </div>
+
+            <div class="col-md-3" id="botStatus_stopped" style="display:none;">
+                <div class="card-counter bg-warning">
+                    <i class="fa fa-pause"></i>
+                    <span class="count-numbers">Остановлен</span>
+                    <span class="count-name">Статус</span>
+                </div>
+            </div>
+
+
+            <div class="col-md-3">
+                <div class="card-counter primary">
+                    <i class="fa fa-archive  "></i>
+                    <span id="ordersCount" class="count-numbers">@ViewData["ordersCount"]</span>
+                    <span class="count-name">Заказов</span>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card-counter info">
+                    <i class="fa fa-users"></i>
+                    <span id="usersCount" class="count-numbers">@ViewData["usersCount"]</span>
+                    <span class="count-name">Пользователей</span>
+                </div>
+            </div>
+
+
+
+
+            <div class="col-md-3">
+                <div class="card-counter danger">
+                    <i class="fa fa-eye"></i>
+                    <span id="messagesCount" class="count-numbers">@ViewData["messagesCount"]</span>
+                    <span class="count-name">Сообщений</span>
+                </div>
+            </div>
+
+
+            @*<div class="col-md-3">
+            <div class="card-counter primary">
+                <i class="fa fa-code-fork  "></i>
+                <span class="count-numbers">12</span>
+                <span class="count-name">Заказов</span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card-counter danger">
+                <i class="fa fa-ticket"></i>
+                <span class="count-numbers">599</span>
+                <span class="count-name">Instances</span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card-counter bg-warning">
+                <i class="fa fa-database"></i>
+                <span class="count-numbers">6875</span>
+                <span class="count-name">Data</span>
+            </div>
+        </div>*@
+
+        </div>
+    </div>
+
+    @* Запуск и остановка *@
+    <div class="container border border-info  rounded  " style="margin-bottom:1.5rem;  padding-right:0;padding-left:0;">
+        <div class="col ">
+
+            <div class="row card-header border-info">
+                <div class="h5 ">
+                    Настройки запуска
+                </div>
+            </div>
+
+            <div class="p-2">
+
+                <div class="row">
+                    <button type="button" class="btn btn-success btn-lg btn-block" onclick="runBot()">Запустить каталог из черновика</button>
+                    <button type="button" class="btn btn-danger btn-lg btn-block" onclick="stopBot()">Остановить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Редактирование каталога *@
+    <div class="container border border-info  rounded  " style="margin-bottom:1.5rem; padding-right:0;padding-left:0;">
+
+        <div class="col ">
+
+            <div class="row card-header border-info">
+                <div class="h5 ">
+                    Управление каталогом
+                </div>
+            </div>
+
+            <div class="p-2">
+
+                <div class="row">
+
+                    <div class="col ">
+                        <div class="row">
+                            <div class="h5">
+                                Работающая версия
+                            </div>
+                        </div>
+
+                        <div class="row alert alert-primary align-items-center" style="overflow:hidden;">
+
+                            <div class="col-4 text-break" style="font-weight: 500;">
+                                Дата запуска:
+                            </div>
+                            <div class="col-4 text-break">
+                                <strong>18.07.2019 16:53</strong>
+                            </div>
+                            <div class="col-4">
+                                <button type="button" class="btn btn-info ">Просмотреть</button>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+
+                <div class="row ">
+
+                    <div class="col ">
+                        <div class="row">
+                            <div class="h5">
+                                Черновик
+                            </div>
+                        </div>
+
+                        <div class="row alert alert-primary align-items-center " style="overflow:hidden;">
+
+                            <div class="col-4 text-break" style="font-weight: 500;">
+                                Дата редактирования:
+                            </div>
+                            <div class="col-4 text-break">
+                                <strong>18.07.2019 16:53</strong>
+                            </div>
+                            <div class="col-4 ">
+                                <a class="btn btn-info " asp-controller="BotEditing" asp-action="EditBot" asp-route-botId="@ViewData["botId"]">Редактировать</a>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    @* Замена токена и управление модераторами*@
+    <div class="container border border-info  rounded  " style="margin-bottom:1.5rem; padding-right:0;padding-left:0;">
+
+        <div class="col">
+
+            <div class="row card-header border-info">
+                <div class="h5 ">
+                    Доступ и безопасность
+                </div>
+            </div>
+
+            <div class="p-2 ">
+
+                <div class="row  align-items-center m-1">
+                    <div class="col">
+                        <div class="row">
+                            <div class="h4">
+                                Замена токена
+                            </div>
+                        </div>
+                        <div class="row" style="font-weight: 500;">
+                            Для того, чтобы связать аккаунт бота, которого вы настроили в телеграме и сервер нужно установить токен.
+                        </div>
+                    </div>
+                    <div class="col">
+                        <a class="btn btn-info btn-lg btn-block" asp-controller="TokenReplacement" asp-action="TokenChange" asp-route-botId="@ViewData["botId"]">Заменить токен</a>
+                    </div>
+                </div>
+
+                <div class="row align-items-center m-1">
+                    <div class="col">
+                        <div class="row">
+                            <div class="h4">
+                                Управление модераторами
+                            </div>
+                        </div>
+                        <div class="row" style="font-weight: 500;">
+                            Для того, чтобы люди из других аккаунтов могли принимать заказы нужно добавить их логины к списку модераторов.
+                        </div>
+                    </div>
+                    <div class="col">
+                        <button type="button" class="btn btn-info btn-lg btn-block" disabled>Управление модераторами</button>
+                    </div>
+                </div>
+
+
+
+            </div>
+
+        </div>
+    </div>
+
+
+
+    @* Оставшееся время работы *@
+    <div class="container border border-info  rounded  " style="margin-bottom:1.5rem; padding-right:0;padding-left:0;">
+
+        <div class="col ">
+
+            <div class="row card-header border-info">
+                <div class="h5 ">
+                    Время работы
+                </div>
+            </div>
+
+            <div class="p-2">
+
+                <div class="row">
+
+                    <div class="col ">
+                        <div class="row">
+                            <div class="h5">
+                                Бла-бла-бла
+                            </div>
+                        </div>
+
+                        <div class="row alert alert-primary align-items-center" style="overflow:hidden;">
+
+                            <div class="col-4 text-break h4">
+                                Время остановки:
+                            </div>
+                            <div class="col-4 text-break h4">
+                                <strong>18.08.2019 16:52</strong>
+                            </div>
+                            <div class="col-4">
+                                <button type="button" class="btn btn-info btn-lg btn-block">Продлить</button>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+
+
+
+            </div>
+
+        </div>
+    </div>
+
+
+    @* Удаление бота *@
+    <div class="container border border-danger  rounded  " style="margin-bottom:1.5rem; padding-right:0;padding-left:0;">
+
+        <div class="col ">
+
+            <div class="row card-header border-danger">
+                <div class="h5 ">
+                    Удаление бота
+                </div>
+            </div>
+
+            <div class="p-2">
+
+                <div class="row">
+
+                    <div class="col ">
+
+
+
+                        <div class="row alert alert-danger align-items-center" style="overflow:hidden;">
+
+                            <div class="col text-break h4">
+                                <div class="row">
+                                    <div class="h4">
+                                        Удаление бота
+                                    </div>
+                                </div>
+                                <div class="row" style="font-size: 1rem;">
+                                    Осторожно, сюда лучше не тыкать
+                                </div>
+                            </div>
+
+                            <div class="col-4">
+                                @*<button type="button" class="btn btn-outline-danger btn-lg btn-block" onclick="deleteBot()">Удалить</button>*@
+                                <button type="button" class="btn btn-outline-danger btn-lg btn-block" onclick="deleteBot()">Удалить</button>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+
+
+
+            </div>
+
+        </div>
+    </div>
+
+
+</div>
+
+<script>
+
+    var linkToSetWebsocket = "@ViewData["linkToForest"]";
+    var botUsername = "@ViewData["botUsername"]";
+
+    function runBot() {
+        var url_string = window.location.href;
+        var url = new URL(url_string);
+        var botId = url.searchParams.get("botId");
+        var url = `/BotForSalesSettings/RunBotForSalesFromDraft?botId=${botId}`
+
+        $.ajax({
+            cache: false,
+            type: "POST",
+            url: url,
+            success: function () {
+                alert('OK');
+            },
+            error: function (xhr) {
+                alert("Error occurred.  "
+                    + xhr.statusCode);
+            }
+        });
+
+    }
+    function stopBot() {
+        var url_string = window.location.href;
+        var url = new URL(url_string);
+        var botId = url.searchParams.get("botId");
+        var url = `/BotForSalesSettings/StopBot?botId=${botId}`
+
+        $.ajax({
+            cache: false,
+            type: "POST",
+            url: url,
+            success: function () {
+                alert('OK');
+            },
+            error: function (xhr) {
+                alert("Error occurred.  "
+                    + xhr.statusCode);
+            }
+        });
+    }
+    
+    function deleteBot() {
+        var url_string = window.location.href;
+        var url = new URL(url_string);
+        var botId = url.searchParams.get("botId");
+        var url = `/BotForSalesSettings/DeleteBot?botId=${botId}`
+
+        $.ajax({
+            cache: false,
+            type: "POST",
+            url: url,
+            success: function () {
+                document.location.href = window.location.origin + "/Home/MyBots";
+
+            },
+            error: function (xhr) {
+                alert("Error occurred. "
+                    + xhr.statusCode);
+            }
+        });
+    }
+
+    function updateStatistics(statisticsInfo) {
+
+        setBotStatus(statisticsInfo.botStatus);
+
+        $('#ordersCount').html(statisticsInfo.ordersCount);
+        $('#usersCount').html(statisticsInfo.usersCount);
+        $('#messagesCount').html(statisticsInfo.messagesCount);
+        
+
+    }
+
+    function setBotStatus(botStatus) {
+
+        $('#botStatus_stub').hide();
+
+        $('[id^="botStatus_"]').hide();
+        
+        if (botStatus == "working" || botStatus == "stopped" || botStatus == "fail") {
+            
+            $('#botStatus_' + botStatus).show();
+        
+        } else {
+            throw new Error("Неожиданный ответ сервера")
+        }
+
+
+    }
+</script>
+
+<script>
+    (function () {
+        var getWebSocketMessages = function (onMessageReceived) {
+            //Для боевой версии
+            //var url = `wss://${location.host}/BotForSalesSettings/MyWebsocket`
+            var url = `ws://${linkToSetWebsocket}/SetWebsocket?botUsername=` + botUsername;
+            console.log('url is: ' + url);
+
+            var webSocket = new WebSocket(url);
+
+            webSocket.onmessage = onMessageReceived;
+        };
+
+        var ulElement = document.getElementById('StreamToMe');
+
+        getWebSocketMessages(function (message) {
+
+            var statisticsInfo = JSON.parse(message.data);
+            console.log(statisticsInfo );
+            updateStatistics(statisticsInfo);
+            
+        });
+    }());
+
+</script>

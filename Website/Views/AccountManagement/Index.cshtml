@@ -1,0 +1,284 @@
+﻿
+@{
+    Layout = "_LayoutHome";
+}
+
+
+<div class="container p-2 ">
+
+    <button onclick="giveMeMoney()" style="width:100px;height:100px;"> +++++</button>
+    <button onclick="takeItAway()" style="width:100px;height:100px;"> ------</button>
+
+    <hr />
+    @* Пополнение счета*@
+    <div class="container border border-info  rounded  " style="margin-bottom:1.5rem; padding-right:0;padding-left:0;">
+
+
+
+        <div class="col">
+
+            <div class="row card-header border-info">
+                <div class="h5 ">
+                    Учёт средств
+                </div>
+            </div>
+
+            <div class="p-2 ">
+
+                <div class="row  align-items-center m-1">
+                    <div class="col">
+                        <div class="row">
+                            <div class="h4">
+                                Баланс
+                            </div>
+                        </div>
+                        <div class="row">
+                            Каждый бот еженедельно списывает с этого счёта деньги
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="h1 text-center ">
+                            @ViewData["money"] ₴
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div class="p-2 ">
+
+                <div class="row  align-items-center m-1">
+                    <div class="col">
+                        <div class="row">
+                            <div class="h4">
+                                Пополнить счёт
+                            </div>
+                        </div>
+                        <div class="row">
+                            Боты тоже хотят кушать
+                        </div>
+                    </div>
+                    <div class="col">
+                        <a class="btn btn-info btn-lg btn-block" style="color: #fff;" asp-controller="TopUp" asp-action="Index">Пополнить счёт</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    @* Безопасность*@
+    <div class="container border border-info  rounded  " style="margin-bottom:1.5rem; padding-right:0;padding-left:0;">
+
+        <div class="col">
+
+            <div class="row card-header border-info">
+                <div class="h5 ">
+                    Безопасность
+                </div>
+            </div>
+
+            <div class="p-2 ">
+
+                <div class="row  align-items-center m-1">
+                    <div class="col">
+                        <div class="row">
+                            <div class="h4">
+                                Смена пароля
+                            </div>
+                        </div>
+                        <div class="row">
+
+
+
+                            <blockquote class="blockquote" style="font-size:1rem;">
+                                <p class="mb-0">Регулярная смена пароля  — спокойный сон</p>
+                                <footer class="blockquote-footer">Неизвестный мудрец</footer>
+                            </blockquote>
+
+
+                        </div>
+                    </div>
+                    <div class="col">
+                        <a class="btn btn-info btn-lg btn-block" style="color: #fff;" asp-controller="AccountManagement" asp-action="ResetPassword">Сменить пароль</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-2 ">
+
+                <div class="row  align-items-center m-1">
+                    <div class="col">
+                        <div class="row">
+                            <div class="h4">
+                                Завершить все сессии
+                            </div>
+                        </div>
+                        <div class="row">
+
+                            Если вы считаете, что кто-то может воспользоваться вашим аккаунтом на другом устройстве, то используйте эту опцию, чтобы принудительно заставить пройти авторизацию.
+
+
+
+                        </div>
+                    </div>
+                    <div class="col">
+                        <button class="btn btn-info btn-lg btn-block" style="color: #fff;" disabled>Завершить все сессии</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-2 ">
+
+                <div class="row  align-items-center m-1">
+                    <div class="col">
+                        <div class="row">
+                            <div class="h4">
+                                Проверить даты входа в аккаунт
+                            </div>
+                        </div>
+                        <div class="row">
+
+                            Если вы считаете, что кто-то пользуется вашим аккаунтом, то для проверки этого просмотрите список дат входа в аккаунт
+
+
+
+                        </div>
+                    </div>
+                    <div class="col">
+                        <button class="btn btn-info btn-lg btn-block" style="color: #fff;" disabled>Просмотреть список дат</button>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
+
+
+    @* Данные аккаунта*@
+    <div class="container border border-info  rounded  " style="margin-bottom:1.5rem; padding-right:0;padding-left:0;">
+
+        <div class="col">
+
+            <div class="row card-header border-info">
+                <div class="h5 ">
+                    Данные аккаунта
+                </div>
+            </div>
+
+            <div class="p-2 ">
+
+                <div class="row  align-items-center m-1">
+                    <div class="col">
+                        <div class="row">
+                            <div class="h4">
+                                Имя
+                            </div>
+                        </div>
+                        <div class="row">
+                            Если вы хотите зачем-то поменять имя аккаунта, то милости просим
+                        </div>
+                    </div>
+                    <div class="col">
+                        <button class="btn btn-info btn-lg btn-block" style="color: #fff;" disabled>Поменять имя</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-2 ">
+
+                <div class="row  align-items-center m-1">
+                    <div class="col">
+                        <div class="row">
+                            <div class="h4">
+                                Номер телефона
+                            </div>
+                        </div>
+                        <div class="row">
+                            Если вы хотите номер телефона, то милости просим
+                        </div>
+                    </div>
+                    <div class="col">
+                        <button class="btn btn-info btn-lg btn-block" style="color: #fff;" disabled>Поменять номер телефона</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-2 ">
+
+                <div class="row  align-items-center m-1">
+                    <div class="col">
+                        <div class="row">
+                            <div class="h4">
+                                Email
+                            </div>
+                        </div>
+                        <div class="row">
+                            Если вы хотите номер email, то милости просим
+                        </div>
+                    </div>
+                    <div class="col">
+                        <button class="btn btn-info btn-lg btn-block" style="color: #fff;" disabled>Поменять email</button>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+        </div>
+    </div>
+
+
+
+</div>
+
+<script>
+    function giveMeMoney() {
+
+        var url = `/AccountManagement/GiveMeMoney`
+
+        $.ajax({
+            cache: false,
+            type: "GET",
+            url: url,
+            contentType: 'application/json',
+            success: function (data) {
+                location.reload();
+            },
+            error: function (xhr) {
+             
+                console.log("Error occurred . "
+                    + xhr.responseText);
+             
+
+            }
+        });
+    }
+
+    function takeItAway() {
+
+        var url = `/AccountManagement/TakeItAway`
+
+        $.ajax({
+            cache: false,
+            type: "GET",
+            url: url,
+            contentType: 'application/json',
+            success: function (data) {
+                location.reload();
+            },
+            error: function (xhr) {
+
+                console.log("Error occurred . "
+                    + xhr.responseText);
+
+
+            }
+        });
+    }
+
+</script>

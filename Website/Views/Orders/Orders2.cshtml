@@ -1,0 +1,432 @@
+﻿@*подключаем все tag-хелперы*@
+@model IndexViewModelPagination
+@addTagHelper "*, Website"
+@{
+    Layout = "_LayoutHome";
+}
+
+<link href="@Url.Content("~/lib/open-iconic/font/css/open-iconic-bootstrap.css")" rel="stylesheet">
+@*<link rel="stylesheet" href="@Url.Content("~/css/orders-pagination.css")" />*@
+@* Нужно для круглых кнопок *@
+<link rel="stylesheet" href="@Url.Content("~/css/bot-for-sales.css")" />
+
+<style>
+    .break-worded * {
+        word-wrap: break-word;
+    }
+
+    .block-container * {
+        display: block;
+    }
+
+    .fit-cell {
+        width: 100%;
+        word-wrap: break-word;
+        white-space: normal;
+    }
+
+    .nounderline {
+        text-decoration: none !important;
+        /*color: inherit;*/
+    }
+</style>
+
+<div class="d-flex justify-content-sm-between align-items-sm-center" style="margin: 15px 0 10px;">
+    <div class="ml-4">
+        <button id="refresh_btn" class="btn btn-outline-secondary" onclick="Refresh()" ondblclick="RefreshVariables()">
+            <span class="oi oi-reload"></span>
+        </button>
+    </div>
+
+    <page-link page-model="Model.PageViewModel" page-action="Orders2"></page-link>
+
+    <div id="pages_count" class="h5 mr-4 mb-0">
+        Page <b>@ViewData["currentPage"]</b> of <b>@ViewData["pagesCount"]</b>
+    </div>
+</div>
+
+<div id="div_orders" class="table-responsive" style="overflow: unset;">
+    @*Прототип div'а заказа*@
+    <div id="div_order_" class="d-none">
+        <a id="order_"></a>
+        <div class="card m-1">
+            <div id="heading_msg_" class="card-header row align-items-center break-worded ml-0 mr-0">
+                <div class="col-sm-2 h4 font-weight-bolder"><a id="bot_"></a></div>
+
+                <h5 class="mb-0 col-sm-5">
+                    <button id="exp_btn_" class="btn btn-link nounderline" data-toggle="collapse" data-target="#collapsed_msg_" aria-expanded="false" aria-controls="collapsed_msg_"></button>
+                </h5>
+
+                <div class="col-sm-2 h5 btn-group dropleft">
+                    <button type="button" id="btn_" class="btn btn-info dropdown-toggle fit-cell" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-placement="right"></button>
+                    <div id="dropdown_" class="dropdown-menu block-container">
+                        @*foreach (var statusId in orderStatuses.StatusGroups[orderModel.StatusGroupId].statuses)*@
+                        <button id="proto_status_btn" type="button" class="btn btn-link" data-toggle="tooltip" data-placement="left"></button>
+                        <div class="dropdown-divider"></div>
+                        <button id="proto_unset" type="button" class="btn btn-link" data-toggle="tooltip" data-placement="left" title="Marks as unread.">Unread (NEW)</button>
+                    </div>
+                </div>
+
+                <div id="dateTime_" class="col-sm-2 h5"></div>
+
+                <div class="col-sm-1"><button id="del_btn_" class="btn btn-outline-danger btn-circle btn-circle-sm m-1"><span class="oi oi-trash"></span></button></div>
+            </div>
+
+            <div id="collapsed_msg_" class="collapse" aria-labelledby="heading_msg_" data-parent="#div_order_">
+                <div id="body_msg_" class="card-body"></div>
+
+                <form role="form" method="post" action="/Orders/SendCustomAnswer">
+                    <div class="form-group">
+                        <textarea id="answer_" name="text" class="form-control" rows="3" placeholder="Custom Answer" style="min-height: 100px;"></textarea>
+                    </div>
+                    <div class="form-group d-flex mb-0">
+                        <button id="send_answer_" type="button" class="btn btn-primary"><span class="oi oi-chat"></span>Send answer</button>
+                        <button type="reset" class="btn btn-secondary ml-auto">Clear</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var statuses;
+    var statusGroups;
+    var bots;
+    var items;
+    var containers = {};
+    var ordersNodes = [];
+
+    RefreshVariables(Refresh);
+
+    function RemoveOrder(orderId) {
+        var button = document.getElementById("del_btn_" + orderId);
+        $(button.firstElementChild).removeClass("oi oi-trash");
+        $(button.firstElementChild).addClass("spinner-border spinner-border-sm");
+        $.ajax({
+            url: '/Orders/RemoveOrder',
+            type: 'delete',
+            data: { orderId: orderId },
+            success: function (data) {
+                document.getElementById("div_order_" + orderId).remove();
+                //console.log(`Order with ID = ${orderId} was removed.\n${data}`);
+                SetNewOrdersCount(data);
+            },
+            error: function (data) {
+                $(button.firstElementChild).removeClass("spinner-border spinner-border-sm");
+                $(button.firstElementChild).addClass("oi oi-circle-x");
+                $(button).attr("disabled", "disabled");
+                console.log(`ERROR! Order with ID = ${orderId} can't be removed.\n${data.responseText}`);
+                //update();
+            }
+        });
+    }
+
+    function ChangeOrderStatus(orderId, statusId) {
+        var spinner = document.createElement("span");
+        spinner.className = "spinner-border spinner-border-sm";
+        var button = document.getElementById("btn_" + orderId);
+        button.appendChild(spinner);
+        $.ajax({
+            url: '/Orders/ChangeOrderStatus',
+            type: 'post',
+            data: { orderId: orderId, statusId: statusId },
+            success: function (data) {
+                button.innerText = statuses[statusId].item1;
+                //console.log(`Order with ID = ${orderId} changed status to status with ID = ${statusId}.\n${data}`);
+                SetNewOrdersCount(data);
+            },
+            error: function (data) {
+                $(button.parentElement).removeClass("btn-group");
+                $(button).removeClass("btn-info");
+                $(button).removeClass("dropdown-toggle");
+                $(button).addClass("btn-danger");
+                $(button).attr("disabled", "");
+                button.innerText = "ERROR";
+                console.log(`ERROR! Order with ID = ${orderId} can't change status to status with ID = ${statusId}.\n${data.responseText}`);
+                //update();
+            }
+        });
+    }
+
+    function DateTimeToString(dateTime) {
+        var dateTimeString = "";
+        var today = new Date();
+        today.setHours(0);
+        today.setMinutes(0);
+        today.setSeconds(0);
+
+        if (dateTime < today) {
+            var date = dateTime.getDate();
+            if (date < 10) date = "0" + date;
+            var month = dateTime.getMonth() + 1;
+            if (month < 10) month = "0" + month;
+            dateTimeString = date + "." + month;
+
+            var yesterday = today;
+            yesterday.setDate(today.getDate() - 1);
+
+            if (dateTime >= yesterday) {
+                dateTimeString += ", " + GetTimeString();
+            }
+            else {
+                if (dateTime.getFullYear() < today.getFullYear()) {
+                    dateTimeString += "." + dateTime.getFullYear();
+                }
+            }
+        }
+        else {
+            dateTimeString = GetTimeString();
+        }
+
+        return dateTimeString;
+
+        function GetTimeString() {
+            var hours = dateTime.getHours();
+            if (hours < 10) hours = "0" + hours;
+            var minutes = dateTime.getMinutes();
+            if (minutes < 10) minutes = "0" + minutes;
+            return hours + ":" + minutes;
+        }
+    }
+    
+    function CreateOrderElement(orderId, botId, sender, mainContainerId, statusGroupId, statusId, dateTime) {
+        var message = "";
+        var totalSum = 0.0;
+        function AddContainers(container) {
+            //message += '<ul class="list-unstyled">';
+            message += '<ul>';
+            var localSum = 0.0;
+            for (var i = 0; i < container.itemsIds.length; i++) {
+                var itemInfo = container.itemsIds[i];
+                var item = items[itemInfo.id];
+                var value = parseFloat(item.value) * parseInt(itemInfo.count);
+                message += `<li>${item.name} ${itemInfo.count} X ${item.value} = ${value}</li>`;
+                localSum += value;
+            }
+            if (localSum > 0.0) {
+                message += `<li><strong>Sum: ${localSum}</strong></li>`;
+                totalSum += localSum;
+            }
+            for (var t = 0; t < container.texts.length; t++) {
+                var text = container.texts[t];
+                message += `<li>${text}</li>`;
+            }
+            for (var f = 0; f < container.filesIds.length; f++) {
+                var fileID = container.filesIds[f];
+                message += `<li>${fileID}</li>`; //TODO: настроить работу с файлами
+            }
+            for (var c = 0; c < container.children.length; c++) {
+                message += '<li style="list-style-type:none">';
+                AddContainers(container.children[c]);
+                message += '</li>';
+            }
+            message += '</ul>';
+        }
+        var mainContainer = containers[mainContainerId];
+        AddContainers(mainContainer);
+        if (mainContainer.children.length > 0 && totalSum > 0.0) {
+            message += `<p><strong>Total: ${totalSum}</strong></p>`;
+        }
+        var newNode = document.getElementById("div_order_").cloneNode(true);
+        var jqNewNode = $(newNode);
+        jqNewNode.attr("id", "div_order_" + orderId);
+        jqNewNode.find("a#order_").attr("id", "order_" + orderId);
+        jqNewNode.find("a#bot_").attr("id", "bot_" + botId).attr("href", "/BotEditing/Settings?botId=" + botId).text(bots[botId]);
+
+        jqNewNode.find("div#heading_msg_").attr("id", "heading_msg_" + orderId);
+        jqNewNode.find("button#exp_btn_").attr("id", "exp_btn_" + orderId).attr("data-target", "#collapsed_msg_" + orderId).attr("aria-controls", "collapsed_msg_" + orderId).html(`<strong>${sender}</strong>`).on('click', function (e) {
+            e.preventDefault();
+            $(this).collapse();
+        });
+        jqNewNode.find("div#collapsed_msg_").attr("id", "collapsed_msg_" + orderId).attr("aria-labelledby", "heading_msg_" + orderId).attr("data-parent", "#div_order_" + orderId).on('shown.bs.collapse', function () {
+            location.href = "#order_" + orderId;
+        });
+        jqNewNode.find("div#body_msg_").attr("id", "body_msg_" + orderId).html(message);
+
+        jqNewNode.find("button#btn_").attr("id", "btn_" + orderId).attr("title", statusGroups[statusGroupId].item1).text(statuses[statusId].item1);
+        var dropdown = jqNewNode.find("div#dropdown_").attr("id", "dropdown_" + orderId)[0];
+        var protoBtn = jqNewNode.find("button#proto_status_btn").removeAttr("id")[0];
+        var thisGroupStatusesIds = statusGroups[statusGroupId].item2;
+        function constructChangingStatus(newStatusId) {
+            return function () {
+                ChangeOrderStatus(orderId, newStatusId);
+            };
+        }
+        for (var i = 0; i < thisGroupStatusesIds.length; i++) {
+            var btnStatusId = thisGroupStatusesIds[i];
+            var statusBtn = protoBtn.cloneNode(true);
+            statusBtn.addEventListener("click", constructChangingStatus(btnStatusId));
+            statusBtn.setAttribute("title", statuses[btnStatusId].item2);
+            statusBtn.textContent = statuses[btnStatusId].item1;
+            dropdown.insertBefore(statusBtn, protoBtn);
+        }
+        dropdown.removeChild(protoBtn);
+        jqNewNode.find("button#proto_unset").removeAttr("id").on("click", constructChangingStatus(null));
+        jqNewNode.find("div#dateTime_").attr("id", "dateTime_" + orderId).text(DateTimeToString(dateTime));
+        jqNewNode.find("button#del_btn_").attr("id", "del_btn_" + orderId).on("click", function () { RemoveOrder(orderId) });
+        var jqAnswer = jqNewNode.find("textarea#answer_").attr("id", "answer_" + orderId);
+        var jqSendBtn = jqNewNode.find("button#send_answer_").attr("id", "send_answer_" + orderId).on("click", function () {
+            if (jqAnswer.val().length == 0) {
+                alert("Incorrect answer text.");
+                return;
+            }
+            var jqSpan = jqSendBtn.find("span");
+            if (jqSendBtn.hasClass("btn-success")) {
+                jqSendBtn.addClass("btn-primary");
+                jqSendBtn.removeClass("btn-success");
+                jqSpan.removeClass("oi-check");
+            }
+            jqSpan.removeClass("oi oi-chat");
+            jqSpan.addClass("spinner-border spinner-border-sm");
+            $.ajax({
+                url: '/Orders/SendCustomAnswer',
+                type: 'post',
+                data: { orderId: orderId, text: jqAnswer.val()},
+                success: function (data) {
+                    jqSpan.removeClass("spinner-border spinner-border-sm");
+                    jqSpan.addClass("oi oi-check");
+                    jqSendBtn.removeClass("btn-primary");
+                    jqSendBtn.addClass("btn-success");
+                    setTimeout(function () {
+                        if (jqSendBtn.hasClass("btn-success")) {
+                            jqSendBtn.addClass("btn-primary");
+                            jqSendBtn.removeClass("btn-success");
+                            jqSpan.removeClass("oi-check");
+                            jqSpan.addClass("oi-chat");
+                            jqAnswer.val("");
+                        }
+                    }, 1000);
+                },
+                error: function (data) {
+                    jqSpan.removeClass("spinner-border spinner-border-sm");
+                    jqSpan.addClass("oi oi-x");
+                    jqSendBtn.attr("disabled", "");
+                    jqSendBtn.removeClass("btn-primary");
+                    jqSendBtn.addClass("btn-danger");
+                    console.log(`ERROR! Can't send variables!\n${data.responseText}`);
+                }
+            });
+        });
+        jqNewNode.removeClass("d-none");
+        return newNode;
+    }
+
+    function RefreshVariables(func) {
+        $.ajax({
+            url: '/Orders/GetVariables',
+            type: 'post',
+            success: function (data) {
+                statuses = data.statuses;
+                statusGroups = data.statusGroups;
+                bots = data.bots;
+                items = data.items;
+                statuses[null] = { item1: "NEW", item2: "Sends nothing." };
+            },
+            error: function (data) {
+                console.log(`ERROR! Can't refresh variables!\n${data.responseText}`);
+            },
+            complete: function () {
+                if (func != null) {
+                    func();
+                }
+            }
+        });
+    }
+
+    function Refresh() {
+        var divOrders = document.getElementById("div_orders");
+        var button = document.getElementById("refresh_btn");
+        var jqSpan = $(button.firstElementChild);
+        jqSpan.removeClass("oi oi-reload");
+        jqSpan.addClass("spinner-border spinner-border-sm");
+        $.ajax({
+            url: '/Orders/GetOrders',
+            type: 'post',
+            data: { page: @ViewData["currentPage"] },
+            success: function (data) {
+                var orders = data.orders;
+                for (var c_i = 0; c_i < data.containers.length; c_i++) {
+                    var container = data.containers[c_i];
+                    container.children = [];
+                    containers[container.id] = container;
+                    var parentId = container.parentId;
+                    if (parentId != null) {
+                        containers[parentId].children.push(container);
+                    }
+                }
+                var nodesCreatorArr = [];
+                var needRefreshVars = false;
+
+                function constructCreation(order) {
+                    return function () {
+                        var newNode = CreateOrderElement(order.orderId,
+                            order.botId,
+                            order.sender,
+                            order.mainContainerId,
+                            order.statusGroupId,
+                            order.statusId,
+                            new Date(order.dateTime));
+                        ordersNodes.push(newNode);
+                    };
+                }
+
+                for (var i = 0; i < orders.length; i++) {
+                    var order = orders[i];
+                    if (bots[order.botId] == undefined ||
+                        statusGroups[order.statusGroupId] == undefined
+                        || statuses[order.statusId] == undefined) {
+                        needRefreshVars = true;
+                    }
+                    nodesCreatorArr.push(constructCreation(order));
+                }
+
+                var endCreation = function () {
+                    var oldNode = ordersNodes.pop();
+                    while (oldNode != undefined) {
+                        oldNode.remove();
+                        oldNode = ordersNodes.pop();
+                    }
+                    for (var j = 0; j < nodesCreatorArr.length; j++) {
+                        nodesCreatorArr[j]();
+                        divOrders.appendChild(ordersNodes[j]);
+                    }
+                    jqSpan.removeClass("spinner-border spinner-border-sm");
+                    jqSpan.addClass("oi oi-reload");
+                }
+
+                if (needRefreshVars) {
+                    RefreshVariables(function () {
+                        var needRefreshVars = false;
+                        for (var i = 0; i < orders.length; i++) {
+                            if (bots[orders[i].botId] == undefined ||
+                                statusGroups[orders[i].statusGroupId] == undefined ||
+                                statuses[orders[i].statusId] == undefined) {
+                                needRefreshVars = true;
+                            }
+                        }
+                        if (needRefreshVars) {
+                            ShowError({ responseText: "Couldn't refresh variables." });
+                        }
+                        else {
+                            endCreation();
+                        }
+                    });
+                }
+                else {
+                    endCreation();
+                }
+            },
+            error: ShowError
+        });
+
+        function ShowError(data) {
+            $(button).attr("disabled", "");
+            $(button).removeClass("btn-outline-secondary");
+            $(button).addClass("btn-outline-danger");
+            jqSpan.removeClass("spinner-border spinner-border-sm");
+            jqSpan.addClass("oi oi-x");
+            console.log(`ERROR! Can't refresh page!\n${data.responseText}`);
+        }
+    }
+</script>

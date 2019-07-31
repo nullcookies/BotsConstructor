@@ -1,0 +1,90 @@
+﻿using DeleteMeWebhook.Models;
+using LogicalCore;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Website.Models;
+
+namespace DeleteMeWebhook.Services
+{
+	public class DBConnector : IOrdersSendable
+	{
+		private readonly ApplicationContext contextDb;
+
+		public DBConnector(IConfiguration configuration)
+		{
+			string connectionString = configuration.GetConnectionString("PostgresConnection");
+
+			contextDb = new ApplicationContext(
+				new DbContextOptionsBuilder<ApplicationContext>()
+				.UseNpgsql(connectionString)
+				.Options
+			);
+		}
+
+		public async Task<bool> SendOrder(Session session, UniversalOrderContainer order, int statGroupID)
+		{
+			if (order == null) return false;
+			bool noItems = order.Items == null || order.Items.Count == 0;
+			bool noTexts = order.Texts == null || order.Texts.Count == 0;
+			bool noFiles = order.FilesIDs == null || order.FilesIDs.Count == 0;
+			if (noItems && noTexts && noFiles) return false;
+
+			try
+			{
+				contextDb.Orders.Add(new Order()
+				{
+					SenderId = session.telegramId,
+					SenderNickname = session.User.FirstName + " " + session.User.LastName,
+					BotId = session.BotWrapper.BotID,
+					DateTime = DateTime.UtcNow,
+					OrderStatusGroupId = statGroupID,
+					Container = CreateInventories(order)
+				});
+
+				await contextDb.SaveChangesAsync();
+				return true;
+			}
+			catch (Exception ex)
+			{
+				ConsoleWriter.WriteLine(ex.Message, ConsoleColor.Red);
+				return false;
+			}
+
+			Inventory CreateInventories(UniversalOrderContainer currentOrder, Inventory parent = null)
+			{
+				Inventory currentInventory = new Inventory()
+				{
+					Parent = parent,
+					SessionId = session.telegramId,
+					Items = currentOrder.Items.Select(tuple => new InventoryItem()
+					{
+						Count = tuple.Count,
+						ItemId = tuple.ID
+					}).ToArray(),
+					Texts = currentOrder.Texts.Select(text => new SessionText()
+					{
+						Text = text
+					}).ToArray(),
+					Files = currentOrder.FilesIDs.Select(fileId => new SessionFile()
+					{
+						FileId = fileId
+					}).ToArray()
+				};
+
+				foreach (var child in currentOrder.Children)
+				{
+					Inventory childInventory = CreateInventories(currentOrder, currentInventory);
+				}
+
+				return currentInventory;
+			}
+		}
+	}
+}

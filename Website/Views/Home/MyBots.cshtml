@@ -1,0 +1,34 @@
+﻿@{ 
+    Layout = "_LayoutHome";
+}
+@*<link rel="stylesheet" href="path/to/font-awesome/css/font-awesome.min.css">*@
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Название</th>
+            <th scope="col">Статус</th>
+            <th scope="col">Настройки</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            foreach (var bot in ViewData["bots"] as List<BotOnHomePage>)
+            {
+                <tr>
+                    <th scope="row">@bot.Number</th>
+                    <td>@bot.Name</td>
+                    <td>@bot.Status</td>
+                    <td>
+                        <a asp-controller="BotForSalesSettings" asp-action="Settings" asp-route-botId="@bot.BotId" class="btn btn-info">Настройки</a>
+                    </td>
+                </tr>
+            }
+        }
+
+
+
+    </tbody>
+    
+</table>
+<a  class="btn btn-secondary btn-lg btn-block"  asp-area="" asp-controller="Home"  asp-action="BotCreation"  >Создать бота</a>
