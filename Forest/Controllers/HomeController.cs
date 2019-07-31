@@ -56,10 +56,15 @@ namespace DeleteMeWebhook.Controllers
         [HttpPost]
         public IActionResult RunNewBot(int botId)
         {
-            Console.WriteLine(botId);
+            //Аунтефикация
+
+            
 
             //проверка возможности запуска
             var bot = _context.Bots.Find(botId);
+
+
+
 
             ////проверить наличие адекватной разметки
             if (bot.Markup == null)
@@ -294,36 +299,71 @@ namespace DeleteMeWebhook.Controllers
 				}
 			}
 			_context.SaveChanges();
-			Stub.RunAndRegisterBot(botWrapper);
+
+            bool synchronization_was_successful = RecordOfTheLaunchOfTheBotWasMadeSuccessfully(botId);
+
+            if (!synchronization_was_successful)
+            {
+                return StatusCode(500);
+            }
+
+
+            Stub.RunAndRegisterBot(botWrapper);
+
+
+
 
 			return Ok();
         }
 
+        /// <summary>
+        /// Создание записи в БД, чтобы знать где запущен бот
+        /// </summary>
+        /// <param name="botId"></param>
+        /// <returns></returns>
+        private bool RecordOfTheLaunchOfTheBotWasMadeSuccessfully(int botId)
+        {            
+
+            RouteRecord existingRouteRecord = _context.RouteRecords.Where(_rr => _rr.BotId == botId).SingleOrDefault();
+
+            if (existingRouteRecord != null)
+            {
+                //В базе уже запись о том, что бот запущен
+                _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, $"Лес. Запуск бота. В БД уже существует запись о том, что бот запущен. botId={botId}");
+                return false;
+            }
+
+
+            string domain = HttpContext.Request.Host.Value;
+            var link = $"http://{domain}";
+
+            RouteRecord rr = new RouteRecord()
+            {
+                BotId = botId,
+                ForestLink = link
+            };
+
+            _context.RouteRecords.Add(rr);
+            _context.SaveChanges();
+            return true;
+        }
+
+
         [HttpPost]
         public IActionResult StopBot(int botId)
         {
-                       
+            //TODO Авторизация через бд
 
-            string requestParameter = HttpContext.Request.Query["chtoto"];
-            Console.WriteLine("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-            Console.WriteLine(botId);
-            Console.WriteLine("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-
-      
-            //TODO Авторизация
-
-            string botUsername = _context.Bots.Find(botId).BotUsername;
-            Console.WriteLine("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-            Console.WriteLine(botUsername);
-            Console.WriteLine("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+            BotDB botDb = _context.Bots.Find(botId);
+            BotWrapper _botWrapper = new BotWrapper(botId, null, botDb.Token);
+            string botUsername = _botWrapper.BotClient.GetMeAsync().Result.Username;
 
             if ( BotsContainer.BotsDictionary.TryGetValue(botUsername, out BotWrapper botWrapper))
             {
                 Console.WriteLine("  BotsContainer.BotsDictionary.TryGetValue(botUsername, out BotWrapper botWrappe              ");
                 if (botWrapper != null)
                 {
-                    //TODO написать остановку бота
-                    //botWrapper.Stop();
+                    botWrapper.Stop();
                     Console.WriteLine("         if (botWrapper != null)        ");
 
                     //удаление бота из памяти
@@ -336,11 +376,6 @@ namespace DeleteMeWebhook.Controllers
                     {
                         _context.RouteRecords.Remove(rr);
                         _context.SaveChanges();
-                        Thread.Sleep(1000);
-                        Console.WriteLine("     ye boy           ");
-                        Console.WriteLine("     ye boy           ");
-                        Console.WriteLine("     ye boy           ");
-
                     }
                     else
                     {

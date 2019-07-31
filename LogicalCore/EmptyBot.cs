@@ -13,18 +13,7 @@ namespace LogicalCore
     /// </summary>
     public class EmptyBot
 	{
-		/// <summary>
-		/// ID бота в БД.
-		/// </summary>
-		public int BotID { get; }
-		/// <summary>
-		/// Ссылка для вебхука, если он нужен
-		/// </summary>
-		protected readonly string link;
-
-        public TelegramBotClient BotClient { get; private set; }
-        public readonly string BotUsername;
-
+	
         /// <summary>
         /// Для запуска в режиме long polling
         /// </summary>
@@ -43,7 +32,21 @@ namespace LogicalCore
             BotClient = new TelegramBotClient(token);
             BotUsername = BotClient.GetMeAsync().Result.Username;
         }
-        
+
+        /// <summary>
+        /// ID бота в БД.
+        /// </summary>
+        public int BotID { get; }
+
+
+        /// <summary>
+        /// Ссылка для вебхука, если он нужен
+        /// </summary>
+        protected readonly string link;
+
+        public readonly string BotUsername;
+        public TelegramBotClient BotClient { get; private set; }
+
         #region Запуск принятия сообщений
 
         /// <summary>
@@ -117,6 +120,20 @@ namespace LogicalCore
             ConsoleWriter.WriteLine($"Start listening for @{BotUsername}", ConsoleColor.Green);
         }
 
+        //TODO Это точно лучший метод остановить приняте сообщений?
+        public virtual void Stop()
+        {
+            if (link == null)
+            {
+                //бот работал в режиме long polling
+                BotClient.StopReceiving();
+            }
+            else
+            {
+                //бот работал в режиме webhook
+                BotClient.DeleteWebhookAsync();
+            }
+        }
         #endregion
 
         #region Принятие сообщения

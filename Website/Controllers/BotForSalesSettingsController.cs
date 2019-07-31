@@ -19,15 +19,15 @@ namespace Website.Controllers
     public class BotForSalesSettingsController : Controller
     {
 
-        ApplicationContext context;
+        ApplicationContext _context;
         IHostingEnvironment _appEnvironment;
-        StupidLogger logger;
+        StupidLogger _logger;
 
-        public BotForSalesSettingsController(ApplicationContext context, IHostingEnvironment appEnvironment, StupidLogger logger)
+        public BotForSalesSettingsController(ApplicationContext context, IHostingEnvironment appEnvironment, StupidLogger _logger)
         {
-            this.context = context ?? throw new ArgumentNullException(nameof(context));
+            this._context = context ?? throw new ArgumentNullException(nameof(context));
             _appEnvironment = appEnvironment;
-            this.logger = logger;
+            this._logger = _logger;
         }
 
 
@@ -35,31 +35,14 @@ namespace Website.Controllers
         [TypeFilter(typeof(CheckAccessToTheBot))]
         public IActionResult Settings(int botId)
         {
-            RouteRecord rr = context.RouteRecords.Find(botId);
-            string forestLink = "localhost:8080/Forest";
-
-            if (rr == null)
-            {
-                context.RouteRecords.Add(new RouteRecord() { BotId = botId, ForestLink = forestLink });
-            }
-            else
-            {
-                rr.ForestLink = forestLink;
-            }            
-
-            context.SaveChanges();
-
-            BotDB bot = context.Bots.Find(botId);
+           
+            BotDB bot = _context.Bots.Find(botId);
 
             ViewData["botId"] = botId;
             ViewData["botType"] = bot.BotType;
 
-            if (bot.Token != null)
-            {
-                //установить botUsername
-            }
             
-            RouteRecord record = context.RouteRecords.Find(botId);
+            RouteRecord record = _context.RouteRecords.Find(botId);
             if (record != null)
             {
                 //если работает, то вставить ссылку на лес для установки websocket-а
@@ -90,8 +73,6 @@ namespace Website.Controllers
                 context.Response.StatusCode = 400;
             }
         }
-
-
         private async Task SendMessage(WebSocket webSocket, string message)
         {
             
@@ -123,64 +104,49 @@ namespace Website.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult>StopBot(int botId)
+        [TypeFilter(typeof(CheckAccessToTheBot))]
+        public IActionResult StopBot(int botId)
         {
-            Console.WriteLine("StopBot");
-
-
+            //TODO Повторное извлечение accountId из cookies
             int accountId = 0;
             try{
-                accountId = Stub.GetAccountIdByHttpContext(HttpContext, context) ?? throw new Exception("Аккаунт с таким id  не найден.");
+                accountId = Stub.GetAccountIdFromCookies(HttpContext, _context) ?? throw new Exception("Из cookies не удалось извлечь accountId");
             }catch{
                 return StatusCode(403);
             }
 
-            Console.WriteLine("accountId");
-            BotDB bot = context.Bots.Find(botId);
+            BotDB bot = _context.Bots.Find(botId);
 
             if (bot != null)
             {
-                Console.WriteLine("bot!=null");
                 if (bot.OwnerId == accountId)
                 {
-                    bot.BotUsername = "ping_uin_bot";
-                    context.SaveChanges();
                     Console.WriteLine("bot.OwnerId == accountId");
 
-                    RouteRecord record = context.RouteRecords.Find(bot.Id);
+                    RouteRecord record = _context.RouteRecords.Find(bot.Id);
                     
 
                     if (record != null)
                     {
                         Console.WriteLine(" record != null) ");
 
-                        //string forestLink = record.ForestLink;
-                        string forestLink = "localhost:8080/Home"; ;
-                        Console.WriteLine("forestLink = "+ forestLink);
-
                         try
                         {
                             Console.WriteLine("try");
 
                             //запрос на остановку бота
+
+                            string forestUrl = record.ForestLink + "/Home/StopBot";
                             
-                            string forestUrl = "http://localhost:8080/Home/StopBot";
-
-
 
                             Console.WriteLine(forestUrl);
                             string data = "botId=" + bot.Id;
                             Console.WriteLine("data="+data);
                             var test63286 = Stub.SendPost(forestUrl, data).Result;
 
-                            Console.WriteLine(" await Stub.SendPost(" + forestLink );
+                            Console.WriteLine(" await Stub.SendPost(" + forestUrl);
 
-
-                            //эта хрень говорит, что запись есть, но её на самом деле нет
-                            //оно, похоже, использует какой-то кэш
-                            //RouteRecord rr = context.RouteRecords.Find(botId);
-
-                            RouteRecord normal_rr = context.RouteRecords.Where(_rr => _rr.BotId == botId).SingleOrDefault();
+                            RouteRecord normal_rr = _context.RouteRecords.Where(_rr => _rr.BotId == botId).SingleOrDefault();
 
                             Console.WriteLine("uteRecord rr = context.RouteRecords.Find(b");
 
@@ -193,7 +159,7 @@ namespace Website.Controllers
                             else
                             {
                                 Console.WriteLine("//лес не нормально удалил запись о боте");
-                                logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, $"При остановке бота botId={botId}," +
+                                _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, $"При остановке бота botId={botId}," +
                                     $" accountId={accountId}. Лес ответил Ok, но не удалил RouteRecord из БД ");
 
                                 return StatusCode(500);
@@ -201,7 +167,7 @@ namespace Website.Controllers
 
                         }catch(Exception exe)
                         {
-                            logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, $"При остановке бота(botId={bot.Id}, " +
+                            _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, $"При остановке бота(botId={bot.Id}, " +
                             $"ownerId={bot.OwnerId}, пользователем accountId={accountId}) не удалось выполнить post запрос на лес." +
                             $"Exception message ={exe.Message}");
 
@@ -210,7 +176,7 @@ namespace Website.Controllers
                     }
                     else
                     {
-                        logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, $"При остановке бота(botId={bot.Id}, " +
+                        _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, $"При остановке бота(botId={bot.Id}, " +
                             $"ownerId={bot.OwnerId}, пользователем accountId={accountId}) в БД не была найдена" +
                             $"запись о сервере на котором бот работает. Возможно, она была удалена или не добавлена.");
                     }
@@ -236,13 +202,12 @@ namespace Website.Controllers
         [TypeFilter(typeof(CheckAccessToTheBot))]
         public IActionResult RunBotForSalesFromDraft(int botId)
         {
-            BotDB bot = context.Bots.Find(botId);
+            BotDB bot = _context.Bots.Find(botId);
+
             if (bot.Token == null)
             {
-                Console.WriteLine("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-                Console.WriteLine("Установите токен");
-                Console.WriteLine("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-                return StatusCode(510);
+                _logger.Log(LogLevelMyDich.USER_INTERFACE_ERROR_OR_HACKING_ATTEMPT, $"Попытка запутить бота без токена. botId={botId}");
+                return StatusCode(500);
             }
 
             string forestUrl = "http://localhost:8080/Home/RunNewBot";
@@ -251,16 +216,34 @@ namespace Website.Controllers
 
 			try
 			{
-				var test63286 = Stub.SendPost(forestUrl, data).Result;
-                
-				return Ok();
+				var result = Stub.SendPost(forestUrl, data).Result;
+
+                //проверка нормального запуска
+
+                RouteRecord rr = _context.RouteRecords.Find(botId);
+
+                if (rr != null)
+                {
+                    //лес нормально записал запись о том, что бот запущен
+				    return Ok();
+                }
+                else
+                {
+                    _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, $"Лес вернул Ок (нормальный запуск бота), но не сделал запись в бд. botId={botId}");
+                    return StatusCode(500);
+                }
+
 			}
 			catch(Exception ex)
 			{
                 Console.WriteLine("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
                 Console.WriteLine(ex.Message);
                 Console.WriteLine("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-				return StatusCode(403, ex.Message);
+
+                _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, $"Не удалось запустить бота. botId={botId}. ex.Message={ex.Message}");
+
+
+                return StatusCode(403, ex.Message);
 			}
         }
 
@@ -270,14 +253,30 @@ namespace Website.Controllers
         {
             try
             {
-                var removableBot = context.Bots.Find(botId);
-                context.Remove(removableBot);
-                context.SaveChanges();
+                var removableBot = _context.Bots.Find(botId);
+
+                RouteRecord rr = _context.RouteRecords.Find(botId);
+
+                //Удаляемый бот запущен
+                if (rr != null)
+                {
+                    //Остановка
+                    IActionResult res = StopBot(botId);
+                    if (res != Ok())
+                    {
+                        _logger.Log(LogLevelMyDich.I_AM_AN_IDIOT, $"Не удалось остановить бота botId={botId}");
+                        return StatusCode(500);
+                    }
+                }
+
+                _context.Remove(removableBot);
+                _context.SaveChanges();
+
                 return Ok();
             }
             catch(Exception ex)
             {
-                logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, $"Не удаётся удалить бота botId={botId}", ex);
+                _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, $"Не удаётся удалить бота botId={botId}", ex);
                 return StatusCode(500);
             }
         }

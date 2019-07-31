@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DataLayer.Models;
+using DataLayer.Services;
 
 namespace Website.Other.Filters
 {
@@ -16,15 +17,15 @@ namespace Website.Other.Filters
     public class CheckAccessToTheBot : Attribute, IActionFilter
     {
         ApplicationContext _context;
+        StupidLogger _logger;
 
-        public CheckAccessToTheBot(ApplicationContext context)
+        public CheckAccessToTheBot(ApplicationContext context, StupidLogger logger)
         {
             _context = context;
+            _logger = logger;
         }
 
-        //Как тут применить это чудо?
-        //[FromQuery(Name ="botId"];
-
+      
         public void OnActionExecuting(ActionExecutingContext context)
         {
             int botId = int.MinValue;
@@ -34,8 +35,7 @@ namespace Website.Other.Filters
             if (!int.TryParse(requestParameter, out botId))
             {
                 //В запросе не был указан botId
-                //context.Result = new StatusCodeResult(404);
-                //context.Result = new Result(" у вас нет прав на редактирование этого бота") ;
+                _logger.Log(LogLevelMyDich.UNAUTHORIZED_ACCESS_ATTEMPT, "В запросе не был указан botId");
                 context.Result = new StatusCodeResult(404);
                 return;
             }
@@ -46,19 +46,12 @@ namespace Website.Other.Filters
             if (bot == null)
             {
                 //Бота с таким id не существует
+                _logger.Log(LogLevelMyDich.UNAUTHORIZED_ACCESS_ATTEMPT, $"Бота с таким id не существует botId={botId}");
                 context.Result = new StatusCodeResult(404);
                 return;
             }
 
             int ownerId = bot.OwnerId;
-
-            string login = context
-              .HttpContext
-              .User
-              .Claims
-              .Where(claim => claim.Type == claim.Subject.NameClaimType)
-              .Select(claim => claim.Value)
-              .FirstOrDefault();
 
             
             
@@ -66,18 +59,18 @@ namespace Website.Other.Filters
 
             try
             {
-                accountId = Stub.GetAccountIdByHttpContext(context.HttpContext, _context) ?? throw new Exception("Аккаунт с таким id  не найден.");
+                accountId = Stub.GetAccountIdFromCookies(context.HttpContext, _context) ?? throw new Exception("Из cookies не удалось извлечь accountId");
             }
             catch
             {
-                return ;
+                return;
             }
-
-
 
             if (ownerId != accountId)
             {
                 //Бот не принадлежит этому пользователю
+                _logger.Log(LogLevelMyDich.UNAUTHORIZED_ACCESS_ATTEMPT, $"Бот не принадлежит этому пользователю. accountId={accountId}, ownerId={ownerId}");
+
                 context.Result = new StatusCodeResult(403);
                 return;
             }

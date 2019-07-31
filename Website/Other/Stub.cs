@@ -26,7 +26,7 @@ namespace Website.Other
             return login;
         }
 
-        public static int? GetAccountIdByHttpContext(HttpContext httpContext, ApplicationContext context)
+        public static int? GetAccountIdFromCookies(HttpContext httpContext, ApplicationContext context)
         {
 
 

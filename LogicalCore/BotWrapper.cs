@@ -32,7 +32,12 @@ namespace LogicalCore
 			BotOwner = new BotOwner(ownerID, this);
 		}
 
-		protected override void AcceptMessage(Message message)
+        public override void Stop()
+        {
+            base.Stop();
+        }
+
+        protected override void AcceptMessage(Message message)
         {
             int telegramId = message.From.Id;
 

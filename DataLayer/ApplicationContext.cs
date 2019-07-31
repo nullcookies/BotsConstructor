@@ -513,7 +513,10 @@ namespace DataLayer.Models
         LOGICAL_DATABASE_ERROR,        
         ERROR,
         FATAL,
-        USER_ERROR
+        USER_ERROR,
+        UNAUTHORIZED_ACCESS_ATTEMPT,
+        USER_INTERFACE_ERROR_OR_HACKING_ATTEMPT,
+        I_AM_AN_IDIOT
     }
 
 
@@ -521,6 +524,15 @@ namespace DataLayer.Models
     {
         [Key]
         public int BotId { get; set; }
+
+
+
+        /// <summary>
+        /// Хранит ссылку на сервер леса.
+        /// Например http://localhost:8080/Home/ http://15.41.87.12/Home/
+        /// Если нужно остановить бота, то добавьте StopBot
+        /// Если нужно запустить бота, то добавьте RunNewBot
+        /// </summary>
         [Required]
         public string ForestLink { get; set; }
     }

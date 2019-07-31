@@ -30,7 +30,7 @@ namespace Website.Controllers
         {
             int accId = 0;
             try{
-                accId = Stub.GetAccountIdByHttpContext(HttpContext, contextDb) ?? throw new Exception("Аккаунт с таким id  не найден.");
+                accId = Stub.GetAccountIdFromCookies(HttpContext, contextDb) ?? throw new Exception("Аккаунт с таким id  не найден.");
             }catch{
                 return Forbid();
             }
@@ -53,7 +53,7 @@ namespace Website.Controllers
 
             int accId = 0;
             try{
-                accId = Stub.GetAccountIdByHttpContext(HttpContext, contextDb) ?? throw new Exception("Аккаунт с таким id  не найден.");
+                accId = Stub.GetAccountIdFromCookies(HttpContext, contextDb) ?? throw new Exception("Аккаунт с таким id  не найден.");
             }catch{
                 return Forbid();
             }
@@ -76,7 +76,7 @@ namespace Website.Controllers
         {
             int accId = 0;
             try{
-                accId = Stub.GetAccountIdByHttpContext(HttpContext, contextDb) ?? throw new Exception("Аккаунт с таким id  не найден.");
+                accId = Stub.GetAccountIdFromCookies(HttpContext, contextDb) ?? throw new Exception("Аккаунт с таким id  не найден.");
             }catch{
                 return RedirectToAction("Login", "Account");
             }
@@ -98,7 +98,7 @@ namespace Website.Controllers
         {
             int accId = 0;
             try{
-                accId = Stub.GetAccountIdByHttpContext(HttpContext, contextDb) ?? throw new Exception("Аккаунт с таким id  не найден.");
+                accId = Stub.GetAccountIdFromCookies(HttpContext, contextDb) ?? throw new Exception("Аккаунт с таким id  не найден.");
             }catch{
                 return RedirectToAction("Login", "Account");
             }
@@ -122,7 +122,7 @@ namespace Website.Controllers
 
             int accId = 0;
             try{
-                accId = Stub.GetAccountIdByHttpContext(HttpContext, contextDb) ?? throw new Exception("Аккаунт с таким id  не найден.");
+                accId = Stub.GetAccountIdFromCookies(HttpContext, contextDb) ?? throw new Exception("Аккаунт с таким id  не найден.");
             }catch{
                 return RedirectToAction("Login", "Account");
             }

@@ -29,7 +29,7 @@ namespace Website.Controllers
         {
             int accountId = 0;
             try{
-                accountId =  Stub.GetAccountIdByHttpContext(HttpContext, context)  ?? throw new Exception("Аккаунт с таким id  не найден.");
+                accountId =  Stub.GetAccountIdFromCookies(HttpContext, context)  ?? throw new Exception("Аккаунт с таким id  не найден.");
             }catch{
                 return StatusCode(403);
             }
@@ -39,7 +39,18 @@ namespace Website.Controllers
 			int i = 1;
 			foreach (var bot in bots)
 			{
-				modelBots.Add(new BotOnHomePage() { Number = i++, Name = bot.BotUsername, BotId = bot.Id, Status = "Работает" });
+                
+                string name = "";
+                if (bot.Token == null)
+                {
+                    name = "Бот ещё не запускался";
+                }
+                else
+                {
+                    //TODO запрос имени бота
+                    name = "botUsername";
+                }
+				modelBots.Add(new BotOnHomePage() { Number = i++, Name = name, BotId = bot.Id, Status = "Работает" });
 			}
             ViewData["bots"] = modelBots;
             
