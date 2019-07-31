@@ -1,4 +1,5 @@
-﻿
+﻿using OpenPop.Mime;
+using OpenPop.Pop3;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -6,9 +7,9 @@ using System.Linq;
 using System.Net.Mail;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Website.Other;
+using website.Other;
 
-namespace Website.Services
+namespace website.Services
 {
     public class EmailMessageSender
     {

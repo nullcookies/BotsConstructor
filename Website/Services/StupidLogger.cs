@@ -5,9 +5,9 @@ using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using DataLayer.Models;
+using website.Models;
 
-namespace Website.Services
+namespace website.Services
 {
     public class StupidLogger
     {

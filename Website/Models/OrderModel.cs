@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DataLayer.Models
+namespace website.Models
 {
 	public class OrderModel
 	{

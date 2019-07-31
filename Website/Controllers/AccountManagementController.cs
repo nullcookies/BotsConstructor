@@ -4,13 +4,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using DataLayer.Models;
-using Website.Other;
-using Website.Services;
-using Website.ViewModels;
+using website.Models;
+using website.Other;
+using website.Services;
+using website.ViewModels;
 
 /*какого два класса для аккаунта*/
-namespace Website.Controllers
+namespace website.Controllers
 {
     
     [Authorize]

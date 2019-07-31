@@ -6,10 +6,10 @@ using System.Net;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using DataLayer.Models;
-using Website.Other;
+using website.Models;
+using website.Other;
 
-namespace Website.Controllers
+namespace website.Controllers
 {
     [Authorize]
     public class OrdersController : Controller
@@ -175,7 +175,7 @@ namespace Website.Controllers
 			}
 
 			var bots = context.Bots.Where(_bot => _bot.OwnerId == ownerId).
-				Select(_bot => new { _bot.Id, _bot.BotName }).ToDictionary(_bot => _bot.Id, _bot => _bot.BotName);
+				ToDictionary(_bot => _bot.Id, _bot => new { Name =_bot.BotName, _bot.Token });
 
 			var items = context.Items.Where(_item => _item.Bot.OwnerId == ownerId).ToDictionary(
 				_item => _item.Id, _item => new
@@ -222,7 +222,7 @@ namespace Website.Controllers
 					_cont.ParentId,
 					ItemsIds = _cont.Items.Select(_item => new { _item.Id, _item.Count }).ToArray(),
 					Texts = _cont.Texts.Select(_text => _text.Text).ToArray(),
-					FilesIds = _cont.Files.Select(_file => _file.FileId).ToArray()
+					Files = _cont.Files.Select(_file => new { _file.FileId, _file.PreviewId, _file.Description }).ToArray()
 				}).ToList();
 
 			for (int i = 0; i < containers.Count; i++)
@@ -241,7 +241,7 @@ namespace Website.Controllers
 						_cont.ParentId,
 						ItemsIds = _cont.Items.Select(_item => new { _item.Id, _item.Count }).ToArray(),
 						Texts = _cont.Texts.Select(_text => _text.Text).ToArray(),
-						FilesIds = _cont.Files.Select(_file => _file.FileId).ToArray()
+						Files = _cont.Files.Select(_file => new { _file.FileId, _file.PreviewId, _file.Description }).ToArray()
 					});
 
 				containers.AddRange(children);

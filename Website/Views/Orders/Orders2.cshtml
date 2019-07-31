@@ -1,6 +1,6 @@
 ﻿@*подключаем все tag-хелперы*@
 @model IndexViewModelPagination
-@addTagHelper "*, Website"
+@addTagHelper "*, website"
 @{
     Layout = "_LayoutHome";
 }
@@ -189,50 +189,222 @@
             return hours + ":" + minutes;
         }
     }
-    
+
     function CreateOrderElement(orderId, botId, sender, mainContainerId, statusGroupId, statusId, dateTime) {
-        var message = "";
+        var mainMsgElem = document.createElement("ul");
         var totalSum = 0.0;
-        function AddContainers(container) {
-            //message += '<ul class="list-unstyled">';
-            message += '<ul>';
+        var mainContainer = containers[mainContainerId];
+        AddContainers(mainMsgElem, mainContainer);
+        if (mainContainer.children.length > 0 && totalSum > 0.0) {
+            var totalElem = document.createElement("p");
+            totalElem.innerHTML = `<strong>Total: ${totalSum}</strong>`;
+            mainMsgElem.appendChild(totalElem);
+        }
+        function AddContainers(msgElem, container) {
             var localSum = 0.0;
             for (var i = 0; i < container.itemsIds.length; i++) {
                 var itemInfo = container.itemsIds[i];
                 var item = items[itemInfo.id];
                 var value = parseFloat(item.value) * parseInt(itemInfo.count);
-                message += `<li>${item.name} ${itemInfo.count} X ${item.value} = ${value}</li>`;
+                var listElem = document.createElement("li");
+                listElem.innerHTML = `${item.name} ${itemInfo.count} X ${item.value} = ${value}`;
+                msgElem.appendChild(listElem);
                 localSum += value;
             }
             if (localSum > 0.0) {
-                message += `<li><strong>Sum: ${localSum}</strong></li>`;
+                var listElem = document.createElement("li");
+                listElem.innerHTML = `<strong>Sum: ${localSum}</strong>`;
+                msgElem.appendChild(listElem);
                 totalSum += localSum;
             }
             for (var t = 0; t < container.texts.length; t++) {
                 var text = container.texts[t];
-                message += `<li>${text}</li>`;
+                var listElem = document.createElement("li");
+                listElem.innerHTML = text;
+                msgElem.appendChild(listElem);
             }
-            for (var f = 0; f < container.filesIds.length; f++) {
-                var fileID = container.filesIds[f];
-                message += `<li>${fileID}</li>`; //TODO: настроить работу с файлами
+            for (var f = 0; f < container.files.length; f++) {
+                var file = container.files[f];
+                var listElem = document.createElement("li");
+                msgElem.appendChild(listElem);
+                if (file.description != undefined) {
+                    var descElem = document.createElement("p");
+                    descElem.className = "mb-0";
+                    descElem.innerText = file.description;
+                    listElem.appendChild(descElem);
+                }
+                var spinnerElem = document.createElement("span");
+                spinnerElem.className = "spinner-border spinner-border-sm text-secondary";
+                listElem.appendChild(spinnerElem);
+                SetFileHTML(listElem, file);
             }
             for (var c = 0; c < container.children.length; c++) {
-                message += '<li style="list-style-type:none">';
-                AddContainers(container.children[c]);
-                message += '</li>';
+                var listElem = document.createElement("li");
+                listElem.style = "list-style-type:none";
+                msgElem.appendChild(listElem);
+                var newMsgElem = document.createElement("ul");
+                listElem.appendChild(newMsgElem);
+                AddContainers(newMsgElem, container.children[c]);
             }
-            message += '</ul>';
         }
-        var mainContainer = containers[mainContainerId];
-        AddContainers(mainContainer);
-        if (mainContainer.children.length > 0 && totalSum > 0.0) {
-            message += `<p><strong>Total: ${totalSum}</strong></p>`;
+        function SetFileHTML(listElem, file) {
+            var isVideo = false;
+            var previewWasGotten = false;
+            var spinnerElem = listElem.lastChild;
+            var getURL = `https://api.telegram.org/bot${bots[botId].token}/getFile`;
+            if (file.previewId != undefined) {
+                $.ajax({
+                    url: getURL,
+                    type: 'get',
+                    data: { file_id: file.previewId },
+                    success: function (data) {
+                        previewWasGotten = true;
+                        var file_path = data.result.file_path;
+                        var pathURL = "https://api.telegram.org/file/bot" + bots[botId].token + "/" + file_path;
+                        if (isVideo) {
+                            var videoElem = listElem.getElementsByTagName('video')[0];
+                            videoElem.poster = pathURL;
+                        }
+                        else {
+                            var previewElem = document.createElement("img");
+                            previewElem.src = pathURL;
+                            listElem.appendChild(document.createElement("br"));
+                            listElem.appendChild(previewElem);
+                        }
+                    },
+                    error: function (data) {
+                        ShowError(data.responseJSON.description, spinnerElem);
+                    }
+                });
+            }
+
+            $.ajax({
+                url: getURL,
+                type: 'get',
+                data: { file_id: file.fileId },
+                success: function (data) {
+                    var file_path = data.result.file_path;
+                    var parts = file_path.split('/');
+                    var fileName = parts.pop();
+                    var fileFolder = parts.pop();
+                    var pathURL = "https://api.telegram.org/file/bot" + bots[botId].token + "/" + file_path;
+                    var jqSpinner = $(spinnerElem);
+                    jqSpinner.removeClass("spinner-border spinner-border-sm text-secondary");
+                    jqSpinner.addClass("oi oi-cloud-download");
+                    var linkElem = document.createElement("a");
+                    linkElem.href = pathURL;
+                    linkElem.text = fileName;
+                    linkElem.target = "_blank";
+                    if (fileFolder == "voice" || fileFolder == "music") {
+                        listElem.appendChild(document.createElement("br"));
+                        var audioElem = document.createElement("audio");
+                        audioElem.setAttribute("controls", "");
+                        var sourceElem = document.createElement("source");
+                        sourceElem.src = pathURL;
+                        audioElem.appendChild(sourceElem);
+                        audioElem.appendChild(linkElem);
+                        listElem.appendChild(audioElem);
+                    }
+                    else {
+                        if (fileFolder == "video_notes" || fileFolder == "videos" || fileFolder == "animations") {
+                            listElem.appendChild(document.createElement("br"));
+                            var videoElem = document.createElement("video");
+                            videoElem.setAttribute("controls", "");
+                            var sourceElem = document.createElement("source");
+                            sourceElem.src = pathURL;
+                            videoElem.appendChild(sourceElem);
+                            videoElem.appendChild(linkElem);
+                            listElem.appendChild(videoElem);
+                            isVideo = true;
+                            if (previewWasGotten) {
+                                var previewElem = listElem.getElementsByTagName("img")[0];
+                                videoElem.poster = previewElem.src;
+                                previewElem.remove();
+                            }
+                        }
+                    }
+                    spinnerElem.appendChild(linkElem);
+                },
+                error: function (data) {
+                    ShowError(data.responseJSON.description, spinnerElem);
+                }
+            });
+
+            function ShowError(msg, elem) {
+                jqElem = $(elem);
+                jqElem.removeClass("spinner-border spinner-border-sm text-secondary");
+                jqElem.addClass("oi oi-x text-danger");
+                elem.innerText = msg;
+            }
         }
+        //var message = "";
+        //var totalSum = 0.0;
+        //function AddContainers(container) {
+        //    //message += '<ul class="list-unstyled">';
+        //    message += '<ul>';
+        //    var localSum = 0.0;
+        //    for (var i = 0; i < container.itemsIds.length; i++) {
+        //        var itemInfo = container.itemsIds[i];
+        //        var item = items[itemInfo.id];
+        //        var value = parseFloat(item.value) * parseInt(itemInfo.count);
+        //        message += `<li>${item.name} ${itemInfo.count} X ${item.value} = ${value}</li>`;
+        //        localSum += value;
+        //    }
+        //    if (localSum > 0.0) {
+        //        message += `<li><strong>Sum: ${localSum}</strong></li>`;
+        //        totalSum += localSum;
+        //    }
+        //    for (var t = 0; t < container.texts.length; t++) {
+        //        var text = container.texts[t];
+        //        message += `<li>${text}</li>`;
+        //    }
+        //    for (var f = 0; f < container.files.length; f++) {
+        //        var fileId = container.files[f].fileId;
+        //        message += `<li id='${fileId}'>${fileId}</li>`;
+        //        GetFileHTML(fileId);
+        //    }
+        //    for (var c = 0; c < container.children.length; c++) {
+        //        message += '<li style="list-style-type:none">';
+        //        AddContainers(container.children[c]);
+        //        message += '</li>';
+        //    }
+        //    message += '</ul>';
+        //}
+        //function GetFileHTML(fileId) {
+        //    var getURL = `https://api.telegram.org/bot${bots[botId].token}/getFile`;
+        //    $.ajax({
+        //        url: getURL,
+        //        type: 'get',
+        //        data: { file_id: fileId },
+        //        success: function (data) {
+        //            if (data.ok == true) {
+        //                var file_path = data.result.file_path;
+        //                var pathURL = "https://api.telegram.org/file/bot" + bots[botId].token + file_path;
+        //                console.log(pathURL);
+        //            }
+        //            else {
+        //                ShowError(data.description);
+        //            }
+        //        },
+        //        error: function (data) {
+        //            ShowError(data.responseText);
+        //        }
+        //    });
+
+        //    function ShowError(msg) {
+        //        console.log(msg);
+        //    }
+        //}
+        //var mainContainer = containers[mainContainerId];
+        //AddContainers(mainContainer);
+        //if (mainContainer.children.length > 0 && totalSum > 0.0) {
+        //    message += `<p><strong>Total: ${totalSum}</strong></p>`;
+        //}
         var newNode = document.getElementById("div_order_").cloneNode(true);
         var jqNewNode = $(newNode);
         jqNewNode.attr("id", "div_order_" + orderId);
         jqNewNode.find("a#order_").attr("id", "order_" + orderId);
-        jqNewNode.find("a#bot_").attr("id", "bot_" + botId).attr("href", "/BotEditing/Settings?botId=" + botId).text(bots[botId]);
+        jqNewNode.find("a#bot_").attr("id", "bot_" + botId).attr("href", "/BotEditing/Settings?botId=" + botId).text(bots[botId].name);
 
         jqNewNode.find("div#heading_msg_").attr("id", "heading_msg_" + orderId);
         jqNewNode.find("button#exp_btn_").attr("id", "exp_btn_" + orderId).attr("data-target", "#collapsed_msg_" + orderId).attr("aria-controls", "collapsed_msg_" + orderId).html(`<strong>${sender}</strong>`).on('click', function (e) {
@@ -242,7 +414,7 @@
         jqNewNode.find("div#collapsed_msg_").attr("id", "collapsed_msg_" + orderId).attr("aria-labelledby", "heading_msg_" + orderId).attr("data-parent", "#div_order_" + orderId).on('shown.bs.collapse', function () {
             location.href = "#order_" + orderId;
         });
-        jqNewNode.find("div#body_msg_").attr("id", "body_msg_" + orderId).html(message);
+        jqNewNode.find("div#body_msg_").attr("id", "body_msg_" + orderId).append(mainMsgElem);
 
         jqNewNode.find("button#btn_").attr("id", "btn_" + orderId).attr("title", statusGroups[statusGroupId].item1).text(statuses[statusId].item1);
         var dropdown = jqNewNode.find("div#dropdown_").attr("id", "dropdown_" + orderId)[0];

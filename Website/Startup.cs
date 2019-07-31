@@ -15,10 +15,10 @@ using System.Runtime.InteropServices;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using DataLayer.Models;
-using Website.Services;
+using website.Models;
+using website.Services;
 
-namespace Website
+namespace website
 {
     public class Startup
     {

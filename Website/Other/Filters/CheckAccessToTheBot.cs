@@ -5,9 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DataLayer.Models;
+using website.Models;
 
-namespace Website.Other.Filters
+namespace website.Other.Filters
 {
     /// <summary>
     /// Проверяет, что бот с id в запросе принадлежит пользователю

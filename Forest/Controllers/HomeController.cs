@@ -13,7 +13,7 @@ using Newtonsoft.Json.Linq;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using DataLayer.Models;
+using TelegramBot;
 
 namespace DeleteMeWebhook.Controllers
 {
@@ -366,7 +366,7 @@ namespace DeleteMeWebhook.Controllers
 						if(parameters is InputNodeParams inputParams)
 						{
 							//inputParams.ExpectedResponseFormat? I tak soidёt!
-							return new UsualInputNode(node.NodeName, "InputVar", notEmptyString, new MetaReplyMessage(inputParams.Message,
+							return new TextInputNode(node.NodeName, "InputVar", notEmptyString, new MetaReplyMessage(inputParams.Message,
 								string.IsNullOrWhiteSpace(inputParams.File) ? MessageType.Text : MessageType.Document,
 								inputParams.File));
 						}

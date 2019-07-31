@@ -1,6 +1,5 @@
 ﻿using LogicalCore;
 using System.Collections.Generic;
-using System.Net.WebSockets;
 
 namespace DeleteMeWebhook
 {

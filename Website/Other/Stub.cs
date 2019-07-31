@@ -7,9 +7,9 @@ using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using DataLayer.Models;
+using website.Models;
 
-namespace Website.Other
+namespace website.Other
 {
     public static class Stub
     {

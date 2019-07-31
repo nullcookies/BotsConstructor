@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Website.ViewModels
+namespace website.ViewModels
 {
     public class ResetPasswordModel
     {

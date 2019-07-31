@@ -5,10 +5,10 @@ using System.Linq;
 using System.Net;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using DataLayer.Models;
-using Website.Other;
+using website.Models;
+using website.Other;
 
-namespace Website.Controllers
+namespace website.Controllers
 {
     [Authorize]
     public class HomeController : Controller

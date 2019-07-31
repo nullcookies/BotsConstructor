@@ -6,8 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using DataLayer.Models;
+
 
 namespace DeleteMeWebhook
 {
@@ -37,18 +36,6 @@ namespace DeleteMeWebhook
             app.UseDeveloperExceptionPage();
 
             //app.UseHttpsRedirection();
-
-            var wsOptions = new WebSocketOptions()
-            {
-                KeepAliveInterval = TimeSpan.FromSeconds(120),
-                ReceiveBufferSize = 4 * 1024
-
-            };
-
-            app.UseWebSockets(wsOptions);
-
-
-
 
             app.UseMvc(routes =>
             {

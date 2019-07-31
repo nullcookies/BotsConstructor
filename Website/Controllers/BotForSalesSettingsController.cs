@@ -1,18 +1,25 @@
 ﻿using System;
 using Newtonsoft.Json;
+using System.Linq;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using DataLayer.Models;
-using Website.Other;
+using website.Models;
+using System.Collections.Generic;
+using website.Other;
+using Markup;
+using System.Net;
+using System.IO;
 using Newtonsoft.Json.Linq;
 using Microsoft.AspNetCore.Hosting;
-using Website.Other.Filters;
+using website.Other.Filters;
 using System.Net.WebSockets;
 using System.Threading.Tasks;
 using System.Text;
 using System.Threading;
-using Website.Services;
+using website.Services;
 
-namespace Website.Controllers
+namespace website.Controllers
 {
     public class BotForSalesSettingsController : Controller
     {
@@ -35,41 +42,15 @@ namespace Website.Controllers
         [TypeFilter(typeof(CheckAccessToTheBot))]
         public IActionResult Settings(int botId)
         {
-            RouteRecord rr = context.RouteRecords.Find(botId);
-            string forestLink = "localhost:8080/Forest";
-
-            if (rr == null)
-            {
-                context.RouteRecords.Add(new RouteRecord() { BotId = botId, ForestLink = forestLink });
-            }
-            else
-            {
-                rr.ForestLink = forestLink;
-            }            
-
-            context.SaveChanges();
-
-            BotDB bot = context.Bots.Find(botId);
+            string botType = context.Bots.Find(botId).BotType;
 
             ViewData["botId"] = botId;
-            ViewData["botType"] = bot.BotType;
+            ViewData["botType"] = botType;
 
-            if (bot.Token != null)
-            {
-                //установить botUsername
-            }
-            
-            RouteRecord record = context.RouteRecords.Find(botId);
-            if (record != null)
-            {
-                //если работает, то вставить ссылку на лес для установки websocket-а
-                ViewData["linkToForest"] = record.ForestLink;
-            }
-
-            //вставить статистику
-            ViewData["ordersCount"] = bot.NumberOfOrders;
-            ViewData["usersCount"] = bot.NumberOfUniqueUsers;
-            ViewData["messagesCount"] = bot.NumberOfUniqueMessages;
+            ViewData["botStatus"] = "working";
+            ViewData["ordersCount"] = 44;
+            ViewData["usersCount"] = 26;
+            ViewData["messagesCount"] = 307;
 
             return View();
         }
@@ -123,62 +104,7 @@ namespace Website.Controllers
         }
 
 
-        public async Task<IActionResult>StopBot(int botId)
-        {
-            int accountId = 0;
-            try{
-                accountId = Stub.GetAccountIdByHttpContext(HttpContext, context) ?? throw new Exception("Аккаунт с таким id  не найден.");
-            }catch{
-                return StatusCode(403);
-            }
-
-            BotDB bot = context.Bots.Find(botId);
-
-            if (bot != null)
-            {
-                if (bot.OwnerId == accountId)
-                {
-                    RouteRecord record = context.RouteRecords.Find(bot.Id);
-                    if (record != null)
-                    {
-                        string forestLink = record.ForestLink;
-
-                        try
-                        {
-                            //запрос на остановку бота
-                            string result  = await Stub.SendPost("https://" + forestLink + "/StopBot?botId=" + bot.Id, "ostanovites");
-
-                            Console.WriteLine("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-                            Console.WriteLine(result);
-                            Console.WriteLine("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-
-                        }catch(Exception exe)
-                        {
-                            logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, $"При остановке бота(botId={bot.Id}, " +
-                            $"ownerId={bot.OwnerId}, пользователем accountId={accountId}) не удалось выполнить post запрос на лес." +
-                            $"Exception message ={exe.Message}");
-
-                            return StatusCode(500);
-                        }
-                    }
-                    else
-                    {
-                        logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, $"При остановке бота(botId={bot.Id}, " +
-                            $"ownerId={bot.OwnerId}, пользователем accountId={accountId}) в БД не была найдена" +
-                            $"запись о сервере на котором бот работает. Возможно, она была удалена или не добавлена.");
-                    }
-                    return Ok();
-                }
-                else
-                {
-                    return StatusCode(403);
-                }
-            }
-            else
-            {
-                return StatusCode(404);
-            }
-        }
+        
 
 
 
@@ -187,6 +113,9 @@ namespace Website.Controllers
         [TypeFilter(typeof(CheckAccessToTheBot))]
         public IActionResult RunBotForSalesFromDraft(int botId)
         {
+
+
+
 
             string forestUrl = "http://localhost:8080/Home/RunNewBot";
 
