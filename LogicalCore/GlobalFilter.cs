@@ -155,7 +155,7 @@ namespace LogicalCore
 
         public void Filter(Session session, Message message)
         {
-            string key = message.Text.Trim();
+            string key = message.Text?.Trim() ?? "";
             int indexOfCommandEnd = key.IndexOf(' ');
             if (indexOfCommandEnd < 0) indexOfCommandEnd = key.Length;
             key = key.Substring(0, indexOfCommandEnd);

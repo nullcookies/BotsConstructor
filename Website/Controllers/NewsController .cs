@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
-using DataLayer.Models;
+using website.Models;
 
-namespace Website.Controllers
+namespace website.Controllers
 {
     [Authorize]
     public class NewsController : Controller

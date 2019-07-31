@@ -1,11 +1,18 @@
 ﻿using System;
 using Newtonsoft.Json;
+using System.Linq;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using DataLayer.Models;
-using Website.Other;
+using website.Models;
+using System.Collections.Generic;
+using website.Other;
+using Markup;
+using System.Net;
+using System.IO;
 using Newtonsoft.Json.Linq;
 using Microsoft.AspNetCore.Hosting;
-using Website.Other.Filters;
+using website.Other.Filters;
 using System.Net.WebSockets;
 using System.Threading.Tasks;
 using System.Text;
@@ -14,7 +21,7 @@ using Website.Services;
 using DataLayer.Services;
 using System.Linq;
 
-namespace Website.Controllers
+namespace website.Controllers
 {
     public class BotForSalesSettingsController : Controller
     {
@@ -39,7 +46,7 @@ namespace Website.Controllers
             BotDB bot = _context.Bots.Find(botId);
 
             ViewData["botId"] = botId;
-            ViewData["botType"] = bot.BotType;
+            ViewData["botType"] = botType;
 
             
             RouteRecord record = _context.RouteRecords.Find(botId);

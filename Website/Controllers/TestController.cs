@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using DataLayer.Models;
+using website.Models;
 
-namespace Website.Controllers
+namespace website.Controllers
 {
     
     public class TestController : Controller

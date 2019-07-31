@@ -8,9 +8,9 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Website.Services;
+using website.Services;
 
-namespace Website
+namespace website
 {
     public class Program
     {

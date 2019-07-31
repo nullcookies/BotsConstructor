@@ -1,7 +1,7 @@
 ﻿using DeleteMeWebhook.Models;
 using LogicalCore;
 using Microsoft.EntityFrameworkCore;
-
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Concurrent;
@@ -48,7 +48,7 @@ namespace DeleteMeWebhook.Services
 			if (order == null) return false;
 			bool noItems = order.Items == null || order.Items.Count == 0;
 			bool noTexts = order.Texts == null || order.Texts.Count == 0;
-			bool noFiles = order.FilesIDs == null || order.FilesIDs.Count == 0;
+			bool noFiles = order.Files == null || order.Files.Count == 0;
 			if (noItems && noTexts && noFiles) return false;
 
 			try
@@ -80,16 +80,18 @@ namespace DeleteMeWebhook.Services
 					SessionId = session.telegramId,
 					Items = currentOrder.Items.Select(tuple => new InventoryItem()
 					{
-						Count = tuple.Count,
-						ItemId = tuple.ID
+						ItemId = tuple.ID,
+						Count = tuple.Count
 					}).ToArray(),
 					Texts = currentOrder.Texts.Select(text => new SessionText()
 					{
 						Text = text
 					}).ToArray(),
-					Files = currentOrder.FilesIDs.Select(fileId => new SessionFile()
+					Files = currentOrder.Files.Select(file => new SessionFile()
 					{
-						FileId = fileId
+						FileId = file.FileId,
+						PreviewId = file.PreviewId,
+						Description = file.Description
 					}).ToArray()
 				};
 

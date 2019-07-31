@@ -13,7 +13,7 @@ namespace LogicalCore
 
 		public ICollection<string> Texts { get; set; }
 
-		public ICollection<string> FilesIDs { get; set; }
+		public ICollection<(string FileId, string PreviewId, string Description)> Files { get; set; }
 
 		public ICollection<UniversalOrderContainer> Children { get; set; }
 
@@ -22,7 +22,7 @@ namespace LogicalCore
 			SessionID = sessionId;
 			Items = new List<(int ID, int Count)>();
 			Texts = new List<string>();
-			FilesIDs = new List<string>();
+			Files = new List<(string FileId, string PreviewId, string Description)>();
 			Children = new List<UniversalOrderContainer>();
 		}
 	}

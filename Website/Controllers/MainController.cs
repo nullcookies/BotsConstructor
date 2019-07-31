@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
-using DataLayer.Models;
+using website.Models;
 
-namespace Website.Controllers
+namespace website.Controllers
 {
     [Authorize]
     public class MainController : Controller
@@ -28,7 +28,7 @@ namespace Website.Controllers
         {
             var www = HttpContext.Request.Headers ;
             
-            //Console.WriteLine($"CurrentCulture:{CultureInfo.CurrentCulture.Name}, CurrentUICulture:{CultureInfo.CurrentUICulture.Name}");
+            Console.WriteLine($"CurrentCulture:{CultureInfo.CurrentCulture.Name}, CurrentUICulture:{CultureInfo.CurrentUICulture.Name}");
             return View();
         }
 

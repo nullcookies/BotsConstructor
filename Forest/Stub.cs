@@ -65,8 +65,21 @@ namespace DeleteMeWebhook
             #region Задаю узлы
             Node nodeRoot = new SimpleNode("Root", needBack: false);
             MegaTree megaTree = new MegaTree(nodeRoot);
-			
-            LanguageNode languageNode = new LanguageNode(botWrapper, "SelectLanguage", "LanguageChanged");
+
+			//var fileInput = new FileInputNode("Settings", "File",
+			//	(string msg, out (string FileId, string PreviewId, string Description) variable) =>
+			//	{
+			//		variable = (null, null, msg);
+			//		return true;
+			//	});
+			//megaTree.AddEdge(nodeRoot, fileInput);
+
+			//var goBack = new ActionNode(null);
+			//megaTree.AddEdge(fileInput, goBack);
+
+			//megaTree.AddEdge(goBack, nodeRoot);
+
+			LanguageNode languageNode = new LanguageNode(botWrapper, "SelectLanguage", "LanguageChanged");
 			
             megaTree.AddEdge(nodeRoot, languageNode);
 
@@ -114,7 +127,7 @@ namespace DeleteMeWebhook
 
             TryConvert<string> notEmptyString = new TryConvert<string>((string text, out string variable) => !string.IsNullOrWhiteSpace(variable = text));
 
-            UsualInputNode nodeAddressRequest = new UsualInputNode("ConfirmOrder", "Address", notEmptyString, "AddressRequest");
+            TextInputNode nodeAddressRequest = new TextInputNode("ConfirmOrder", "Address", notEmptyString, "AddressRequest");
 
             TryConvert<TimeSpan> checkTime = new TryConvert<TimeSpan>((string text, out TimeSpan variable) =>
             {
@@ -127,7 +140,7 @@ namespace DeleteMeWebhook
 
             UsualInputNode<TimeSpan> nodeTimeRequest = new UsualInputNode<TimeSpan>("SpecifyTime", "Time", checkTime, "TimeRequest");
 
-            UsualInputNode nodeCommentRequest = new UsualInputNode("AddAComment", "Comment", notEmptyString, "AddACommentDescription", false);
+            TextInputNode nodeCommentRequest = new TextInputNode("AddAComment", "Comment", notEmptyString, "AddACommentDescription", false);
 
             bool notEmptyCart(Session session) => session.vars.TryGetVar<MetaValuedContainer<int>>("ShoppingCart", out var products) && products.Count > 0;
 
@@ -320,8 +333,8 @@ namespace DeleteMeWebhook
 			};
 			botWrapper.globalVars.SetVar("Sushi", Sushi);
 			botWrapper.globalVars.SetVar("Pizza", Pizza);
-			botWrapper.SetOwner(440090552); //440090552 440090552
-            return botWrapper;
+			botWrapper.SetOwner(389063743); //389063743 440090552
+			return botWrapper;
 		}
 
         public static void RunAndRegisterBot(BotWrapper botWrapper)

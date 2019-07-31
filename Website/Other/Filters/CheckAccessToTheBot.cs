@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using DataLayer.Models;
 using DataLayer.Services;
 
-namespace Website.Other.Filters
+namespace website.Other.Filters
 {
     /// <summary>
     /// Проверяет, что бот с id в запросе принадлежит пользователю

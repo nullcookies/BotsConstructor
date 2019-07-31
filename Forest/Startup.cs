@@ -11,6 +11,7 @@ using DataLayer.Models;
 using DataLayer.Services;
 using System.Runtime.InteropServices;
 
+
 namespace DeleteMeWebhook
 {
     public class Startup
@@ -54,18 +55,6 @@ namespace DeleteMeWebhook
             app.UseDeveloperExceptionPage();
 
             //app.UseHttpsRedirection();
-
-            var wsOptions = new WebSocketOptions()
-            {
-                KeepAliveInterval = TimeSpan.FromSeconds(120),
-                ReceiveBufferSize = 4 * 1024
-
-            };
-
-            app.UseWebSockets(wsOptions);
-
-
-
 
             app.UseMvc(routes =>
             {

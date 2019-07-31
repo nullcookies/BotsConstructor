@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace DataLayer.Models
+namespace website.Models
 {
 	public class OrderStatusesModel
 	{

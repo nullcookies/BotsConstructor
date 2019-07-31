@@ -9,13 +9,13 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using DataLayer.Models;
-using Website.Services;
-using Website.ViewModels;
+using website.Models;
+using website.Services;
+using website.ViewModels;
 
 
 /*Разбить эту хрень на пару хреней поменьше*/
-namespace Website.Controllers
+namespace website.Controllers
 {
     public class AccountController : Controller
     {

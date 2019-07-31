@@ -72,7 +72,6 @@
 
         <div class="row p-2">
 
-
             <div class="col-md-3" id="botStatus_stub" style="visibility:hidden;">
                 <div class="card-counter success">
                     <i class="fa fa-check"></i>
@@ -173,7 +172,7 @@
 
                 <div class="row">
                     <button type="button" class="btn btn-success btn-lg btn-block" onclick="runBot()">Запустить каталог из черновика</button>
-                    <button type="button" class="btn btn-danger btn-lg btn-block" onclick="stopBot()">Остановить</button>
+                    <button type="button" class="btn btn-danger btn-lg btn-block">Остановить</button>
                 </div>
             </div>
         </div>
@@ -403,10 +402,6 @@
 </div>
 
 <script>
-
-    var linkToSetWebsocket = "@ViewData["linkToForest"]";
-    var botUsername = "@ViewData["botUsername"]";
-
     function runBot() {
         var url_string = window.location.href;
         var url = new URL(url_string);
@@ -427,11 +422,6 @@
         });
 
     }
-    function stopBot() {
-        var url_string = window.location.href;
-        var url = new URL(url_string);
-        var botId = url.searchParams.get("botId");
-        var url = `/BotForSalesSettings/StopBot?botId=${botId}`
 
         $.ajax({
             cache: false,
@@ -499,9 +489,7 @@
 @*<script>
     (function () {
         var getWebSocketMessages = function (onMessageReceived) {
-            //Для боевой версии
-            //var url = `wss://${location.host}/BotForSalesSettings/MyWebsocket`
-            var url = `ws://${linkToSetWebsocket}/SetWebsocket?botUsername=` + botUsername;
+            var url = `wss://${location.host}/BotForSalesSettings/MyWebsocket`
             console.log('url is: ' + url);
 
             var webSocket = new WebSocket(url);

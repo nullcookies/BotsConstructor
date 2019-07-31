@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 
-namespace Website.Controllers
+namespace website.Controllers
 {
     [Route("api/[controller]")]
     public class StreamController : Controller

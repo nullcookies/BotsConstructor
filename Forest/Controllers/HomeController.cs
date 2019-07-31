@@ -475,7 +475,7 @@ namespace DeleteMeWebhook.Controllers
 						if(parameters is InputNodeParams inputParams)
 						{
 							//inputParams.ExpectedResponseFormat? I tak soidёt!
-							return new UsualInputNode(node.NodeName, "InputVar", notEmptyString, new MetaReplyMessage(inputParams.Message,
+							return new TextInputNode(node.NodeName, "InputVar", notEmptyString, new MetaReplyMessage(inputParams.Message,
 								string.IsNullOrWhiteSpace(inputParams.File) ? MessageType.Text : MessageType.Document,
 								inputParams.File));
 						}

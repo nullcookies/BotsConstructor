@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
-using Website.Other.Attributes;
+using website.Other.Attributes;
 
-namespace Website.ViewModels
+namespace website.ViewModels
 {
     [EmailIsNotEqualToPasswordAttribute]
     public class RegisterModel
