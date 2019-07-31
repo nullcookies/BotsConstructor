@@ -1,18 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Net;
-using DataLayer.Models;
+﻿using DataLayer.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Website.Models;
 using Website.Other;
 
 namespace Website.Controllers
 {
-    [Authorize]
+	[Authorize]
     public class OrdersController : Controller
     {
         ApplicationContext context;
@@ -27,7 +24,6 @@ namespace Website.Controllers
 
         public IActionResult Orders2(int page=1)
 		{
-
             int accountId = 0;
 
             try{
@@ -55,18 +51,17 @@ namespace Website.Controllers
         [HttpDelete]
 		public IActionResult RemoveOrder(int orderId)
 		{
-
             int ownerId = 0;
-           
+			try
+			{
+				ownerId = Stub.GetAccountIdFromCookies(HttpContext, context) ?? throw new Exception("Аккаунт с таким id  не найден.");
+			}
+			catch
+			{
+				return RedirectToAction("Account", "Login");
+			}
 
-            try{
-                ownerId = Stub.GetAccountIdFromCookies(HttpContext, context) ?? throw new Exception("Аккаунт с таким id  не найден.");
-            }catch{
-                return RedirectToAction("Account", "Login");
-            }
-
-
-            Order order = context.Orders.Where(_order => _order.Id == orderId &&
+			Order order = context.Orders.Where(_order => _order.Id == orderId &&
 			_order.Bot.OwnerId == ownerId).SingleOrDefault();
 
 			if (order != null)
@@ -85,18 +80,17 @@ namespace Website.Controllers
 		[HttpPost]
 		public IActionResult ChangeOrderStatus(int orderId, int? statusId)
 		{
-         
-
             int ownerId = 0;
-           
+			try
+			{
+				ownerId = Stub.GetAccountIdFromCookies(HttpContext, context) ?? throw new Exception("Аккаунт с таким id  не найден.");
+			}
+			catch
+			{
+				return RedirectToAction("Account", "Login");
+			}
 
-            try{
-                ownerId = Stub.GetAccountIdFromCookies(HttpContext, context) ?? throw new Exception("Аккаунт с таким id  не найден.");
-            }catch{
-                return RedirectToAction("Account", "Login");
-            }
-
-            Order order = context.Orders.Where(_order => _order.Id == orderId &&
+			Order order = context.Orders.Where(_order => _order.Id == orderId &&
 			_order.Bot.OwnerId == ownerId).SingleOrDefault();
 
 			if (order != null)
@@ -132,16 +126,18 @@ namespace Website.Controllers
 		[HttpPost]
 		public IActionResult GetNewOrdersCount()
 		{
+			int ownerId = 0;
+			try
+			{
+				ownerId = Stub.GetAccountIdFromCookies(HttpContext, context) ?? throw new Exception("Аккаунт с таким id  не найден.");
+			}
+			catch
+			{
+				return RedirectToAction("Account", "Login");
+			}
 
-            int ownerId = 0;
-            try{
-                ownerId = Stub.GetAccountIdFromCookies(HttpContext, context) ?? throw new Exception("Аккаунт с таким id  не найден.");
-            }catch{
-                return RedirectToAction("Account", "Login");
-            }
 
-
-            int ordersCount = context.Orders.Where(_order => _order.Bot.OwnerId == ownerId && _order.OrderStatusId == null).Count();
+			int ordersCount = context.Orders.Where(_order => _order.Bot.OwnerId == ownerId && _order.OrderStatusId == null).Count();
 
 			return Content(ordersCount.ToString());
 		}
@@ -149,17 +145,18 @@ namespace Website.Controllers
 		[HttpPost]
 		public IActionResult GetVariables()
 		{
+			int ownerId = 0;
+			try
+			{
+				ownerId = Stub.GetAccountIdFromCookies(HttpContext, context) ?? throw new Exception("Аккаунт с таким id  не найден.");
+			}
+			catch
+			{
+				return RedirectToAction("Account", "Login");
+			}
 
 
-            int ownerId = 0;
-            try{
-                ownerId = Stub.GetAccountIdFromCookies(HttpContext, context) ?? throw new Exception("Аккаунт с таким id  не найден.");
-            }catch{
-                return RedirectToAction("Account", "Login");
-            }
-
-
-            var allStatuses = new Dictionary<int, (string name, string message)>();
+			var allStatuses = new Dictionary<int, (string name, string message)>();
 			var groups = new Dictionary<int, (string name, List<int> statuses)>();
 
 			var statusGroups = context.OrderStatusGroups.Where(_group => _group.OwnerId == ownerId);
@@ -176,7 +173,7 @@ namespace Website.Controllers
 			}
 
 			var bots = context.Bots.Where(_bot => _bot.OwnerId == ownerId).
-				Select(_bot => new { _bot.Id, _bot.BotUsername }).ToDictionary(_bot => _bot.Id, _bot => _bot.BotUsername);
+				ToDictionary(_bot => _bot.Id, _bot => new { Name = _bot.BotName, _bot.Token });
 
 			var items = context.Items.Where(_item => _item.Bot.OwnerId == ownerId).ToDictionary(
 				_item => _item.Id, _item => new
@@ -191,22 +188,25 @@ namespace Website.Controllers
 		private static readonly long unixEpochTicks = DateTime.UnixEpoch.Ticks;
 
 		[HttpPost]
-		public IActionResult GetOrders(int page=1)
+		public IActionResult GetOrders(int page = 1)
 		{
+			int ownerId = 0;
+			try
+			{
+				ownerId = Stub.GetAccountIdFromCookies(HttpContext, context) ?? throw new Exception("Аккаунт с таким id  не найден.");
+			}
+			catch
+			{
+				return RedirectToAction("Account", "Login");
+			}
 
-            int ownerId = 0;
-            try{
-                ownerId = Stub.GetAccountIdFromCookies(HttpContext, context) ?? throw new Exception("Аккаунт с таким id  не найден.");
-            }catch{
-                return RedirectToAction("Account", "Login");
-            }
 
-
-            int startPosition = (page - 1) * pageSize;
+			int startPosition = (page - 1) * pageSize;
 
 			var orders = context.Orders.Where(_order => _order.Bot.OwnerId == ownerId).
 				OrderByDescending(_order => _order.DateTime).Skip(startPosition).Take(pageSize).Select(_order =>
-				new {orderId = _order.Id,
+				new {
+					orderId = _order.Id,
 					botId = _order.BotId,
 					sender = _order.SenderNickname,
 					mainContainerId = _order.ContainerId,
@@ -226,12 +226,12 @@ namespace Website.Controllers
 					Files = _cont.Files.Select(_file => new { _file.FileId, _file.PreviewId, _file.Description }).ToArray()
 				}).ToList();
 
-			for (int i = 0; i < containers.Count(); i++)
+			for (int i = 0; i < containers.Count; i++)
 			{
 				AddContainers(containers[i].Id);
 			}
 
-			return Json( new { orders, containers });
+			return Json(new { orders, containers });
 
 			void AddContainers(int parentId)
 			{

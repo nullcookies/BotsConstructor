@@ -337,69 +337,6 @@
                 elem.innerText = msg;
             }
         }
-        //var message = "";
-        //var totalSum = 0.0;
-        //function AddContainers(container) {
-        //    //message += '<ul class="list-unstyled">';
-        //    message += '<ul>';
-        //    var localSum = 0.0;
-        //    for (var i = 0; i < container.itemsIds.length; i++) {
-        //        var itemInfo = container.itemsIds[i];
-        //        var item = items[itemInfo.id];
-        //        var value = parseFloat(item.value) * parseInt(itemInfo.count);
-        //        message += `<li>${item.name} ${itemInfo.count} X ${item.value} = ${value}</li>`;
-        //        localSum += value;
-        //    }
-        //    if (localSum > 0.0) {
-        //        message += `<li><strong>Sum: ${localSum}</strong></li>`;
-        //        totalSum += localSum;
-        //    }
-        //    for (var t = 0; t < container.texts.length; t++) {
-        //        var text = container.texts[t];
-        //        message += `<li>${text}</li>`;
-        //    }
-        //    for (var f = 0; f < container.files.length; f++) {
-        //        var fileId = container.files[f].fileId;
-        //        message += `<li id='${fileId}'>${fileId}</li>`;
-        //        GetFileHTML(fileId);
-        //    }
-        //    for (var c = 0; c < container.children.length; c++) {
-        //        message += '<li style="list-style-type:none">';
-        //        AddContainers(container.children[c]);
-        //        message += '</li>';
-        //    }
-        //    message += '</ul>';
-        //}
-        //function GetFileHTML(fileId) {
-        //    var getURL = `https://api.telegram.org/bot${bots[botId].token}/getFile`;
-        //    $.ajax({
-        //        url: getURL,
-        //        type: 'get',
-        //        data: { file_id: fileId },
-        //        success: function (data) {
-        //            if (data.ok == true) {
-        //                var file_path = data.result.file_path;
-        //                var pathURL = "https://api.telegram.org/file/bot" + bots[botId].token + file_path;
-        //                console.log(pathURL);
-        //            }
-        //            else {
-        //                ShowError(data.description);
-        //            }
-        //        },
-        //        error: function (data) {
-        //            ShowError(data.responseText);
-        //        }
-        //    });
-
-        //    function ShowError(msg) {
-        //        console.log(msg);
-        //    }
-        //}
-        //var mainContainer = containers[mainContainerId];
-        //AddContainers(mainContainer);
-        //if (mainContainer.children.length > 0 && totalSum > 0.0) {
-        //    message += `<p><strong>Total: ${totalSum}</strong></p>`;
-        //}
         var newNode = document.getElementById("div_order_").cloneNode(true);
         var jqNewNode = $(newNode);
         jqNewNode.attr("id", "div_order_" + orderId);
@@ -493,6 +430,9 @@
                 statusGroups = data.statusGroups;
                 bots = data.bots;
                 items = data.items;
+                //console.log(bots);
+                //console.log(statusGroups);
+                //console.log(statuses);
                 statuses[null] = { item1: "NEW", item2: "Sends nothing." };
             },
             error: function (data) {
@@ -575,6 +515,9 @@
                                 statusGroups[orders[i].statusGroupId] == undefined ||
                                 statuses[orders[i].statusId] == undefined) {
                                 needRefreshVars = true;
+                                //console.log(bots);
+                                //console.log(statusGroups);
+                                //console.log(statuses);
                             }
                         }
                         if (needRefreshVars) {
