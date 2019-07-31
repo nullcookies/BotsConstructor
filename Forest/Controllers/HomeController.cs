@@ -326,6 +326,7 @@ namespace DeleteMeWebhook.Controllers
 
             RouteRecord existingRouteRecord = _context.RouteRecords.Where(_rr => _rr.BotId == botId).SingleOrDefault();
 
+            Console.WriteLine($"existingRouteRecord==null = {existingRouteRecord==null}");
             if (existingRouteRecord != null)
             {
                 //В базе уже запись о том, что бот запущен

@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
-using website.Models;
-using website.ViewModels;
+using Website.Models;
+using Website.ViewModels;
 
-namespace website.Other.Attributes
+namespace Website.Other.Attributes
 {
     /// <summary>
     /// Самописный атрибут. Проверяет, что логин не равен паролю в форме регистрации

@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using DataLayer.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using website.Models;
-using website.Other;
+using Website.Models;
+using Website.Other;
 
-namespace website.Controllers
+namespace Website.Controllers
 {
     [Authorize]
     public class OrdersController : Controller
@@ -225,7 +226,7 @@ namespace website.Controllers
 					Files = _cont.Files.Select(_file => new { _file.FileId, _file.PreviewId, _file.Description }).ToArray()
 				}).ToList();
 
-			for (int i = 0; i < containers.Count; i++)
+			for (int i = 0; i < containers.Count(); i++)
 			{
 				AddContainers(containers[i].Id);
 			}

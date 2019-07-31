@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace website.Models
+namespace Website.Models
 {
 	public class OrderModel
 	{

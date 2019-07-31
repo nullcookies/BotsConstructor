@@ -4,12 +4,13 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using DataLayer.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
-using website.Models;
+using Website.Models;
 
-namespace website.Controllers
+namespace Website.Controllers
 {
     [Authorize]
     public class MainController : Controller

@@ -5,17 +5,18 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using DataLayer.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using website.Models;
-using website.Services;
-using website.ViewModels;
+using Website.Models;
+using Website.Services;
+using Website.ViewModels;
 
 
 /*Разбить эту хрень на пару хреней поменьше*/
-namespace website.Controllers
+namespace Website.Controllers
 {
     public class AccountController : Controller
     {

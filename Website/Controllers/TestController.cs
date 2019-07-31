@@ -5,12 +5,13 @@ using System.Linq;
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
+using DataLayer.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using website.Models;
+using Website.Models;
 
-namespace website.Controllers
+namespace Website.Controllers
 {
     
     public class TestController : Controller

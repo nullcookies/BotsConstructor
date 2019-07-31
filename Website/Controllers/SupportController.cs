@@ -4,13 +4,14 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using DataLayer.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using website.Models;
-using website.Other;
+using Website.Models;
+using Website.Other;
 
-namespace website.Controllers
+namespace Website.Controllers
 {
     [Authorize]
     public class SupportController : Controller

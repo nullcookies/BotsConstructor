@@ -4,21 +4,22 @@ using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using website.Models;
+using Website.Models;
 using System.Collections.Generic;
-using website.Other;
-using Markup;
+using Website.Other;
+
 using System.Net;
 using System.IO;
 using Newtonsoft.Json.Linq;
 using Microsoft.AspNetCore.Hosting;
-using website.Other.Filters;
+using Website.Other.Filters;
 using System.Net.WebSockets;
 using System.Threading.Tasks;
 using System.Text;
 using System.Threading;
+using DataLayer.Models;
 
-namespace website.Controllers
+namespace Website.Controllers
 {
     [Authorize]
     public class BotEditingController : Controller

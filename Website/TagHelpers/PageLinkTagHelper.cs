@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
-using website.Models;
+using Website.Models;
 
-namespace website.TagHelpers
+namespace Website.TagHelpers
 {
 	public class PageLinkTagHelper : TagHelper
     {

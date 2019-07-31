@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using DataLayer.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using website.Models;
+using Website.Models;
 
-namespace website.Controllers
+namespace Website.Controllers
 {
     
     public class Test3Controller : Controller

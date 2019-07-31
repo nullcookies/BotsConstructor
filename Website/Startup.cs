@@ -19,7 +19,7 @@ using DataLayer.Models;
 using Website.Services;
 using DataLayer.Services;
 
-namespace website
+namespace Website
 {
     public class Startup
     {

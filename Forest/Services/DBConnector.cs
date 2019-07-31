@@ -11,7 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DataLayer.Models;
 using System.Runtime.InteropServices;
-using Microsoft.Extensions.Configuration;
+
 
 namespace DeleteMeWebhook.Services
 {
