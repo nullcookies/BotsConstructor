@@ -59,7 +59,7 @@ namespace Website.Other.Filters
 
             try
             {
-                accountId = Stub.GetAccountIdFromCookies(context.HttpContext, _context) ?? throw new Exception("Из cookies не удалось извлечь accountId");
+                accountId = Stub.GetAccountIdFromCookies(context.HttpContext) ?? throw new Exception("Из cookies не удалось извлечь accountId");
             }
             catch
             {

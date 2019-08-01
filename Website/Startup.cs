@@ -77,6 +77,7 @@ namespace Website
             services.AddTransient<EmailMessageSender>();
 
             services.AddSingleton<StupidLogger>();
+            services.AddSingleton<OrdersCountNotificationService>();
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
               .AddCookie(options =>

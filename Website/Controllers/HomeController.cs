@@ -30,7 +30,7 @@ namespace Website.Controllers
         {
             int accountId = 0;
             try{
-                accountId =  Stub.GetAccountIdFromCookies(HttpContext, context)  ?? throw new Exception("Аккаунт с таким id  не найден.");
+                accountId =  Stub.GetAccountIdFromCookies(HttpContext)  ?? throw new Exception("Аккаунт с таким id  не найден.");
             }catch{
                 return StatusCode(403);
             }

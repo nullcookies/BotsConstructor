@@ -1,33 +1,101 @@
 ﻿using DataLayer.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.WebSockets;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Website.Models;
 using Website.Other;
+using Website.Services;
 
 namespace Website.Controllers
 {
 	[Authorize]
     public class OrdersController : Controller
     {
-        ApplicationContext context;
+        ApplicationContext _contextDb;
+        OrdersCountNotificationService _ordersCounter;
 
-        public OrdersController(ApplicationContext context)
+        public OrdersController(ApplicationContext _contextDb, OrdersCountNotificationService _ordersCounter)
         {
-            this.context = context ?? throw new ArgumentNullException(nameof(context));
+            this._contextDb = _contextDb ?? throw new ArgumentNullException(nameof(_contextDb));
+            this._ordersCounter = _ordersCounter;
 		}
 
 		//Кол-во записей на странице
 		const int pageSize = 12;
+
+        [HttpGet]
+        public async Task SetWebsocketOrdersCount()
+        {
+
+            int accountId = 0;
+
+            try{
+                accountId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("В cookies не найден accountId");
+            }catch{
+                return;
+            }
+            var _contextDb = ControllerContext.HttpContext;
+            var isSocketRequest = _contextDb.WebSockets.IsWebSocketRequest;
+
+            if (isSocketRequest)
+            {
+                WebSocket webSocket = await _contextDb.WebSockets.AcceptWebSocketAsync();
+
+
+                //var tcs = new TaskCompletionSource<object>();
+                //BackgroundProcessor.Enqueue(webSocket, tcs);
+                //await tcs.Task;
+
+                Console.WriteLine("Регистрация начинается");
+                _ordersCounter.RegisterInNotificationSystem(accountId, webSocket);
+
+
+                Console.WriteLine("\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq");
+                Console.WriteLine("Регистрация прошла нормально");
+                //await RegisterInNotificationSystem(accountId, webSocket);
+            }
+            else
+            {
+                _contextDb.Response.StatusCode = 404;
+            }
+        }
+
+        private async Task RegisterInNotificationSystem(WebSocket webSocket)
+        {
+            int ordersCount = 45;
+           
+            JObject JObj = new JObject
+            {
+                { "ordersCount", ordersCount}
+            };
+
+            string jsonString = JsonConvert.SerializeObject(JObj);
+            var bytes = Encoding.UTF8.GetBytes(jsonString);
+            var arraySegment = new ArraySegment<byte>(bytes);
+            await webSocket.SendAsync(arraySegment, WebSocketMessageType.Text, true, CancellationToken.None);
+
+            Thread.Sleep(2000);
+
+
+
+        }
+
+
 
         public IActionResult Orders2(int page=1)
 		{
             int accountId = 0;
 
             try{
-                accountId = Stub.GetAccountIdFromCookies(HttpContext, context) ?? throw new Exception("Аккаунт с таким id  не найден.");
+                accountId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("В cookies не найден accountId");
             }catch{
                 return RedirectToAction("Account", "Login");
             }
@@ -35,7 +103,7 @@ namespace Website.Controllers
             ViewData["currentPage"] = page;
 
 			//Общее кол-во записей
-			int count = context.Orders.Where(_order => _order.Bot.OwnerId == accountId).Count();
+			int count = _contextDb.Orders.Where(_order => _order.Bot.OwnerId == accountId).Count();
 			//ViewData["pageSize"] = pageSize;
 			ViewData["pagesCount"] = (count - 1) / pageSize + 1;
 
@@ -54,20 +122,20 @@ namespace Website.Controllers
             int ownerId = 0;
 			try
 			{
-				ownerId = Stub.GetAccountIdFromCookies(HttpContext, context) ?? throw new Exception("Аккаунт с таким id  не найден.");
+				ownerId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("В cookies не найден accountId");
 			}
 			catch
 			{
 				return RedirectToAction("Account", "Login");
 			}
 
-			Order order = context.Orders.Where(_order => _order.Id == orderId &&
+			Order order = _contextDb.Orders.Where(_order => _order.Id == orderId &&
 			_order.Bot.OwnerId == ownerId).SingleOrDefault();
 
 			if (order != null)
 			{
-				context.Orders.Remove(order);
-				context.SaveChanges(); // Не слишком ли часто сохранение?
+				_contextDb.Orders.Remove(order);
+				_contextDb.SaveChanges(); // Не слишком ли часто сохранение?
 				return GetNewOrdersCount();
 			}
 			else
@@ -83,14 +151,14 @@ namespace Website.Controllers
             int ownerId = 0;
 			try
 			{
-				ownerId = Stub.GetAccountIdFromCookies(HttpContext, context) ?? throw new Exception("Аккаунт с таким id  не найден.");
+				ownerId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("В cookies не найден accountId");
 			}
 			catch
 			{
 				return RedirectToAction("Account", "Login");
 			}
 
-			Order order = context.Orders.Where(_order => _order.Id == orderId &&
+			Order order = _contextDb.Orders.Where(_order => _order.Id == orderId &&
 			_order.Bot.OwnerId == ownerId).SingleOrDefault();
 
 			if (order != null)
@@ -98,7 +166,7 @@ namespace Website.Controllers
 				bool correct = true;
 				if(statusId != null)
 				{
-					OrderStatus status = context.OrderStatuses.Where(_status => _status.Id == statusId &&
+					OrderStatus status = _contextDb.OrderStatuses.Where(_status => _status.Id == statusId &&
 					_status.Group.OwnerId == ownerId).SingleOrDefault();
 					correct = status != null;
 				}
@@ -106,8 +174,8 @@ namespace Website.Controllers
 				if (correct)
 				{
 					order.OrderStatusId = statusId;
-					context.Update(order);
-					context.SaveChanges(); // Не слишком ли часто сохранение?
+					_contextDb.Update(order);
+					_contextDb.SaveChanges(); // Не слишком ли часто сохранение?
 					return GetNewOrdersCount();
 				}
 				else
@@ -129,7 +197,7 @@ namespace Website.Controllers
 			int ownerId = 0;
 			try
 			{
-				ownerId = Stub.GetAccountIdFromCookies(HttpContext, context) ?? throw new Exception("Аккаунт с таким id  не найден.");
+				ownerId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("В cookies не найден accountId");
 			}
 			catch
 			{
@@ -137,7 +205,7 @@ namespace Website.Controllers
 			}
 
 
-			int ordersCount = context.Orders.Where(_order => _order.Bot.OwnerId == ownerId && _order.OrderStatusId == null).Count();
+			int ordersCount = _contextDb.Orders.Where(_order => _order.Bot.OwnerId == ownerId && _order.OrderStatusId == null).Count();
 
 			return Content(ordersCount.ToString());
 		}
@@ -148,7 +216,7 @@ namespace Website.Controllers
 			int ownerId = 0;
 			try
 			{
-				ownerId = Stub.GetAccountIdFromCookies(HttpContext, context) ?? throw new Exception("Аккаунт с таким id  не найден.");
+				ownerId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("В cookies не найден accountId");
 			}
 			catch
 			{
@@ -159,12 +227,12 @@ namespace Website.Controllers
 			var allStatuses = new Dictionary<int, (string name, string message)>();
 			var groups = new Dictionary<int, (string name, List<int> statuses)>();
 
-			var statusGroups = context.OrderStatusGroups.Where(_group => _group.OwnerId == ownerId);
+			var statusGroups = _contextDb.OrderStatusGroups.Where(_group => _group.OwnerId == ownerId);
 			foreach (var statusGroup in statusGroups) // группы статусов меняются редко, может, нужно их сохранять?
 			{
 				int groupId = statusGroup.Id;
 				groups.Add(groupId, (statusGroup.Name, new List<int>()));
-				var statuses = context.OrderStatuses.Where(_status => _status.GroupId == groupId);
+				var statuses = _contextDb.OrderStatuses.Where(_status => _status.GroupId == groupId);
 				foreach (var status in statuses)
 				{
 					groups[groupId].statuses.Add(status.Id);
@@ -172,10 +240,10 @@ namespace Website.Controllers
 				}
 			}
 
-			var bots = context.Bots.Where(_bot => _bot.OwnerId == ownerId).
+			var bots = _contextDb.Bots.Where(_bot => _bot.OwnerId == ownerId).
 				ToDictionary(_bot => _bot.Id, _bot => new { Name = _bot.BotName, _bot.Token });
 
-			var items = context.Items.Where(_item => _item.Bot.OwnerId == ownerId).ToDictionary(
+			var items = _contextDb.Items.Where(_item => _item.Bot.OwnerId == ownerId).ToDictionary(
 				_item => _item.Id, _item => new
 				{
 					_item.Name,
@@ -193,7 +261,7 @@ namespace Website.Controllers
 			int ownerId = 0;
 			try
 			{
-				ownerId = Stub.GetAccountIdFromCookies(HttpContext, context) ?? throw new Exception("Аккаунт с таким id  не найден.");
+				ownerId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("В cookies не найден accountId");
 			}
 			catch
 			{
@@ -203,7 +271,7 @@ namespace Website.Controllers
 
 			int startPosition = (page - 1) * pageSize;
 
-			var orders = context.Orders.Where(_order => _order.Bot.OwnerId == ownerId).
+			var orders = _contextDb.Orders.Where(_order => _order.Bot.OwnerId == ownerId).
 				OrderByDescending(_order => _order.DateTime).Skip(startPosition).Take(pageSize).Select(_order =>
 				new {
 					orderId = _order.Id,
@@ -215,7 +283,7 @@ namespace Website.Controllers
 					dateTime = (_order.DateTime.Ticks - unixEpochTicks) / 10000
 				}).ToArray();
 
-			var containers = context.Inventories.
+			var containers = _contextDb.Inventories.
 				Join(orders, _cont => _cont.Id, _order => _order.mainContainerId,
 				(_cont, _order) => new
 				{
@@ -235,7 +303,7 @@ namespace Website.Controllers
 
 			void AddContainers(int parentId)
 			{
-				var children = context.Inventories.Where(_cont => _cont.ParentId == parentId).
+				var children = _contextDb.Inventories.Where(_cont => _cont.ParentId == parentId).
 					Select(_cont => new
 					{
 						_cont.Id,
@@ -262,13 +330,13 @@ namespace Website.Controllers
 
             int ownerId = 0;
             try{
-                ownerId = Stub.GetAccountIdFromCookies(HttpContext, context) ?? throw new Exception("Аккаунт с таким id  не найден.");
+                ownerId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("В cookies не найден accountId.");
             }catch{
                 return RedirectToAction("Account", "Login");
             }
 
 
-            int senderId = context.Orders.Where(_order => _order.Id == orderId && _order.Bot.OwnerId == ownerId).
+            int senderId = _contextDb.Orders.Where(_order => _order.Id == orderId && _order.Bot.OwnerId == ownerId).
 				Select(_order => _order.SenderId).SingleOrDefault();
 
 			if(senderId == default(int))

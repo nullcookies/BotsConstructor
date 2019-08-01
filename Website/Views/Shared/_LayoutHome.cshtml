@@ -46,20 +46,56 @@
                     }
                 }
 
-                var update = function () {
+                @*var update = function () {
                     $.ajax({
                         type: 'POST',
                         url: '/Orders/GetNewOrdersCount',
                         success: function (data) {
                             SetNewOrdersCount(data);
-                            @*setNewFeedbackCount(?);*@
+                            @*setNewFeedbackCount(?);
                         },
                     });
                 };
 
                 var refInterval = window.setInterval('update()', 5000); // 5 seconds
-                update();
+                update();*@
+
+
+
+
+
             </script>
+
+
+
+            <script>
+            (function () {
+                var getWebSocketMessages = function (onMessageReceived) {
+                    var url = `wss://${location.host}/Orders/SetWebsocketOrdersCount`
+                    console.log('url is: ' + url);
+
+                    var webSocket = new WebSocket(url);
+
+                    webSocket.onmessage = onMessageReceived;
+                };
+
+
+                getWebSocketMessages(function (message) {
+                    console.log("Пришло уведомление");
+                    var jsonObj = JSON.parse(message.data);
+                    console.log(jsonObj);
+
+                    SetNewOrdersCount(jsonObj.ordersCount);
+                    
+
+                });
+            }());
+
+        </script>
+
+
+
+
         </div>
         <!-- /#Левое меню -->
         <!---->

@@ -129,7 +129,7 @@ namespace Website.Controllers
             //TODO Повторное извлечение accountId из cookies
             int accountId = 0;
             try{
-                accountId = Stub.GetAccountIdFromCookies(HttpContext, _context) ?? throw new Exception("Из cookies не удалось извлечь accountId");
+                accountId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("Из cookies не удалось извлечь accountId");
             }catch{
                 return StatusCode(403);
             }
