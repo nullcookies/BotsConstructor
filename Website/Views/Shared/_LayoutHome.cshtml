@@ -75,27 +75,28 @@
                     console.log('url is: ' + url);
 
                     var webSocket = new WebSocket(url);
+                    webSocket.onmessage = onMessageReceived;
 
-                    //webSocket.onmessage = onMessageReceived;
-                    webSocket.onclose = function (event) {
-                        if (event.wasClean) {
-                            alert('Соединение закрыто чисто');
-                        } else {
-                            alert('Обрыв соединения'); // например, "убит" процесс сервера
-                        }
-                        console.log(event);
-                        console.log('Код: ' + event.code + ' причина: ' + event.reason);
-                    };
 
-                    webSocket.onmessage = function (event) {
-                        console.log("Получены данные " + event.data);
-                    };
+                    //webSocket.onclose = function (event) {
+                    //    if (event.wasClean) {
+                    //        alert('Соединение закрыто чисто');
+                    //    } else {
+                    //        alert('Обрыв соединения'); // например, "убит" процесс сервера
+                    //    }
+                    //    console.log(event);
+                    //    console.log('Код: ' + event.code + ' причина: ' + event.reason);
+                    //};
 
-                    webSocket.onerror = function (error) {
+                    //webSocket.onmessage = function (event) {
+                    //    console.log("Получены данные " + event.data);
+                    //};
 
-                        console.log(error);
-                        console.log(error.message);
-                    };
+                    //webSocket.onerror = function (error) {
+
+                    //    console.log(error);
+                    //    console.log(error.message);
+                    //};
 
                 };
 

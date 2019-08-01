@@ -78,6 +78,8 @@ namespace Website.Services
                 Console.WriteLine($"i={i}");
                 Order order = allOrders[i];
 
+
+                Console.WriteLine($"order.OrderStatusId  = {order.OrderStatusId }");
                 //Это новый заказ
                 if (order.OrderStatusId == null)
                 {
