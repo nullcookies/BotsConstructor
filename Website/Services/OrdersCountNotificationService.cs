@@ -126,6 +126,7 @@ namespace Website.Services
                 Console.WriteLine(webSocket.State);
                 Console.WriteLine(webSocket.SubProtocol);
                 
+                
                 await webSocket.SendAsync(arraySegment, WebSocketMessageType.Text, true, CancellationToken.None);
 
                 _dict_accountId_WebSocket[key].OrdersCount = 0;
@@ -154,7 +155,7 @@ namespace Website.Services
 
         
 
-        public void RegisterInNotificationSystem(int accountId, WebSocket webSocket)
+        public async Task RegisterInNotificationSystem(int accountId, WebSocket webSocket)
         {
             Console.WriteLine(  $"Регистрация аккаунта {accountId}");
             _dict_accountId_WebSocket.TryAdd(accountId, new OrdersCountModel(webSocket) );
@@ -193,22 +194,27 @@ namespace Website.Services
                 }
             }
 
-            //Тут отправляет сообщения
-            //int counter = 0;
-            //while (true)
-            //{
+            
+            int counter = 0;
+            while (true)
+            {
 
-            //    JObject JObj = new JObject
-            //        {
-            //            { "ordersCount", counter++}
-            //        };
+                JObject JObj = new JObject
+                    {
+                        { "ordersCount", counter++}
+                    };
 
-            //    string jsonString = JsonConvert.SerializeObject(JObj);
-            //    var bytes = Encoding.UTF8.GetBytes(jsonString);
-            //    var arraySegment = new ArraySegment<byte>(bytes);
-            //    await webSocket.SendAsync(arraySegment, WebSocketMessageType.Text, true, CancellationToken.None);
-            //    Thread.Sleep(1000);
-            //}
+                string jsonString = JsonConvert.SerializeObject(JObj);
+                var bytes = Encoding.UTF8.GetBytes(jsonString);
+                var arraySegment = new ArraySegment<byte>(bytes);
+                await webSocket.SendAsync(arraySegment, WebSocketMessageType.Text, true, CancellationToken.None);
+
+                //Не обрыв
+                Thread.Sleep(1000);
+
+                //Обрыв
+                //await Task.Delay(TimeSpan.FromSeconds(1), CancellationToken.None);
+            }
 
 
 
