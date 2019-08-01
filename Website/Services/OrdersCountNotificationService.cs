@@ -1,6 +1,5 @@
 ﻿using DataLayer.Models;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+using DataLayer.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
@@ -14,8 +13,6 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Website.Models;
-using Website.Other;
 
 
 //Вебсокет, похоже портится при выходе потока
@@ -26,10 +23,12 @@ namespace Website.Services
     public class OrdersCountNotificationService
     {
         ApplicationContext _contextDb;
+        StupidLogger _logger;
 
-        public OrdersCountNotificationService(IConfiguration configuration)
+        public OrdersCountNotificationService(IConfiguration configuration, StupidLogger _logger)
         {
-            
+            this._logger = _logger;
+
             #region Дублирование кода
             string connectionString;
             bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
@@ -47,7 +46,7 @@ namespace Website.Services
 
             #endregion
 
-            PeriodicFooAsync(TimeSpan.FromSeconds(1), CancellationToken.None);
+            PeriodicFooAsync(TimeSpan.FromSeconds(5), CancellationToken.None);
 
         }
 
@@ -56,22 +55,17 @@ namespace Website.Services
         public async Task<bool> PeriodicFooAsync(TimeSpan interval, CancellationToken cancellationToken)
         {
             while (true)
-            {
-                
-                Console.WriteLine("Общая функция перед выполнением задачи");
-                await SendNotificationsOfNewOrders();
-                Console.WriteLine("Общая функция после выполнением задачи перед задержкой");
-                await Task.Delay(interval, cancellationToken);
-                Console.WriteLine("Общая функция после задержки");
+            {                
+                await SendNotificationsOfNewOrders();                
+                await Task.Delay(interval, cancellationToken);                
             }
         }
     
         private async Task SendNotificationsOfNewOrders()
         {
-            Console.WriteLine("Отправка уведомлений");
-
             List<Order> allOrders = null;
-            //Лок вообще помогает?
+            
+            //Это помогает избежать падения?
             lock (lockObj)
             {
                 allOrders = _contextDb.Orders.ToList();
@@ -81,67 +75,61 @@ namespace Website.Services
             //Перебираю все заказы
             for (int i = 0; i < allOrders.Count; i++)
             {
-                Console.WriteLine($"Перебор заказов i={i}");
+                Console.WriteLine($"i={i}");
                 Order order = allOrders[i];
 
                 //Это новый заказ
-                if (order.OrderStatus != null)
+                if (order.OrderStatusId == null)
                 {
+
                     int botId = order.BotId;
+                    Console.WriteLine($"Это новый заказ. botId= {botId}");
 
                     //У нас есть аккаунты, которые подписаны на этого бота
                     if (_dict_botId_accountIds.ContainsKey(botId))
                     {
+                        Console.WriteLine($"//У нас есть аккаунты, которые подписаны на этого бота");
+
                         List<int> accountIds = _dict_botId_accountIds[botId];
+
                         //Инкремент счётчика аккаунта
                         for (int j = 0; j < accountIds.Count; j++)
                         {
                             int accountId = accountIds[j];
+                            Console.WriteLine($"accountId = {accountId }");
+                            Console.WriteLine($"j = {j}");
+
                             _dict_accountId_WebSocket[accountId].OrdersCount++;
                         }
                     }
                 }
             }
 
-            Console.WriteLine("Отправка новых значений");
-            Console.WriteLine($"_dict_accountId_WebSocket.Count = {_dict_accountId_WebSocket.Count}");
+           
 
-            try
-            {
-
-                //Отправка новых чисел в счётчике
+            //Отправка новых чисел в счётчике
             foreach (var key in _dict_accountId_WebSocket.Keys)
             {
-
                 int ordersCount = _dict_accountId_WebSocket[key].OrdersCount;
 
-                Console.WriteLine($"ordersCount={ordersCount}");
+                for (int k = 0; k < _dict_accountId_WebSocket[key].WebSockets.Count; k++)
+                {
+                    WebSocket webSocket = _dict_accountId_WebSocket[key].WebSockets[k];
 
-                WebSocket webSocket = _dict_accountId_WebSocket[key].WebSocket;
+                    JObject JObj = new JObject
+                        {
+                            { "ordersCount", ordersCount}
+                        };
 
-                JObject JObj = new JObject
-                    {
-                        { "ordersCount", 554}
-                    };
-
-                string jsonString = JsonConvert.SerializeObject(JObj);
-                var bytes = Encoding.UTF8.GetBytes(jsonString);
-                var arraySegment = new ArraySegment<byte>(bytes);
-                Console.WriteLine(webSocket.State);
-                Console.WriteLine(webSocket.SubProtocol);
-                
-                
-                await webSocket.SendAsync(arraySegment, WebSocketMessageType.Text, true, CancellationToken.None);
+                    string jsonString = JsonConvert.SerializeObject(JObj);
+                    var bytes = Encoding.UTF8.GetBytes(jsonString);
+                    var arraySegment = new ArraySegment<byte>(bytes);
+               
+                    await webSocket.SendAsync(arraySegment, WebSocketMessageType.Text, true, CancellationToken.None);
+                }
 
                 _dict_accountId_WebSocket[key].OrdersCount = 0;
             }
-
-            }catch(Exception ee)
-            {
-                Console.WriteLine(ee.Message);
-            }
-
-
         }
 
 
@@ -159,53 +147,71 @@ namespace Website.Services
 
         
 
-        public async Task RegisterInNotificationSystem(int accountId, WebSocket webSocket, TaskCompletionSource<object> socketFinishedTcs)
+        public void RegisterInNotificationSystem(int accountId, WebSocket webSocket, TaskCompletionSource<object> socketFinishedTcs)
         {
 
-
-
-
-            Console.WriteLine(  $"Регистрация аккаунта {accountId}");
-            _dict_accountId_WebSocket.TryAdd(accountId, new OrdersCountModel(webSocket) );
+            //На всякий случай
+            //Это вообще как-то помогает?
             lock (lockObj)
             {
+                if (_dict_accountId_WebSocket.ContainsKey(accountId))
+                {
+                    _dict_accountId_WebSocket[accountId].WebSockets.Add(webSocket);
+                }
+                else
+                {
+                    //false при
+                    //кончилась память
+                    //такой ключ уже есть
+                    //key == null
+                    bool addIsOk = _dict_accountId_WebSocket.TryAdd(accountId, new OrdersCountModel() { WebSockets=new List<WebSocket>() { webSocket } } );
+
+                    if (!addIsOk)
+                    {
+                        _logger.Log(LogLevelMyDich.ERROR, $"Сайт. Сервис подсчёта заказов. Не удалось добавить webSocket для аккаунта accountId={accountId},");
+                    }
+                }
+
 
 
                 //На каких ботов подписать аккаунт?
 
                 //Боты, которые принадлежат аккаунту
-                List<int> the_bot_ids_on_which_the_account_is_signed = 
-                    _contextDb.Bots.Where(_bot => _bot.OwnerId == accountId).Select(_bot=>_bot.Id).ToList();
-                
+                List<int> the_bot_ids_on_which_the_account_is_signed =
+                    _contextDb.Bots.Where(_bot => _bot.OwnerId == accountId).Select(_bot => _bot.Id).ToList();
+
                 //TODO Боты, к которым аккаунт имеет доступ(модератор)
 
+                //Для всех ботов на которых аккаунт подписан
                 for (int i = 0; i < the_bot_ids_on_which_the_account_is_signed.Count; i++)
                 {
                     int botId = the_bot_ids_on_which_the_account_is_signed[i];
-                    Console.WriteLine("Бот на который аккаунт подписался botId" + botId);
 
                     List<int> accounts_that_are_subscribed_to_bot = null;
 
                     _dict_botId_accountIds.TryGetValue(botId, out accounts_that_are_subscribed_to_bot);
 
-                    if (accounts_that_are_subscribed_to_bot != null 
+                    //Добавить к списку подписчиков на бота текущий аккаунт
+                    if (accounts_that_are_subscribed_to_bot != null
                         && accounts_that_are_subscribed_to_bot.Count > 0)
                     {
-                        Console.WriteLine($"аккаунт {accountId} подписался на получение заказов от бота {botId}");
-                        accounts_that_are_subscribed_to_bot.Add(accountId);
+                        if (!accounts_that_are_subscribed_to_bot.Contains(accountId))
+                        {
+                            accounts_that_are_subscribed_to_bot.Add(accountId);
+                        }
+                        else
+                        {
+                            _logger.Log(LogLevelMyDich.INFO, "К словарю (accountId, List<WebSocket> ) добавлен сокет для аккаунта, который уже существует. Значит открыто несколько вкладок.");
+                        }
                     }
                     else
                     {
                         _dict_botId_accountIds.TryAdd(botId, new List<int>() { accountId });
-                        Console.WriteLine(  "Не было подписано ни одно аккаунта на этого бота");
+
                     }
                 }
             }
-
-
-       
-
-
+                       
         }
 
 
@@ -214,12 +220,8 @@ namespace Website.Services
         private class OrdersCountModel
         {
             public int OrdersCount;
-            public readonly WebSocket WebSocket;
+            public List< WebSocket > WebSockets;
 
-            public OrdersCountModel(WebSocket webSocket)
-            {
-                WebSocket = webSocket;
-            }
         }
     }
     

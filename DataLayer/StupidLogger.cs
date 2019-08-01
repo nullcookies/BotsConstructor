@@ -36,7 +36,7 @@ namespace DataLayer.Services
             PeriodicFooAsync(TimeSpan.FromSeconds(1), CancellationToken.None);
         }
 
-        public async Task PeriodicFooAsync(TimeSpan interval, CancellationToken cancellationToken)
+        private async Task PeriodicFooAsync(TimeSpan interval, CancellationToken cancellationToken)
         {
             while (true)
             {

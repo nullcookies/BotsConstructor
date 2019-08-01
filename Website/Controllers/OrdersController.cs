@@ -50,7 +50,7 @@ namespace Website.Controllers
                 WebSocket webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
                 var socketFinishedTcs = new TaskCompletionSource<object>();
 
-                await _ordersCounter.RegisterInNotificationSystem(accountId, webSocket, socketFinishedTcs);
+                _ordersCounter.RegisterInNotificationSystem(accountId, webSocket, socketFinishedTcs);
 
                 await socketFinishedTcs.Task;
 
