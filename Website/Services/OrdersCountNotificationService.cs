@@ -43,7 +43,7 @@ namespace Website.Services
 
             #endregion
 
-            PeriodicFooAsync(TimeSpan.FromSeconds(5), CancellationToken.None);
+            PeriodicFooAsync(TimeSpan.FromSeconds(1), CancellationToken.None);
 
         }
 
@@ -53,6 +53,7 @@ namespace Website.Services
         {
             while (true)
             {
+                
                 Console.WriteLine("Общая функция перед выполнением задачи");
                 await SendNotificationsOfNewOrders();
                 Console.WriteLine("Общая функция после выполнением задачи перед задержкой");
@@ -60,7 +61,7 @@ namespace Website.Services
                 Console.WriteLine("Общая функция после задержки");
             }
         }
-
+    
         private async Task SendNotificationsOfNewOrders()
         {
             Console.WriteLine("Отправка уведомлений");
@@ -150,6 +151,9 @@ namespace Website.Services
         /// </summary>
         private static ConcurrentDictionary<int, List<int>> _dict_botId_accountIds = new ConcurrentDictionary<int, List<int>>();
 
+
+        
+
         public void RegisterInNotificationSystem(int accountId, WebSocket webSocket)
         {
             Console.WriteLine(  $"Регистрация аккаунта {accountId}");
@@ -158,7 +162,7 @@ namespace Website.Services
             {
 
 
-                //На наких ботов подписать аккаунт?
+                //На каких ботов подписать аккаунт?
 
                 //Боты, которые принадлежат аккаунту
                 List<int> the_bot_ids_on_which_the_account_is_signed = 
@@ -189,6 +193,7 @@ namespace Website.Services
                 }
             }
 
+            //Тут отправляет сообщения
             //int counter = 0;
             //while (true)
             //{

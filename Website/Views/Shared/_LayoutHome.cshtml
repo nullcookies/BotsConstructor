@@ -76,8 +76,31 @@
 
                     var webSocket = new WebSocket(url);
 
-                    webSocket.onmessage = onMessageReceived;
+                    //webSocket.onmessage = onMessageReceived;
+                    webSocket.onclose = function (event) {
+                        if (event.wasClean) {
+                            alert('Соединение закрыто чисто');
+                        } else {
+                            alert('Обрыв соединения'); // например, "убит" процесс сервера
+                        }
+                        console.log(event);
+                        console.log('Код: ' + event.code + ' причина: ' + event.reason);
+                    };
+
+                    webSocket.onmessage = function (event) {
+                        alert("Получены данные " + event.data);
+                    };
+
+                    webSocket.onerror = function (error) {
+
+                        console.log(error);
+                        console.log(error.message);
+                    };
+
                 };
+
+
+
 
 
                 getWebSocketMessages(function (message) {

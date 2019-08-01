@@ -42,29 +42,22 @@ namespace Website.Controllers
             }catch{
                 return;
             }
-            var _contextDb = ControllerContext.HttpContext;
-            var isSocketRequest = _contextDb.WebSockets.IsWebSocketRequest;
+            
+            var isSocketRequest = HttpContext.WebSockets.IsWebSocketRequest;
 
             if (isSocketRequest)
             {
-                WebSocket webSocket = await _contextDb.WebSockets.AcceptWebSocketAsync();
-
-
-                //var tcs = new TaskCompletionSource<object>();
-                //BackgroundProcessor.Enqueue(webSocket, tcs);
-                //await tcs.Task;
+                WebSocket webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
 
                 Console.WriteLine("Регистрация начинается");
                 _ordersCounter.RegisterInNotificationSystem(accountId, webSocket);
 
-
-                Console.WriteLine("\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq\nqqqq");
                 Console.WriteLine("Регистрация прошла нормально");
-                //await RegisterInNotificationSystem(accountId, webSocket);
+                
             }
             else
             {
-                _contextDb.Response.StatusCode = 404;
+                HttpContext.Response.StatusCode = 404;
             }
         }
 
