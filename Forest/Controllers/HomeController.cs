@@ -64,13 +64,14 @@ namespace DeleteMeWebhook.Controllers
             Console.WriteLine("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
             //проверка возможности запуска
             var bot = _context.Bots.Find(botId);
-
-            BotsContainer.BotsDictionary.TryGetValue(bot.BotName, out BotWrapper _botWrapper);
+            string botUsername = new TelegramBotClient(bot.Token).GetMeAsync().Result.Username;
+            //По токену узнать имя 
+            BotsContainer.BotsDictionary.TryGetValue(botUsername, out BotWrapper _botWrapper);
 
             if (_botWrapper != null)
             {
                 _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, $"Лес. Попытка запуска бота, которые уже работает в этом лесу. botId={botId}");
-                return StatusCode(403, "Markup was null.");
+                return StatusCode(403, "Такой бот уже запущен");
 
             }
 
