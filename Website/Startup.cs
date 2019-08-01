@@ -86,8 +86,13 @@ namespace Website
               });
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ApplicationContext _contextDb)
         {
+            //оно не хочет очищать таблицу
+            //_contextDb.Database.ExecuteSqlCommand("TRUNCATE TABLE [RouteRecords]");
+
+            _contextDb.RouteRecords.RemoveRange(_contextDb.RouteRecords);
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

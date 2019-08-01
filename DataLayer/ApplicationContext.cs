@@ -35,6 +35,7 @@ namespace DataLayer.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+    
 
             modelBuilder.Entity<RoleType>().HasIndex(role => new { role.Name }).IsUnique();
 
@@ -335,7 +336,7 @@ namespace DataLayer.Models
         I_AM_AN_IDIOT
     }
 
-
+    [Table("RouteRecords")]
     public class RouteRecord
     {
         [Key]
