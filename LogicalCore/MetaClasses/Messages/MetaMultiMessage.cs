@@ -2,6 +2,8 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.InputFiles;
 
 namespace LogicalCore
 {
@@ -26,8 +28,11 @@ namespace LogicalCore
             }
         }
         public IMetaReplyMarkup MetaKeyboard => messages[defaultMessageIndex].MetaKeyboard;
+		public MessageType Type => messages[defaultMessageIndex].Type;
+		public MetaText Text => messages[defaultMessageIndex].Text;
+		public InputOnlineFile File => messages[defaultMessageIndex].File;
 
-        public MetaMultiMessage(int count = 2)
+		public MetaMultiMessage(int count = 2)
         {
             if (count <= 0) throw new ArgumentException("Мультисообщение должно состоять минимум из одного сообщения!", nameof(count));
 

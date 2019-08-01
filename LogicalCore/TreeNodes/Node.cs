@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.InputFiles;
 
 namespace LogicalCore
 {
@@ -13,8 +15,11 @@ namespace LogicalCore
         public Node Parent { get; private set; }
         public List<Node> Children { get; protected set; }
         protected IMetaMessage message;
+		public MessageType MessageType => message.Type;
+		public MetaText Text => message.Text;
+		public InputOnlineFile File => message.File;
 
-        public Node(string name, IMetaMessage metaMessage)
+		public Node(string name, IMetaMessage metaMessage)
         {
             id = nextID++; // получать из БД
             if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
@@ -44,6 +49,12 @@ namespace LogicalCore
             Parent = parent;
             parent.AddChild(this);
         }
+
+		public virtual void SetBackLink(Node parent)
+		{
+			if (Parent != null) ConsoleWriter.WriteLine("Родитель узла был заменён на иную обратную ссылку.", ConsoleColor.Yellow);
+			Parent = parent;
+		}
 
 		public void AddSpecialButton(string name, params Predicate<Session>[] rules) =>
             message.MetaKeyboard.AddSpecialButton(name, rules);
