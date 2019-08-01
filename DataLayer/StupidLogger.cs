@@ -58,7 +58,9 @@ namespace DataLayer.Services
             }
 
             contextDb.LogMessages.AddRange(_logMessages);
-            await contextDb.SaveChangesAsync();
+
+            //await contextDb.SaveChangesAsync();
+            contextDb.SaveChanges();
 
         }
 
@@ -76,10 +78,6 @@ namespace DataLayer.Services
             logMessages.Enqueue(logRecord);
         }
 
-        public void SaveNow()
-        {
-            SaveLogsToDb().Wait();
-        }
-
+    
     }
 }

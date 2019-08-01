@@ -58,12 +58,14 @@ namespace DeleteMeWebhook.Controllers
         {
             //Аунтефикация
 
-            
-
+            _logger.Log(LogLevelMyDich.INFO, $"Лес. Запуск бота. botId={botId}");
+            Console.WriteLine("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+            Console.WriteLine($"Лес. Запуск бота. botId={botId}");
+            Console.WriteLine("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
             //проверка возможности запуска
             var bot = _context.Bots.Find(botId);
 
-            BotsContainer.BotsDictionary.TryGetValue(bot.BotUsername, out BotWrapper _botWrapper);
+            BotsContainer.BotsDictionary.TryGetValue(bot.BotName, out BotWrapper _botWrapper);
 
             if (_botWrapper != null)
             {
@@ -400,7 +402,7 @@ namespace DeleteMeWebhook.Controllers
                         _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, "Куда успела деться RouteRecord?");
                         Console.WriteLine("     ogger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, Куда успела деться RouteRecord ? )   ");
 
-                        _logger.SaveNow();
+                        
                     }
                 
                    
