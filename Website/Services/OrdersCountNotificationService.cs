@@ -25,31 +25,21 @@ namespace Website.Services
     public class OrdersCountNotificationService
     {
         StupidLogger _logger;
-        ApplicationContext _contextDb;
+        ApplicationContext _contextDb {
+            get
+            {
+                return _dbContextWrapper.GetDbContext();
+            }
+        }
+        DbContextWrapper _dbContextWrapper;
 
         public OrdersCountNotificationService(IConfiguration configuration, StupidLogger _logger)
         {
             this._logger = _logger;
 
-            #region Дублирование кода
-            string connectionString;
-            bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-
-            if (isWindows)
-                connectionString = configuration.GetConnectionString("PostgresConnectionDevelopment");
-            else
-                connectionString = configuration.GetConnectionString("PostgresConnectionLinux");
-
-            _contextDb = new ApplicationContext(
-                new DbContextOptionsBuilder<ApplicationContext>()
-                .UseNpgsql(connectionString)
-                .Options
-            );
-
-            #endregion
-
+            _dbContextWrapper = new DbContextWrapper(configuration);
+          
             PeriodicFooAsync(TimeSpan.FromSeconds(5), CancellationToken.None);
-
         }
 
         //Периодический запуск
@@ -81,7 +71,8 @@ namespace Website.Services
             for (int i = 0; i < allOrders.Count; i++)
             {
                 Order order = allOrders[i];
-                                
+
+                Console.WriteLine($"Заказ номер {i} order.OrderStatusId = {order.OrderStatusId}");
                 //Это новый заказ
                 if (order.OrderStatusId == null)
                 {
@@ -267,6 +258,33 @@ namespace Website.Services
         /// 
         /// при новой рассылке уведомлений Json с кол-вом заказов отправится только 
         /// 11-тому, а не всем вкладкам под этим аккаунтом
+        /// 
+
+        private class DbContextWrapper
+        {
+            private readonly string _connextionString;
+
+            public DbContextWrapper(IConfiguration configuration)
+            {
+                
+                bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+
+                if (isWindows)
+                    _connextionString = configuration.GetConnectionString("PostgresConnectionDevelopment");
+                else
+                    _connextionString = configuration.GetConnectionString("PostgresConnectionLinux");
+
+                
+            }
+
+            public ApplicationContext GetDbContext()
+            {
+                return new ApplicationContext(
+                    new DbContextOptionsBuilder<ApplicationContext>()
+                    .UseNpgsql(_connextionString)
+                    .Options);
+            }
+        }
     }
 
 }

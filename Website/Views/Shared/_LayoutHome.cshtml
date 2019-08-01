@@ -46,19 +46,20 @@
                     }
                 }
 
-                @*var update = function () {
+
+                var update = function () {
                     $.ajax({
                         type: 'POST',
                         url: '/Orders/GetNewOrdersCount',
                         success: function (data) {
                             SetNewOrdersCount(data);
-                            @*setNewFeedbackCount(?);
+                            //setNewFeedbackCount(?);
                         },
                     });
                 };
 
-                var refInterval = window.setInterval('update()', 5000); // 5 seconds
-                update();*@
+                update();
+             
 
 
 
@@ -77,31 +78,7 @@
                     var webSocket = new WebSocket(url);
                     webSocket.onmessage = onMessageReceived;
 
-
-                    //webSocket.onclose = function (event) {
-                    //    if (event.wasClean) {
-                    //        alert('Соединение закрыто чисто');
-                    //    } else {
-                    //        alert('Обрыв соединения'); // например, "убит" процесс сервера
-                    //    }
-                    //    console.log(event);
-                    //    console.log('Код: ' + event.code + ' причина: ' + event.reason);
-                    //};
-
-                    //webSocket.onmessage = function (event) {
-                    //    console.log("Получены данные " + event.data);
-                    //};
-
-                    //webSocket.onerror = function (error) {
-
-                    //    console.log(error);
-                    //    console.log(error.message);
-                    //};
-
                 };
-
-
-
 
 
                 getWebSocketMessages(function (message) {
