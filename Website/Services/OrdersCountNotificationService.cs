@@ -17,6 +17,10 @@ using System.Threading.Tasks;
 using Website.Models;
 using Website.Other;
 
+
+//Вебсокет, похоже портится при выходе потока
+
+
 namespace Website.Services
 {
     public class OrdersCountNotificationService
@@ -49,7 +53,7 @@ namespace Website.Services
 
 
 
-        public async Task PeriodicFooAsync(TimeSpan interval, CancellationToken cancellationToken)
+        public async Task<bool> PeriodicFooAsync(TimeSpan interval, CancellationToken cancellationToken)
         {
             while (true)
             {
@@ -155,8 +159,12 @@ namespace Website.Services
 
         
 
-        public async Task RegisterInNotificationSystem(int accountId, WebSocket webSocket)
+        public async Task RegisterInNotificationSystem(int accountId, WebSocket webSocket, TaskCompletionSource<object> socketFinishedTcs)
         {
+
+
+
+
             Console.WriteLine(  $"Регистрация аккаунта {accountId}");
             _dict_accountId_WebSocket.TryAdd(accountId, new OrdersCountModel(webSocket) );
             lock (lockObj)
@@ -194,28 +202,8 @@ namespace Website.Services
                 }
             }
 
-            
-            int counter = 0;
-            while (true)
-            {
 
-                JObject JObj = new JObject
-                    {
-                        { "ordersCount", counter++}
-                    };
-
-                string jsonString = JsonConvert.SerializeObject(JObj);
-                var bytes = Encoding.UTF8.GetBytes(jsonString);
-                var arraySegment = new ArraySegment<byte>(bytes);
-                await webSocket.SendAsync(arraySegment, WebSocketMessageType.Text, true, CancellationToken.None);
-
-                //Не обрыв
-                Thread.Sleep(1000);
-
-                //Обрыв
-                //await Task.Delay(TimeSpan.FromSeconds(1), CancellationToken.None);
-            }
-
+       
 
 
         }

@@ -48,12 +48,12 @@ namespace Website.Controllers
             if (isSocketRequest)
             {
                 WebSocket webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
+                var socketFinishedTcs = new TaskCompletionSource<object>();
 
-                Console.WriteLine("Регистрация начинается");
-                _ordersCounter.RegisterInNotificationSystem(accountId, webSocket);
+                await _ordersCounter.RegisterInNotificationSystem(accountId, webSocket, socketFinishedTcs);
 
-                Console.WriteLine("Регистрация прошла нормально");
-                
+                await socketFinishedTcs.Task;
+
             }
             else
             {

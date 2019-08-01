@@ -121,7 +121,7 @@ namespace Website
             app.UseAuthentication();
             var wsOptions = new WebSocketOptions()
             {
-                KeepAliveInterval = TimeSpan.FromSeconds(120),
+                KeepAliveInterval = TimeSpan.FromSeconds(1),
                 ReceiveBufferSize = 4 * 1024
                 
             };
