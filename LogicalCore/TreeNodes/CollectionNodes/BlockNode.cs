@@ -28,6 +28,7 @@ namespace LogicalCore
 			{
 				LightNode middleNode = new LightNode(child.name, new MetaInlineMessage(child.Text, child.MessageType, child.File));
 				base.AddChild(middleNode);
+				middleNode.SetBackLink(this);
 				middleNode.AddChildWithButtonRules(child);
 				ConsoleWriter.WriteLine($"Создан лёгкий узел-посредник для узла {child.name}", ConsoleColor.DarkYellow);
 			}
