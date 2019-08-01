@@ -1,11 +1,13 @@
 ﻿using System;
+using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.InputFiles;
 
 namespace LogicalCore
 {
 	/// <summary>
-	/// 
+	/// Интерфейс метасообщений с метаклавиатурой определённого типа.
 	/// </summary>
-	/// <typeparam name="KeyboardType"></typeparam>
+	/// <typeparam name="KeyboardType">Тип метаклавиатуры.</typeparam>
 	public interface IMetaMessage<KeyboardType> : IMetaMessage where KeyboardType : class, IMetaReplyMarkup
     {
 		/// <summary>
@@ -20,9 +22,21 @@ namespace LogicalCore
     public interface IMetaMessage : ISendingMessage
     {
 		/// <summary>
+		/// Тип сообщения.
+		/// </summary>
+		MessageType Type { get; }
+		/// <summary>
+		/// Метатекст сообщения.
+		/// </summary>
+		MetaText Text { get; }
+		/// <summary>
+		/// Файл сообщения.
+		/// </summary>
+		InputOnlineFile File { get; }
+		/// <summary>
 		/// Метаклавиатура.
 		/// </summary>
-        IMetaReplyMarkup MetaKeyboard { get; }
+		IMetaReplyMarkup MetaKeyboard { get; }
 		/// <summary>
 		/// Содержит ли сообщение reply-клавиатуру.
 		/// </summary>

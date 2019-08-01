@@ -25,8 +25,17 @@ namespace LogicalCore
         protected override void AddChild(Node child)
         {
             if (!(child is LightNode))
-                throw new NotSupportedException("BlockNode может иметь только лёгких детей (наследуемые от LightNode).");
-            base.AddChild(child);
+			{
+				LightNode middleNode = new LightNode(child.name, new MetaInlineMessage(child.Text, child.MessageType, child.File));
+				base.AddChild(middleNode);
+				middleNode.SetBackLink(this);
+				middleNode.AddChildWithButtonRules(child);
+				ConsoleWriter.WriteLine($"Создан лёгкий узел-посредник для узла {child.name}", ConsoleColor.DarkYellow);
+			}
+			else
+			{
+				base.AddChild(child);
+			}
         }
 
         internal override async Task<Message> SendReplyMarkup(Session session)

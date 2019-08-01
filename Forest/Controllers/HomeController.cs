@@ -562,8 +562,9 @@ namespace DeleteMeWebhook.Controllers
 
     enum ScrollingMethod
     {
-        SendingAll,
-        SendingOnlySelected
+		Unknown = 0,
+		SendingAll = 1,
+        SendingOnlySelected = 2
     }
 
 	enum NodeType

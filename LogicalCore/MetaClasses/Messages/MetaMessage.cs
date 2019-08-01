@@ -65,8 +65,8 @@ namespace LogicalCore
 
     public class MetaMessage<KeyboardType> : IMetaMessage<KeyboardType>, IMetaMessage where KeyboardType : class, IMetaReplyMarkup
     {
-        public readonly MessageType type;
-        public readonly MetaText text;
+        public MessageType Type { get; }
+        public MetaText Text { get; }
         public InputOnlineFile File { get; private set; }
         public KeyboardType MetaKeyboard { get; protected set; }
         IMetaReplyMarkup IMetaMessage.MetaKeyboard => MetaKeyboard;
@@ -81,8 +81,8 @@ namespace LogicalCore
             KeyboardType messageKeyboard = null,
             ParseMode parsing = ParseMode.Default)
         {
-            type = messageType;
-            text = metaText ?? new MetaText();
+            Type = messageType;
+            Text = metaText ?? new MetaText();
             if (messageType != MessageType.Text && messageFile == null)
                 throw new ArgumentNullException(nameof(File), "Отсутствие файла разрешено только при MessageType.Text.");
             File = messageFile;
@@ -151,14 +151,14 @@ namespace LogicalCore
         public async Task<Message> SendMessage(Session session)
         {
             Task<Message> sendingTask = null;
-            switch (type)
+            switch (Type)
             {
                 //case MessageType.Unknown:
                 //    break;
                 case MessageType.Text:
                     sendingTask = session.BotClient.SendTextMessageAsync(
                         session.telegramId,
-                        text.ToString(session),
+                        Text.ToString(session),
                         parseMode,
                         replyMarkup: MetaKeyboard?.Translate(session));
                     break;
@@ -166,7 +166,7 @@ namespace LogicalCore
                     sendingTask = session.BotClient.SendPhotoAsync(
                         session.telegramId,
                         File,
-                        text.ToString(session),
+                        Text.ToString(session),
                         parseMode,
                         replyMarkup: MetaKeyboard?.Translate(session));
                     FileIdSaving((await sendingTask).Photo[0]);
@@ -175,7 +175,7 @@ namespace LogicalCore
                     sendingTask = session.BotClient.SendAudioAsync(
                         session.telegramId,
                         File,
-                        text.ToString(session),
+                        Text.ToString(session),
                         parseMode,
                         replyMarkup: MetaKeyboard?.Translate(session));
                     FileIdSaving((await sendingTask).Audio);
@@ -184,7 +184,7 @@ namespace LogicalCore
                     sendingTask = session.BotClient.SendVideoAsync(
                         session.telegramId,
                         File,
-                        caption: text.ToString(session),
+                        caption: Text.ToString(session),
                         parseMode: parseMode,
                         replyMarkup: MetaKeyboard?.Translate(session));
                     FileIdSaving((await sendingTask).Video);
@@ -193,7 +193,7 @@ namespace LogicalCore
                     sendingTask = session.BotClient.SendVoiceAsync(
                         session.telegramId,
                         File,
-                        text.ToString(session),
+                        Text.ToString(session),
                         parseMode,
                         replyMarkup: MetaKeyboard?.Translate(session));
                     FileIdSaving((await sendingTask).Voice);
@@ -202,7 +202,7 @@ namespace LogicalCore
                     sendingTask = session.BotClient.SendDocumentAsync(
                         session.telegramId,
                         File,
-                        text.ToString(session),
+                        Text.ToString(session),
                         parseMode,
                         replyMarkup: MetaKeyboard?.Translate(session));
                     FileIdSaving((await sendingTask).Document);
@@ -257,7 +257,7 @@ namespace LogicalCore
                 //case MessageType.Poll:
                 //    break;
                 default:
-                    throw new NotImplementedException($"Поддержка сообщений типа {type} не реализована.");
+                    throw new NotImplementedException($"Поддержка сообщений типа {Type} не реализована.");
                     //break;
             }
 
