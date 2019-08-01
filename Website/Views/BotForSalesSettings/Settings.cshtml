@@ -171,8 +171,8 @@
             <div class="p-2">
 
                 <div class="row">
-                    <button type="button" class="btn btn-success btn-lg btn-block" onclick="runBot()">Запустить каталог из черновика</button>
-                    <button type="button" class="btn btn-danger btn-lg btn-block" onclick="stopBot()">Остановить</button>
+                    <button type="button" id="btnStartBot" class="btn btn-success btn-lg btn-block" onclick="runBot()" >Запустить каталог из черновика</button>
+                    <button type="button" id="btnStopBot" class="btn btn-danger btn-lg btn-block" onclick="stopBot()">Остановить</button>
                 </div>
             </div>
         </div>
@@ -403,6 +403,13 @@
 
 <script>
     function runBot() {
+
+       
+
+        $('#btnStartBot').prop("disabled", true);
+        $('#btnStopBot').removeAttr("disabled");
+
+
         console.log("runBot")
         var url_string = window.location.href;
         var url = new URL(url_string);
@@ -417,6 +424,12 @@
                 alert('OK');
             },
             error: function (xhr) {
+
+               
+
+                $('#btnStartBot').removeAttr("disabled");
+                $('#btnStopBot').prop("disabled", true);
+
                 alert("Error occurred.  "
                     + xhr.statusCode);
             }
@@ -427,6 +440,11 @@
 
     function stopBot() {
         console.log(" Асфанаватись")
+
+        $('#btnStartBot').removeAttr("disabled");
+        $('#btnStopBot').prop("disabled", true);
+
+
 
         var url_string = window.location.href;
         var url = new URL(url_string);
@@ -440,6 +458,9 @@
                 alert('OK');
             },
             error: function (xhr, ajaxOptions, thrownError) {
+
+                $('#btnStartBot').prop("disabled", true);
+                $('#btnStopBot').removeAttr("disabled");
                 console.log(thrownError);
             }
         });
