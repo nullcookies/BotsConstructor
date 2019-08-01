@@ -360,6 +360,7 @@ namespace DeleteMeWebhook.Controllers
             }
             else
             {
+                Console.WriteLine("Создание новой записи о запущеном боте" + $"{rr.BotId}  {rr.ForestLink}");
                 _context.RouteRecords.Add(rr);
             }
 

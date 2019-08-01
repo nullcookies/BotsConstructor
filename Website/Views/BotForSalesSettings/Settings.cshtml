@@ -402,12 +402,38 @@
 </div>
 
 <script>
+
+    (function setDisabled() {
+        @{
+
+            string theBotIsRunning = "false";
+            if (ViewData["the bot is running"] != null && (bool)ViewData["the bot is running"] == true)
+            {
+                theBotIsRunning = "true";
+            }
+
+
+
+         }
+        var theBotIsRunning = @theBotIsRunning ;
+
+        if (theBotIsRunning) {
+            $('#btnStartBot').prop("disabled", true);
+            $('#btnStopBot').removeAttr("disabled");
+        } else {
+            $('#btnStartBot').removeAttr("disabled");
+            $('#btnStopBot').prop("disabled", true);
+        }
+
+    })();
+
+
+
     function runBot() {
 
        
 
-        $('#btnStartBot').prop("disabled", true);
-        $('#btnStopBot').removeAttr("disabled");
+     
 
 
         console.log("runBot")
@@ -421,14 +447,18 @@
             type: "POST",
             url: url,
             success: function () {
-                alert('OK');
+
+                $('#btnStartBot').prop("disabled", true);
+                $('#btnStopBot').removeAttr("disabled");
+
+                
             },
             error: function (xhr) {
 
                
 
-                $('#btnStartBot').removeAttr("disabled");
-                $('#btnStopBot').prop("disabled", true);
+                //$('#btnStartBot').removeAttr("disabled");
+                //$('#btnStopBot').prop("disabled", true);
 
                 alert("Error occurred.  "
                     + xhr.statusCode);
@@ -439,10 +469,8 @@
     }
 
     function stopBot() {
-        console.log(" Асфанаватись")
+        
 
-        $('#btnStartBot').removeAttr("disabled");
-        $('#btnStopBot').prop("disabled", true);
 
 
 
@@ -455,12 +483,15 @@
             type: "POST",
             url: url,
             success: function () {
-                alert('OK');
+
+                $('#btnStartBot').removeAttr("disabled");
+                $('#btnStopBot').prop("disabled", true);
+                
             },
             error: function (xhr, ajaxOptions, thrownError) {
 
-                $('#btnStartBot').prop("disabled", true);
-                $('#btnStopBot').removeAttr("disabled");
+                //$('#btnStartBot').prop("disabled", true);
+                //$('#btnStopBot').removeAttr("disabled");
                 console.log(thrownError);
             }
         });

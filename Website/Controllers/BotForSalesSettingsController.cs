@@ -52,8 +52,17 @@ namespace Website.Controllers
             RouteRecord record = _context.RouteRecords.Find(botId);
             if (record != null)
             {
-                //если работает, то вставить ссылку на лес для установки websocket-а
+                //если работает, то вставить ссылку для установки websocket-а
                 ViewData["linkToForest"] = record.ForestLink;
+
+                Console.WriteLine("record !=null");
+                Console.WriteLine($"record.BotId = {record.BotId}, record.ForestLink={record.ForestLink}");
+
+                ViewData["the bot is running"] = true;
+            }
+            else
+            {
+                ViewData["the bot is running"] = false;
             }
 
             //вставить статистику

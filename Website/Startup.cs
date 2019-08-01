@@ -92,6 +92,7 @@ namespace Website
             //_contextDb.Database.ExecuteSqlCommand("TRUNCATE TABLE [RouteRecords]");
 
             _contextDb.RouteRecords.RemoveRange(_contextDb.RouteRecords);
+            _contextDb.SaveChanges();
 
             if (env.IsDevelopment())
             {
