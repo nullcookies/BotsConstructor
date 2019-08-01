@@ -44,6 +44,7 @@ namespace Website.Controllers
             }
             
             var isSocketRequest = HttpContext.WebSockets.IsWebSocketRequest;
+            
 
             if (isSocketRequest)
             {
@@ -61,26 +62,7 @@ namespace Website.Controllers
             }
         }
 
-        private async Task RegisterInNotificationSystem(WebSocket webSocket)
-        {
-            int ordersCount = 45;
-           
-            JObject JObj = new JObject
-            {
-                { "ordersCount", ordersCount}
-            };
-
-            string jsonString = JsonConvert.SerializeObject(JObj);
-            var bytes = Encoding.UTF8.GetBytes(jsonString);
-            var arraySegment = new ArraySegment<byte>(bytes);
-            await webSocket.SendAsync(arraySegment, WebSocketMessageType.Text, true, CancellationToken.None);
-
-            Thread.Sleep(2000);
-
-
-
-        }
-
+      
 
 
         public IActionResult Orders2(int page=1)

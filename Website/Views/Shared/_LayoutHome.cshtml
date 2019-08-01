@@ -47,7 +47,10 @@
                 }
 
 
+
+
                 var update = function () {
+                    console.log(   "ajax ");
                     $.ajax({
                         type: 'POST',
                         url: '/Orders/GetNewOrdersCount',
@@ -59,10 +62,6 @@
                 };
 
                 update();
-             
-
-
-
 
 
             </script>
@@ -77,14 +76,22 @@
 
                     var webSocket = new WebSocket(url);
                     webSocket.onmessage = onMessageReceived;
-
+                    webSocket.onerror = onError;
                 };
+
+                function onError() {
+
+                    console.log("Не удалось установить webSocket соединение");
+                    console.log("Запуск long polling");
+                    setInterval(() => update(), 10000);
+
+                }
 
 
                 getWebSocketMessages(function (message) {
-                    console.log("Пришло уведомление");
+                    //console.log("Пришло уведомление");
                     var jsonObj = JSON.parse(message.data);
-                    console.log(jsonObj);
+                    //console.log(jsonObj);
 
                     SetNewOrdersCount(jsonObj.ordersCount);
                     
