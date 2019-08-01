@@ -15,20 +15,17 @@ using System.Threading;
 using System.Threading.Tasks;
 
 
-//Вебсокет, похоже портится при выходе потока
-
-
 namespace Website.Services
 {
 
     /// <summary>
-    /// Для того, чтобы в websocket отдавалось кол-во текущих заказов нужно 
-    /// зарегистрироваться
+    /// Отдаёт актуальное число заказов для аккаунта
+    /// 
     /// </summary>
     public class OrdersCountNotificationService
     {
-        ApplicationContext _contextDb;
         StupidLogger _logger;
+        ApplicationContext _contextDb;
 
         public OrdersCountNotificationService(IConfiguration configuration, StupidLogger _logger)
         {
@@ -67,23 +64,16 @@ namespace Website.Services
 
         /// <summary>
         /// Раз в интервал выбирает всю таблицу заказов и отправляет 
-        /// всем подписавшимся клиентам актуальное кол-во заказов
+        /// всем подписавшимся клиентам актуальное кол-во заказов есди оно изменилось
         /// </summary>
         private async Task SendNotificationsOfNewOrders()
         {
             
             List<Order> allOrders = null;
             
-            //Это помогает избежать падения?
             lock (lockObj)
             {
-
-                //Отключение кэширования
-                _contextDb.ChangeTracker.QueryTrackingBehavior =
-                    Microsoft.EntityFrameworkCore.QueryTrackingBehavior.NoTracking;
-
-                allOrders = _contextDb.Orders.ToList();
-                
+                allOrders = _contextDb.Orders.ToList();                
             }
 
 
@@ -91,19 +81,15 @@ namespace Website.Services
             for (int i = 0; i < allOrders.Count; i++)
             {
                 Order order = allOrders[i];
-                Console.WriteLine($"Номер заказа ={i}, статус = {order.OrderStatusId}");
-                
+                                
                 //Это новый заказ
                 if (order.OrderStatusId == null)
                 {
-
-                    int botId = order.BotId;
-                    
+                    int botId = order.BotId;                    
 
                     //У нас есть аккаунты, которые подписаны на этого бота
                     if (_dict_botId_accountIds.ContainsKey(botId))
-                    {
-                    
+                    {                    
                         List<int> accountIds = _dict_botId_accountIds[botId];
 
                         //По всем подписанным аккаунтам
@@ -111,7 +97,13 @@ namespace Website.Services
                         for (int j = 0; j < accountIds.Count; j++)
                         {
                             int accountId = accountIds[j];
-                            _dict_accountId_WebSocket[accountId].OrdersCount++;
+                            List<UserWebSocketPair> userSession_Websocket = _dict_accountId_WebSocket[accountId];
+                            for (int q = 0; q < userSession_Websocket.Count; q++)
+                            {
+                                UserWebSocketPair pair = userSession_Websocket[q];
+                                pair.OrdersCount++;
+
+                            }                            
                         }
                     }
                 }
@@ -120,35 +112,39 @@ namespace Website.Services
            
 
             //Отправка новых чисел в счётчике
-            foreach (var key in _dict_accountId_WebSocket.Keys)
+            foreach (int accountId in _dict_accountId_WebSocket.Keys)
             {
-                int ordersCount = _dict_accountId_WebSocket[key].OrdersCount;
+                List<UserWebSocketPair> userSession_websockets = _dict_accountId_WebSocket[accountId];
 
-                for (int k = 0; k < _dict_accountId_WebSocket[key].WebSockets.Count; k++)
+                for (int w = 0; w < userSession_websockets.Count; w++)
                 {
-                    WebSocket webSocket = _dict_accountId_WebSocket[key].WebSockets[k];
+                    UserWebSocketPair userSession_websocket = userSession_websockets[w];
 
-                    JObject JObj = new JObject
+                    //Если значение поменялось
+                    if (userSession_websocket.OrdersCount != userSession_websocket.OrdersCountOld)
+                    {
+                        //Отправка нового значения
+                        WebSocket webSocket = userSession_websocket.WebSocket;
+                        int ordersCount = userSession_websocket.OrdersCount;
+
+                        JObject JObj = new JObject
                         {
                             { "ordersCount", ordersCount}
                         };
 
-                    string jsonString = JsonConvert.SerializeObject(JObj);
-                    var bytes = Encoding.UTF8.GetBytes(jsonString);
-                    var arraySegment = new ArraySegment<byte>(bytes);
-               
-                    //Если количество заказов поменялось
-                    if(_dict_accountId_WebSocket[key].OrdersCount!= _dict_accountId_WebSocket[key].OrdersCountOld)
-                    {
-                        //Отправка нового значения
+                        string jsonString = JsonConvert.SerializeObject(JObj);
+                        var bytes = Encoding.UTF8.GetBytes(jsonString);
+                        var arraySegment = new ArraySegment<byte>(bytes);
+                                                
                         await webSocket.SendAsync(arraySegment, WebSocketMessageType.Text, true, CancellationToken.None);
                     }
+
+                    //Обновление и сброс количества заказов
+                    userSession_websocket.OrdersCountOld = userSession_websocket.OrdersCount;
+                    userSession_websocket.OrdersCount = 0;
+
                 }
 
-                //Обновление старого кол-ва заказов
-                _dict_accountId_WebSocket[key].OrdersCountOld = _dict_accountId_WebSocket[key].OrdersCount;
-                //Обнуление текущего кол-ва заказов
-                _dict_accountId_WebSocket[key].OrdersCount = 0;
             }
         }
 
@@ -157,7 +153,7 @@ namespace Website.Services
         /// <summary>
         /// Словарь для того, чтобы знать куда отправлять уведомление
         /// </summary>
-        private static ConcurrentDictionary<int, WebsocketsForAccount> _dict_accountId_WebSocket = new ConcurrentDictionary<int, WebsocketsForAccount>();
+        private static ConcurrentDictionary<int, List<UserWebSocketPair>> _dict_accountId_WebSocket = new ConcurrentDictionary<int, List<UserWebSocketPair>>();
 
         /// <summary>
         /// Словарь для того, чтобы знать кому отправлять уведомления
@@ -179,9 +175,12 @@ namespace Website.Services
             //Это вообще как-то помогает?
             lock (lockObj)
             {
+                UserWebSocketPair pair = new UserWebSocketPair() { OrdersCountOld = 0, OrdersCount = 0, WebSocket = webSocket };
+
+                //Если уже есть такой аккаунт(другие вкладки или несколько компьютеров)
                 if (_dict_accountId_WebSocket.ContainsKey(accountId))
                 {
-                    _dict_accountId_WebSocket[accountId].WebSockets.Add(webSocket);
+                    _dict_accountId_WebSocket[accountId].Add(pair );
                 }
                 else
                 {
@@ -189,7 +188,12 @@ namespace Website.Services
                     //кончилась память
                     //такой ключ уже есть
                     //key == null
-                    bool addIsOk = _dict_accountId_WebSocket.TryAdd(accountId, new WebsocketsForAccount() { WebSockets=new List<WebSocket>() { webSocket } } );
+                    bool addIsOk = _dict_accountId_WebSocket.TryAdd(accountId, 
+                        new List<UserWebSocketPair>()
+                        {
+                           pair
+                        } 
+                    );
 
                     if (!addIsOk)
                     {
@@ -205,9 +209,9 @@ namespace Website.Services
                 List<int> the_bot_ids_on_which_the_account_is_signed =
                     _contextDb.Bots.Where(_bot => _bot.OwnerId == accountId).Select(_bot => _bot.Id).ToList();
 
-                //TODO Боты, к которым аккаунт имеет доступ(модератор)
+                //TODO Боты, к которым аккаунт имеет доступ (модератор)
 
-                //Для всех ботов на которых аккаунт подписан
+                //Для всех ботов на которые аккаунт подписан
                 for (int i = 0; i < the_bot_ids_on_which_the_account_is_signed.Count; i++)
                 {
                     int botId = the_bot_ids_on_which_the_account_is_signed[i];
@@ -235,19 +239,34 @@ namespace Website.Services
 
                     }
                 }
-            }
-                       
+            }                       
         }
 
 
         object lockObj = new object();
 
-        private class WebsocketsForAccount
+        /// <summary>
+        /// Хранит количество заказов для счётчика на сайте
+        /// и вебсокет для каждой вкладки браузера
+        /// </summary>
+        private class UserWebSocketPair
         {
-            public int OrdersCountOld;
             public int OrdersCount;
-            public List< WebSocket > WebSockets;
+            public int OrdersCountOld;
+            public WebSocket WebSocket;
         }
+        /// Зачем для каждой вкладки? 
+        /// Вообще незачем, но раз упарываться по оптимизации сети,
+        /// то можно представить такую ситуацию:
+        /// 
+        /// на 10 компьютерах открыто по 1 вкладке с одного аккаунта
+        /// на всех 10-ти компьютерах показывается число 3 в количестве заказов
+        /// 
+        /// и тут хоба и включается 11-ый пользователь под тем же аккаунтом
+        /// для него в переменной хранится кол-во заказов 0
+        /// 
+        /// при новой рассылке уведомлений Json с кол-вом заказов отправится только 
+        /// 11-тому, а не всем вкладкам под этим аккаунтом
     }
-    
+
 }

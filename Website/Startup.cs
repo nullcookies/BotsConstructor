@@ -92,6 +92,11 @@ namespace Website
             //оно не хочет очищать таблицу
             //_contextDb.Database.ExecuteSqlCommand("TRUNCATE TABLE [RouteRecords]");
 
+            //Отключение кэширования
+            _contextDb.ChangeTracker.QueryTrackingBehavior =
+                Microsoft.EntityFrameworkCore.QueryTrackingBehavior.NoTracking;
+
+
             _contextDb.RouteRecords.RemoveRange(_contextDb.RouteRecords);
             _contextDb.SaveChanges();
 
