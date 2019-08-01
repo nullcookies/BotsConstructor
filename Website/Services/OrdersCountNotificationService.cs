@@ -20,6 +20,11 @@ using System.Threading.Tasks;
 
 namespace Website.Services
 {
+
+    /// <summary>
+    /// Для того, чтобы в websocket отдавалось кол-во текущих заказов нужно 
+    /// зарегистрироваться
+    /// </summary>
     public class OrdersCountNotificationService
     {
         ApplicationContext _contextDb;
@@ -50,8 +55,7 @@ namespace Website.Services
 
         }
 
-
-
+        //Периодический запуск
         public async Task<bool> PeriodicFooAsync(TimeSpan interval, CancellationToken cancellationToken)
         {
             while (true)
@@ -60,47 +64,53 @@ namespace Website.Services
                 await Task.Delay(interval, cancellationToken);                
             }
         }
-    
+
+        /// <summary>
+        /// Раз в интервал выбирает всю таблицу заказов и отправляет 
+        /// всем подписавшимся клиентам актуальное кол-во заказов
+        /// </summary>
         private async Task SendNotificationsOfNewOrders()
         {
+            
             List<Order> allOrders = null;
             
             //Это помогает избежать падения?
             lock (lockObj)
             {
+
+                //Отключение кэширования
+                _contextDb.ChangeTracker.QueryTrackingBehavior =
+                    Microsoft.EntityFrameworkCore.QueryTrackingBehavior.NoTracking;
+
                 allOrders = _contextDb.Orders.ToList();
+                
             }
 
 
             //Перебираю все заказы
             for (int i = 0; i < allOrders.Count; i++)
             {
-                Console.WriteLine($"i={i}");
                 Order order = allOrders[i];
-
-
-                Console.WriteLine($"order.OrderStatusId  = {order.OrderStatusId }");
+                Console.WriteLine($"Номер заказа ={i}, статус = {order.OrderStatusId}");
+                
                 //Это новый заказ
                 if (order.OrderStatusId == null)
                 {
 
                     int botId = order.BotId;
-                    Console.WriteLine($"Это новый заказ. botId= {botId}");
+                    
 
                     //У нас есть аккаунты, которые подписаны на этого бота
                     if (_dict_botId_accountIds.ContainsKey(botId))
                     {
-                        Console.WriteLine($"//У нас есть аккаунты, которые подписаны на этого бота");
-
+                    
                         List<int> accountIds = _dict_botId_accountIds[botId];
 
+                        //По всем подписанным аккаунтам
                         //Инкремент счётчика аккаунта
                         for (int j = 0; j < accountIds.Count; j++)
                         {
                             int accountId = accountIds[j];
-                            Console.WriteLine($"accountId = {accountId }");
-                            Console.WriteLine($"j = {j}");
-
                             _dict_accountId_WebSocket[accountId].OrdersCount++;
                         }
                     }
@@ -127,9 +137,17 @@ namespace Website.Services
                     var bytes = Encoding.UTF8.GetBytes(jsonString);
                     var arraySegment = new ArraySegment<byte>(bytes);
                
-                    await webSocket.SendAsync(arraySegment, WebSocketMessageType.Text, true, CancellationToken.None);
+                    //Если количество заказов поменялось
+                    if(_dict_accountId_WebSocket[key].OrdersCount!= _dict_accountId_WebSocket[key].OrdersCountOld)
+                    {
+                        //Отправка нового значения
+                        await webSocket.SendAsync(arraySegment, WebSocketMessageType.Text, true, CancellationToken.None);
+                    }
                 }
 
+                //Обновление старого кол-ва заказов
+                _dict_accountId_WebSocket[key].OrdersCountOld = _dict_accountId_WebSocket[key].OrdersCount;
+                //Обнуление текущего кол-ва заказов
                 _dict_accountId_WebSocket[key].OrdersCount = 0;
             }
         }
@@ -139,7 +157,7 @@ namespace Website.Services
         /// <summary>
         /// Словарь для того, чтобы знать куда отправлять уведомление
         /// </summary>
-        private static ConcurrentDictionary<int, OrdersCountModel> _dict_accountId_WebSocket = new ConcurrentDictionary<int, OrdersCountModel>();
+        private static ConcurrentDictionary<int, WebsocketsForAccount> _dict_accountId_WebSocket = new ConcurrentDictionary<int, WebsocketsForAccount>();
 
         /// <summary>
         /// Словарь для того, чтобы знать кому отправлять уведомления
@@ -148,7 +166,12 @@ namespace Website.Services
 
 
         
-
+        /// <summary>
+        /// Подписывает аккаунт на уведомления всех доступных ботов
+        /// </summary>
+        /// <param name="accountId"></param>
+        /// <param name="webSocket"></param>
+        /// <param name="socketFinishedTcs"></param>
         public void RegisterInNotificationSystem(int accountId, WebSocket webSocket, TaskCompletionSource<object> socketFinishedTcs)
         {
 
@@ -166,7 +189,7 @@ namespace Website.Services
                     //кончилась память
                     //такой ключ уже есть
                     //key == null
-                    bool addIsOk = _dict_accountId_WebSocket.TryAdd(accountId, new OrdersCountModel() { WebSockets=new List<WebSocket>() { webSocket } } );
+                    bool addIsOk = _dict_accountId_WebSocket.TryAdd(accountId, new WebsocketsForAccount() { WebSockets=new List<WebSocket>() { webSocket } } );
 
                     if (!addIsOk)
                     {
@@ -219,11 +242,11 @@ namespace Website.Services
 
         object lockObj = new object();
 
-        private class OrdersCountModel
+        private class WebsocketsForAccount
         {
+            public int OrdersCountOld;
             public int OrdersCount;
             public List< WebSocket > WebSockets;
-
         }
     }
     
