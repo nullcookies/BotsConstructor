@@ -71,8 +71,6 @@ namespace Website.Services
             for (int i = 0; i < allOrders.Count; i++)
             {
                 Order order = allOrders[i];
-
-                Console.WriteLine($"Заказ номер {i} order.OrderStatusId = {order.OrderStatusId}");
                 //Это новый заказ
                 if (order.OrderStatusId == null)
                 {
