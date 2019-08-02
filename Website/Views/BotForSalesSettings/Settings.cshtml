@@ -446,7 +446,10 @@
             success: function () {
 
             },
-            error: function (xhr) {                
+            error: function (xhr) {    
+
+                update();
+
                 $('#btnStartBot').removeAttr("disabled");                       
                 console.log(thrownError);
                 alert("Error occurred.  "
@@ -480,6 +483,8 @@
 
             },
             error: function (xhr, ajaxOptions, thrownError) {
+
+                update();
 
                 //Включить кнопку остановки бота
                 $('#btnStopBot').removeAttr("disabled");
@@ -579,7 +584,20 @@
             setInterval(() => update(), 10000);
 
         }
-        function update() {
+       
+        update();
+
+        getWebSocketMessages(function (message) {
+
+            var statisticsInfo = JSON.parse(message.data);
+            console.log(statisticsInfo );
+            updateStatistics(statisticsInfo);
+            
+        });
+    }());
+
+
+   function update() {
 
             console.log("ajax update");
 
@@ -600,18 +618,5 @@
             });
             
         }
-        update();
-
-        getWebSocketMessages(function (message) {
-
-            var statisticsInfo = JSON.parse(message.data);
-            console.log(statisticsInfo );
-            updateStatistics(statisticsInfo);
-            
-        });
-    }());
-
-
-  
 
 </script>
