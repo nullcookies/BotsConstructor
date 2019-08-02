@@ -46,22 +46,22 @@
                     }
                 }
 
-                @*var update = function () {
+
+
+
+                var update = function () {
+                    console.log(   "ajax ");
                     $.ajax({
                         type: 'POST',
                         url: '/Orders/GetNewOrdersCount',
                         success: function (data) {
                             SetNewOrdersCount(data);
-                            @*setNewFeedbackCount(?);
+                            //setNewFeedbackCount(?);
                         },
                     });
                 };
 
-                var refInterval = window.setInterval('update()', 5000); // 5 seconds
-                update();*@
-
-
-
+                update();
 
 
             </script>
@@ -75,38 +75,23 @@
                     console.log('url is: ' + url);
 
                     var webSocket = new WebSocket(url);
-
-                    //webSocket.onmessage = onMessageReceived;
-                    webSocket.onclose = function (event) {
-                        if (event.wasClean) {
-                            alert('Соединение закрыто чисто');
-                        } else {
-                            alert('Обрыв соединения'); // например, "убит" процесс сервера
-                        }
-                        console.log(event);
-                        console.log('Код: ' + event.code + ' причина: ' + event.reason);
-                    };
-
-                    webSocket.onmessage = function (event) {
-                        alert("Получены данные " + event.data);
-                    };
-
-                    webSocket.onerror = function (error) {
-
-                        console.log(error);
-                        console.log(error.message);
-                    };
-
+                    webSocket.onmessage = onMessageReceived;
+                    webSocket.onerror = onError;
                 };
 
+                function onError() {
 
+                    console.log("Не удалось установить webSocket соединение");
+                    console.log("Запуск long polling");
+                    setInterval(() => update(), 10000);
 
+                }
 
 
                 getWebSocketMessages(function (message) {
-                    console.log("Пришло уведомление");
+                    //console.log("Пришло уведомление");
                     var jsonObj = JSON.parse(message.data);
-                    console.log(jsonObj);
+                    //console.log(jsonObj);
 
                     SetNewOrdersCount(jsonObj.ordersCount);
                     
