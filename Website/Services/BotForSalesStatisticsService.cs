@@ -25,7 +25,7 @@ namespace Website.Services
             _logger = logger;
             _dbContextWrapper = new DbContextWrapper(configuration);
 
-            PeriodicFooAsync(TimeSpan.FromSeconds(2), CancellationToken.None);
+            PeriodicFooAsync(TimeSpan.FromSeconds(10), CancellationToken.None);
         }
 
 

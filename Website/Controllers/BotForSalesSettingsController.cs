@@ -64,6 +64,8 @@ namespace Website.Controllers
         [TypeFilter(typeof(CheckAccessToTheBot))]
         public IActionResult GetBotForSalesStatistics(int botId)
         {
+            _logger.Log(LogLevelMyDich.INFO, "Сайт. Опрос стастистики бота через " +
+                    "ajax (на клиенте не доступен webSocket или кто-то балуется).");
             try
             {
 
