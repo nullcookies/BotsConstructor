@@ -78,6 +78,7 @@ namespace Website
 
             services.AddSingleton<StupidLogger>();
             services.AddSingleton<OrdersCountNotificationService>();
+            services.AddSingleton<BotForSalesStatisticsService>();
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
               .AddCookie(options =>

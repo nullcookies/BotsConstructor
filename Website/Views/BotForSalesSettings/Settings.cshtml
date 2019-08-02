@@ -520,7 +520,7 @@
 
     function updateStatistics(statisticsInfo) {
 
-        setBotStatus(statisticsInfo.botStatus);
+        setBotStatus(statisticsInfo.botWorks);
 
         $('#ordersCount').html(statisticsInfo.ordersCount);
         $('#usersCount').html(statisticsInfo.usersCount);
@@ -529,28 +529,40 @@
 
     }
 
-    function setBotStatus(botStatus) {
+    function setBotStatus(botWorks) {
 
         $('#botStatus_stub').hide();
 
         $('[id^="botStatus_"]').hide();
-        
-        if (botStatus == "working" || botStatus == "stopped" || botStatus == "fail") {
-            
-            $('#botStatus_' + botStatus).show();
-        
-        } else {
-            throw new Error("Неожиданный ответ сервера")
+        if (botWorks != null && botWorks != 'undefined')
+        {
+            if (botWorks) {
+                $('#botStatus_working').show();
+            } else {
+                $('#botStatus_stopped').show();
+            }
         }
+        //if (botStatus == "working" || botStatus == "stopped" || botStatus == "fail") {
+            
+        //    $('#botStatus_' + botStatus).show();
+        
+        //} else {
+        //    throw new Error("Неожиданный ответ сервера")
+        //}
 
 
     }
 </script>
 
-@*<script>
+<script>
     (function () {
         var getWebSocketMessages = function (onMessageReceived) {
-            var url = `wss://${location.host}/BotForSalesSettings/MyWebsocket`
+
+            var url_string = window.location.href;
+            var url = new URL(url_string);
+            var botId = url.searchParams.get("botId");
+
+            var url = `wss://${location.host}/BotForSalesSettings/MyWebsocket?botId=${botId}`
             console.log('url is: ' + url);
 
             var webSocket = new WebSocket(url);
@@ -558,8 +570,7 @@
             webSocket.onmessage = onMessageReceived;
         };
 
-        var ulElement = document.getElementById('StreamToMe');
-
+        
         getWebSocketMessages(function (message) {
 
             var statisticsInfo = JSON.parse(message.data);
@@ -569,4 +580,4 @@
         });
     }());
 
-</script>*@
+</script>

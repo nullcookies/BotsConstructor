@@ -23,8 +23,9 @@ namespace DataLayer.Models
         public DbSet<UnconfirmedEmail> UnconfirmedEmails { get; set; }
         public DbSet<AccountToResetPassword> AccountsToResetPassword { get; set; }
         public DbSet<RouteRecord> RouteRecords { get; set; }
-
         public DbSet<LogMessage> LogMessages { get; set; }
+        public DbSet<BotForSalesStatistics> BotForSalesStatistics { get; set; }
+
 
         public ApplicationContext(DbContextOptions<ApplicationContext> options)
            : base(options)
@@ -66,23 +67,28 @@ namespace DataLayer.Models
 
             modelBuilder.Entity<Account>().HasData(accounts);
 
-            modelBuilder.Entity<BotDB>()
-             .Property(_bot => _bot.NumberOfUniqueMessages)
-             .HasDefaultValue(0);
+            modelBuilder.Entity<BotForSalesStatistics>()
+                 .Property(_botStat => _botStat.NumberOfUniqueMessages)
+                 .HasDefaultValue(0);
 
-            modelBuilder.Entity<BotDB>()
-            .Property(_bot => _bot.NumberOfUniqueUsers)
-            .HasDefaultValue(0);
+            modelBuilder.Entity<BotForSalesStatistics>()
+                .Property(_botStat => _botStat.NumberOfUniqueUsers)
+                .HasDefaultValue(0);
 
-            modelBuilder.Entity<BotDB>()
-            .Property(_bot => _bot.NumberOfOrders)
-            .HasDefaultValue(0);
+            modelBuilder.Entity<BotForSalesStatistics>()
+                .Property(_botStat => _botStat.NumberOfOrders)
+                .HasDefaultValue(0);
 
             // Для тестирования
             modelBuilder.Entity<BotDB>().HasData(new List<object>
 			{
 				new {Id = 1_000_000, BotName = "Zradabot01", OwnerId = 1_000_001, BotType="BotForSales"}
 			});
+
+            modelBuilder.Entity<BotForSalesStatistics>().HasData(new List<BotForSalesStatistics>
+            {
+                new BotForSalesStatistics(){BotId=1_000_000}
+            });
 
 			var statusGroups = new List<object>()
 			{
@@ -215,13 +221,25 @@ namespace DataLayer.Models
 
         public string BotType { get; set; }
 
-        public int NumberOfUniqueUsers { get; set; }
-        public long NumberOfUniqueMessages { get; set; }
-        public long NumberOfOrders { get; set; }
 
         public virtual ICollection<Order> Orders { get; set; }
     }
 
+    public class BotForSalesStatistics
+    {
+        [Key]
+        public int BotId { get; set; }
+
+        [ForeignKey("BotId")]
+        public BotDB Bot { get; set; } 
+
+        [Required]
+        public long NumberOfOrders          { get; set; }
+        [Required]
+        public int  NumberOfUniqueUsers     { get; set; }
+        [Required]
+        public long NumberOfUniqueMessages  { get; set; }
+    }
 
 	/// <summary>
 	/// Статус заказа.

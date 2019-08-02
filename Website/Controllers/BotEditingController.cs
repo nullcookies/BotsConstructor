@@ -64,6 +64,15 @@ namespace Website.Controllers
             //Создание нового бота для продаж с пустой разметкой
             BotDB bot = new BotDB() { BotName = "New bot", OwnerId = accountId, BotType = "BotForSales" };
             context.Bots.Add(bot);
+
+            //Создание статистики для бота
+            BotForSalesStatistics botForSalesStatistics = new BotForSalesStatistics()
+            {
+                BotId = bot.Id
+            };
+
+            context.BotForSalesStatistics.Add(botForSalesStatistics);
+
             context.SaveChanges();
 
             int botId = bot.Id;

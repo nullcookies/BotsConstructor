@@ -26,15 +26,20 @@ namespace Website.Controllers
     public class BotForSalesSettingsController : Controller
     {
 
-        ApplicationContext _context;
+        ApplicationContext _contextDb;
         IHostingEnvironment _appEnvironment;
         StupidLogger _logger;
+        BotForSalesStatisticsService _botForSalesStatisticsService;
 
-        public BotForSalesSettingsController(ApplicationContext context, IHostingEnvironment appEnvironment, StupidLogger _logger)
+        public BotForSalesSettingsController(ApplicationContext context, 
+            IHostingEnvironment appEnvironment, 
+            StupidLogger _logger, 
+            BotForSalesStatisticsService botForSalesStatisticsService)
         {
-            this._context = context ?? throw new ArgumentNullException(nameof(context));
+            this._contextDb = context ?? throw new ArgumentNullException(nameof(context));
             _appEnvironment = appEnvironment;
             this._logger = _logger;
+            _botForSalesStatisticsService = botForSalesStatisticsService;
         }
 
 
@@ -43,18 +48,16 @@ namespace Website.Controllers
         public IActionResult Settings(int botId)
         {
            
-            BotDB bot = _context.Bots.Find(botId);
+            BotDB bot = _contextDb.Bots.Find(botId);
 
             ViewData["botId"] = botId;
             ViewData["botType"] = bot.BotType;
 
             
-            RouteRecord record = _context.RouteRecords.Find(botId);
+            RouteRecord record = _contextDb.RouteRecords.Find(botId);
             if (record != null)
             {
-                //если работает, то вставить ссылку для установки websocket-а
-                ViewData["linkToForest"] = record.ForestLink;
-
+                
                 Console.WriteLine("record !=null");
                 Console.WriteLine($"record.BotId = {record.BotId}, record.ForestLink={record.ForestLink}");
 
@@ -66,23 +69,36 @@ namespace Website.Controllers
             }
 
             //вставить статистику
-            ViewData["ordersCount"] = bot.NumberOfOrders;
-            ViewData["usersCount"] = bot.NumberOfUniqueUsers;
-            ViewData["messagesCount"] = bot.NumberOfUniqueMessages;
+            BotForSalesStatistics botForSalesStatistics = _contextDb.BotForSalesStatistics.Find(botId);
+
+
+            ViewData["ordersCount"] = botForSalesStatistics.NumberOfOrders;
+            ViewData["usersCount"] = botForSalesStatistics.NumberOfUniqueUsers;
+            ViewData["messagesCount"] = botForSalesStatistics.NumberOfUniqueMessages;
 
             return View();
         }
 
         [HttpGet]
-        public async Task MyWebsocket()
+        [TypeFilter(typeof(CheckAccessToTheBot))]
+        public async Task MyWebsocket(int botId)
         {
+
             var context = ControllerContext.HttpContext;
             var isSocketRequest = context.WebSockets.IsWebSocketRequest;
 
             if (isSocketRequest)
             {
-                WebSocket webSocket = await context.WebSockets.AcceptWebSocketAsync();
-                await SendMessage(webSocket, "beliberda");
+                
+                
+                WebSocket webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
+                var socketFinishedTcs = new TaskCompletionSource<object>();
+
+                _botForSalesStatisticsService.RegisterInNotificationSystem(botId, webSocket);
+
+                await socketFinishedTcs.Task;
+
+
             }
             else
             {
@@ -134,7 +150,7 @@ namespace Website.Controllers
                 return StatusCode(403);
             }
 
-            BotDB bot = _context.Bots.Find(botId);
+            BotDB bot = _contextDb.Bots.Find(botId);
 
             if (bot != null)
             {
@@ -142,7 +158,7 @@ namespace Website.Controllers
                 {
                     Console.WriteLine("bot.OwnerId == accountId");
 
-                    RouteRecord record = _context.RouteRecords.Find(bot.Id);
+                    RouteRecord record = _contextDb.RouteRecords.Find(bot.Id);
                     
 
                     if (record != null)
@@ -165,7 +181,7 @@ namespace Website.Controllers
 
                             Console.WriteLine(" await Stub.SendPost(" + forestUrl);
 
-                            RouteRecord normal_rr = _context.RouteRecords.Where(_rr => _rr.BotId == botId).SingleOrDefault();
+                            RouteRecord normal_rr = _contextDb.RouteRecords.Where(_rr => _rr.BotId == botId).SingleOrDefault();
 
                             Console.WriteLine("uteRecord rr = context.RouteRecords.Find(b");
 
@@ -226,7 +242,7 @@ namespace Website.Controllers
             Console.WriteLine("Сайт. Запуск бота");
             Console.WriteLine("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 
-            BotDB bot = _context.Bots.Find(botId);
+            BotDB bot = _contextDb.Bots.Find(botId);
 
             if (bot.Token == null)
             {
@@ -244,7 +260,7 @@ namespace Website.Controllers
 
                 //проверка нормального запуска
 
-                RouteRecord rr = _context.RouteRecords.Find(botId);
+                RouteRecord rr = _contextDb.RouteRecords.Find(botId);
 
                 if (rr != null)
                 {
@@ -277,9 +293,9 @@ namespace Website.Controllers
         {
             try
             {
-                var removableBot = _context.Bots.Find(botId);
+                var removableBot = _contextDb.Bots.Find(botId);
 
-                RouteRecord rr = _context.RouteRecords.Find(botId);
+                RouteRecord rr = _contextDb.RouteRecords.Find(botId);
 
                 //Удаляемый бот запущен
                 if (rr != null)
@@ -293,8 +309,8 @@ namespace Website.Controllers
                     }
                 }
 
-                _context.Remove(removableBot);
-                _context.SaveChanges();
+                _contextDb.Remove(removableBot);
+                _contextDb.SaveChanges();
 
                 return Ok();
             }

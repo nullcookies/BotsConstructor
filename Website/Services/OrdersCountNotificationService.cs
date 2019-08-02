@@ -58,7 +58,6 @@ namespace Website.Services
         /// </summary>
         private async Task SendNotificationsOfNewOrders()
         {
-            
             List<Order> allOrders = null;
             
             lock (lockObj)
@@ -157,7 +156,7 @@ namespace Website.Services
         /// <param name="accountId"></param>
         /// <param name="webSocket"></param>
         /// <param name="socketFinishedTcs"></param>
-        public void RegisterInNotificationSystem(int accountId, WebSocket webSocket, TaskCompletionSource<object> socketFinishedTcs)
+        public void RegisterInNotificationSystem(int accountId, WebSocket webSocket)
         {
 
             //На всякий случай
@@ -258,30 +257,33 @@ namespace Website.Services
         /// 11-тому, а не всем вкладкам под этим аккаунтом
         /// 
 
-        private class DbContextWrapper
+
+
+    }
+
+    public class DbContextWrapper
+    {
+        private readonly string _connextionString;
+
+        public DbContextWrapper(IConfiguration configuration)
         {
-            private readonly string _connextionString;
 
-            public DbContextWrapper(IConfiguration configuration)
-            {
-                
-                bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+            bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
-                if (isWindows)
-                    _connextionString = configuration.GetConnectionString("PostgresConnectionDevelopment");
-                else
-                    _connextionString = configuration.GetConnectionString("PostgresConnectionLinux");
+            if (isWindows)
+                _connextionString = configuration.GetConnectionString("PostgresConnectionDevelopment");
+            else
+                _connextionString = configuration.GetConnectionString("PostgresConnectionLinux");
 
-                
-            }
 
-            public ApplicationContext GetDbContext()
-            {
-                return new ApplicationContext(
-                    new DbContextOptionsBuilder<ApplicationContext>()
-                    .UseNpgsql(_connextionString)
-                    .Options);
-            }
+        }
+
+        public ApplicationContext GetDbContext()
+        {
+            return new ApplicationContext(
+                new DbContextOptionsBuilder<ApplicationContext>()
+                .UseNpgsql(_connextionString)
+                .Options);
         }
     }
 
