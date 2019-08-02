@@ -20,6 +20,7 @@ using System.Threading;
 using Website.Services;
 using DataLayer.Services;
 using DataLayer.Models;
+using System.Diagnostics;
 
 namespace Website.Controllers
 {
@@ -47,34 +48,15 @@ namespace Website.Controllers
         [TypeFilter(typeof(CheckAccessToTheBot))]
         public IActionResult Settings(int botId)
         {
-           
-            BotDB bot = _contextDb.Bots.Find(botId);
 
+            BotDB bot = _contextDb.Bots.Find(botId);
+            
             ViewData["botId"] = botId;
             ViewData["botType"] = bot.BotType;
+            ViewData["usersCount"] = 0;
+            ViewData["ordersCount"] = 0;
+            ViewData["messagesCount"] = 0;
 
-            
-            RouteRecord record = _contextDb.RouteRecords.Find(botId);
-            if (record != null)
-            {
-                
-                Console.WriteLine("record !=null");
-                Console.WriteLine($"record.BotId = {record.BotId}, record.ForestLink={record.ForestLink}");
-
-                ViewData["the bot is running"] = true;
-            }
-            else
-            {
-                ViewData["the bot is running"] = false;
-            }
-
-            //вставить статистику
-            BotForSalesStatistics botForSalesStatistics = _contextDb.BotForSalesStatistics.Find(botId);
-
-
-            ViewData["ordersCount"] = botForSalesStatistics.NumberOfOrders;
-            ViewData["usersCount"] = botForSalesStatistics.NumberOfUniqueUsers;
-            ViewData["messagesCount"] = botForSalesStatistics.NumberOfUniqueMessages;
 
             return View();
         }

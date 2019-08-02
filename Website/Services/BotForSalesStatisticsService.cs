@@ -24,9 +24,7 @@ namespace Website.Services
             _logger = logger;
             _dbContextWrapper = new DbContextWrapper(configuration);
 
-
-
-            PeriodicFooAsync(TimeSpan.FromSeconds(5), CancellationToken.None);
+            PeriodicFooAsync(TimeSpan.FromSeconds(2), CancellationToken.None);
         }
 
 
@@ -38,15 +36,12 @@ namespace Website.Services
                 await SendRelevantStatistics();
                 await Task.Delay(interval, cancellationToken);
             }
-
         }
 
 
         private async Task SendRelevantStatistics()
         {
-            Console.WriteLine("Отправка новых уведомлений");
-
-
+         
             //выбрать всю статистику для ботов
 
             List<BotForSalesStatistics> allStat = _contextDb.BotForSalesStatistics.ToList();
@@ -58,39 +53,19 @@ namespace Website.Services
                 workingBotIds.Add(rrs[i].BotId);
             }
 
-            Console.WriteLine($" allStat.Count = {allStat.Count}");
-            Console.WriteLine($" rrs.Count = {rrs.Count}");
-            Console.WriteLine($" workingBotIds.Count = {workingBotIds.Count}");
-
-
+        
             try
             {
-
-
-
 
                 //Перебор статистики по всем ботам
                 for (int i = 0; i < allStat.Count; i++)
                 {
                     int botId = allStat[i].BotId;
 
-                    Console.WriteLine($"Есть статистика для бота botId={botId}");
                     //Если есть подписанные на этого бота
                     if (_dict_botId_Websockets.ContainsKey(botId))
                     {
-                        Console.WriteLine($"На этого бота кто-то подписан");
                         BotForSalesStatistics_Websockets bfs_websockets = _dict_botId_Websockets[botId];
-
-                        Console.WriteLine($" NumberOfOrders =  {bfs_websockets.BotForSalesStatisticsOld.NumberOfOrders }");
-                        Console.WriteLine($" NumberOfUniqueUsers {bfs_websockets.BotForSalesStatisticsOld.NumberOfUniqueUsers }");
-                        Console.WriteLine($" NumberOfUniqueMessages {bfs_websockets.BotForSalesStatisticsOld.NumberOfUniqueMessages }");
-                        Console.WriteLine($" IsWorking {bfs_websockets.IsWorking }");
-
-
-                        Console.WriteLine($" NumberOfOrders =  {allStat[i].NumberOfOrders }");
-                        Console.WriteLine($" NumberOfUniqueUsers {allStat[i].NumberOfUniqueUsers }");
-                        Console.WriteLine($" NumberOfUniqueMessages {allStat[i].NumberOfUniqueMessages }");
-                        Console.WriteLine($" IsWorking {workingBotIds.Contains(botId) }");
 
                         //Какое-то значение поменялось
                         if (bfs_websockets.BotForSalesStatisticsOld.NumberOfOrders != allStat[i].NumberOfOrders ||
@@ -126,9 +101,6 @@ namespace Website.Services
                             bfs_websockets.BotForSalesStatisticsOld.NumberOfUniqueMessages = allStat[i].NumberOfUniqueMessages;
                             bfs_websockets.IsWorking = workingBotIds.Contains(botId);
 
-
-
-
                         }
 
                         bfs_websockets.BotForSalesStatisticsOld = allStat[i];
@@ -142,15 +114,7 @@ namespace Website.Services
             catch (Exception ee)
             {
                 _logger.Log(LogLevelMyDich.ERROR, "Сайт. При отправке статистики бота по websocket произошла ошибка. " + ee.Message);
-                Console.WriteLine(ee.Message);
             }
-
-
-
-
-
-
-
         }
 
      
@@ -159,7 +123,12 @@ namespace Website.Services
 
             if (_dict_botId_Websockets.ContainsKey(botId))
             {
+
                 _dict_botId_Websockets[botId].WebSockets.Add(webSocket);
+
+                //Сброс значений
+                _dict_botId_Websockets[botId].BotForSalesStatisticsOld = new BotForSalesStatistics();
+                //Для того, чтобы значения обновились на новых вкладках 
             }
             else
             {

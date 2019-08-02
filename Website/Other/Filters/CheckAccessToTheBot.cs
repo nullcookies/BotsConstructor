@@ -55,7 +55,7 @@ namespace Website.Other.Filters
 
             
             
-            int accountId = 0;
+            int accountId = int.MinValue;
 
             try
             {
@@ -63,6 +63,8 @@ namespace Website.Other.Filters
             }
             catch
             {
+                context.Result = new StatusCodeResult(403);
+                _logger.Log(LogLevelMyDich.UNAUTHORIZED_ACCESS_ATTEMPT, $"Сайт. Из cookies не удалось извлечь accountId. При доступе к боту bot.Id={bot.Id}");
                 return;
             }
 
