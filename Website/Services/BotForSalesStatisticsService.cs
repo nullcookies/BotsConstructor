@@ -1,4 +1,5 @@
-﻿using DataLayer.Models;
+﻿using DataLayer;
+using DataLayer.Models;
 using DataLayer.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -81,12 +82,12 @@ namespace Website.Services
                                 BotForSalesStatistics stat = allStat[i];
 
                                 JObject JObj = new JObject
-                            {
-                                { "botWorks",      workingBotIds.Contains(botId)},
-                                { "ordersCount",    stat.NumberOfOrders},
-                                { "usersCount",     stat.NumberOfUniqueUsers},
-                                { "messagesCount",  stat.NumberOfUniqueMessages},
-                            };
+                                {
+                                    { "botWorks",      workingBotIds.Contains(botId)},
+                                    { "ordersCount",    stat.NumberOfOrders},
+                                    { "usersCount",     stat.NumberOfUniqueUsers},
+                                    { "messagesCount",  stat.NumberOfUniqueMessages},
+                                };
 
                                 string jsonString = JsonConvert.SerializeObject(JObj);
                                 var bytes = Encoding.UTF8.GetBytes(jsonString);

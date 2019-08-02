@@ -33,9 +33,9 @@ namespace Website.Controllers
         BotForSalesStatisticsService _botForSalesStatisticsService;
 
         public BotForSalesSettingsController(ApplicationContext context, 
-            IHostingEnvironment appEnvironment, 
-            StupidLogger _logger, 
-            BotForSalesStatisticsService botForSalesStatisticsService)
+                IHostingEnvironment appEnvironment, 
+                StupidLogger _logger, 
+                BotForSalesStatisticsService botForSalesStatisticsService)
         {
             this._contextDb = context ?? throw new ArgumentNullException(nameof(context));
             _appEnvironment = appEnvironment;
@@ -60,12 +60,41 @@ namespace Website.Controllers
 
             return View();
         }
+        [HttpPost]
+        [TypeFilter(typeof(CheckAccessToTheBot))]
+        public IActionResult GetBotForSalesStatistics(int botId)
+        {
+            try
+            {
+
+                bool botWorks = _contextDb.RouteRecords.Find(botId) != null? true:false;
+                BotForSalesStatistics stat = _contextDb.BotForSalesStatistics.Find(botId);
+
+                JObject jObj = new JObject
+                    {
+                        { "botWorks",       botWorks},
+                        { "ordersCount",    stat.NumberOfOrders},
+                        { "usersCount",     stat.NumberOfUniqueUsers},
+                        { "messagesCount",  stat.NumberOfUniqueMessages},
+                    };
+
+
+                return Json(jObj);
+            }catch(Exception ee)
+            {
+                _logger.Log(LogLevelMyDich.ERROR, "Сайт. Опрос стастистики бота через " +
+                    "ajax (на клиенте не доступен webSocket или кто-то балуется). Не " +
+                    "удаётся отправить статистику бота. Ошибка "+ee.Message);
+
+                return StatusCode(500);
+            }
+
+        }
 
         [HttpGet]
         [TypeFilter(typeof(CheckAccessToTheBot))]
         public async Task MyWebsocket(int botId)
         {
-
             var context = ControllerContext.HttpContext;
             var isSocketRequest = context.WebSockets.IsWebSocketRequest;
 

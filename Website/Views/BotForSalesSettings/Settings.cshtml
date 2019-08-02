@@ -541,14 +541,11 @@
             } else {
                 $('#botStatus_stopped').show();
             }
+        } else {
+            throw new Error("Неожиданный ответ сервера")
         }
-        //if (botStatus == "working" || botStatus == "stopped" || botStatus == "fail") {
-            
-        //    $('#botStatus_' + botStatus).show();
         
-        //} else {
-        //    throw new Error("Неожиданный ответ сервера")
-        //}
+        
 
 
     }
@@ -568,9 +565,39 @@
             var webSocket = new WebSocket(url);
 
             webSocket.onmessage = onMessageReceived;
+            webSocket.onerror = onError;
         };
 
-        
+        function onError() {
+
+            console.log("Не удалось установить webSocket соединение");
+            console.log("Запуск long polling");
+            update();
+            setInterval(() => update(), 10000);
+
+        }
+        function update() {
+
+            console.log("ajax update");
+
+            var url_string = window.location.href;
+            var url = new URL(url_string);
+            var botId = url.searchParams.get("botId");
+            
+
+            $.ajax({
+                type: 'POST',
+                url: `/BotForSalesSettings/GetBotForSalesStatistics?botId=${botId}`,
+                success: function (message) {
+                    updateStatistics(message);
+                },
+                error: function () {
+                    console.log("error");
+                }
+            });
+            
+        }
+
         getWebSocketMessages(function (message) {
 
             var statisticsInfo = JSON.parse(message.data);
