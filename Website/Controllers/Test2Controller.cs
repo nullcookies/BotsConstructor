@@ -30,14 +30,6 @@ namespace Website.Controllers
             return View();
         }
 
-        [AllowAnonymous]
-        [HttpGet]
-        public IActionResult GetLatestImage()
-        {
-            var byteArray = context.Images.Last().Photo;
-            MemoryStream ms = new MemoryStream(byteArray);
-            return new FileStreamResult(ms, "image/jpeg");
-
-        }
+       
     }
 }

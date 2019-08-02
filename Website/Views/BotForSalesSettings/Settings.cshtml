@@ -63,6 +63,15 @@
             display: block;
             font-size: 18px;
         }
+
+    .myCenterAlign {
+        visibility: visible;
+        margin: 0;
+        position: absolute;
+        top: 40%;
+        left: 50%;
+        margin-right: -50%;
+    }
 </style>
 
 <div class="container p-2 ">
@@ -72,8 +81,15 @@
 
         <div class="row p-2">
 
+            
             <div class="col-md-3" id="botStatus_stub" style="visibility:hidden;">
                 <div class="card-counter success">
+
+                    @* Спиннер *@
+                    <div class="spinner-border text-info myCenterAlign" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+
                     <i class="fa fa-check"></i>
                     <span class="count-numbers"></span>
                     <span class="count-name"></span>
@@ -81,7 +97,7 @@
             </div>
 
             <div class="col-md-3" id="botStatus_working" style="display:none;">
-                <div class="card-counter success">
+                <div class="card-counter success botStatus">
                     <i class="fa fa-check"></i>
                     <span class="count-numbers">Работает</span>
                     <span class="count-name">Статус</span>
@@ -89,7 +105,7 @@
             </div>
 
             <div class="col-md-3" id="botStatus_fail" style="display:none;">
-                <div class="card-counter danger">
+                <div class="card-counter danger botStatus">
                     <i class="fa fa-ban"></i>
                     <span class="count-numbers">Сбой</span>
                     <span class="count-name">Статус</span>
@@ -171,8 +187,8 @@
             <div class="p-2">
 
                 <div class="row">
-                    <button type="button" id="btnStartBot" class="btn btn-success btn-lg btn-block" onclick="runBot()" >Запустить каталог из черновика</button>
-                    <button type="button" id="btnStopBot" class="btn btn-danger btn-lg btn-block" onclick="stopBot()">Остановить</button>
+                    <button type="button" id="btnStartBot" class="btn btn-success btn-lg btn-block" onclick="runBot()" disabled >Запустить каталог из черновика</button>
+                    <button type="button" id="btnStopBot" class="btn btn-danger btn-lg btn-block" onclick="stopBot()" disabled>Остановить</button>
                 </div>
             </div>
         </div>
@@ -405,39 +421,18 @@
 
     
 
-    (function setDisabled() {
-        @{
-
-            string theBotIsRunning = "false";
-            if (ViewData["the bot is running"] != null && (bool)ViewData["the bot is running"] == true)
-            {
-                theBotIsRunning = "true";
-            }
-
-
-
-         }
-        var theBotIsRunning = @theBotIsRunning ;
-
-        if (theBotIsRunning) {
-            $('#btnStartBot').prop("disabled", true);
-            $('#btnStopBot').removeAttr("disabled");
-        } else {
-            $('#btnStartBot').removeAttr("disabled");
-            $('#btnStopBot').prop("disabled", true);
-        }
-
-    })();
-
-
+  
 
     function runBot() {
 
+        //Выключить кнопку запуска бота
+        $('#btnStartBot').prop("disabled", true);
+        //Показ спиннера
+        $('#botStatus_stub').show();
+        //Скрыть карточку "Бот остановлен"
+        $('#botStatus_stopped').hide();
+        
        
-
-     
-
-
         console.log("runBot")
         var url_string = window.location.href;
         var url = new URL(url_string);
@@ -450,18 +445,10 @@
             url: url,
             success: function () {
 
-                $('#btnStartBot').prop("disabled", true);
-                $('#btnStopBot').removeAttr("disabled");
-
-                
             },
-            error: function (xhr) {
-
-               
-
-                //$('#btnStartBot').removeAttr("disabled");
-                //$('#btnStopBot').prop("disabled", true);
-
+            error: function (xhr) {                
+                $('#btnStartBot').removeAttr("disabled");                       
+                console.log(thrownError);
                 alert("Error occurred.  "
                     + xhr.statusCode);
             }
@@ -471,9 +458,14 @@
     }
 
     function stopBot() {
-        
 
 
+        //Выключить кнопку остановки бота
+        $('#btnStopBot').prop("disabled", true);
+        //Показ спиннера
+        $('#botStatus_stub').show();
+        //Скрыть карточку "Бот работает"
+        $('#botStatus_working').hide();
 
 
         var url_string = window.location.href;
@@ -486,15 +478,14 @@
             url: url,
             success: function () {
 
-                $('#btnStartBot').removeAttr("disabled");
-                $('#btnStopBot').prop("disabled", true);
-                
             },
             error: function (xhr, ajaxOptions, thrownError) {
 
-                //$('#btnStartBot').prop("disabled", true);
-                //$('#btnStopBot').removeAttr("disabled");
+                //Включить кнопку остановки бота
+                $('#btnStopBot').removeAttr("disabled");
                 console.log(thrownError);
+                alert("Error occurred.  "
+                    + xhr.statusCode);
             }
         });
     }
@@ -539,9 +530,19 @@
         if (botWorks != null && botWorks != 'undefined')
         {
             if (botWorks) {
+
+                $('#botStatus_stub').hide();
                 $('#botStatus_working').show();
+                
+                $('#btnStopBot').removeAttr("disabled");
+                $('#btnStartBot').prop("disabled", true);
+                
             } else {
+                $('#botStatus_stub').hide();
                 $('#botStatus_stopped').show();
+
+                $('#btnStopBot').prop("disabled", true);
+                $('#btnStartBot').removeAttr("disabled");
             }
         } else {
             throw new Error("Неожиданный ответ сервера")

@@ -22,13 +22,13 @@ namespace DeleteMeWebhook.Controllers
     public class HomeController : Controller
     {
 
-        private readonly ApplicationContext _context;
+        private readonly ApplicationContext _contextDb;
 		private readonly DBConnector connector;
         private readonly StupidLogger _logger;
 
 		public HomeController(ApplicationContext context, DBConnector dBConnector, StupidLogger logger)
         {
-            _context = context;
+            _contextDb = context;
 			connector = dBConnector;
             _logger = logger;
         }
@@ -63,7 +63,7 @@ namespace DeleteMeWebhook.Controllers
             Console.WriteLine($"Лес. Запуск бота. botId={botId}");
             Console.WriteLine("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
             //проверка возможности запуска
-            var bot = _context.Bots.Find(botId);
+            var bot = _contextDb.Bots.Find(botId);
             string botUsername = new TelegramBotClient(bot.Token).GetMeAsync().Result.Username;
             //По токену узнать имя 
             BotsContainer.BotsDictionary.TryGetValue(botUsername, out BotWrapper _botWrapper);
@@ -89,7 +89,7 @@ namespace DeleteMeWebhook.Controllers
             }
             ////проверить наличие достаточного кол-ва денег
 
-            var owner = _context.Accounts.Find(bot.OwnerId);
+            var owner = _contextDb.Accounts.Find(bot.OwnerId);
             //var money = owner.Money;
 
             //создание сериализованного объекта дерева
@@ -293,7 +293,7 @@ namespace DeleteMeWebhook.Controllers
 			botWrapper.globalVars.SetVar("Products", Products);
 			foreach (var pair in Products) // Продукты должны добавляться в другом месте!!!
 			{
-				Item item = _context.Items.Find(pair.Key);
+				Item item = _contextDb.Items.Find(pair.Key);
 				bool isNew = item == null;
 				item = item ?? new Item();
 				item.BotId = botId;
@@ -301,14 +301,14 @@ namespace DeleteMeWebhook.Controllers
 				item.Value = pair.Value.Value;
 				if(isNew)
 				{
-					_context.Items.Add(item);
+					_contextDb.Items.Add(item);
 				}
 				else
 				{
-					_context.Items.Attach(item).State = EntityState.Modified;
+					_contextDb.Items.Attach(item).State = EntityState.Modified;
 				}
 			}
-			_context.SaveChanges();
+			_contextDb.SaveChanges();
 
             bool synchronization_was_successful = RecordOfTheLaunchOfTheBotWasMadeSuccessfully(botId);
 
@@ -344,7 +344,7 @@ namespace DeleteMeWebhook.Controllers
             };
 
             //Выбор записи из БД
-            RouteRecord rrDb = _context.RouteRecords.Where(_rr => _rr.BotId == botId).SingleOrDefault();
+            RouteRecord rrDb = _contextDb.RouteRecords.Where(_rr => _rr.BotId == botId).SingleOrDefault();
 
             if (rrDb != null)
             {
@@ -361,12 +361,12 @@ namespace DeleteMeWebhook.Controllers
             else
             {
                 Console.WriteLine("Создание новой записи о запущеном боте" + $"{rr.BotId}  {rr.ForestLink}");
-                _context.RouteRecords.Add(rr);
+                _contextDb.RouteRecords.Add(rr);
             }
 
 
 
-            _context.SaveChanges();
+            _contextDb.SaveChanges();
             return true;
         }
 
@@ -376,7 +376,7 @@ namespace DeleteMeWebhook.Controllers
         {
             //TODO Авторизация через бд
 
-            BotDB botDb = _context.Bots.Find(botId);
+            BotDB botDb = _contextDb.Bots.Find(botId);
             BotWrapper _botWrapper = new BotWrapper(botId, null, botDb.Token);
             string botUsername = _botWrapper.BotClient.GetMeAsync().Result.Username;
 
@@ -393,11 +393,11 @@ namespace DeleteMeWebhook.Controllers
                     Console.WriteLine("         BotsContainer.BotsDictionary.Remove(bot       ");
 
                     //очистка БД
-                    RouteRecord rr = _context.RouteRecords.Find(botId);
+                    RouteRecord rr = _contextDb.RouteRecords.Find(botId);
                     if (rr != null)
                     {
-                        _context.RouteRecords.Remove(rr);
-                        _context.SaveChanges();
+                        _contextDb.RouteRecords.Remove(rr);
+                        _contextDb.SaveChanges();
                     }
                     else
                     {
