@@ -82,7 +82,7 @@ namespace DataLayer.Models
             // Для тестирования
             modelBuilder.Entity<BotDB>().HasData(new List<object>
 			{
-				new {Id = 1_000_000, BotName = "Zradabot01", OwnerId = 1_000_001, BotType="BotForSales"}
+				new {Id = 1_000_000, BotName = "Fastname_314159_bot", OwnerId = 1_000_001, BotType="BotForSales", Token = "747439290:AAFsEae_HLFYi-gBrYy7AtmZpr1gw6qL8rM"}
 			});
 
             modelBuilder.Entity<BotForSalesStatistics>().HasData(new List<BotForSalesStatistics>
@@ -207,8 +207,10 @@ namespace DataLayer.Models
 		[Column("BotId")]
         public int Id { get; set; }
 
+        [Required]
         public string Token { get; set; }
 
+        [Required]
         public string BotName { get; set; }
 
 		[Required]

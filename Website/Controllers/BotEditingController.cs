@@ -45,44 +45,5 @@ namespace Website.Controllers
                     throw new Exception("Неизвестный тип бота");
             }
         }
-
-
-        public IActionResult CreateNewBotForSales()
-        {
-
-            int accountId = 0;
-            try
-            {
-                accountId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("Аккаунт с таким id  не найден.");
-            }
-            catch
-            {
-                return RedirectToAction("Account", "Login");
-            }
-
-
-            //Создание нового бота для продаж с пустой разметкой
-            BotDB bot = new BotDB() { OwnerId = accountId, BotType = "BotForSales" };
-            context.Bots.Add(bot);
-
-            //Создание статистики для бота
-            BotForSalesStatistics botForSalesStatistics = new BotForSalesStatistics()
-            {
-                BotId = bot.Id
-            };
-
-            context.BotForSalesStatistics.Add(botForSalesStatistics);
-
-            context.SaveChanges();
-
-            int botId = bot.Id;
-
-            return RedirectToAction("BotForSales", "BotForSalesEditing", new { botId });
-        }
-
-
-
-
-
     }
 }
