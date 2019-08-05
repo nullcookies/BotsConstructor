@@ -1,133 +1,106 @@
 ﻿@{
     Layout = "_LayoutHome";
 }
-@model Website.ViewModels.TokenChange
 
-<div class="container">
-
-
-    
-
-    <form  asp-controller="BotCreation" asp-action="CreateNewBotForSales" asp-anti-forgery="true" class="form-inline">
-
-        <label class="sr-only" for="inlineFormInputName2">Name</label>
-        
-        <input asp-for="Token" type="text" class="form-control mb-2 mr-sm-2" placeholder="new token" style="width:70%;">
-
-        <div class="form-group">
-            <input type="submit" value="Submit" class="btn btn-sm btn-danger" />
-        </div>
-
-    </form>
-
-    <div class="validation" asp-validation-summary="ModelOnly"></div>
-
-    @section scripts{
-
-        <environment names="Development">
-            <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
-            <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
-        </environment>
-        <environment names="Staging,Production">
-            <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.14.0/jquery.validate.min.js"
-                    asp-fallback-src="~/lib/jquery-validation/dist/jquery.validate.min.js"
-                    asp-fallback-test="window.jQuery && window.jQuery.validator">
-            </script>
-            <script src="https://ajax.aspnetcdn.com/ajax/jquery.validation.unobtrusive/3.2.6/jquery.validate.unobtrusive.min.js"
-                    asp-fallback-src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"
-                    asp-fallback-test="window.jQuery && window.jQuery.validator && window.jQuery.validator.unobtrusive">
-            </script>
-        </environment>
-    }
+    @model Website.ViewModels.TokenChange
+    <style>
+        .imgCenter {
+            text-align: center;
+            display: block;
+        }
+        .myText {
+            font-size: 1.25rem;
+            line-height: 1.5;
+            font-weight: 400;
+            max-width: 100%;
+            overflow:hidden;
+        }
+    </style>
+    <div class="container">
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    @*<div>
+        <div class="row">
             <div class="h2">
-                Три строки и бот будет готов.
+                Почти готово!
             </div>
 
-            <h1 class="display-4">Заголовок с оформлением display-1</h1>
+            <div class="myText">
+                <div>
+
+                    Остался один шаг до создания бота. Вы должны получить токен (уникальный ключ для управление ботом) у <kbd><a href="https://telegram.me/botfather">@@BotFather</a></kbd><br />
+                    Используйте команду /newbot  для создания нового бота.<br />
+                    BotFather запросит у вас название и имя пользователя, а затем сгенерирует токен авторизации для вашего нового бота. Имя пользователя — это короткое название, которое будет использоваться в упоминаниях и ссылках для telegram.me. Оно должно заканчиваться на «бот», например Sales_bot или SalesBot.<br /><br />
+                    BotFather выдаст вам строку с API, которая выглядит примерно так:<br />
+                    827524495:AAHpX89DtCNgIgTgz7k5WKmX_E6BRU-d5Hk<br />
+
+                </div>
+            </div>
+        </div>
+
+        <div style="height:40px;"></div>
+
+
+        @*<div class="row">
+
+            <div class="col-12 col-sm-12 col-md-4 col-lg-2 col-xl-2">
+                <img src="https://thecode.media/wp-content/uploads/2019/06/cat1.jpg">
+            </div>
+        </div>*@
+
+            <div class="imgCenter max-width: 100%;">
+                <img src="@Url.Content("~/images/creation of a new bot.png")">
+            </div>
+
+            <div style="height:100px;"></div>
 
             <div class="h4 text">
-
-                Обратитесь к <a href="https://telegram.me/botfather">BotFather</a> для того, чтобы получить токен.
-
-                <kbd>BotFather</kbd>
-                <kbd><a href="https://telegram.me/botfather">BotFather</a></kbd>
-
-                Пример создания бота:<br>
-                /newbot<br>
-                Моя пиццерия<br>
-                my_pizzeria_bot<br>
-
-                <ul>
-                    <li>/newbot</li>
-                    <li>Моя пиццерия</li>
-                    <li>my_pizzeria_bot</li>
-                </ul>
-
-
+                Введите скопированный токен:
             </div>
+
+            <form asp-controller="BotCreation" asp-action="CreateNewBotForSales" asp-anti-forgery="true">
+                <div class="form-row justify-content-md-center">
+                    <div class="col-9 ">
+                        <label class="sr-only" for="Token">Token</label>
+                        <input asp-for="Token" type="text" class="form-control" placeholder="Token">
+                    </div>
+
+                    <div class="col-3 ">
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </div>
+            </form>
+
+            <div class="validation" asp-validation-summary="ModelOnly"></div>
+
+            <div style="height:200px;"></div>
+
+            @section scripts{
+
+                <environment names="Development">
+                    <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+                    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
+                </environment>
+                <environment names="Staging,Production">
+                    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.14.0/jquery.validate.min.js"
+                            asp-fallback-src="~/lib/jquery-validation/dist/jquery.validate.min.js"
+                            asp-fallback-test="window.jQuery && window.jQuery.validator">
+                    </script>
+                    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validation.unobtrusive/3.2.6/jquery.validate.unobtrusive.min.js"
+                            asp-fallback-src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"
+                            asp-fallback-test="window.jQuery && window.jQuery.validator && window.jQuery.validator.unobtrusive">
+                    </script>
+                </environment>
+            }
+
 
         </div>
 
-        <img src="@Url.Content("~/images/sample_bot_creation.png")">
-        <img src="@Url.Content("~/images/botfather_empty.png")">
-        <img src="@Url.Content("~/images/botfather_ready.png")">
-        <img src="@Url.Content("~/images/botfather_start.png")">
 
 
-        <h2>Text alignment: Text Justify </h2>
-        <p class="text-success">
-            The below text is justified by using the class "text-justify"
-        </p>
-        <p class="text-justify">
-            Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-            Lorem Ipsum has been the industry's standard dummy text ever since the
-            1500s, when an unknown printer took a galley of type and scrambled it to
-            make a type specimen book. It has survived not only five centuries, but
-            also the leap into electronic typesetting, remaining essentially unchanged.
-            It was popularised in the 1960s with the release of Letraset sheets
-            containing Lorem Ipsum passages, and more recently with desktop publishing
-            software like Aldus PageMaker including versions of Lorem Ipsum.
-        </p>
 
-        <h2>Text alignment: Left, Right, Center </h2>
-        <p class="text-left">Text is aligned on Left side by using class "text-left"</p>
-        <p class="text-center">Text is aligned at Center by using class "text-center"</p>
-        <p class="text-right">Text is aligned on Right side by using class "text-right"</p>*@
-</div>
+        <style type="text/css">
+            img {
+                max-width: 100%;
+            }
+        </style>
+
