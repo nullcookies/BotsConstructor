@@ -301,11 +301,12 @@
                             </div>
                         </div>
                         <div class="row" style="font-weight: 500;">
-                            Для того, чтобы люди из других аккаунтов могли принимать заказы нужно добавить их логины к списку модераторов.
+                            Модератор - аккаунт, который может только принимать заказы от этого бота.
                         </div>
                     </div>
                     <div class="col">
-                        <button type="button" class="btn btn-info btn-lg btn-block" disabled>Управление модераторами</button>
+                        <a class="btn btn-info btn-lg btn-block" asp-controller="ModeratorManagement" asp-action="Index" asp-route-botId="@ViewData["botId"]">Управление модераторами</a>
+                        @*<button type="button" class="btn btn-info btn-lg btn-block" disabled>Управление модераторами</button>*@
                     </div>
                 </div>
 
