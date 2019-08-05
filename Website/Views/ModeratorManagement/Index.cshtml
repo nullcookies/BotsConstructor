@@ -2,58 +2,182 @@
 @{
     Layout = "_layoutHome";
 }
+<link href="@Url.Content("~/lib/open-iconic/font/css/open-iconic-bootstrap.css")" rel="stylesheet">
 
-<div style="height:30px;"></div>
 
-<div class="container ">
-    <div class="row m-1 p-1 auto-margin">
-        <div class="col-10 " >
-            <input id="input_1" class="form-control mr-sm-2 " type="search" placeholder="Search" aria-label="Search">
+
+<div class="container" style="max-width:90%;">
+
+    <div style="height:30px;"></div>
+
+    <div class="container ">
+        <div class="row m-1 p-1 auto-margin">
+            <div class="col-10 ">
+                <input id="input_1" class="form-control mr-sm-2 " type="search" placeholder="Search" aria-label="Search">
+            </div>
+            <div class="col-2">
+                <button class="btn btn-outline-info my-2 my-sm-0 " type="button" onclick="inviteANewModerator()">Пригласить</button>
+            </div>
         </div>
-        <div class="col-2">
-            <button class="btn btn-outline-info my-2 my-sm-0 " type="button" onclick="inviteANewModerator()">Пригласить</button>
-        </div>
+
+    </div>
+
+    <div style="height:30px;"></div>
+
+    <div id="listOfModerators">
+
     </div>
 
 </div>
 
-<div style="height:30px;"></div>
-
-<div class="container  border border-info  rounded " style="margin-bottom:1.5rem;  padding-right:0;padding-left:0;">
-
-    <table class="table table-hover">
-        <thead>
-            <tr>
-                <th scope="col">#</th>
-                <th scope="col">First</th>
-                <th scope="col">Last</th>
-                <th scope="col">Handle</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <th scope="row">1</th>
-                <td>Mark</td>
-                <td>Otto</td>
-                <td>@@mdo</td>
-            </tr>
-            <tr>
-                <th scope="row">2</th>
-                <td>Jacob</td>
-                <td>Thornton</td>
-                <td>@@fat</td>
-            </tr>
-            <tr>
-                <th scope="row">3</th>
-                <td colspan="2">Larry the Bird</td>
-                <td>@@twitter</td>
-            </tr>
-        </tbody>
-    </table>
+@*Шаблон модератора*@
+<div class="container  border border-info  rounded m-1" style="display:none;" id="moderator_template">
+    <div class="row  align-items-center">
+        <div class="col-1 " style="text-align:center;" id="number">1</div>
+        <div class="col-4 " style="text-align:center;" id="name">Иван Иванов</div>
+        <div class="col-5 " style="text-align:center;" id="email">ivan.ivanov@@gmail.com</div>
+        <div class="col-2">
+            <button class="btn btn-outline-danger btn-circle btn-circle-sm m-1 myDeleteElement" data-toggle="modal" data-target="#exampleModal">
+                <span class="oi oi-x"></span>
+            </button>
+        </div>
+    </div>
 </div>
-    <script>
-        function inviteANewModerator() {
-            var search_value = $('#input_1').val();
-            console.log(search_value);
+
+
+<script>
+    function requestAListOfModerators() {
+
+        console.log("запрос списка");
+        var url_string = window.location.href;
+        var url = new URL(url_string);
+        var botId = url.searchParams.get("botId");
+
+        var url = `/ModeratorManagement/GetListOfModerators?botId=${botId}`
+
+        $.ajax({
+            cache: false,
+            type: "GET",
+            url: url,
+            contentType: 'application/json',
+            success: function (answer) {
+
+                console.log(answer);
+
+                if (answer.success == true) {
+                    redrawlistOfModerators(answer.moderators);
+                } else {
+                    console.log("Ошибка сервера");
+                }
+            },
+            error: function (xhr) {
+                console.log("Ошибка");
+            }
+
+        });
+
+    }
+
+    requestAListOfModerators();
+
+    function redrawlistOfModerators(listOfModerators) {
+
+        console.log("перерисовка");
+
+        $('#listOfModerators').empty();
+        for (var i = 0; i < listOfModerators.length; i++) {
+
+            var moderator = listOfModerators[i];
+            var moderatorContainer = $('#moderator_template').clone(true).show();
+            moderatorContainer.find('[id = number]').html(i + 1);
+            moderatorContainer.find('[id = name]').html(moderator.Name);
+            moderatorContainer.find('[id = email]').html(moderator.Email);
+            moderatorContainer.attr('account_id', moderator.Id);
+
+            $(moderatorContainer).appendTo($("#listOfModerators"));
+
         }
-    </script>
+        //очистить список модераторов
+    }
+    function inviteANewModerator() {
+        var email = $('#input_1').val();
+
+        var url_string = window.location.href;
+        var url = new URL(url_string);
+        var botId = url.searchParams.get("botId");
+
+        var url = `/ModeratorManagement/InviteANewModerator?botId=` + botId;
+
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: {
+                "botId": botId,
+                email: email
+            },
+            success: function (answer) {
+                console.log('ok');
+                console.log(answer);
+
+                if (answer.success == true) {
+                    requestAListOfModerators();
+                }
+            },
+            error: function () {
+                console.log('error');
+            }
+        });
+
+
+    }
+
+
+    //удаление элемента
+    $('.myDeleteElement').on('click', function () {
+
+        var button = $(this);
+
+
+        var accountId = button.closest('.container').attr('account_id');
+        console.log(`accountId  = ${accountId }`);
+
+        var url_string = window.location.href;
+        var url = new URL(url_string);
+        var botId = url.searchParams.get("botId");
+
+        var url = `/ModeratorManagement/RemoveModerator?botId=` + botId;
+
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: {
+                "botId": botId,
+                "accountId": accountId
+            },
+            success: function (answer) {
+                console.log('ok');
+                console.log(answer);
+
+                if (answer.success == true) {
+                    requestAListOfModerators();
+                }
+            },
+            error: function () {
+                console.log('error');
+            }
+        });
+
+
+
+
+        //var elementContainer = button.closest('.container');
+        //var list = button.closest('#listOfModerators').children();
+        //var index = list.index(elementContainer);
+        //console.log(index);
+        //list[index].remove();
+
+    });
+
+
+</script>
+

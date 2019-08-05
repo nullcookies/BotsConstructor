@@ -190,7 +190,7 @@ namespace Website.Controllers
                     //TODO это какая-то дичь
                     //Выбрать последний id
                     int? oldId = _context.Accounts.LastOrDefault()?.Id;
-                    int nextId = oldId.GetValueOrDefault() + 1;
+                    int nextId = oldId.GetValueOrDefault() + 100;
 
 
                     Account account = new Account
@@ -198,7 +198,8 @@ namespace Website.Controllers
                         //Разобраться как использоватьэту хрень без id
                         Id = nextId,
 
-                        Email = model.Email,
+                        //Сначала нужно подтвердить email
+                        //Email = model.Email,
                         Name = model.Name,
                         Password = model.Password,
                         RoleTypeId = 1
@@ -237,7 +238,7 @@ namespace Website.Controllers
                     _context.SaveChanges();
 
                     /*await*/
-                    Authenticate(account);
+                    //Authenticate(account);
 
                     return RedirectToAction("Index", "Home");
                 }
@@ -440,8 +441,7 @@ namespace Website.Controllers
         }
 
 
-        [HttpGet]
-        
+        [HttpGet]        
         public IActionResult EmailCheckSuccess(Guid guid, [FromQuery(Name = "accountId")] int accountId)
         {
             var ue   =  _context.UnconfirmedEmails.Where(_ue => _ue.AccountId == accountId).SingleOrDefault();

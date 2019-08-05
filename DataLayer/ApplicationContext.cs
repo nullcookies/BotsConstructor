@@ -25,6 +25,7 @@ namespace DataLayer.Models
         public DbSet<RouteRecord> RouteRecords { get; set; }
         public DbSet<LogMessage> LogMessages { get; set; }
         public DbSet<BotForSalesStatistics> BotForSalesStatistics { get; set; }
+        public DbSet<Moderator> Moderators { get; set; }
 
 
         public ApplicationContext(DbContextOptions<ApplicationContext> options)
@@ -39,6 +40,9 @@ namespace DataLayer.Models
     
 
             modelBuilder.Entity<RoleType>().HasIndex(role => new { role.Name }).IsUnique();
+
+            //Нельзя добавить модератора дважды к аккаунту
+            modelBuilder.Entity<Moderator>().HasIndex(_mo => new { _mo.AccountId, _mo.BotId}).IsUnique();
 
             var roles = new List<RoleType>()
             {
@@ -58,9 +62,11 @@ namespace DataLayer.Models
 
             var accounts = new List<Account>()
             {
-                new Account(){Id = 1_000_000,Email="qqq1@qqq" , Password="qqq", Name="шокаво", RoleTypeId = 1 },
-                new Account(){Id = 1_000_001,Email="qqq2@qqq" ,  Password="qqq", Name="шокаво",  RoleTypeId = 2 }
+                new Account(){Id = 1_000_000,Email="qqq1@qqq" , Password="qqq", Name="Иван Иванов", RoleTypeId = 1 },
+                new Account(){Id = 1_000_001,Email="qqq2@qqq" ,  Password="qqq", Name="Пётр Петров",  RoleTypeId = 2 },
+                new Account(){Id = 1_000_002,Email="qqq3@qqq" ,  Password="qqq", Name="Сидор Сидоров",  RoleTypeId = 1 }
             };
+
 
             
         
@@ -84,6 +90,14 @@ namespace DataLayer.Models
 			{
 				new {Id = 1_000_000, BotName = "Fastname_314159_bot", OwnerId = 1_000_001, BotType="BotForSales", Token = "747439290:AAFsEae_HLFYi-gBrYy7AtmZpr1gw6qL8rM"}
 			});
+
+
+            modelBuilder.Entity<Moderator>().HasData(new Moderator()
+            {
+                Id = 1_000_000,
+                AccountId = 1_000_002,
+                BotId= 1_000_000
+            });
 
             modelBuilder.Entity<BotForSalesStatistics>().HasData(new List<BotForSalesStatistics>
             {
@@ -564,5 +578,24 @@ namespace DataLayer.Models
         [Required]
         [ForeignKey("BotId")]
         public virtual BotDB Bot { get; set; }
+    }
+
+    [Table("Moderators")]
+    public class Moderator
+    {
+        [Key]
+        [Column("ModeratorId")]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
+
+        [Required]
+        public int BotId { get; set; }
+        [ForeignKey("BotId")]
+        public BotDB BotDB { get; set; }
+
+        [Required]
+        public int AccountId { get; set; }
+        [ForeignKey("AccountId")]
+        public Account Account { get; set; }
     }
 }
