@@ -8,12 +8,16 @@
 
 <div class="container" style="max-width:90%;">
 
-    <div style="height:30px;"></div>
+    <div style="height:10px;"></div>
+
+    <partial name="HintModerators" />
+
+    
 
     <div class="container ">
         <div class="row m-1 p-1 auto-margin">
             <div class="col-10 ">
-                <input id="input_1" class="form-control mr-sm-2 " type="search" placeholder="Search" aria-label="Search">
+                <input id="input_1" class="form-control mr-sm-2 " type="search" placeholder="Email" aria-label="Search">
             </div>
             <div class="col-2">
                 <button class="btn btn-outline-info my-2 my-sm-0 " type="button" onclick="inviteANewModerator()">Пригласить</button>
@@ -22,21 +26,25 @@
 
     </div>
 
+
+
+
+
     <div style="height:30px;"></div>
 
-    <div id="listOfModerators">
+    <div id="listOfModerators" class=" align-items-center">
 
     </div>
 
 </div>
 
 @*Шаблон модератора*@
-<div class="container  border border-info  rounded m-1" style="display:none;" id="moderator_template">
-    <div class="row  align-items-center">
-        <div class="col-1 " style="text-align:center;" id="number">1</div>
-        <div class="col-4 " style="text-align:center;" id="name">Иван Иванов</div>
-        <div class="col-5 " style="text-align:center;" id="email">ivan.ivanov@@gmail.com</div>
-        <div class="col-2">
+<div class="@*container*@  border border-info  rounded m-1 justify-content-center " style="display:none; " id="moderator_template">
+    <div class="row  align-items-center justify-content-center  ">
+        <div class="col-1 h4" style="text-align:center;" id="number">1</div>
+        <div class="col-4 h4" style="text-align:center;" id="name">Иван Иванов</div>
+        <div class="col-5 h4" style="text-align:center;" id="email">ivan.ivanov@@gmail.com</div>
+        <div class="col-2 h4">
             <button class="btn btn-outline-danger btn-circle btn-circle-sm m-1 myDeleteElement" data-toggle="modal" data-target="#exampleModal">
                 <span class="oi oi-x"></span>
             </button>
