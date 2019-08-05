@@ -133,8 +133,15 @@ namespace Website.Controllers
 
         }
 
+		[HttpGet]
+		//[TypeFilter(typeof(CheckAccessToTheBot))]
+		public IActionResult SalesTreeEditor(int botId)
+		{
+			return View();
+		}
 
-        [HttpGet]
+
+		[HttpGet]
         [TypeFilter(typeof(CheckAccessToTheBot))]
         public IActionResult GetSalesBotMarkup(int botId)
         {

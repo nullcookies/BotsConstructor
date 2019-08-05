@@ -27,6 +27,7 @@ namespace Website.Controllers
         [AllowAnonymous]
         public IActionResult Index()
         {
+			return Redirect("BotForSalesEditing/SalesTreeEditor");
             var www = HttpContext.Request.Headers ;
             
             Console.WriteLine($"CurrentCulture:{CultureInfo.CurrentCulture.Name}, CurrentUICulture:{CultureInfo.CurrentUICulture.Name}");

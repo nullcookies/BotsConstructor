@@ -1,0 +1,61 @@
+﻿@{
+
+    Layout = "_LayoutHome";
+}
+
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" />
+<link href="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.5.0/css/bootstrap4-toggle.min.css" rel="stylesheet" />
+<link href="@Url.Content("~/lib/open-iconic/font/css/open-iconic-bootstrap.css")" rel="stylesheet" />
+<link href="~/css/TreeEditor.css" rel="stylesheet" />
+<script src="~/js/CoreTreeEditor.js"></script>
+<script src="~/js/SalesNodes.js"></script>
+
+<style>
+    #nodes-menu {
+        height: 100%;
+        width: 15rem;
+    }
+
+    #main {
+        width: 100%;
+        height: 100%;
+        padding: 15px 150px 150px 15px;
+        overflow: scroll;
+    }
+</style>
+
+<div id="left-menus">
+    <ul class="nav nav-tabs" id="left-tabs" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link" id="sidebar-tab" data-toggle="tab" href="#sidebar" role="tab" aria-controls="sidebar" aria-selected="false">Menu</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link active" id="nodes-tab" data-toggle="tab" href="#nodes-menu" role="tab" aria-controls="nodes-menu" aria-selected="true">Nodes</a>
+        </li>
+    </ul>
+    <div class="tab-content" id="left-content">
+        <div class="tab-pane fade show active" id="nodes-menu" role="tabpanel" aria-labelledby="nodes-tab">
+
+        </div>
+    </div>
+</div>
+
+<script>
+    var jqLeft = $("#left-menus").detach();
+    var jqSidebar = $("#sidebar-wrapper");
+    var jqNewWrapper = jqSidebar.children(":not(.sidebar-heading)").wrapAll(document.createElement("div")).parent().
+        first().attr("id", "sidebar").addClass("tab-pane fade").attr("role", "tabpanel").
+        attr("aria-labelledby", "sidebar-tab").detach();
+    jqSidebar.append(jqLeft);
+    jqLeft.find("#left-content").append(jqNewWrapper);
+</script>
+
+<div id="main">
+
+</div>
+
+<script>
+    var test = new TreeNode(new BaseParams(1, "Корень", "Sho-to"));
+    $("#main").append(test.container);
+</script>

@@ -1,0 +1,48 @@
+﻿.node{
+    height: 125px;
+    width: 200px;
+    border: 2px solid black;
+    border-radius: 10px 10px;
+}
+
+.nodeHolder {
+    height: 25px;
+    width: 200px;
+    border: 2px dashed navy;
+    background-color: lavender;
+    border-radius: 10px 10px;
+    float: right;
+}
+
+.appenderDiv{
+    width: 400px;
+    height: 25px;
+}
+
+.arrows{
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+    flex-wrap:nowrap;
+    float: left;
+}
+
+.verticalAdderArrow {
+    height: 10.5px;
+    width: 0;
+    border: 2px solid black;
+    margin-left: 100px;
+}
+
+.horizontalAdderArrow {
+    height: 0;
+    width: 100px;
+    border: 2px solid black;
+    margin-left: 100px;
+}
+
+.nodeName {
+    width: 100%;
+    word-wrap: break-word;
+    white-space: normal;
+}
