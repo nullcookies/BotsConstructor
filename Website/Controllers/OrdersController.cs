@@ -62,8 +62,6 @@ namespace Website.Controllers
             }
         }
 
-      
-
 
         public IActionResult Orders2(int page=1)
 		{
@@ -77,8 +75,14 @@ namespace Website.Controllers
 
             ViewData["currentPage"] = page;
 
-			//Общее кол-во записей
-			int count = _contextDb.Orders.Where(_order => _order.Bot.OwnerId == accountId).Count();
+            List<int> idsOfModeratedBots = _contextDb.Moderators.Where(_mo => _mo.AccountId == accountId).Select(_mo => _mo.BotId).ToList();
+
+            //Общее кол-во записей
+            //Собственник или модератор
+            int count = _contextDb.Orders.Where(_order => 
+                    _order.Bot.OwnerId == accountId || idsOfModeratedBots.Contains(_order.Bot.Id)
+                ).Count();
+
 			//ViewData["pageSize"] = pageSize;
 			ViewData["pagesCount"] = (count - 1) / pageSize + 1;
 
@@ -94,18 +98,24 @@ namespace Website.Controllers
         [HttpDelete]
 		public IActionResult RemoveOrder(int orderId)
 		{
-            int ownerId = 0;
+            int accountId = 0;
 			try
 			{
-				ownerId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("В cookies не найден accountId");
+                accountId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("В cookies не найден accountId");
 			}
 			catch
 			{
 				return RedirectToAction("Account", "Login");
 			}
 
-			Order order = _contextDb.Orders.Where(_order => _order.Id == orderId &&
-			_order.Bot.OwnerId == ownerId).SingleOrDefault();
+            List<int> idsOfModeratedBots = _contextDb.Moderators.Where(_mo => _mo.AccountId == accountId).Select(_mo => _mo.BotId).ToList();
+
+
+            //Собственник или модератор
+            Order order = _contextDb.Orders.Where(_order => 
+            _order.Id == orderId &&
+			        (_order.Bot.OwnerId == accountId || idsOfModeratedBots.Contains(_order.Bot.Id))
+                ).SingleOrDefault();
 
 			if (order != null)
 			{
@@ -123,26 +133,37 @@ namespace Website.Controllers
 		[HttpPost]
 		public IActionResult ChangeOrderStatus(int orderId, int? statusId)
 		{
-            int ownerId = 0;
+            int accountId = 0;
 			try
 			{
-				ownerId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("В cookies не найден accountId");
+                accountId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("В cookies не найден accountId");
 			}
 			catch
 			{
 				return RedirectToAction("Account", "Login");
 			}
 
-			Order order = _contextDb.Orders.Where(_order => _order.Id == orderId &&
-			_order.Bot.OwnerId == ownerId).SingleOrDefault();
+            List<int> idsOfModeratedBots = _contextDb.Moderators.Where(_mo => _mo.AccountId == accountId).Select(_mo => _mo.BotId).ToList();
+
+
+            //Собственник или модератор
+            Order order = _contextDb.Orders.Where(_order => 
+                    _order.Id == orderId &&
+			        (_order.Bot.OwnerId == accountId || idsOfModeratedBots.Contains(_order.Bot.Id))
+                ).SingleOrDefault();
 
 			if (order != null)
 			{
 				bool correct = true;
 				if(statusId != null)
 				{
-					OrderStatus status = _contextDb.OrderStatuses.Where(_status => _status.Id == statusId &&
-					_status.Group.OwnerId == ownerId).SingleOrDefault();
+
+                    bool moderator = idsOfModeratedBots.Contains(order.BotId);
+
+
+                    OrderStatus status = _contextDb.OrderStatuses.Where(_status => 
+                        _status.Id == statusId &&
+					    (_status.Group.OwnerId == accountId || moderator)).SingleOrDefault();
 					correct = status != null;
 				}
 
@@ -169,18 +190,20 @@ namespace Website.Controllers
 		[HttpPost]
 		public IActionResult GetNewOrdersCount()
 		{
-			int ownerId = 0;
-			try
-			{
-				ownerId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("В cookies не найден accountId");
-			}
-			catch
-			{
+			int accountId = 0;
+			try{
+                accountId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("В cookies не найден accountId");
+			}catch{
 				return RedirectToAction("Account", "Login");
 			}
 
+            List<int> idsOfModeratedBots = _contextDb.Moderators.Where(_mo => _mo.AccountId == accountId).Select(_mo => _mo.BotId).ToList();
 
-			int ordersCount = _contextDb.Orders.Where(_order => _order.Bot.OwnerId == ownerId && _order.OrderStatusId == null).Count();
+
+            int ordersCount = _contextDb.Orders.Where( _order => 
+                (_order.Bot.OwnerId == accountId || idsOfModeratedBots.Contains(_order.Bot.Id)   ) 
+                && _order.OrderStatusId == null
+            ).Count();
 
 			return Content(ordersCount.ToString());
 		}
@@ -188,13 +211,10 @@ namespace Website.Controllers
 		[HttpPost]
 		public IActionResult GetVariables()
 		{
-			int ownerId = 0;
-			try
-			{
-				ownerId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("В cookies не найден accountId");
-			}
-			catch
-			{
+			int accountId = 0;
+			try{
+                accountId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("В cookies не найден accountId");
+			}catch{
 				return RedirectToAction("Account", "Login");
 			}
 
@@ -202,7 +222,25 @@ namespace Website.Controllers
 			var allStatuses = new Dictionary<int, (string name, string message)>();
 			var groups = new Dictionary<int, (string name, List<int> statuses)>();
 
-			var statusGroups = _contextDb.OrderStatusGroups.Where(_group => _group.OwnerId == ownerId);
+            //Добавить в список дичи дичь из всех аккаунтов собственников модерируемых ботов
+            //List<int> identifier_of_all_accounts_bots_that_I_moderate =
+
+            List<int> all_moderated_bots_ids=
+                _contextDb.Moderators.Where(_mo => _mo.AccountId == accountId).Select(_mo => _mo.BotId).ToList();
+
+            List<int> identifier_of_all_accounts_bots_that_I_moderate =
+                _contextDb
+                .Bots
+                .Where(_bot =>
+                all_moderated_bots_ids.Contains(_bot.Id))
+                .Select(_bot => _bot.OwnerId)
+                .ToList();
+
+
+            var statusGroups = _contextDb.OrderStatusGroups.Where(_group => 
+                    _group.OwnerId == accountId || identifier_of_all_accounts_bots_that_I_moderate.Contains(_group.OwnerId)
+                );
+
 			foreach (var statusGroup in statusGroups) // группы статусов меняются редко, может, нужно их сохранять?
 			{
 				int groupId = statusGroup.Id;
@@ -215,15 +253,26 @@ namespace Website.Controllers
 				}
 			}
 
-			var bots = _contextDb.Bots.Where(_bot => _bot.OwnerId == ownerId).
-				ToDictionary(_bot => _bot.Id, _bot => new { Name = _bot.BotName, _bot.Token });
+            List<int> idsOfModeratedBots = _contextDb.Moderators.Where(_mo => _mo.AccountId == accountId).Select(_mo => _mo.BotId).ToList();
 
-			var items = _contextDb.Items.Where(_item => _item.Bot.OwnerId == ownerId).ToDictionary(
-				_item => _item.Id, _item => new
-				{
-					_item.Name,
-					_item.Value
-				});
+
+            var bots = _contextDb.Bots.Where(_bot =>
+                    _bot.OwnerId == accountId || idsOfModeratedBots.Contains(_bot.Id)
+                ).ToDictionary(_bot =>
+                _bot.Id, _bot => new
+                {
+                    Name = _bot.BotName,
+                    _bot.Token
+                    });
+
+			var items = _contextDb.Items.Where(_item => 
+                    _item.Bot.OwnerId == accountId || idsOfModeratedBots.Contains(_item.Bot.Id))
+                    .ToDictionary(_item => 
+                    _item.Id, _item => new
+				        {
+					        _item.Name,
+					        _item.Value
+				        });
 
 			return Json(new { statuses = allStatuses, statusGroups = groups, bots, items });
 		}
@@ -233,10 +282,10 @@ namespace Website.Controllers
 		[HttpPost]
 		public IActionResult GetOrders(int page = 1)
 		{
-			int ownerId = 0;
+			int accountId = 0;
 			try
 			{
-				ownerId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("В cookies не найден accountId");
+				accountId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("В cookies не найден accountId");
 			}
 			catch
 			{
@@ -246,19 +295,23 @@ namespace Website.Controllers
 
 			int startPosition = (page - 1) * pageSize;
 
-			var orders = _contextDb.Orders.Where(_order => _order.Bot.OwnerId == ownerId).
-				OrderByDescending(_order => _order.DateTime).Skip(startPosition).Take(pageSize).Select(_order =>
-				new {
-					orderId = _order.Id,
-					botId = _order.BotId,
-					sender = _order.SenderNickname,
-					mainContainerId = _order.ContainerId,
-					statusGroupId = _order.OrderStatusGroupId,
-					statusId = _order.OrderStatusId,
-					dateTime = (_order.DateTime.Ticks - unixEpochTicks) / 10000
-				}).ToArray();
+            //Добавил модераторов
+            List<int> idsOfModeratedBots = _contextDb.Moderators.Where(_mo => _mo.AccountId == accountId).Select(_mo=>_mo.BotId).ToList();
 
-			var containers = _contextDb.Inventories.
+            var orders = _contextDb.Orders.Where(_order => _order.Bot.OwnerId == accountId || idsOfModeratedBots.Contains(_order.BotId)).
+            OrderByDescending(_order => _order.DateTime).Skip(startPosition).Take(pageSize).Select(_order =>
+            new
+            {
+                orderId = _order.Id,
+                botId = _order.BotId,
+                sender = _order.SenderNickname,
+                mainContainerId = _order.ContainerId,
+                statusGroupId = _order.OrderStatusGroupId,
+                statusId = _order.OrderStatusId,
+                dateTime = (_order.DateTime.Ticks - unixEpochTicks) / 10000
+            }).ToArray();
+
+            var containers = _contextDb.Inventories.
 				Join(orders, _cont => _cont.Id, _order => _order.mainContainerId,
 				(_cont, _order) => new
 				{
@@ -303,16 +356,19 @@ namespace Website.Controllers
 
 
 
-            int ownerId = 0;
+            int accountId = 0;
             try{
-                ownerId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("В cookies не найден accountId.");
+                accountId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("В cookies не найден accountId.");
             }catch{
                 return RedirectToAction("Account", "Login");
             }
 
+            List<int> idsOfModeratedBots = _contextDb.Moderators.Where(_mo => _mo.AccountId == accountId).Select(_mo => _mo.BotId).ToList();
 
-            int senderId = _contextDb.Orders.Where(_order => _order.Id == orderId && _order.Bot.OwnerId == ownerId).
-				Select(_order => _order.SenderId).SingleOrDefault();
+            int senderId = _contextDb.Orders.Where(
+                _order => _order.Id == orderId && 
+                (_order.Bot.OwnerId == accountId || idsOfModeratedBots.Contains(_order.Bot.Id)))
+                .Select(_order => _order.SenderId).SingleOrDefault();
 
 			if(senderId == default(int))
 			{

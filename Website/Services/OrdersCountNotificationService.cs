@@ -199,6 +199,11 @@ namespace Website.Services
                     _contextDb.Bots.Where(_bot => _bot.OwnerId == accountId).Select(_bot => _bot.Id).ToList();
 
                 //TODO Боты, к которым аккаунт имеет доступ (модератор)
+                List<int> the_bot_ids_which_are_moderated_by_the_account =
+                    _contextDb.Moderators.Where(_mo => _mo.AccountId == accountId).Select(_mo => _mo.BotId).ToList();
+
+                the_bot_ids_on_which_the_account_is_signed
+                    .AddRange(the_bot_ids_which_are_moderated_by_the_account);
 
                 //Для всех ботов на которые аккаунт подписан
                 for (int i = 0; i < the_bot_ids_on_which_the_account_is_signed.Count; i++)
@@ -244,21 +249,7 @@ namespace Website.Services
             public int OrdersCountOld;
             public WebSocket WebSocket;
         }
-        /// Зачем для каждой вкладки? 
-        /// Вообще незачем, но раз упарываться по оптимизации сети,
-        /// то можно представить такую ситуацию:
-        /// 
-        /// на 10 компьютерах открыто по 1 вкладке с одного аккаунта
-        /// на всех 10-ти компьютерах показывается число 3 в количестве заказов
-        /// 
-        /// и тут хоба и включается 11-ый пользователь под тем же аккаунтом
-        /// для него в переменной хранится кол-во заказов 0
-        /// 
-        /// при новой рассылке уведомлений Json с кол-вом заказов отправится только 
-        /// 11-тому, а не всем вкладкам под этим аккаунтом
-        /// 
-
-
+      
 
     }
 
