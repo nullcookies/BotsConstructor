@@ -77,8 +77,8 @@ namespace DataLayer.Services
                 LogLevel = logLevel,
                 LogLevelString = logLevel.ToString(),
                 Message = comment + " " + ex?.Message,
-                ErrorSource = errorSource,
-                ErrorSourceString =errorSource.ToString()
+                Source = errorSource,
+                SourceString =errorSource.ToString()
             };
 
             logMessages.Enqueue(logRecord);

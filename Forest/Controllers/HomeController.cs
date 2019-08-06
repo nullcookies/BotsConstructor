@@ -429,7 +429,7 @@ namespace DeleteMeWebhook.Controllers
             }
             else
             {
-                _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, Source.FOREST, $" Создание новой записи о запущеном боте" + $"{rr.BotId}  {rr.ForestLink}");
+                _logger.Log(LogLevelMyDich.INFO, Source.FOREST, $" Создание новой записи о запущеном боте" + $"{rr.BotId}  {rr.ForestLink}");
                 _context.RouteRecords.Add(rr);
             }
 

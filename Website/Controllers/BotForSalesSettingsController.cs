@@ -150,7 +150,7 @@ namespace Website.Controllers
                         {
                             //запрос на остановку бота
 
-                            string forestUrl = record.ForestLink + "/Home/StopBot"
+                            string forestUrl = record.ForestLink + "/Home/StopBot";
                             string data = "botId=" + bot.Id;
                             var result = Stub.SendPost(forestUrl, data).Result;
 

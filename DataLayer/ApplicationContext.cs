@@ -358,9 +358,9 @@ namespace DataLayer.Models
         public string LogLevelString { get; set; }
 
         [Required]
-        public Source ErrorSource { get; set; }
+        public Source Source { get; set; }
         [Required]
-        public string ErrorSourceString  { get; set; }
+        public string SourceString  { get; set; }
 
     }
     public enum LogLevelMyDich
