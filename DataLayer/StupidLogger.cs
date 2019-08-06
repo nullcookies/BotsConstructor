@@ -6,33 +6,20 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using DataLayer.Models;
+using System.Collections.Generic;
 
 namespace DataLayer.Services
 {
     public class StupidLogger
-    {
-        ApplicationContext _contextDb;
+    {      
+
+        DbContextWrapper _dbContextWrapper;
         ConcurrentQueue<LogMessage> logMessages;
 
         public StupidLogger(IConfiguration configuration)
         {
             logMessages = new ConcurrentQueue<LogMessage>();
-
-            //Дублирование кода
-            string connectionString;
-            bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-
-            if (isWindows)
-                connectionString = configuration.GetConnectionString("PostgresConnectionDevelopment");
-            else
-                connectionString = configuration.GetConnectionString("PostgresConnectionLinux");                    
-
-            _contextDb = new ApplicationContext(
-                new DbContextOptionsBuilder<ApplicationContext>()
-                .UseNpgsql(connectionString)
-                .Options
-            );
-
+            _dbContextWrapper = new DbContextWrapper(configuration);
             PeriodicFooAsync(TimeSpan.FromSeconds(1), CancellationToken.None);
         }
 
@@ -47,32 +34,34 @@ namespace DataLayer.Services
 
         private void SaveLogsToDb()
         {
-            Console.WriteLine("\n\n\n");
-            Console.WriteLine("Сохранение " + logMessages.Count);
-            Console.WriteLine("\n\n\n");
+            ApplicationContext _contextDb = _dbContextWrapper.GetDbContext();
 
-            if (logMessages.Count == 0)
-                return;
-
-            LogMessage[] _logMessages = new LogMessage[logMessages.Count];
-            for (int i = 0; i < logMessages.Count; i++)
+            if (!logMessages.IsEmpty)
             {
-                //Почему так не красиво?
-                logMessages.TryDequeue(out _logMessages[i]);
+                int numberOfMessages = logMessages.Count;
+                List<LogMessage> _logMessages = new List<LogMessage>();
+
+                for (int i = 0; i < numberOfMessages; i++)
+                {                    
+                    bool successfully = logMessages.TryDequeue(out LogMessage mes);
+
+                    if (successfully)
+                    {
+                        _logMessages.Add(mes);
+                    }
+                    
+                }
+
+                _contextDb.LogMessages.AddRange(_logMessages);
+                _contextDb.SaveChanges();
             }
-
-            _contextDb.LogMessages.AddRange(_logMessages);
-
-            //await contextDb.SaveChangesAsync();
-            _contextDb.SaveChanges();
-
         }
 
-
-        public void Log(LogLevelMyDich logLevel,Source errorSource,  string comment = "", int accountId=default(int), Exception ex = null)
+        public void Log(LogLevelMyDich logLevel, Source errorSource, string comment = "", int accountId = default(int), Exception ex = null)
         {
 
             DateTime dt = DateTime.Now;
+
             LogMessage logRecord = new LogMessage()
             {
                 DateTime = dt,
@@ -80,19 +69,17 @@ namespace DataLayer.Services
                 LogLevelString = logLevel.ToString(),
                 Message = comment + " " + ex?.Message,
                 Source = errorSource,
-                SourceString =errorSource.ToString(),
+                SourceString = errorSource.ToString(),
                 AccountId = accountId
             };
 
             logMessages.Enqueue(logRecord);
 
             Console.WriteLine();
-            Console.WriteLine(logLevel.ToString()+"   "+ errorSource.ToString()+"   " + comment+" date="+dt);
+            Console.WriteLine(logLevel.ToString() + "   " + errorSource.ToString() + "   " + comment + " date=" + dt);
             Console.WriteLine();
 
         }
-
-    
     }
 
     public enum Source

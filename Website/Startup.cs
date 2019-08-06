@@ -132,10 +132,6 @@ namespace Website
             
             app.UseWebSockets(wsOptions);
 
-
-
-
-
             app.Use((context, next) =>
             {
 
@@ -165,7 +161,7 @@ namespace Website
                 return next();
             });
 
-
+            //как это засунуть в Middleware?
             app.Use(async (context, next) =>
             {
                  totalLog.Log(context);

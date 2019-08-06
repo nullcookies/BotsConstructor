@@ -375,7 +375,8 @@ namespace DataLayer.Models
         UNAUTHORIZED_ACCESS_ATTEMPT,
         USER_INTERFACE_ERROR_OR_HACKING_ATTEMPT,
         I_AM_AN_IDIOT,
-        WARNING
+        WARNING,
+        SPYING
     }
 
     [Table("RouteRecords")]

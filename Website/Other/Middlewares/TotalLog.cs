@@ -1,4 +1,5 @@
-﻿using DataLayer.Services;
+﻿using DataLayer.Models;
+using DataLayer.Services;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -21,16 +22,17 @@ namespace Website.Other.Middlewares
         public void Log(HttpContext context)
         {
             
-            //Определить accountId
             string idStr = context.User?.FindFirst(x => x.Type == "userId")?.Value;
-            int accountId = int.MinValue;
+            int accountId = 0;
             int.TryParse(idStr, out accountId);
-            
 
-            _logger.Log(DataLayer.Models.LogLevelMyDich.INFO, Source.WEBSITE, "тест логирования 222", accountId:accountId);
+            string path = context.Request.Path;
 
-            
-
+            _logger.Log(
+                LogLevelMyDich.SPYING, 
+                Source.WEBSITE, 
+                $"path={path}", 
+                accountId: accountId);
         }
     }
 }
