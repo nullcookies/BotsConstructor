@@ -68,7 +68,7 @@ namespace Website.Controllers
                 }catch(Exception ee)
                 {
                     int? accountId = Stub.GetAccountIdFromCookies(HttpContext);
-                    _logger.Log(LogLevelMyDich.USER_ERROR, ErrorSource.WEBSITE, $"Сайт. Установка токена для бота " +
+                    _logger.Log(LogLevelMyDich.USER_ERROR, Source.WEBSITE, $"Сайт. Установка токена для бота " +
                         $"botId={botId}, accountId= {accountId}, token = {token}. Не удалось " +
                         $"узнать username бота.  Возможно, такой токен не существует. exception="+
                        ee.Message);
@@ -81,7 +81,7 @@ namespace Website.Controllers
             else
             {
                 ModelState.AddModelError("", "Неверная длина токена");
-                _logger.Log(LogLevelMyDich.USER_ERROR, ErrorSource.WEBSITE, $"Введён токен неверной длины token={token}");
+                _logger.Log(LogLevelMyDich.USER_ERROR, Source.WEBSITE, $"Введён токен неверной длины token={token}");
                 string currentToken = context.Bots.Find(botId).Token;
                 ViewData["currentToken"] = currentToken;
             }

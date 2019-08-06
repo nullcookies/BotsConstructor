@@ -58,7 +58,7 @@ namespace DeleteMeWebhook.Controllers
         {
             try
             {
-                _logger.Log(LogLevelMyDich.INFO,ErrorSource.FOREST, $"Лес. Запуск бота. botId={botId}");
+                _logger.Log(LogLevelMyDich.INFO,Source.FOREST, $"Лес. Запуск бота. botId={botId}");
 
                 JObject answer = null;
                 var bot = _context.Bots.Find(botId);
@@ -98,12 +98,12 @@ namespace DeleteMeWebhook.Controllers
                     //Бот уже запущен с вебхуком
                     if (!string.IsNullOrEmpty(the_link_on_which_the_server_is_running))
                     {
-                        _logger.Log(LogLevelMyDich.WARNING, ErrorSource.FOREST, "Запуск бота поверх запущенного webhook-а");
+                        _logger.Log(LogLevelMyDich.WARNING, Source.FOREST, "Запуск бота поверх запущенного webhook-а");
                     }
                 }
                 catch (Exception ee)
                 {
-                    _logger.Log(LogLevelMyDich.ERROR, ErrorSource.FOREST, "Не удалось узнать botUsername" +
+                    _logger.Log(LogLevelMyDich.ERROR, Source.FOREST, "Не удалось узнать botUsername" +
                         " у бота с botId" + botId + ". Возможно у бота сохранён битый токен. " + ee.Message);
 
                     answer = new JObject()
@@ -122,7 +122,7 @@ namespace DeleteMeWebhook.Controllers
                 //Если найден бот в контейнере
                 if (_botWrapper != null)
                 {
-                    _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, ErrorSource.FOREST, $"Лес. Попытка запуска бота, которые уже работает в этом лесу. botId={botId}");
+                    _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, Source.FOREST, $"Лес. Попытка запуска бота, которые уже работает в этом лесу. botId={botId}");
 
                     answer = new JObject()
                         {
@@ -386,7 +386,7 @@ namespace DeleteMeWebhook.Controllers
             }
             catch (Exception eeee)
             {
-                _logger.Log(LogLevelMyDich.ERROR, ErrorSource.FOREST, "" +
+                _logger.Log(LogLevelMyDich.ERROR, Source.FOREST, "" +
                     " При запуске бота было выброшено исключение. " + eeee.Message);
 
                 JObject jObject = new JObject()
@@ -420,16 +420,16 @@ namespace DeleteMeWebhook.Controllers
             if (rrDb != null)
             {
                 //В базе уже запись о том, что бот запущен
-                _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, ErrorSource.FOREST, $"Лес. Запуск бота. В БД уже существует запись о том, что бот запущен. botId={botId}");
+                _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, Source.FOREST, $"Лес. Запуск бота. В БД уже существует запись о том, что бот запущен. botId={botId}");
 
                 //перезапись значения
-                _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, ErrorSource.FOREST, $"Лес. Запуск бота. Перезапись значения. botId={botId}");
+                _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, Source.FOREST, $"Лес. Запуск бота. Перезапись значения. botId={botId}");
 
                 rrDb.ForestLink = rr.ForestLink;
             }
             else
             {
-                _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, ErrorSource.FOREST, $" Создание новой записи о запущеном боте" + $"{rr.BotId}  {rr.ForestLink}");
+                _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, Source.FOREST, $" Создание новой записи о запущеном боте" + $"{rr.BotId}  {rr.ForestLink}");
                 _context.RouteRecords.Add(rr);
             }
 
@@ -469,7 +469,7 @@ namespace DeleteMeWebhook.Controllers
                     }
                     else
                     {
-                        _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, ErrorSource.FOREST, "Куда успела деться RouteRecord?");
+                        _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, Source.FOREST, "Куда успела деться RouteRecord?");
                         Console.WriteLine("     ogger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, Куда успела деться RouteRecord ? )   ");
 
                         
@@ -481,14 +481,14 @@ namespace DeleteMeWebhook.Controllers
                 }
                 else
                 {
-                    _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, ErrorSource.FOREST, $"Лес принял запрос на остановку " +
+                    _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, Source.FOREST, $"Лес принял запрос на остановку " +
                         $"бота, которого у него нет. botId={botId} botUsername={botUsername}. В словаре" +
                         $" ботов хранился botWrapper==null.");
                 }
             }
             else
             {
-                _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, ErrorSource.FOREST, $"Лес принял запрос на остановку бота," +
+                _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, Source.FOREST, $"Лес принял запрос на остановку бота," +
                     $" которого у него нет. botId={botId} botUsername={botUsername}");
             }
             return StatusCode(500);

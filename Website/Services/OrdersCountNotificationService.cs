@@ -186,7 +186,7 @@ namespace Website.Services
 
                     if (!addIsOk)
                     {
-                        _logger.Log(LogLevelMyDich.ERROR, ErrorSource.WEBSITE, $"Сайт. Сервис подсчёта заказов. Не удалось добавить webSocket для аккаунта accountId={accountId},");
+                        _logger.Log(LogLevelMyDich.ERROR, Source.WEBSITE, $"Сайт. Сервис подсчёта заказов. Не удалось добавить webSocket для аккаунта accountId={accountId},");
                     }
                 }
 
@@ -224,7 +224,7 @@ namespace Website.Services
                         }
                         else
                         {
-                            _logger.Log(LogLevelMyDich.INFO, ErrorSource.WEBSITE, "К словарю (accountId, List<WebSocket> ) добавлен сокет для аккаунта, который уже существует. Значит открыто несколько вкладок.");
+                            _logger.Log(LogLevelMyDich.INFO, Source.WEBSITE, "К словарю (accountId, List<WebSocket> ) добавлен сокет для аккаунта, который уже существует. Значит открыто несколько вкладок.");
                         }
                     }
                     else

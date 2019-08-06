@@ -65,7 +65,7 @@ namespace DataLayer.Services
         }
 
 
-        public void Log(LogLevelMyDich logLevel,ErrorSource errorSource,  string comment = "", Exception ex = null)
+        public void Log(LogLevelMyDich logLevel,Source errorSource,  string comment = "", Exception ex = null)
         {
             Console.WriteLine();
             Console.WriteLine(logLevel.ToString()+"   "+ errorSource.ToString()+"   " + comment);
@@ -89,7 +89,7 @@ namespace DataLayer.Services
 
 
 
-    public enum ErrorSource
+    public enum Source
     {
         WEBSITE,
         FOREST,

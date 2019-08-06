@@ -358,7 +358,7 @@ namespace DataLayer.Models
         public string LogLevelString { get; set; }
 
         [Required]
-        public ErrorSource ErrorSource { get; set; }
+        public Source ErrorSource { get; set; }
         [Required]
         public string ErrorSourceString  { get; set; }
 
