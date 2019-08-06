@@ -349,8 +349,9 @@ namespace DataLayer.Models
     {
         [Key]
         public int Id { get; set; }
-        
-        //public Exception Exception{ get; set; }
+
+        public int AccountId { get; set; }
+
         public DateTime DateTime { get; set; }
         public LogLevelMyDich LogLevel { get; set; }
 

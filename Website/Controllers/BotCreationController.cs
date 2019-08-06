@@ -83,7 +83,7 @@ namespace Website.Controllers
                 Console.WriteLine("\n\n\n\n\n\n\n");
                 _logger.Log(LogLevelMyDich.USER_ERROR, Source.WEBSITE, $"Сайт. Создание нового бота. При " +
                     $"запросе botUsername было выброшено исключение (возможно, введённый" +
-                    $"токен был специально испорчен)"+ee.Message);
+                    $"токен был специально испорчен)"+ee.Message, accountId:accountId);
 
                 ModelState.AddModelError("", "Ошибка обработки токена.");
             }

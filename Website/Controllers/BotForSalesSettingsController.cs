@@ -387,7 +387,7 @@ namespace Website.Controllers
             }
             catch(Exception ex)
             {
-                _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, Source.WEBSITE, $"Не удаётся удалить бота botId={botId}", ex);
+                _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, Source.WEBSITE, $"Не удаётся удалить бота botId={botId}", ex:ex);
                 return StatusCode(500);
             }
         }

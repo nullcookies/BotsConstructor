@@ -29,7 +29,7 @@ namespace Website.Other.Filters
         public void OnActionExecuting(ActionExecutingContext context)
         {
             int botId = int.MinValue;
-                                    
+            
             string requestParameter = context.HttpContext.Request.Query["botId"];
             
             if (!int.TryParse(requestParameter, out botId))

@@ -18,6 +18,7 @@ using System.Threading.Tasks;
 using DataLayer.Models;
 using Website.Services;
 using DataLayer.Services;
+using Website.Other.Middlewares;
 
 namespace Website
 {
@@ -79,6 +80,7 @@ namespace Website
             services.AddSingleton<StupidLogger>();
             services.AddSingleton<OrdersCountNotificationService>();
             services.AddSingleton<BotForSalesStatisticsService>();
+            services.AddSingleton<TotalLog>();
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
               .AddCookie(options =>
@@ -88,7 +90,7 @@ namespace Website
               });
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ApplicationContext _contextDb)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ApplicationContext _contextDb, TotalLog totalLog)
         {
             //оно не хочет очищать таблицу
             //_contextDb.Database.ExecuteSqlCommand("TRUNCATE TABLE [RouteRecords]");
@@ -131,23 +133,23 @@ namespace Website
             app.UseWebSockets(wsOptions);
 
 
-         
+
 
 
             app.Use((context, next) =>
             {
-                
+
                 var userLangs = context.Request.Headers["Accept-Language"].ToString();
                 var firstLang = userLangs.Split(',').FirstOrDefault();
-                
+
                 string lang = "";
                 switch (firstLang)
                 {
                     case "ru":
-                        lang = "ru"; 
+                        lang = "ru";
                         break;
                     default:
-                        lang = "en"; 
+                        lang = "en";
                         break;
                 }
 
@@ -164,6 +166,11 @@ namespace Website
             });
 
 
+            app.Use(async (context, next) =>
+            {
+                 totalLog.Log(context);
+                await next.Invoke();
+            });
 
             app.UseMvc(routes =>
             {

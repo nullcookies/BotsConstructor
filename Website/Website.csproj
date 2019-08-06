@@ -23,11 +23,6 @@
 
 
   <ItemGroup>
-    <Folder Include="Other\Middlewares\" />
-  </ItemGroup>
-
-
-  <ItemGroup>
     <ProjectReference Include="..\DataLayer\DataLayer.csproj" />
   </ItemGroup>
 

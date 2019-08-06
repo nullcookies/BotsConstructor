@@ -11,7 +11,7 @@ namespace DataLayer.Services
 {
     public class StupidLogger
     {
-        ApplicationContext contextDb;
+        ApplicationContext _contextDb;
         ConcurrentQueue<LogMessage> logMessages;
 
         public StupidLogger(IConfiguration configuration)
@@ -27,7 +27,7 @@ namespace DataLayer.Services
             else
                 connectionString = configuration.GetConnectionString("PostgresConnectionLinux");                    
 
-            contextDb = new ApplicationContext(
+            _contextDb = new ApplicationContext(
                 new DbContextOptionsBuilder<ApplicationContext>()
                 .UseNpgsql(connectionString)
                 .Options
@@ -40,13 +40,17 @@ namespace DataLayer.Services
         {
             while (true)
             {
-                await SaveLogsToDb();
+                SaveLogsToDb();
                 await Task.Delay(interval, cancellationToken);
             }
         }
 
-        private async Task SaveLogsToDb()
+        private void SaveLogsToDb()
         {
+            Console.WriteLine("\n\n\n");
+            Console.WriteLine("Сохранение " + logMessages.Count);
+            Console.WriteLine("\n\n\n");
+
             if (logMessages.Count == 0)
                 return;
 
@@ -57,37 +61,39 @@ namespace DataLayer.Services
                 logMessages.TryDequeue(out _logMessages[i]);
             }
 
-            contextDb.LogMessages.AddRange(_logMessages);
+            _contextDb.LogMessages.AddRange(_logMessages);
 
             //await contextDb.SaveChangesAsync();
-            contextDb.SaveChanges();
+            _contextDb.SaveChanges();
 
         }
 
 
-        public void Log(LogLevelMyDich logLevel,Source errorSource,  string comment = "", Exception ex = null)
+        public void Log(LogLevelMyDich logLevel,Source errorSource,  string comment = "", int accountId=default(int), Exception ex = null)
         {
-            Console.WriteLine();
-            Console.WriteLine(logLevel.ToString()+"   "+ errorSource.ToString()+"   " + comment);
-            Console.WriteLine();
 
+            DateTime dt = DateTime.Now;
             LogMessage logRecord = new LogMessage()
             {
-                DateTime = DateTime.Now,
+                DateTime = dt,
                 LogLevel = logLevel,
                 LogLevelString = logLevel.ToString(),
                 Message = comment + " " + ex?.Message,
                 Source = errorSource,
-                SourceString =errorSource.ToString()
+                SourceString =errorSource.ToString(),
+                AccountId = accountId
             };
 
             logMessages.Enqueue(logRecord);
+
+            Console.WriteLine();
+            Console.WriteLine(logLevel.ToString()+"   "+ errorSource.ToString()+"   " + comment+" date="+dt);
+            Console.WriteLine();
+
         }
 
     
     }
-
-
 
     public enum Source
     {
