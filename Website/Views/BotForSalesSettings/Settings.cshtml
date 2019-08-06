@@ -81,7 +81,7 @@
 
         <div class="row p-2">
 
-            
+
             <div class="col-md-3" id="botStatus_stub" style="visibility:hidden;">
                 <div class="card-counter success">
 
@@ -150,29 +150,37 @@
 
 
             @*<div class="col-md-3">
-            <div class="card-counter primary">
-                <i class="fa fa-code-fork  "></i>
-                <span class="count-numbers">12</span>
-                <span class="count-name">Заказов</span>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card-counter danger">
-                <i class="fa fa-ticket"></i>
-                <span class="count-numbers">599</span>
-                <span class="count-name">Instances</span>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card-counter bg-warning">
-                <i class="fa fa-database"></i>
-                <span class="count-numbers">6875</span>
-                <span class="count-name">Data</span>
-            </div>
-        </div>*@
+                    <div class="card-counter primary">
+                        <i class="fa fa-code-fork  "></i>
+                        <span class="count-numbers">12</span>
+                        <span class="count-name">Заказов</span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card-counter danger">
+                        <i class="fa fa-ticket"></i>
+                        <span class="count-numbers">599</span>
+                        <span class="count-name">Instances</span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card-counter bg-warning">
+                        <i class="fa fa-database"></i>
+                        <span class="count-numbers">6875</span>
+                        <span class="count-name">Data</span>
+                    </div>
+                </div>*@
 
         </div>
     </div>
+
+
+    <div class=" container">
+        <div class="alert alert-danger" role="alert" id="ErrorMessage" style="display:none;">
+            Сообщение об ошибке
+        </div>
+    </div>
+
 
     @* Запуск и остановка *@
     <div class="container border border-info  rounded  " style="margin-bottom:1.5rem;  padding-right:0;padding-left:0;">
@@ -187,7 +195,7 @@
             <div class="p-2">
 
                 <div class="row">
-                    <button type="button" id="btnStartBot" class="btn btn-success btn-lg btn-block" onclick="runBot()" disabled >Запустить каталог из черновика</button>
+                    <button type="button" id="btnStartBot" class="btn btn-success btn-lg btn-block" onclick="runBot()" disabled>Запустить каталог из черновика</button>
                     <button type="button" id="btnStopBot" class="btn btn-danger btn-lg btn-block" onclick="stopBot()" disabled>Остановить</button>
                 </div>
             </div>
@@ -420,9 +428,21 @@
 
 <script>
 
-    
+    function showError(messageStr) {
 
-  
+        var errorMes = $('#ErrorMessage');
+        var errorWindowShown = errorMes.css('display') != 'none';
+
+        var template = "Ошибка сервера.\n";
+        errorMes.html(template + messageStr);
+
+
+        if (!errorWindowShown) {
+            errorMes.show();
+            setTimeout(() => errorMes.hide(), 5000);
+        }
+
+    }
 
     function runBot() {
 
@@ -444,7 +464,15 @@
             cache: false,
             type: "POST",
             url: url,
-            success: function () {
+            success: function (answer) {
+
+                console.log(answer);
+                if (answer.success == true) {
+
+                } else {
+                    showError(answer.failMessage)
+                }
+                update();
 
             },
             error: function (xhr) {    
@@ -452,8 +480,8 @@
                 update();
 
                 $('#btnStartBot').removeAttr("disabled");                       
-                console.log(thrownError);
-                alert("Error occurred.  "
+                console.log('Ошибка ');
+                console.log("Error occurred.  "
                     + xhr.statusCode);
             }
         });
@@ -480,7 +508,15 @@
             cache: false,
             type: "POST",
             url: url,
-            success: function () {
+            success: function (answer) {
+
+                console.log(answer);
+                if (answer.success == true) {
+
+                } else {
+                    showError(answer.failMessage)
+                }
+                update();
 
             },
             error: function (xhr, ajaxOptions, thrownError) {
@@ -490,7 +526,7 @@
                 //Включить кнопку остановки бота
                 $('#btnStopBot').removeAttr("disabled");
                 console.log(thrownError);
-                alert("Error occurred.  "
+                console.log("Error occurred.  "
                     + xhr.statusCode);
             }
         });
@@ -511,7 +547,7 @@
 
             },
             error: function (xhr) {
-                alert("Error occurred. "
+                console.log("Error occurred. "
                     + xhr.statusCode);
             }
         });

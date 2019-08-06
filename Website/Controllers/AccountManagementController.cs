@@ -135,7 +135,7 @@ namespace Website.Controllers
                 //Критическая ошибка безопасности
                 //Почему в БД нет такого аккаунта?
                 //Ведь пользователь авторизован
-                logger.Log(LogLevelMyDich.CRITICAL_SECURITY_ERROR, "Почему в БД нет такого аккаунта? Ведь пользователь авторизован");
+                logger.Log(LogLevelMyDich.CRITICAL_SECURITY_ERROR, ErrorSource.WEBSITE, "Почему в БД нет такого аккаунта? Ведь пользователь авторизован");
 
                 return RedirectToAction("Logout", "Account");
             }

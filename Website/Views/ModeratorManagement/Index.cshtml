@@ -94,9 +94,6 @@
             url: url,
             contentType: 'application/json',
             success: function (answer) {
-
-                console.log(answer);
-
                 if (answer.success == true) {
                     redrawlistOfModerators(answer.moderators);
                 } else {
@@ -116,8 +113,6 @@
     requestAListOfModerators();
 
     function redrawlistOfModerators(listOfModerators) {
-
-        console.log("перерисовка");
 
         $('#listOfModerators').empty();
         for (var i = 0; i < listOfModerators.length; i++) {
@@ -151,20 +146,15 @@
                 email: email
             },
             success: function (answer) {
-                console.log('ok');
-                console.log(answer);
-
+                
                 if (answer.success == true) {
                     requestAListOfModerators();
                 } else {
                     showError(answer.failMessage)
-
                 }
             },
             error: function () {
                 showError("Ошибка приглашения нового модератора")
-
-                console.log('error');
             }
         });
 
@@ -176,7 +166,6 @@
     $('.myDeleteElement').on('click', function () {
 
         var button = $(this);
-
 
         var accountId = button.closest('#moderator_template').attr('account_id');
         console.log(`accountId  = ${accountId }`);
@@ -207,19 +196,9 @@
             },
             error: function () {
                 showError("Ошибка удаления модератора")
-
-                console.log('error');
+                
             }
         });
-
-
-
-
-        //var elementContainer = button.closest('.container');
-        //var list = button.closest('#listOfModerators').children();
-        //var index = list.index(elementContainer);
-        //console.log(index);
-        //list[index].remove();
 
     });
 

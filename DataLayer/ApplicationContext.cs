@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using DataLayer.Services;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -356,6 +357,11 @@ namespace DataLayer.Models
         public string Message{ get; set; }
         public string LogLevelString { get; set; }
 
+        [Required]
+        public ErrorSource ErrorSource { get; set; }
+        [Required]
+        public string ErrorSourceString  { get; set; }
+
     }
     public enum LogLevelMyDich
     {
@@ -367,7 +373,8 @@ namespace DataLayer.Models
         USER_ERROR,
         UNAUTHORIZED_ACCESS_ATTEMPT,
         USER_INTERFACE_ERROR_OR_HACKING_ATTEMPT,
-        I_AM_AN_IDIOT
+        I_AM_AN_IDIOT,
+        WARNING
     }
 
     [Table("RouteRecords")]

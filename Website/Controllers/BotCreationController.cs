@@ -81,7 +81,7 @@ namespace Website.Controllers
                 Console.WriteLine("\n\n\n\n\n\n\n");
                 Console.WriteLine(ee.Message);
                 Console.WriteLine("\n\n\n\n\n\n\n");
-                _logger.Log(LogLevelMyDich.USER_ERROR, $"Сайт. Создание нового бота. При " +
+                _logger.Log(LogLevelMyDich.USER_ERROR, ErrorSource.WEBSITE, $"Сайт. Создание нового бота. При " +
                     $"запросе botUsername было выброшено исключение (возможно, введённый" +
                     $"токен был специально испорчен)"+ee.Message);
 

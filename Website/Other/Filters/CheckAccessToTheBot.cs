@@ -35,7 +35,7 @@ namespace Website.Other.Filters
             if (!int.TryParse(requestParameter, out botId))
             {
                 //В запросе не был указан botId
-                _logger.Log(LogLevelMyDich.UNAUTHORIZED_ACCESS_ATTEMPT, "В запросе не был указан botId");
+                _logger.Log(LogLevelMyDich.UNAUTHORIZED_ACCESS_ATTEMPT, ErrorSource.WEBSITE, "В запросе не был указан botId");
                 context.Result = new StatusCodeResult(404);
                 return;
             }
@@ -46,7 +46,7 @@ namespace Website.Other.Filters
             if (bot == null)
             {
                 //Бота с таким id не существует
-                _logger.Log(LogLevelMyDich.UNAUTHORIZED_ACCESS_ATTEMPT, $"Бота с таким id не существует botId={botId}");
+                _logger.Log(LogLevelMyDich.UNAUTHORIZED_ACCESS_ATTEMPT, ErrorSource.WEBSITE, $"Бота с таким id не существует botId={botId}");
                 context.Result = new StatusCodeResult(404);
                 return;
             }
@@ -64,14 +64,14 @@ namespace Website.Other.Filters
             catch
             {
                 context.Result = new StatusCodeResult(403);
-                _logger.Log(LogLevelMyDich.UNAUTHORIZED_ACCESS_ATTEMPT, $"Сайт. Из cookies не удалось извлечь accountId. При доступе к боту bot.Id={bot.Id}");
+                _logger.Log(LogLevelMyDich.UNAUTHORIZED_ACCESS_ATTEMPT, ErrorSource.WEBSITE, $"Сайт. Из cookies не удалось извлечь accountId. При доступе к боту bot.Id={bot.Id}");
                 return;
             }
 
             if (ownerId != accountId)
             {
                 //Бот не принадлежит этому пользователю
-                _logger.Log(LogLevelMyDich.UNAUTHORIZED_ACCESS_ATTEMPT, $"Бот не принадлежит этому пользователю. accountId={accountId}, ownerId={ownerId}");
+                _logger.Log(LogLevelMyDich.UNAUTHORIZED_ACCESS_ATTEMPT, ErrorSource.WEBSITE, $"Бот не принадлежит этому пользователю. accountId={accountId}, ownerId={ownerId}");
 
                 context.Result = new StatusCodeResult(403);
                 return;

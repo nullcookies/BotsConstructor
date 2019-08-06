@@ -58,50 +58,93 @@ namespace DeleteMeWebhook.Controllers
         {
             try
             {
+                _logger.Log(LogLevelMyDich.INFO,ErrorSource.FOREST, $"Лес. Запуск бота. botId={botId}");
 
-
-                //Аунтефикация
-
-                _logger.Log(LogLevelMyDich.INFO, $"Лес. Запуск бота. botId={botId}");
-                Console.WriteLine("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-                Console.WriteLine($"Лес. Запуск бота. botId={botId}");
-                Console.WriteLine("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-                //проверка возможности запуска
+                JObject answer = null;
                 var bot = _context.Bots.Find(botId);
-                string botUsername = new TelegramBotClient(bot.Token).GetMeAsync().Result.Username;
-                //По токену узнать имя 
-                BotsContainer.BotsDictionary.TryGetValue(botUsername, out BotWrapper _botWrapper);
-
-                if (_botWrapper != null)
-                {
-                    _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, $"Лес. Попытка запуска бота, которые уже работает в этом лесу. botId={botId}");
-                    return StatusCode(403, "Такой бот уже запущен");
-
-                }
-
-
-                ////проверить наличие адекватной разметки
+                string botUsername = null;
+              
+                            
+                //Без разметки нельзя
                 if (bot.Markup == null)
                 {
-                    return StatusCode(403, "Markup was null.");
+                     answer = new JObject()
+                        {
+                            { "success", false},
+                            {"failMessage", "Нет разметки." }
+                        };
+                    return Json(answer);
                 }
 
-                ////проверить наличие токена
+                //Без токена нельзя
                 if (bot.Token == null)
                 {
-                    return StatusCode(403, "Token was null.");
+                     answer = new JObject()
+                        {
+                            { "success", false},
+                            {"failMessage", "Нет токена." }
+                        };
+                    return Json(answer);
                 }
-                ////проверить наличие достаточного кол-ва денег
 
-                var owner = _context.Accounts.Find(bot.OwnerId);
-                //var money = owner.Money;
+                //Токен нормальный?
+                try
+                {
+                    botUsername = new TelegramBotClient(bot.Token).GetMeAsync().Result.Username;
 
-                //создание сериализованного объекта дерева
+                    var the_link_on_which_the_server_is_running =
+                        new TelegramBotClient(bot.Token).GetWebhookInfoAsync().Result.Url;
+
+                    //Бот уже запущен с вебхуком
+                    if (!string.IsNullOrEmpty(the_link_on_which_the_server_is_running))
+                    {
+                        _logger.Log(LogLevelMyDich.WARNING, ErrorSource.FOREST, "Запуск бота поверх запущенного webhook-а");
+                    }
+                }
+                catch (Exception ee)
+                {
+                    _logger.Log(LogLevelMyDich.ERROR, ErrorSource.FOREST, "Не удалось узнать botUsername" +
+                        " у бота с botId" + botId + ". Возможно у бота сохранён битый токен. " + ee.Message);
+
+                    answer = new JObject()
+                        {
+                            { "success", false},
+                            {"failMessage", "Ошибка обработки токена." }
+                        };
+                    return Json(answer);
+
+
+
+                }
+
+                BotsContainer.BotsDictionary.TryGetValue(botUsername, out BotWrapper _botWrapper);
+
+                //Если найден бот в контейнере
+                if (_botWrapper != null)
+                {
+                    _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, ErrorSource.FOREST, $"Лес. Попытка запуска бота, которые уже работает в этом лесу. botId={botId}");
+
+                    answer = new JObject()
+                        {
+                            { "success", false},
+                            {"failMessage", "Бот с username = "+botUsername+" уже запущен." }
+                        };
+                    return Json(answer);
+                }
+
+
+                #region создание сериализованного объекта дерева
+
                 JArray testObj = JsonConvert.DeserializeObject<JArray>(bot.Markup);
 
                 if (testObj.Count == 0)
                 {
-                    return StatusCode(403, "Zero objects count.");
+                    answer = new JObject()
+                        {
+                            { "success", false},
+                            {"failMessage", "Разметка пуста." }
+                        };
+                    return Json(answer);
                 }
 
                 Dictionary<int, MetaValued<decimal>> Products = new Dictionary<int, MetaValued<decimal>>();
@@ -312,29 +355,46 @@ namespace DeleteMeWebhook.Controllers
                         _context.Items.Attach(item).State = EntityState.Modified;
                     }
                 }
+
+
+                #endregion
+
+
                 _context.SaveChanges();
 
-                bool synchronization_was_successful = RecordOfTheLaunchOfTheBotWasMadeSuccessfully(botId);
+                bool synchronization_was_successful =
+                    RecordOfTheLaunchOfTheBotWasMadeSuccessfully(botId);
 
                 if (!synchronization_was_successful)
                 {
-                    return StatusCode(500);
+                    answer = new JObject()
+                        {
+                            { "success", false},
+                            {"failMessage", "Не удалось сделать запись в БД о запущенном боте." }
+                        };
+                    return Json(answer);
                 }
-
 
                 Stub.RunAndRegisterBot(botWrapper);
 
-
-
-
-                return Ok();
-
+                 answer = new JObject()
+                    {
+                        { "success", true}
+                    };
+                return Json(answer);
 
             }
             catch (Exception eeee)
             {
-                _logger.Log(LogLevelMyDich.ERROR, "Лес. При запуске бота было выброшено исключение. " + eeee.Message);
-                return StatusCode(500);
+                _logger.Log(LogLevelMyDich.ERROR, ErrorSource.FOREST, "" +
+                    " При запуске бота было выброшено исключение. " + eeee.Message);
+
+                JObject jObject = new JObject()
+                    {
+                        { "success", false},
+                        { "failMessage",  "Лес. При запуске бота было выброшено исключение. " + eeee.Message}
+                    };
+                return Json(jObject);
             }
 
         }
@@ -342,8 +402,6 @@ namespace DeleteMeWebhook.Controllers
         /// <summary>
         /// Создание записи в БД, чтобы знать где запущен бот
         /// </summary>
-        /// <param name="botId"></param>
-        /// <returns></returns>
         private bool RecordOfTheLaunchOfTheBotWasMadeSuccessfully(int botId)
         {
 
@@ -362,24 +420,21 @@ namespace DeleteMeWebhook.Controllers
             if (rrDb != null)
             {
                 //В базе уже запись о том, что бот запущен
-                _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, $"Лес. Запуск бота. В БД уже существует запись о том, что бот запущен. botId={botId}");
+                _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, ErrorSource.FOREST, $"Лес. Запуск бота. В БД уже существует запись о том, что бот запущен. botId={botId}");
 
                 //перезапись значения
-                _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, $"Лес. Запуск бота. Перезапись значения. botId={botId}");
+                _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, ErrorSource.FOREST, $"Лес. Запуск бота. Перезапись значения. botId={botId}");
 
                 rrDb.ForestLink = rr.ForestLink;
-
-                //return false;
             }
             else
             {
-                Console.WriteLine("Создание новой записи о запущеном боте" + $"{rr.BotId}  {rr.ForestLink}");
+                _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, ErrorSource.FOREST, $" Создание новой записи о запущеном боте" + $"{rr.BotId}  {rr.ForestLink}");
                 _context.RouteRecords.Add(rr);
             }
 
-
-
             _context.SaveChanges();
+
             return true;
         }
 
@@ -414,7 +469,7 @@ namespace DeleteMeWebhook.Controllers
                     }
                     else
                     {
-                        _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, "Куда успела деться RouteRecord?");
+                        _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, ErrorSource.FOREST, "Куда успела деться RouteRecord?");
                         Console.WriteLine("     ogger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, Куда успела деться RouteRecord ? )   ");
 
                         
@@ -426,14 +481,14 @@ namespace DeleteMeWebhook.Controllers
                 }
                 else
                 {
-                    _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, $"Лес принял запрос на остановку " +
+                    _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, ErrorSource.FOREST, $"Лес принял запрос на остановку " +
                         $"бота, которого у него нет. botId={botId} botUsername={botUsername}. В словаре" +
                         $" ботов хранился botWrapper==null.");
                 }
             }
             else
             {
-                _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, $"Лес принял запрос на остановку бота," +
+                _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, ErrorSource.FOREST, $"Лес принял запрос на остановку бота," +
                     $" которого у него нет. botId={botId} botUsername={botUsername}");
             }
             return StatusCode(500);

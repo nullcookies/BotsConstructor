@@ -144,7 +144,7 @@ namespace Website.Controllers
             }
             else
             {
-                _logger.Log(LogLevelMyDich.USER_INTERFACE_ERROR_OR_HACKING_ATTEMPT, $"Сайт. Аккаунт " +
+                _logger.Log(LogLevelMyDich.USER_INTERFACE_ERROR_OR_HACKING_ATTEMPT, ErrorSource.WEBSITE, $"Сайт. Аккаунт " +
                     $"{Stub.GetAccountIdFromCookies(HttpContext)} пытается удалить из списка модераторов" +
                     $"аккаунт с id = {accountId}. Но удаляемый аккаунт и так не модерирует этого бота.");
 

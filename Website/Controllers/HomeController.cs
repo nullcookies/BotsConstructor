@@ -66,7 +66,7 @@ namespace Website.Controllers
                         status = "✅Работает✅";
                         break;
                     default:
-                        _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, $"Сайт. При " +
+                        _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, ErrorSource.WEBSITE, $"Сайт. При " +
                             $"запросе всех RouteRecord из бд их количество для бота {bot.Id} " +
                             $"оказалоссь больше одной");
                         return StatusCode(500);

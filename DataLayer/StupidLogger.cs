@@ -65,19 +65,35 @@ namespace DataLayer.Services
         }
 
 
-        public void Log(LogLevelMyDich logLevel, string comment = "", Exception ex = null)
+        public void Log(LogLevelMyDich logLevel,ErrorSource errorSource,  string comment = "", Exception ex = null)
         {
+            Console.WriteLine();
+            Console.WriteLine(logLevel.ToString()+"   "+ errorSource.ToString()+"   " + comment);
+            Console.WriteLine();
+
             LogMessage logRecord = new LogMessage()
             {
                 DateTime = DateTime.Now,
                 LogLevel = logLevel,
                 LogLevelString = logLevel.ToString(),
-                Message = comment + " " + ex?.Message
+                Message = comment + " " + ex?.Message,
+                ErrorSource = errorSource,
+                ErrorSourceString =errorSource.ToString()
             };
 
             logMessages.Enqueue(logRecord);
         }
 
     
+    }
+
+
+
+    public enum ErrorSource
+    {
+        WEBSITE,
+        FOREST,
+        MONITOR,
+        OTHER
     }
 }
