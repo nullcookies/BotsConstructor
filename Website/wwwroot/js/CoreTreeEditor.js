@@ -48,35 +48,35 @@ class TreeNode {
 
         this.container = document.createElement("div");
 
-        this.nodeElement = document.createElement("div");
-        this.nodeElement.className = "node";
-        this.nodeElement.id = "node_" + this.id;
+        let nodeElement = document.createElement("div");
+        nodeElement.className = "node";
+        nodeElement.id = "node_" + this.id;
 
-        this.nodeName = document.createElement("p");
-        this.nodeName.innerText = this.parameters.name;
-        this.nodeName.className = "nodeName";
+        let nodeName = document.createElement("p");
+        nodeName.innerText = this.parameters.name;
+        nodeName.className = "nodeName";
 
-        this.nodeElement.appendChild(this.nodeName);
-        this.container.appendChild(this.nodeElement);
+        nodeElement.appendChild(nodeName);
+        this.container.appendChild(nodeElement);
 
-        this.appenderDiv = document.createElement("div");
-        this.appenderDiv.className = "appenderDiv";
+        let appenderDiv = document.createElement("div");
+        appenderDiv.className = "appenderDiv";
 
-        this.arrowsDiv = document.createElement("div");
-        this.arrowsDiv.className = "arrows";
-        this.vertAdderArr = document.createElement("div");
-        this.vertAdderArr.className = "verticalAdderArrow";
-        this.horizAdderArr = document.createElement("div");
-        this.horizAdderArr.className = "horizontalAdderArrow";
+        let arrowsDiv = document.createElement("div");
+        arrowsDiv.className = "arrows";
+        let vertAdderArr = document.createElement("div");
+        vertAdderArr.className = "verticalAdderArrow";
+        let horizAdderArr = document.createElement("div");
+        horizAdderArr.className = "horizontalAdderArrow";
 
-        this.appenderHolder = document.createElement("div");
-        this.appenderHolder.className = "nodeHolder";
+        let appenderHolder = document.createElement("div");
+        appenderHolder.className = "nodeHolder";
 
-        this.arrowsDiv.appendChild(this.vertAdderArr);
-        this.arrowsDiv.appendChild(this.horizAdderArr);
-        this.appenderDiv.appendChild(this.arrowsDiv);
-        this.appenderDiv.appendChild(this.appenderHolder);
-        this.container.appendChild(this.appenderDiv);
+        arrowsDiv.appendChild(vertAdderArr);
+        arrowsDiv.appendChild(horizAdderArr);
+        appenderDiv.appendChild(arrowsDiv);
+        appenderDiv.appendChild(appenderHolder);
+        this.container.appendChild(appenderDiv);
     }
 
     /** Генерирует ID для узла и добавляет его в список всех узлов, если ID ещё нет. */
@@ -96,14 +96,14 @@ class TreeNode {
 
     /**
      * Клонирует узел без родителя и детей.
-     * @returns Возвращает новый узел с таким же сообщением и названием.
+     * @returns {TreeNode} Возвращает новый узел с таким же сообщением и названием.
      */
     cloneNode() {
         return new TreeNode(this.name, this.message, null, []);
     }
 
     /** Возвращает детей текущего узла.
-     * @returns Возвращает массив детей.
+     * @returns {TreeNode[]} Возвращает массив детей.
     */
     get children() {
         return this.childrenWrappers.map(function (wrapper) {
@@ -156,7 +156,6 @@ class TreeNode {
         // меняет родителя для наследников удаляемого узла
         for (let c = 0; c < child.childrenWrappers.length; c++) {
             child.childrenWrappers[c].node.parent = this;
-            child.childrenWrappers[c].depth--;
         }
 
         for (let i = index; i < this.childrenWrappers.length; i++) {
@@ -176,7 +175,6 @@ class TreeNode {
         child.parent = this;
         let oldWrapper = this.childrenWrappers[index];
         oldWrapper.node.parent = child;
-        oldWrapper.depth++;
         oldWrapper.index = 0;
         this.childrenWrappers[index] = child.createWrapper(index);
     }
@@ -193,11 +191,30 @@ class TreeNode {
         for (let i = index; i < this.childrenWrappers.length; i++) {
             let oldWrapper = this.childrenWrappers[i];
             oldWrapper.node.parent = child;
-            oldWrapper.depth++;
             oldWrapper.index = newIndex;
             newIndex++;
         }
         this.childrenWrappers.splice(index, this.childrenWrappers.length, child.createWrapper(index));
+    }
+}
+
+/**Неудаляемый корень. */
+class RootNode extends TreeNode {
+    /**
+     * Создаёт неудаляемый корень дерева.
+     * @param {string} name Имя узла.
+     * @param {string} message Сообщение узла.
+     */
+    constructor(name, message) {
+        super(new BaseParams(1, name, message));
+    }
+
+    remove() {
+        throw new Error("Корень нельзя удалить!");
+    }
+
+    cloneNode() {
+        throw new Error("Корень нельзя склонировать!");
     }
 }
 
@@ -211,29 +228,12 @@ class NodeWrapper {
     constructor(index, node) {
         this.index = index;
         this.node = node;
-        let prevNode = node.parent;
-        let currentDepth = 0;
-        while (prevNode != null) {
-            currentDepth++;
-            prevNode = prevNode.parent;
-        }
-        this.depth = currentDepth;
+        this.container = document.createElement("div");
     }
 
     /**Полностью удаляет обёртку вместе с узлом. */
     remove() {
         this.node.remove();
-    }
-
-    /**
-     * Устанавливает глубину для узла, а также меняет её для детей.
-     * @param {number} newDepth Новая глубина узла.
-     */
-    set depth(newDepth) {
-        this.depth = newDepth;
-        let childDepth = newDepth + 1;
-        for (let i = 0; i < this.node.childrenWrappers.length; i++) {
-            this.node.childrenWrappers[i].depth = childDepth;
-        }
+        this.container.remove();
     }
 }
