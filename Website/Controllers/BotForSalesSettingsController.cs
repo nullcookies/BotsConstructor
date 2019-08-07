@@ -391,5 +391,16 @@ namespace Website.Controllers
                 return StatusCode(500);
             }
         }
+
+        [HttpGet]
+        public IActionResult PriceDetails()
+        {
+
+            ViewData["sum"]
+            ViewData["orderPrice"] 
+            ViewData["countOfOrders"] 
+
+            return View();
+        }
     }
 }

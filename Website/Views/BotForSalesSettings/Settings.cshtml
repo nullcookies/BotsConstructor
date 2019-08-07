@@ -334,7 +334,7 @@
 
             <div class="row card-header border-info">
                 <div class="h5 ">
-                    Время работы
+                    Оплата
                 </div>
             </div>
 
@@ -343,22 +343,17 @@
                 <div class="row">
 
                     <div class="col ">
-                        <div class="row">
-                            <div class="h5">
-                                Бла-бла-бла
-                            </div>
-                        </div>
-
+                      
                         <div class="row alert alert-primary align-items-center" style="overflow:hidden;">
 
-                            <div class="col-4 text-break h4">
-                                Время остановки:
+                            <div class="col-6 text-break h4">
+                                Сегодня со счёта будет списано:
                             </div>
-                            <div class="col-4 text-break h4">
-                                <strong>18.08.2019 16:52</strong>
+                            <div class="col-3 text-break h4 text-center">
+                                <strong>210 грн</strong>
                             </div>
-                            <div class="col-4">
-                                <button type="button" class="btn btn-info btn-lg btn-block">Продлить</button>
+                            <div class="col-3">
+                                <a  class="btn btn-info btn-lg btn-block" asp-controller="BotForSalesSettings" asp-action="PriceDetails" asp-route-botId="@ViewData["botId"]" >Подробнее</a>
                             </div>
                         </div>
                     </div>
