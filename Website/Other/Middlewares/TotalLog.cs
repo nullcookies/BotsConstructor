@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Website.Other.Middlewares
 {
@@ -13,7 +14,7 @@ namespace Website.Other.Middlewares
         private StupidLogger _logger;
         
 
-        public TotalLog(StupidLogger logger)
+        public TotalLog(StupidLogger logger )
         {
             _logger = logger;
         }
