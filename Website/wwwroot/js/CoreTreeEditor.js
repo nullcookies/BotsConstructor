@@ -1,4 +1,30 @@
 ﻿"use strict";
+
+function isObject(obj) {
+    var type = typeof obj;
+    return type === 'function' || type === 'object' && !!obj;
+};
+
+/**
+ * Выполняет глубокое копирование объекта.
+ * @template T Тип объекта.
+ * @param {T} src Объект, который необходимо скопировать.
+ * @returns {T} Возвращает клон объекта.
+ */
+function deepClone(src) {
+    let clone = {};
+    for (let prop in src) {
+        if (src.hasOwnProperty(prop)) {
+            if (isObject(src[prop])) {
+                clone[prop] = deepClone(src[prop]);
+            } else {
+                clone[prop] = src[prop];
+            }
+        }
+    }
+    return clone;
+}
+
 /*
  * TreeNode имеет "добавитель" и множество обёрток, которые содержат в себе дочерние узлы, места для вставки и стрелки.
  * Каждая обёртка "знает" свой индекс в массиве детей родителя. При создании, обёртка цепляет слушатели событий.
@@ -26,6 +52,15 @@ class BaseParams {
         /** Сообщение, которое пользователь увидит при переходе на узел. */
         this.message = message;
     }
+
+    /**
+     * Делает текущий узел шаблонным.
+     * @returns Возвращает текущее свойство.
+     */
+    makeTemplate() {
+        this.isTemplate = true;
+        return this;
+    }
 }
 
 /**Базовый класс для всех узлов.*/
@@ -50,7 +85,7 @@ class TreeNode {
 
         let nodeElement = document.createElement("div");
         nodeElement.className = "node";
-        nodeElement.id = "node_" + this.id;
+        //nodeElement.id = "node_" + this.id;
 
         let nodeName = document.createElement("p");
         nodeName.innerText = this.parameters.name;
@@ -59,24 +94,30 @@ class TreeNode {
         nodeElement.appendChild(nodeName);
         this.container.appendChild(nodeElement);
 
-        let appenderDiv = document.createElement("div");
-        appenderDiv.className = "appenderDiv";
+        // Шаблонам не нужны стрелки и другие дополнительные элементы.
+        if (!parameters.isTemplate) {
+            let appenderDiv = document.createElement("div");
+            appenderDiv.className = "appenderDiv";
 
-        let arrowsDiv = document.createElement("div");
-        arrowsDiv.className = "arrows";
-        let vertAdderArr = document.createElement("div");
-        vertAdderArr.className = "verticalAdderArrow";
-        let horizAdderArr = document.createElement("div");
-        horizAdderArr.className = "horizontalAdderArrow";
+            let arrowsDiv = document.createElement("div");
+            arrowsDiv.className = "arrows";
+            let vertAdderArr = document.createElement("div");
+            vertAdderArr.className = "verticalAdderArrow";
+            let horizAdderArr = document.createElement("div");
+            horizAdderArr.className = "horizontalAdderArrow";
 
-        let appenderHolder = document.createElement("div");
-        appenderHolder.className = "nodeHolder";
+            let appenderHolder = document.createElement("div");
+            appenderHolder.className = "nodeHolder";
 
-        arrowsDiv.appendChild(vertAdderArr);
-        arrowsDiv.appendChild(horizAdderArr);
-        appenderDiv.appendChild(arrowsDiv);
-        appenderDiv.appendChild(appenderHolder);
-        this.container.appendChild(appenderDiv);
+            arrowsDiv.appendChild(vertAdderArr);
+            arrowsDiv.appendChild(horizAdderArr);
+            appenderDiv.appendChild(arrowsDiv);
+            appenderDiv.appendChild(appenderHolder);
+            this.container.appendChild(appenderDiv);
+        }
+        else {
+            this.container.firstElementChild.className += " template";
+        }
     }
 
     /** Генерирует ID для узла и добавляет его в список всех узлов, если ID ещё нет. */
@@ -96,10 +137,12 @@ class TreeNode {
 
     /**
      * Клонирует узел без родителя и детей.
-     * @returns {TreeNode} Возвращает новый узел с таким же сообщением и названием.
+     * @returns {TreeNode} Возвращает новый узел с такими же параметрами.
      */
     cloneNode() {
-        return new TreeNode(this.name, this.message, null, []);
+        let newNode = new TreeNode(deepClone(this.parameters));
+        delete newNode.parameters.isTemplate;
+        return newNode;
     }
 
     /** Возвращает детей текущего узла.

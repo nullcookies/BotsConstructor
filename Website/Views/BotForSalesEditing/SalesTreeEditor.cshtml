@@ -56,6 +56,9 @@
 </div>
 
 <script>
-    var test = new TreeNode(new BaseParams(1, "Корень", "Sho-to"));
-    $("#main").append(test.container);
+    let root = templates[nodeTypes.root];
+    $("#main").append(root.container);
+    for (let i = nodeTypes.root + 1; i < templates.length; i++) {
+        $("#nodes-menu").append(templates[i].container);
+    }
 </script>

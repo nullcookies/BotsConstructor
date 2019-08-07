@@ -78,6 +78,8 @@ class ProductParams extends BaseParams {
             return previous * current.types.length;
         }, 1);
     }
+
+    //TODO: написать методы для красивого добавления и удаления параметров.
 }
 
 /** Параметры для input-узла. */
@@ -102,12 +104,12 @@ class InputParams extends BaseParams {
 const templates = Object.freeze([
     undefined,
     new RootNode("Корень", "Добро пожаловать в начало!"),
-    new TreeNode(new BaseParams(nodeTypes.info, "Инфо-узел", "Тут может быть любая информация для пользователя.")),
-    new TreeNode(new SectionParams("Раздел", "Этот узел позволяет удобно работать с большим количеством детских узлов.", collectionTypes.block)),
+    new TreeNode(new BaseParams(nodeTypes.info, "Инфо-узел", "Тут может быть любая информация для пользователя.").makeTemplate()),
+    new TreeNode(new SectionParams("Раздел", "Этот узел позволяет удобно работать с большим количеством детских узлов.", collectionTypes.block).makeTemplate()),
     new TreeNode(new ProductParams("Товар", "Тут можно настроить цены товаров с разными подтипами.", [
         new ProductProperty("Характеристика 1", ["Подтип 1", "Подтип 2", "Подтип 3"]),
         new ProductProperty("Характеристика 2", ["Подвид 1", "Подвид 2", "Подвид 3"])
-    ])),
-    new TreeNode(new InputParams("Ввод данных", "Тут пользователь должен ввести данные нужного типа.", 1)),
-    new TreeNode(new BaseParams(nodeTypes.sendOrder, "Отправить заказ", "При переходе сюда сформированный заказ отправляется Вам."))
+    ]).makeTemplate()),
+    new TreeNode(new InputParams("Ввод данных", "Тут пользователь должен ввести данные нужного типа.", 1).makeTemplate()),
+    new TreeNode(new BaseParams(nodeTypes.sendOrder, "Отправить заказ", "При переходе сюда сформированный заказ отправляется Вам.").makeTemplate())
 ]);

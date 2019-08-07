@@ -1,4 +1,8 @@
-﻿.node{
+﻿.template{
+    margin: 15px auto;
+}
+
+.node{
     height: 125px;
     width: 200px;
     border: 2px solid black;
