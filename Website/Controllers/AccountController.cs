@@ -135,12 +135,6 @@ namespace Website.Controllers
             return View();
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult PasswordRecovery(string akjsdfh)
-        {
-            return View();
-        }
 
 
         [HttpPost]
@@ -324,7 +318,7 @@ namespace Website.Controllers
                 }
                 else
                 {
-                    throw new Exception("В базе не должно быть больше одной записи для смены пароли");
+                    throw new Exception("В базе не должно быть больше одной записи для смены пароля");
                 }
 
                 string domain = HttpContext.Request.Host.Value;
@@ -341,7 +335,8 @@ namespace Website.Controllers
                 }
                 _context.SaveChanges();
 
-                return RedirectToAction("SuccessfulSend");
+                string message = "На вашу почту отправлено письмо. Для того, чтобы сбросить пароль следуйте инструкциям в письме. ";
+                return RedirectToAction("SuccessfulSend", new { message });
 
             }
             else
@@ -437,6 +432,7 @@ namespace Website.Controllers
                 ModelState.AddModelError("", $"Ошибка сервера. Неожиданный формат входящийх данных.");
             }
 
+            
             return View();
         }
 
@@ -488,13 +484,16 @@ namespace Website.Controllers
             }
 
 
-            return View();
+
+            string message = "Поздравляем, ваш email подтверждён";
+            return RedirectToAction("SuccessfulSend", new { message });
         }
 
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult SuccessfulSend()
+        public IActionResult SuccessfulSend( string message)
         {
+            ViewData["message"] = message;
             return View();
         }
     }
