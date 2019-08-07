@@ -14,6 +14,15 @@ const collectionTypes = Object.freeze({
     "flipper": 2
 });
 
+const inputTypes = Object.freeze({
+    "text": 1,
+    "time": 2,
+    "image": 3,
+    "audio": 4,
+    "video": 5,
+    "document": 6
+});
+
 /** Параметры для узла-секции. */
 class SectionParams extends BaseParams {
     /**
@@ -57,15 +66,32 @@ class ProductParams extends BaseParams {
         /** Характеристики товара. */
         this.properties = properties;
         this.updateCount();
-        /** @type {number[]} Значения всех подтипов товара. */
+        /** Значения всех подтипов товара.
+         * @type {number[]}
+         */
         this.values = new Array(this.count).fill(0.00);
     }
 
     updateCount() {
         /** Количество всех комбинаций подтипов. */
-        this.count = this.properties.reduce(function (previous, current, index, array) {
+        this.count = this.properties.reduce(function (previous, current) {
             return previous * current.types.length;
         }, 1);
+    }
+}
+
+/** Параметры для input-узла. */
+class InputParams extends BaseParams {
+    /**
+     * Создаёт параметры для input-узла.
+     * @param {string} name Название узла.
+     * @param {string} message Сообщение узла.
+     * @param {number} inputType Число, соответствующее типу input-узла.
+     */
+    constructor(name, message, inputType) {
+        super(nodeTypes.input, name, message);
+        /** Число, соответствующее типу input-узла. */
+        this.inputType = inputType;
     }
 }
 
@@ -78,7 +104,10 @@ const templates = Object.freeze([
     new RootNode("Корень", "Добро пожаловать в начало!"),
     new TreeNode(new BaseParams(nodeTypes.info, "Инфо-узел", "Тут может быть любая информация для пользователя.")),
     new TreeNode(new SectionParams("Раздел", "Этот узел позволяет удобно работать с большим количеством детских узлов.", collectionTypes.block)),
-    new TreeNode(),
-    new TreeNode(),
+    new TreeNode(new ProductParams("Товар", "Тут можно настроить цены товаров с разными подтипами.", [
+        new ProductProperty("Характеристика 1", ["Подтип 1", "Подтип 2", "Подтип 3"]),
+        new ProductProperty("Характеристика 2", ["Подвид 1", "Подвид 2", "Подвид 3"])
+    ])),
+    new TreeNode(new InputParams("Ввод данных", "Тут пользователь должен ввести данные нужного типа.", 1)),
     new TreeNode(new BaseParams(nodeTypes.sendOrder, "Отправить заказ", "При переходе сюда сформированный заказ отправляется Вам."))
 ]);
