@@ -27,7 +27,7 @@ namespace DataLayer.Models
         public DbSet<LogMessage> LogMessages { get; set; }
         public DbSet<BotForSalesStatistics> BotForSalesStatistics { get; set; }
         public DbSet<Moderator> Moderators { get; set; }
-
+        public DbSet<BotForSalesPrice> BotForSalesPrices { get; set; }
 
         public ApplicationContext(DbContextOptions<ApplicationContext> options)
            : base(options)
@@ -69,8 +69,19 @@ namespace DataLayer.Models
             };
 
 
-            
-        
+            BotForSalesPrice price =
+                new BotForSalesPrice()
+                {
+                    MaxPrice = 3,
+                    MinPrice = 2,
+                    MagicParameter = 10,
+                    DateTime = DateTime.Now,
+                    DailyPrice = 7
+                };
+
+            modelBuilder.Entity<BotForSalesPrice>().HasData(price);
+
+
 
             modelBuilder.Entity<Account>().HasData(accounts);
 
@@ -606,5 +617,29 @@ namespace DataLayer.Models
         public int AccountId { get; set; }
         [ForeignKey("AccountId")]
         public Account Account { get; set; }
+    }
+
+    /// <summary>
+    ///  Таблица хранит всю историю цен. 
+    ///  Актуальное значение костант, конечно же хранится последней
+    ///  записью.
+    /// </summary>
+    public class BotForSalesPrice
+    {
+        [Key]
+        [Column("BotForSalesPriceId")]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
+        [Required]
+        public decimal MaxPrice { get; set; }
+        [Required]
+        public decimal MinPrice { get; set; }
+        [Required]
+        public decimal DailyPrice { get; set; }
+        [Required]
+        public decimal MagicParameter { get; set; }
+        [Required]
+        public DateTime DateTime { get; set; }
+
     }
 }

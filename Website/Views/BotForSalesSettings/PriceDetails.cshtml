@@ -14,7 +14,14 @@
 
     Ценообразование:
     Цена за день: 7 грн + ( (количество заказов за сутки) * (цена за один заказ) )
+    Цена за один заказ : 2-3 грн. Чем больше заказов за последние 7 дней принимает бот, тем меньше будет цена одного заказа.
+    Цена за сегодня = @ViewData["dailyPrice"] грн + ( (@ViewData["countOfOrders"] заказов за сутки) * (@ViewData["orderPrice"] грн) ) = <strong>@ViewData["sum"] грн</strong>.
 
-    Цена за сегодня = 7 грн + ( (@ViewData["countOfOrders"] заказов за сутки) * (@ViewData["orderPrice"] грн) ) = <strong>@ViewData["sum"] грн</strong>.
+
+    Кол-во заказов за последние 7 дней = @ViewData["number_of_orders_over_the_past_week"]
+
+
+
+
 
 </div>

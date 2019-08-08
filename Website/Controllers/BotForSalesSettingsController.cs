@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Website.Other;
 using Website.Other.Filters;
 using Website.Services;
+using Website.Services.Bookkeeper;
 
 namespace Website.Controllers
 {
@@ -22,16 +23,19 @@ namespace Website.Controllers
         ApplicationContext _contextDb;
         IHostingEnvironment _appEnvironment;
         BotForSalesStatisticsService _botForSalesStatisticsService;
+        StupidBotForSalesBookkeeper _bookkeper;
 
         public BotForSalesSettingsController(ApplicationContext context, 
                 IHostingEnvironment appEnvironment, 
                 StupidLogger _logger, 
-                BotForSalesStatisticsService botForSalesStatisticsService)
+                BotForSalesStatisticsService botForSalesStatisticsService,
+                StupidBotForSalesBookkeeper _bookkeper)
         {
             this._logger = _logger;
             _appEnvironment = appEnvironment;
             this._contextDb = context ?? throw new ArgumentNullException(nameof(context));
             _botForSalesStatisticsService = botForSalesStatisticsService;
+            this._bookkeper = _bookkeper;
         }
 
 
@@ -393,12 +397,16 @@ namespace Website.Controllers
         }
 
         [HttpGet]
-        public IActionResult PriceDetails()
+        public IActionResult PriceDetails(int botId)
         {
+            StupidPriceInfo _pi = _bookkeper.GetPriceInfo(botId);
 
-            ViewData["sum"]
-            ViewData["orderPrice"] 
-            ViewData["countOfOrders"] 
+            ViewData["sum"] = _pi.SumToday;
+            ViewData["dailyPrice"] = _pi.DailyConst;
+            ViewData["orderPrice"] = _pi.OneAnswerPrice;
+            ViewData["countOfOrders"] = _pi.AnswersCountToday;
+            ViewData["number_of_orders_over_the_past_week"] = _pi.Number_of_orders_over_the_past_week;
+
 
             return View();
         }

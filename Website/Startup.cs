@@ -19,6 +19,7 @@ using DataLayer.Models;
 using Website.Services;
 using DataLayer.Services;
 using Website.Other.Middlewares;
+using Website.Services.Bookkeeper;
 
 namespace Website
 {
@@ -76,6 +77,7 @@ namespace Website
             services.AddLocalization(options => options.ResourcesPath = "Resources");
 
             services.AddTransient<EmailMessageSender>();
+            services.AddTransient<StupidBotForSalesBookkeeper>();
 
             services.AddSingleton<StupidLogger>();
             services.AddSingleton<OrdersCountNotificationService>();
