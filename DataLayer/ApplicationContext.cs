@@ -72,6 +72,7 @@ namespace DataLayer.Models
             BotForSalesPrice price =
                 new BotForSalesPrice()
                 {
+                    Id = int.MinValue,
                     MaxPrice = 3,
                     MinPrice = 2,
                     MagicParameter = 10,

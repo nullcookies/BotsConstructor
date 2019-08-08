@@ -95,6 +95,11 @@ namespace Website.Services.Bookkeeper
             // 2 + (0;1]
             
             OneAnswerPrice = min + ((max - min) - (Number_of_orders_over_the_past_week) / (Number_of_orders_over_the_past_week + magiсParameter));
+
+            //Показ двух знаков после запятой
+            decimal roundedOneAnswerPrice = Math.Floor(OneAnswerPrice * 100) / 100;
+            OneAnswerPrice = roundedOneAnswerPrice;
+
             SumToday = DailyConst + AnswersCountToday * OneAnswerPrice;
                      
 

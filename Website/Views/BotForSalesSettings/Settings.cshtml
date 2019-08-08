@@ -350,7 +350,7 @@
                                 Сегодня со счёта будет списано:
                             </div>
                             <div class="col-3 text-break h4 text-center">
-                                <strong>210 грн</strong>
+                                <strong>@ViewData["sum"] грн</strong>
                             </div>
                             <div class="col-3">
                                 <a  class="btn btn-info btn-lg btn-block" asp-controller="BotForSalesSettings" asp-action="PriceDetails" asp-route-botId="@ViewData["botId"]" >Подробнее</a>

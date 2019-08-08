@@ -45,6 +45,9 @@ namespace Website.Controllers
         {
             BotDB bot = _contextDb.Bots.Find(botId);
 
+            StupidPriceInfo _pi = _bookkeper.GetPriceInfo(botId);
+            ViewData["sum"] = Round(_pi.SumToday);
+
             ViewData["botId"] = botId;
             ViewData["botType"] = bot.BotType;
             ViewData["usersCount"] = 0;
@@ -401,14 +404,19 @@ namespace Website.Controllers
         {
             StupidPriceInfo _pi = _bookkeper.GetPriceInfo(botId);
 
-            ViewData["sum"] = _pi.SumToday;
-            ViewData["dailyPrice"] = _pi.DailyConst;
-            ViewData["orderPrice"] = _pi.OneAnswerPrice;
-            ViewData["countOfOrders"] = _pi.AnswersCountToday;
-            ViewData["number_of_orders_over_the_past_week"] = _pi.Number_of_orders_over_the_past_week;
+            ViewData["sum"] = Round(_pi.SumToday);
+            ViewData["dailyPrice"] = Round(_pi.DailyConst) ;
+            ViewData["orderPrice"] = Round(_pi.OneAnswerPrice) ;
+            ViewData["countOfOrders"] = Round(_pi.AnswersCountToday) ;
+            ViewData["number_of_orders_over_the_past_week"] = Round(_pi.Number_of_orders_over_the_past_week) ;
+
 
 
             return View();
+        }
+        private decimal Round(decimal number)
+        {            
+            return  Math.Floor(number * 100) / 100;
         }
     }
 }
