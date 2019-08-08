@@ -96,6 +96,10 @@ class TreeNode {
 
         // Шаблонам не нужны стрелки и другие дополнительные элементы.
         if (!parameters.isTemplate) {
+            this.id = nextId;
+            nextId++;
+            allNodes[this.id] = this;
+
             let appenderDiv = document.createElement("div");
             appenderDiv.className = "appenderDiv";
 
@@ -120,15 +124,6 @@ class TreeNode {
         }
     }
 
-    /** Генерирует ID для узла и добавляет его в список всех узлов, если ID ещё нет. */
-    addId() {
-        if (this.id == undefined) {
-            this.id = nextId;
-            nextId++;
-            allNodes[this.id] = this;
-        }
-    }
-
     /** Удаляет текущий узел. */
     remove() {
         delete allNodes[this.id];
@@ -140,9 +135,9 @@ class TreeNode {
      * @returns {TreeNode} Возвращает новый узел с такими же параметрами.
      */
     cloneNode() {
-        let newNode = new TreeNode(deepClone(this.parameters));
-        delete newNode.parameters.isTemplate;
-        return newNode;
+        let parameters = deepClone(this.parameters);
+        delete parameters.isTemplate;
+        return new TreeNode(parameters);
     }
 
     /** Возвращает детей текущего узла.
@@ -169,7 +164,6 @@ class TreeNode {
      * @param {TreeNode} child Узел, который вставляется.
      */
     insertChild(index, child) {
-        child.addId();
         child.parent = this;
         this.childrenWrappers.splice(index, 0, child.createWrapper(index));
 
@@ -183,9 +177,10 @@ class TreeNode {
      * @param {TreeNode} child Узел, который добавляется.
      */
     appendChild(child) {
-        child.addId();
         child.parent = this;
-        this.childrenWrappers.push(child.createWrapper(this.childrenWrappers.length));
+        let childWrapper = child.createWrapper(this.childrenWrappers.length);
+        this.childrenWrappers.push(childWrapper);
+        this.container.insertBefore(childWrapper.container, this.container.lastChild);
     }
 
     /**
@@ -214,7 +209,6 @@ class TreeNode {
      * @param {TreeNode} child Промежуточный узел, который добавляется в качестве ребёнка текущему узлу.
      */
     addMiddleNode(index, child) {
-        child.addId();
         child.parent = this;
         let oldWrapper = this.childrenWrappers[index];
         oldWrapper.node.parent = child;
@@ -228,7 +222,6 @@ class TreeNode {
      * @param {TreeNode} child Промежуточный узел, который добавляется в качестве ребёнка текущему узлу.
      */
     addGroupNode(index, child) {
-        child.addId();
         child.parent = this;
         let newIndex = 0;
         for (let i = index; i < this.childrenWrappers.length; i++) {
@@ -272,6 +265,32 @@ class NodeWrapper {
         this.index = index;
         this.node = node;
         this.container = document.createElement("div");
+        this.container.className = "wrapperContainer";
+
+        let arrowsDiv = document.createElement("div");
+        arrowsDiv.className = "arrows";
+        let vertNodeArr = document.createElement("div");
+        vertNodeArr.className = "verticalNodeArrow";
+        let horizArr = document.createElement("div");
+        horizArr.className = "horizontalAdderArrow";
+        let fillArrow = document.createElement("div");
+        fillArrow.className = "verticalFillArrow";
+
+        let childContainer = document.createElement("div");
+        childContainer.className = "childContainer";
+
+        let inserter = document.createElement("div");
+        inserter.className = "nodeHolder";
+
+        arrowsDiv.appendChild(vertNodeArr);
+        arrowsDiv.appendChild(horizArr);
+        arrowsDiv.appendChild(fillArrow);
+
+        childContainer.appendChild(inserter);
+        childContainer.appendChild(this.node.container);
+
+        this.container.appendChild(arrowsDiv);
+        this.container.appendChild(childContainer);
     }
 
     /**Полностью удаляет обёртку вместе с узлом. */

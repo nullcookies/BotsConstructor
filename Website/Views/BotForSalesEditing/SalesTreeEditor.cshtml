@@ -11,20 +11,6 @@
 <script src="~/js/CoreTreeEditor.js"></script>
 <script src="~/js/SalesNodes.js"></script>
 
-<style>
-    #nodes-menu {
-        height: 100%;
-        width: 15rem;
-    }
-
-    #main {
-        width: 100%;
-        height: 100%;
-        padding: 15px 150px 150px 15px;
-        overflow: scroll;
-    }
-</style>
-
 <div id="left-menus">
     <ul class="nav nav-tabs" id="left-tabs" role="tablist">
         <li class="nav-item">
@@ -51,12 +37,11 @@
     jqLeft.find("#left-content").append(jqNewWrapper);
 </script>
 
-<div id="main">
-
-</div>
+<div id="main"></div>
 
 <script>
     let root = templates[nodeTypes.root];
+    root.appendChild(templates[2].cloneNode());
     $("#main").append(root.container);
     for (let i = nodeTypes.root + 1; i < templates.length; i++) {
         $("#nodes-menu").append(templates[i].container);
