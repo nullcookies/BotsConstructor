@@ -363,19 +363,19 @@ namespace DataLayer.Models
     {
         [Key]
         public int Id { get; set; }
+        public string LogLevelString { get; set; }
+        [Required]
+        public string SourceString  { get; set; }
+        public string Message{ get; set; }
 
         public int AccountId { get; set; }
 
         public DateTime DateTime { get; set; }
         public LogLevelMyDich LogLevel { get; set; }
 
-        public string Message{ get; set; }
-        public string LogLevelString { get; set; }
 
         [Required]
         public Source Source { get; set; }
-        [Required]
-        public string SourceString  { get; set; }
 
     }
     public enum LogLevelMyDich

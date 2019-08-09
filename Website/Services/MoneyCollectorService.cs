@@ -57,8 +57,15 @@ namespace Website.Services
 
             while (true)
             {
-                Collect();
-                await Task.Delay(new TimeSpan(24, 0,0), cancellationToken);
+                try
+                {
+                    Collect();
+                }catch(Exception eee)
+                {
+                    _logger.Log(LogLevelMyDich.ERROR, Source.MONEY_COLLECTOR_SERVICE, "оно упало", ex: eee);
+                }
+                //await Task.Delay(new TimeSpan(24, 0,0), cancellationToken);
+                await Task.Delay(new TimeSpan(0,0,30), cancellationToken);
             }
         }
 
@@ -197,9 +204,12 @@ namespace Website.Services
                     {
                         //списать деньги
                         account.Money -= priceInfo.SumToday;
+                        _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, $"На аккаунте есть деньги ", accountId: account.Id);
                     }
                     else
                     {
+                        _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, $"На аккаунте нет денег. Остановка всех ботов", accountId: account.Id);
+
                         //остановить всех ботов, которые принадлежат обанкротившемуся аккаунту
                         List<RouteRecord> rrs = contextDb
                             .RouteRecords
