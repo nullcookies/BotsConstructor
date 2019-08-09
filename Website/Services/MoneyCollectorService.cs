@@ -1,19 +1,11 @@
 ﻿using DataLayer;
 using DataLayer.Models;
 using DataLayer.Services;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.WebSockets;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using Website.Services.Bookkeeper;
 
 
@@ -38,23 +30,30 @@ namespace Website.Services
             _dbContextWrapper = new DbContextWrapper(configuration);
 
             _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, "конструктор");
-            CollectPeriodically(CancellationToken.None);
+
+            CollectPeriodically();
 
         }
 
-        public void Start() { }
         //Периодический запуск
-        public async Task CollectPeriodically(CancellationToken cancellationToken)
+        public void CollectPeriodically()
         {
-
-            DateTime tomorrow_00_00 = DateTime.Now
+            
+            
+            //Задержка до 5 минут первого часа ночи
+            DateTime tomorrow_00_05_00 = DateTime.Now
+              .AddDays(1)
               .AddHours(-DateTime.Now.Hour)
-              .AddMinutes(-DateTime.Now.Minute)
+              .AddMinutes(-DateTime.Now.Minute+5)
               .AddSeconds(-DateTime.Now.Second);
 
-            TimeSpan interval = tomorrow_00_00 - DateTime.Now;
+            _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, $"tomorrow_00_00  = {tomorrow_00_05_00 }");
 
-            //await Task.Delay(interval, cancellationToken);
+            TimeSpan interval = tomorrow_00_05_00 - DateTime.Now;
+            _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, $"До запуска снятия денег осталось {interval}");
+
+            //Ждёмс
+            Thread.Sleep(interval);
 
             while (true)
             {
@@ -64,25 +63,24 @@ namespace Website.Services
                 }
                 catch (Exception eee)
                 {
-                    _logger.Log(LogLevelMyDich.ERROR, Source.MONEY_COLLECTOR_SERVICE, "оно упало", ex: eee);
+                    _logger.Log(LogLevelMyDich.FATAL, Source.MONEY_COLLECTOR_SERVICE, "Сервис списывание денег упал", ex: eee);
                     Console.WriteLine(eee.Message);
                 }
-                //await Task.Delay(new TimeSpan(24, 0,0), cancellationToken);
-                await Task.Delay(new TimeSpan(0, 0, 30), cancellationToken);
+              
+                Thread.Sleep(new TimeSpan(24, 0, 30));
             }
         }
 
-        object lockObj = new object();
         //Списание денег со всех аккаунтов
         private void Collect()
         {
-
+            
             _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, "Старт списывания денег");
 
             ApplicationContext contextDb = _dbContextWrapper
                 .GetDbContext();
 
-            var dt = DateTime.Now.AddDays(-1);
+            var dt = GetTodayDate().AddDays(-1);
             var blrs = contextDb
                 .BotLaunchRecords
                 .Where(_blr => _blr.StartTime >= dt)
@@ -108,8 +106,8 @@ namespace Website.Services
 
             if (actualPrice == null)
             {
-                _logger.Log(LogLevelMyDich.FATAL, Source.MONEY_COLLECTOR_SERVICE, "Нет тарифа в бд! аааааа");
-                return;
+                _logger.Log(LogLevelMyDich.FATAL, Source.MONEY_COLLECTOR_SERVICE, "");
+                throw new Exception("Нет тарифа в бд! аааааа");
             }
 
             //TODO все боты считаются ботами для продаж
@@ -128,20 +126,15 @@ namespace Website.Services
 
                 BotDB bot = null;
                 Account account= null;
-                try
-                {
+              
+                bot = contextDb
+                        .Bots
+                        .Find(botId);
 
-                    bot = contextDb
-                            .Bots
-                            .Find(botId);
-
-                    account = contextDb
-                            .Accounts
-                            .Find(bot.OwnerId);
-                }catch(Exception eeee)
-                {
-                    _logger.Log(LogLevelMyDich.FATAL, Source.MONEY_COLLECTOR_SERVICE, "Это дерьмо упало "+eeee.Message);
-                }
+                account = contextDb
+                        .Accounts
+                        .Find(bot.OwnerId);
+              
 
                 _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, $"priceInfo.SumToday = {priceInfo.SumToday}");
                 _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, $"В цикле  account.Id={account.Id}");
@@ -161,7 +154,7 @@ namespace Website.Services
                         .LastOrDefault();
                     //.SingleOrDefault() ;
 
-
+                    //если с ботом есть транзакция 
                     if (existingTransaction != null)
                     {
                         _logger.Log(LogLevelMyDich.INFO,
@@ -171,14 +164,17 @@ namespace Website.Services
 
                         switch (existingTransaction.TransactionStatus)
                         {
+                            //Другой сервис снимает деньги
                             case TransactionStatus.TRANSACTION_STARTED:
                                 //отложить задачу 
                                 break;
+                            //Другой сервис снял деньги
                             case TransactionStatus.TRANSACTION_COMPLETED_SUCCESSFULL:
-
                                 _logger.Log(LogLevelMyDich.ERROR, Source.MONEY_COLLECTOR_SERVICE, "Запущено несколько сервисов списывания денег");
                                 //не делать ничего
                                 continue;
+
+                            //Другой сервис уронил транзакцию
                             case TransactionStatus.TRANSACTION_FAILED:
                                 //произошло дерьмо
                                 break;
@@ -188,34 +184,24 @@ namespace Website.Services
                                     LogLevelMyDich.FATAL,
                                     Source.MONEY_COLLECTOR_SERVICE,
                                     "Неожиданный статус транзакции");
-                                return;
+                                throw new Exception("Неожиданный статус транзакции");
                         }
 
                     }
 
-
-                    try
+                    //Нет начатых транзакций с этим (бот, аккаунт, день)
+                    //Записать, что начата транзакция
+                    contextDb.WithdrawalLog.Add(new WithdrawalLog()
                     {
+                        BotId = botId,
+                        AccountId = account.Id,
+                        TransactionStatus = TransactionStatus.TRANSACTION_STARTED,
+                        TransactionStatusString = TransactionStatus.TRANSACTION_STARTED.ToString(),
+                        DateTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day)
+                    });
 
-
-                        //Нет начатых транзакций с этим (бот, аккаунт, день)
-                        //Записать, что начата транзакция
-                        contextDb.WithdrawalLog.Add(new WithdrawalLog()
-                        {
-                            BotId = botId,
-                            AccountId = account.Id,
-                            TransactionStatus = TransactionStatus.TRANSACTION_STARTED,
-                            TransactionStatusString = TransactionStatus.TRANSACTION_STARTED.ToString(),
-                            DateTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day)
-                        });
-
-                        contextDb.SaveChanges();
-
-                    }
-                    catch (Exception eee)
-                    {
-                        _logger.Log(LogLevelMyDich.FATAL, Source.MONEY_COLLECTOR_SERVICE, "ааа", ex: eee);
-                    }
+                    contextDb.SaveChanges();
+                    
 
                     _logger.Log(LogLevelMyDich.INFO,
                         Source.MONEY_COLLECTOR_SERVICE,
@@ -273,8 +259,7 @@ namespace Website.Services
                     //Создать запись о удачной транзакции
                     WithdrawalLog withdrawalLog = contextDb
                         .WithdrawalLog
-                        .Where(_wl => _wl.AccountId == account.Id
-                        && _wl.BotId == bot.Id
+                        .Where(_wl => _wl.BotId == bot.Id
                         && _wl.DateTime == GetTodayDate())
                         .Single();
 
@@ -284,13 +269,17 @@ namespace Website.Services
                             Source.MONEY_COLLECTOR_SERVICE,
                             "При подтверждении успешной транзакции не была найдена запись о старте этой транзакции",
                             accountId: account.Id);
-                        return;
+                        throw new Exception("При подтверждении успешной транзакции не была найдена запись о старте этой транзакции");
+
                     }
+
+
                     withdrawalLog.TransactionStatus = TransactionStatus.TRANSACTION_COMPLETED_SUCCESSFULL;
                     withdrawalLog.TransactionStatusString = TransactionStatus.TRANSACTION_COMPLETED_SUCCESSFULL.ToString();
 
                     contextDb.SaveChanges();
                     _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, "Транзакция прошла успешно");
+                    
                 }
                 else
                 {
@@ -298,17 +287,12 @@ namespace Website.Services
                     _logger.Log(LogLevelMyDich.FATAL,
                         Source.MONEY_COLLECTOR_SERVICE,
                         $"Неадекватная цена. botId={botId} цена ={account.Money }");
-                    return;
+                    throw new Exception("Неадекватная цена");
                 }
 
             }
 
-
-
-
-
-
-
+            
         }
 
         private DateTime GetTodayDate()
