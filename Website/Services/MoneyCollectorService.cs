@@ -148,7 +148,7 @@ namespace Website.Services
 
                 //Суточная задержка
                 //Может просто себя вызвать?
-                var day = new TimeSpan(0, 0, 30);
+                var day = new TimeSpan(24, 0, 0);
                 _logger.Log(LogLevelMyDich.IMPORTANT_INFO, Source.MONEY_COLLECTOR_SERVICE, "Задержка перед следующим запуском списывания денег" + day);
                 Thread.Sleep(day);
             }
