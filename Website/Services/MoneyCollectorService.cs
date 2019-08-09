@@ -65,7 +65,7 @@ namespace Website.Services
         //Списание денег со всех аккаунтов
         private void Collect()
         {
-            _logger.Log(LogLevelMyDich.INFO, Source.OTHER, "Старт списывания денег");
+            _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, "Старт списывания денег");
 
             ApplicationContext contextDb = _dbContextWrapper
                 .GetDbContext();
@@ -96,18 +96,22 @@ namespace Website.Services
 
             if (actualPrice == null)
             {
-                _logger.Log(LogLevelMyDich.FATAL, Source.OTHER, "Нет тарифа в бд! аааааа");
+                _logger.Log(LogLevelMyDich.FATAL, Source.MONEY_COLLECTOR_SERVICE, "Нет тарифа в бд! аааааа");
                 return;
             }
 
             //TODO все боты считаются ботами для продаж
 
+            _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, "Количество ботов, которые сегодня запускались = "+botIds.Count);
 
             //Все боты, которые сегодня работали
             for (int i = 0; i < botIds.Count; i++)
             {
                 int botId = botIds[i];
-             
+
+                _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, $"В цикле  botId={botId}");
+
+
                 var priceInfo = _bookkeper.GetPriceInfo(botId);
 
                 var bot = contextDb
@@ -118,7 +122,8 @@ namespace Website.Services
                         .Accounts
                         .Find(bot.OwnerId);
 
-                
+                _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, $"priceInfo.SumToday = {priceInfo.SumToday}");
+                _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, $"В цикле  account.Id={account.Id}");
 
                 //Цена за день адекватная
                 if (priceInfo.SumToday > 0)
@@ -138,6 +143,11 @@ namespace Website.Services
 
                     if (existingTransaction != null)
                     {
+                        _logger.Log(LogLevelMyDich.INFO,
+                            Source.MONEY_COLLECTOR_SERVICE, 
+                            $"existingTransaction != null, existingTransaction.Status={existingTransaction.TransactionStatus}");
+
+
                         switch (existingTransaction.TransactionStatus)
                         {   
                             case TransactionStatus.TRANSACTION_STARTED:
@@ -175,6 +185,12 @@ namespace Website.Services
                     });
 
                     contextDb.SaveChanges();
+
+
+                    _logger.Log(LogLevelMyDich.INFO,
+                        Source.MONEY_COLLECTOR_SERVICE,
+                        $"account.Money = {account.Money}");
+
 
                     //если у аккаунта есть деньги
                     if (account.Money > 0)
@@ -245,7 +261,7 @@ namespace Website.Services
                 {
                     //Произошло дерьмо
                     _logger.Log(LogLevelMyDich.FATAL,
-                        Source.OTHER,
+                        Source.MONEY_COLLECTOR_SERVICE,
                         $"Неадекватная цена. botId={botId} цена ={account.Money }");
                     return;
                 }             

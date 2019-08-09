@@ -10,7 +10,7 @@ namespace DataLayer
 {
     public class DbContextWrapper
     {
-        private readonly string _connextionString;
+        private readonly string _connextionString;       
 
         public DbContextWrapper(IConfiguration configuration)
         {
@@ -21,9 +21,9 @@ namespace DataLayer
                 _connextionString = configuration.GetConnectionString("PostgresConnectionDevelopment");
             else
                 _connextionString = configuration.GetConnectionString("PostgresConnectionLinux");
-
-
+            
         }
+
 
         public ApplicationContext GetDbContext()
         {

@@ -85,7 +85,7 @@ namespace Website
             services.AddSingleton<TotalLog>();
             services.AddSingleton<BotsAirstripService>();
 
-            services.AddSingleton<MoneyCollectorService>();
+            services.AddTransient<MoneyCollectorService>();
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
               .AddCookie(options =>
@@ -109,8 +109,8 @@ namespace Website
             //оно не хочет очищать таблицу
             //_contextDb.Database.ExecuteSqlCommand("TRUNCATE TABLE [RouteRecords]");
             
-            var service = app.ApplicationServices.GetService<MoneyCollectorService>();
-            service.Start();
+            //var service = app.ApplicationServices.GetService<MoneyCollectorService>();
+            //service.Start();
 
             _contextDb.RouteRecords.RemoveRange(_contextDb.RouteRecords);
             _contextDb.SaveChanges();

@@ -1,11 +1,14 @@
-﻿using DataLayer.Models;
+﻿using DataLayer;
+using DataLayer.Models;
 using DataLayer.Services;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Configuration;
 using System.Linq;
 using System.Net.WebSockets;
 using System.Threading.Tasks;
@@ -20,12 +23,12 @@ namespace Website.Services
     public class BotsAirstripService
     {
         StupidLogger _logger;
-        ApplicationContext _contextDb;
+        private DbContextWrapper _dbContextWrapper;
 
-        public BotsAirstripService(StupidLogger logger, ApplicationContext contextDb)
+        public BotsAirstripService(StupidLogger logger, IConfiguration configuration)
         {
             _logger = logger;
-            _contextDb = contextDb;
+            _dbContextWrapper = new DbContextWrapper(configuration);
         }
 
         /// <summary>
@@ -36,6 +39,7 @@ namespace Website.Services
         /// <returns> JObject со статусом запроса.</returns>
         public JObject StartBot(int botId, int accountId)
         {
+            ApplicationContext _contextDb = _dbContextWrapper.GetDbContext();
             BotDB bot = _contextDb.Bots.Find(botId);
             JObject jObject = null;
 
@@ -193,6 +197,8 @@ namespace Website.Services
         /// <returns> JObject со статусом запроса.</returns>
         public JObject StopBot(int botId, int accountId)
         {
+
+            ApplicationContext _contextDb = _dbContextWrapper.GetDbContext();
 
             JObject jObject = null;
             BotDB bot = _contextDb.Bots.Find(botId);
