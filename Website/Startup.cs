@@ -83,7 +83,9 @@ namespace Website
             services.AddSingleton<OrdersCountNotificationService>();
             services.AddSingleton<BotForSalesStatisticsService>();
             services.AddSingleton<TotalLog>();
-            services.AddTransient<BotsAirstripService>();
+            services.AddSingleton<BotsAirstripService>();
+
+            services.AddSingleton<MoneyCollectorService>();
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
               .AddCookie(options =>
@@ -93,11 +95,22 @@ namespace Website
               });
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ApplicationContext _contextDb, TotalLog totalLog)
+
+
+
+
+
+        public void Configure(IApplicationBuilder app, 
+            IHostingEnvironment env, 
+            ApplicationContext _contextDb, 
+            TotalLog totalLog,
+            MoneyCollectorService moneyCollectorService)
         {
             //оно не хочет очищать таблицу
             //_contextDb.Database.ExecuteSqlCommand("TRUNCATE TABLE [RouteRecords]");
-
+            
+            var service = app.ApplicationServices.GetService<MoneyCollectorService>();
+            service.Start();
 
             _contextDb.RouteRecords.RemoveRange(_contextDb.RouteRecords);
             _contextDb.SaveChanges();

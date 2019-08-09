@@ -17,19 +17,6 @@ using System.Threading.Tasks;
 using Website.Services.Bookkeeper;
 
 
-/*
- Требования к системе снятия денег
- 1) Снимает деньги раз в день (полночь по гринвичу?)
- 2) Если несколько таких сервисов запущено, то они не должны дважды проводить снятие денег
-
-    Решение:
-    1) Просто делаю сервис на сайте
-    2) Делаю отдельный лог для снятия денег
-    3) Перед снятием денег проверяю лог 
-     
-     
-     */
-
 namespace Website.Services
 {
     public class MoneyCollectorService
@@ -37,54 +24,60 @@ namespace Website.Services
         private StupidLogger _logger;
         private DbContextWrapper _dbContextWrapper;
         private StupidBotForSalesBookkeeper _bookkeper;
+        private BotsAirstripService _botsAirstripService;
 
         public MoneyCollectorService(
-            IConfiguration configuration, 
             StupidLogger _logger,
-            StupidBotForSalesBookkeeper _bookkeper)
+            IConfiguration configuration, 
+            StupidBotForSalesBookkeeper _bookkeper,
+            BotsAirstripService botsAirstripService)
         {
             this._logger = _logger;
-            _dbContextWrapper = new DbContextWrapper(configuration);
             this._bookkeper = _bookkeper;
+            this._botsAirstripService = botsAirstripService;
+            _dbContextWrapper = new DbContextWrapper(configuration);
+            
             CollectPeriodically(CancellationToken.None);
 
         }
 
+        public void Start() { }
         //Периодический запуск
         public async Task CollectPeriodically(CancellationToken cancellationToken)
         {            
                 
             DateTime tomorrow_00_00 = DateTime.Now
-              .AddHours(-DateTime.Now.Hour)
-              .AddMinutes(-DateTime.Now.Minute)
-              .AddSeconds(-DateTime.Now.Second);
+              .AddHours(    -DateTime.Now.Hour)
+              .AddMinutes(  -DateTime.Now.Minute)
+              .AddSeconds(  -DateTime.Now.Second);
 
             TimeSpan interval = tomorrow_00_00 - DateTime.Now;
 
-            await Task.Delay(interval, cancellationToken);
+            //await Task.Delay(interval, cancellationToken);
 
             while (true)
             {
-                await Collect();
+                Collect();
                 await Task.Delay(new TimeSpan(24, 0,0), cancellationToken);
             }
         }
 
         //Списание денег со всех аккаунтов
-        private async Task Collect()
+        private void Collect()
         {
             _logger.Log(LogLevelMyDich.INFO, Source.OTHER, "Старт списывания денег");
 
-            ApplicationContext _contextDb = _dbContextWrapper
+            ApplicationContext contextDb = _dbContextWrapper
                 .GetDbContext();
 
             var dt = DateTime.Now.AddDays(-1);
-            var blrs = _contextDb
+            var blrs = contextDb
                 .BotLaunchRecords
                 .Where(_blr => _blr.StartTime >= dt)
                 .Select(_blr=>_blr.BotId)
                 .ToList();
 
+            //Боты, которые запускались сегодня (с повторами)
             List<int> botIds = new List<int>();
 
             //Убрать дубли
@@ -96,7 +89,8 @@ namespace Website.Services
                 }
             }
 
-            BotForSalesPrice actualPrice =_contextDb
+            //Боты, которые запускались сегодня (уникальные)
+            BotForSalesPrice actualPrice =contextDb
                 .BotForSalesPrices
                 .Last();
 
@@ -107,6 +101,8 @@ namespace Website.Services
             }
 
             //TODO все боты считаются ботами для продаж
+
+
             //Все боты, которые сегодня работали
             for (int i = 0; i < botIds.Count; i++)
             {
@@ -114,26 +110,28 @@ namespace Website.Services
              
                 var priceInfo = _bookkeper.GetPriceInfo(botId);
 
-                var _bot = _contextDb
+                var bot = contextDb
                         .Bots
                         .Find(botId);
 
-                var account = _contextDb
-                    .Accounts
-                    .Find(_bot.OwnerId);
+                var account = contextDb
+                        .Accounts
+                        .Find(bot.OwnerId);
 
+                
 
-                //Цена адекватная
+                //Цена за день адекватная
                 if (priceInfo.SumToday > 0)
                 {
+                    //Транзакции снятия денег с аккаунта за этого бота сегодня уже были?
+                    //Может возникнуть, если запущено несколько сервисов списывания денег
 
-                    //TODO разобраться с датой
-                    WithdrawalLog existingTransaction = _contextDb
+                    WithdrawalLog existingTransaction = contextDb
                         .WithdrawalLog
                         .Where(_wl =>
                             _wl.BotId == botId
                             && _wl.AccountId == account.Id
-                            && _wl.DateTime > DateTime.Now.AddDays(-1)
+                            && _wl.DateTime == new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day)
                             && _wl.TransactionStatus==TransactionStatus.TRANSACTION_STARTED
                         ).SingleOrDefault() ;
 
@@ -146,6 +144,8 @@ namespace Website.Services
                                 //отложить задачу 
                                 break;
                             case TransactionStatus.TRANSACTION_COMPLETED_SUCCESSFULL:
+
+                                _logger.Log(LogLevelMyDich.ERROR, Source.MONEY_COLLECTOR_SERVICE, "Запущено несколько сервисов списывания денег");
                                 //не делать ничего
                                 continue;
                             case TransactionStatus.TRANSACTION_FAILED:
@@ -162,19 +162,19 @@ namespace Website.Services
 
                     }
 
-                    //Нет начатых транзакций с этим ботом
+                    //Нет начатых транзакций с этим (бот, аккаунт, день)
 
                     //Записать, что начата транзакция
-                    _contextDb.WithdrawalLog.Add(new WithdrawalLog()
+                    contextDb.WithdrawalLog.Add(new WithdrawalLog()
                     {
                         BotId = botId,
                         AccountId =account.Id,
                         TransactionStatus = TransactionStatus.TRANSACTION_STARTED,
                         TransactionStatusString = TransactionStatus.TRANSACTION_STARTED.ToString(),
-                        DateTime = DateTime.Today.AddDays(-1)
+                        DateTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day)
                     });
 
-                    _contextDb.SaveChanges();
+                    contextDb.SaveChanges();
 
                     //если у аккаунта есть деньги
                     if (account.Money > 0)
@@ -184,13 +184,12 @@ namespace Website.Services
                     }
                     else
                     {
-                        //остановить всех ботов аккаунта
-                        //выбрать всех работающих ботов
-                        List<RouteRecord> rrs = _contextDb
+                        //остановить всех ботов, которые принадлежат обанкротившемуся аккаунту
+                        List<RouteRecord> rrs = contextDb
                             .RouteRecords
-                            .Join(_contextDb.Bots,
+                            .Join(contextDb.Bots,
                                 _rr=>_rr.BotId ,
-                                __bot=>_bot.Id,
+                                __bot=>bot.Id,
                                 (_rr, __bot) => new RouteRecord
                                 {
                                   BotId = _rr.BotId,
@@ -208,6 +207,7 @@ namespace Website.Services
                                 if (bot_belongs_to_the_desired_account)
                                 {
                                     //остановить
+                                    _botsAirstripService.StopBot(rrs[q].Bot.Id, account.Id);
 
                                 }
 
@@ -219,8 +219,26 @@ namespace Website.Services
                         }
                     }
 
-                    
-                    _contextDb.SaveChanges();
+                    //Создать запись о удачной транзакции
+                    WithdrawalLog withdrawalLog = contextDb
+                        .WithdrawalLog
+                        .Where(_wl => _wl.AccountId == account.Id
+                        && _wl.BotId == bot.Id
+                        && _wl.DateTime == GetTodayDate())
+                        .Single();
+
+                    if (withdrawalLog == null)
+                    {
+                        _logger.Log(LogLevelMyDich.FATAL,
+                            Source.MONEY_COLLECTOR_SERVICE,
+                            "При подтверждении успешной транзакции не была найдена запись о старте этой трензакции",
+                            accountId: account.Id);
+                        return;
+                    }
+                    withdrawalLog.TransactionStatus = TransactionStatus.TRANSACTION_COMPLETED_SUCCESSFULL;
+                    withdrawalLog.TransactionStatusString = TransactionStatus.TRANSACTION_COMPLETED_SUCCESSFULL.ToString();
+
+                    contextDb.SaveChanges();
 
                 }
                 else
@@ -239,6 +257,11 @@ namespace Website.Services
 
 
 
+        }
+
+        private DateTime GetTodayDate()
+        {
+            return new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day);
         }
     }
 }
