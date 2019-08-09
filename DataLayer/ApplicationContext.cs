@@ -47,6 +47,13 @@ namespace DataLayer.Models
             //Нельзя добавить модератора дважды к аккаунту
             modelBuilder.Entity<Moderator>().HasIndex(_mo => new { _mo.AccountId, _mo.BotId}).IsUnique();
 
+
+            modelBuilder.Entity<WithdrawalLog>().HasIndex(_wl=> new
+            {
+                _wl.BotId,
+                _wl.DateTime
+            }).IsUnique();
+
             var roles = new List<RoleType>()
             {
                 new RoleType(){ Id = 1, Name="admin"},
@@ -66,7 +73,7 @@ namespace DataLayer.Models
             var accounts = new List<Account>()
             {
                 new Account(){Id = 1_000_000,Email="qqq1@qqq" , Password="qqq", Name="Иван Иванов", RoleTypeId = 1 },
-                new Account(){Id = 1_000_001,Email="qqq2@qqq" ,  Password="qqq", Name="Пётр Петров",  RoleTypeId = 2 },
+                new Account(){Id = 1_000_001,Email="qqq2@qqq" ,  Password="qqq", Name="Пётр Петров",  RoleTypeId = 2 , Money = 1000},
                 new Account(){Id = 1_000_002,Email="qqq3@qqq" ,  Password="qqq", Name="Сидор Сидоров",  RoleTypeId = 1 }
             };
 
@@ -103,8 +110,24 @@ namespace DataLayer.Models
             // Для тестирования
             modelBuilder.Entity<BotDB>().HasData(new List<object>
 			{
-				new {Id = 1_000_000, BotName = "Fastname_314159_bot", OwnerId = 1_000_001, BotType="BotForSales", Token = "747439290:AAFsEae_HLFYi-gBrYy7AtmZpr1gw6qL8rM"}
+				new {
+                    Id = 1_000_000,
+                    BotName = "ping_uin_bot",
+                    OwnerId = 1_000_001,
+                    BotType ="BotForSales",
+                    Token = "825321671:AAFoJoGk7VIMU19wvOmiwZHKRwyGptvAqJ4"
+                }
 			});
+
+            
+            modelBuilder.Entity<BotLaunchRecord>().HasData(new List<BotLaunchRecord>
+            {
+                new BotLaunchRecord(){
+                    Id = int.MinValue,
+                    BotId = 1_000_000,
+                    StartTime  = DateTime.Now.AddHours(-5)                   
+                }
+            });
 
 
             modelBuilder.Entity<Moderator>().HasData(new Moderator()
@@ -162,8 +185,9 @@ namespace DataLayer.Models
 				new {Id = 106, Text = "She ne vmer!",			InventoryId = 104}
 			});
 
-			modelBuilder.Entity<ImageMy>().HasIndex(i => new { i.BotId, i.ProductId}).IsUnique();
+			//modelBuilder.Entity<ImageMy>().HasIndex(i => new { i.BotId, i.ProductId}).IsUnique();
 
+            
 
         }
     }

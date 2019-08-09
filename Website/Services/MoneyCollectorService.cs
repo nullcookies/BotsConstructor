@@ -36,7 +36,8 @@ namespace Website.Services
             this._bookkeper = _bookkeper;
             this._botsAirstripService = botsAirstripService;
             _dbContextWrapper = new DbContextWrapper(configuration);
-            
+
+            _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, "конструктор");
             CollectPeriodically(CancellationToken.None);
 
         }
@@ -63,15 +64,18 @@ namespace Website.Services
                 }catch(Exception eee)
                 {
                     _logger.Log(LogLevelMyDich.ERROR, Source.MONEY_COLLECTOR_SERVICE, "оно упало", ex: eee);
+                    Console.WriteLine(eee.Message);
                 }
                 //await Task.Delay(new TimeSpan(24, 0,0), cancellationToken);
                 await Task.Delay(new TimeSpan(0,0,30), cancellationToken);
             }
         }
 
+        object lockObj = new object();
         //Списание денег со всех аккаунтов
         private void Collect()
         {
+            lock (lockObj) { 
             _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, "Старт списывания денег");
 
             ApplicationContext contextDb = _dbContextWrapper
@@ -97,184 +101,193 @@ namespace Website.Services
             }
 
             //Боты, которые запускались сегодня (уникальные)
-            BotForSalesPrice actualPrice =contextDb
+            BotForSalesPrice actualPrice =  _dbContextWrapper
+                .GetDbContext()
                 .BotForSalesPrices
                 .Last();
 
             if (actualPrice == null)
             {
                 _logger.Log(LogLevelMyDich.FATAL, Source.MONEY_COLLECTOR_SERVICE, "Нет тарифа в бд! аааааа");
-                return;
+                return ;
             }
 
             //TODO все боты считаются ботами для продаж
 
             _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, "Количество ботов, которые сегодня запускались = "+botIds.Count);
 
-            //Все боты, которые сегодня работали
-            for (int i = 0; i < botIds.Count; i++)
-            {
-                int botId = botIds[i];
-
-                _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, $"В цикле  botId={botId}");
-
-
-                var priceInfo = _bookkeper.GetPriceInfo(botId);
-
-                var bot = contextDb
-                        .Bots
-                        .Find(botId);
-
-                var account = contextDb
-                        .Accounts
-                        .Find(bot.OwnerId);
-
-                _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, $"priceInfo.SumToday = {priceInfo.SumToday}");
-                _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, $"В цикле  account.Id={account.Id}");
-
-                //Цена за день адекватная
-                if (priceInfo.SumToday > 0)
+                //Все боты, которые сегодня работали
+                for (int i = 0; i < botIds.Count; i++)
                 {
-                    //Транзакции снятия денег с аккаунта за этого бота сегодня уже были?
-                    //Может возникнуть, если запущено несколько сервисов списывания денег
+                    int botId = botIds[i];
 
-                    WithdrawalLog existingTransaction = contextDb
-                        .WithdrawalLog
-                        .Where(_wl =>
-                            _wl.BotId == botId
-                            && _wl.AccountId == account.Id
-                            && _wl.DateTime == new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day)
-                            && _wl.TransactionStatus==TransactionStatus.TRANSACTION_STARTED
-                        ).SingleOrDefault() ;
+                    _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, $"В цикле  botId={botId}");
 
 
-                    if (existingTransaction != null)
+                    var priceInfo = _bookkeper.GetPriceInfo(botId);
+
+                    var bot =  _dbContextWrapper
+                            .GetDbContext()
+                            .Bots
+                            .Find(botId);
+
+                    var account =  _dbContextWrapper
+                            .GetDbContext()
+                            .Accounts
+                            .Find(bot.OwnerId);
+
+                    _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, $"priceInfo.SumToday = {priceInfo.SumToday}");
+                    _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, $"В цикле  account.Id={account.Id}");
+
+                    //Цена за день адекватная
+                    if (priceInfo.SumToday > 0)
                     {
-                        _logger.Log(LogLevelMyDich.INFO,
-                            Source.MONEY_COLLECTOR_SERVICE, 
-                            $"existingTransaction != null, existingTransaction.Status={existingTransaction.TransactionStatus}");
+                        //Транзакции снятия денег с аккаунта за этого бота сегодня уже были?
+                        //Может возникнуть, если запущено несколько сервисов списывания денег
+
+                        WithdrawalLog existingTransaction =  _dbContextWrapper
+                            .GetDbContext()
+                            .WithdrawalLog
+                            .Where(_wl =>
+                                _wl.BotId == botId
+                                && _wl.DateTime == new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day))
+                            .LastOrDefault();
+                        //.SingleOrDefault() ;
 
 
-                        switch (existingTransaction.TransactionStatus)
-                        {   
-                            case TransactionStatus.TRANSACTION_STARTED:
-                                //отложить задачу 
-                                break;
-                            case TransactionStatus.TRANSACTION_COMPLETED_SUCCESSFULL:
+                        if (existingTransaction != null)
+                        {
+                            _logger.Log(LogLevelMyDich.INFO,
+                                Source.MONEY_COLLECTOR_SERVICE,
+                                $"existingTransaction != null, existingTransaction.Status={existingTransaction.TransactionStatus}");
 
-                                _logger.Log(LogLevelMyDich.ERROR, Source.MONEY_COLLECTOR_SERVICE, "Запущено несколько сервисов списывания денег");
-                                //не делать ничего
-                                continue;
-                            case TransactionStatus.TRANSACTION_FAILED:
-                                //произошло дерьмо
-                                break;
-                            default:
-                                //упасть с фатальной ошибкой
-                                _logger.Log(
-                                    LogLevelMyDich.FATAL,
-                                    Source.MONEY_COLLECTOR_SERVICE,
-                                    "Неожиданный статус транзакции");
-                                return;
+
+                            switch (existingTransaction.TransactionStatus)
+                            {
+                                case TransactionStatus.TRANSACTION_STARTED:
+                                    //отложить задачу 
+                                    break;
+                                case TransactionStatus.TRANSACTION_COMPLETED_SUCCESSFULL:
+
+                                    _logger.Log(LogLevelMyDich.ERROR, Source.MONEY_COLLECTOR_SERVICE, "Запущено несколько сервисов списывания денег");
+                                    //не делать ничего
+                                    continue;
+                                case TransactionStatus.TRANSACTION_FAILED:
+                                    //произошло дерьмо
+                                    break;
+                                default:
+                                    //упасть с фатальной ошибкой
+                                    _logger.Log(
+                                        LogLevelMyDich.FATAL,
+                                        Source.MONEY_COLLECTOR_SERVICE,
+                                        "Неожиданный статус транзакции");
+                                    return;
+                            }
+
                         }
 
-                    }
+                        //Нет начатых транзакций с этим (бот, аккаунт, день)
+                        contextDb = _dbContextWrapper
+                            .GetDbContext();
+                        //Записать, что начата транзакция
+                        contextDb.WithdrawalLog.Add(new WithdrawalLog()
+                        {
+                            BotId = botId,
+                            AccountId = account.Id,
+                            TransactionStatus = TransactionStatus.TRANSACTION_STARTED,
+                            TransactionStatusString = TransactionStatus.TRANSACTION_STARTED.ToString(),
+                            DateTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day)
+                        });
 
-                    //Нет начатых транзакций с этим (бот, аккаунт, день)
-
-                    //Записать, что начата транзакция
-                    contextDb.WithdrawalLog.Add(new WithdrawalLog()
-                    {
-                        BotId = botId,
-                        AccountId =account.Id,
-                        TransactionStatus = TransactionStatus.TRANSACTION_STARTED,
-                        TransactionStatusString = TransactionStatus.TRANSACTION_STARTED.ToString(),
-                        DateTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day)
-                    });
-
-                    contextDb.SaveChanges();
-
-
-                    _logger.Log(LogLevelMyDich.INFO,
-                        Source.MONEY_COLLECTOR_SERVICE,
-                        $"account.Money = {account.Money}");
+                        contextDb.SaveChanges();
 
 
-                    //если у аккаунта есть деньги
-                    if (account.Money > 0)
-                    {
-                        //списать деньги
-                        account.Money -= priceInfo.SumToday;
-                        _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, $"На аккаунте есть деньги ", accountId: account.Id);
+                        _logger.Log(LogLevelMyDich.INFO,
+                            Source.MONEY_COLLECTOR_SERVICE,
+                            $"account.Money = {account.Money}");
+
+
+                        //если у аккаунта есть деньги
+                        if (account.Money > 0)
+                        {
+                            //списать деньги
+                            account.Money -= priceInfo.SumToday;
+                            _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, $"На аккаунте есть деньги ", accountId: account.Id);
+                        }
+                        else
+                        {
+                            _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, $"На аккаунте нет денег. Остановка всех ботов", accountId: account.Id);
+
+                            contextDb = _dbContextWrapper
+                            .GetDbContext();
+                            //остановить всех ботов, которые принадлежат обанкротившемуся аккаунту
+                            List<RouteRecord> rrs = contextDb
+                                .RouteRecords
+                                .Join(contextDb.Bots,
+                                    _rr => _rr.BotId,
+                                    __bot => bot.Id,
+                                    (_rr, __bot) => new RouteRecord
+                                    {
+                                        BotId = _rr.BotId,
+                                        ForestLink = _rr.ForestLink,
+                                        Bot = __bot
+                                    }).ToList();
+
+                            for (int q = 0; q < rrs.Count; q++)
+                            {
+                                if (rrs[q].Bot != null)
+                                {
+                                    bool bot_belongs_to_the_desired_account = rrs[q].Bot.OwnerId == account.Id;
+
+                                    //бот принадлежит обанкротившемуся аккаунту
+                                    if (bot_belongs_to_the_desired_account)
+                                    {
+                                        //остановить
+                                        _botsAirstripService.StopBot(rrs[q].Bot.Id, account.Id);
+
+                                    }
+
+                                }
+                                else
+                                {
+                                    _logger.Log(LogLevelMyDich.FATAL, Source.MONEY_COLLECTOR_SERVICE, "Join по RouteRecords не удался");
+                                }
+                            }
+                        }
+
+                        contextDb = _dbContextWrapper
+                            .GetDbContext();
+                        //Создать запись о удачной транзакции
+                        WithdrawalLog withdrawalLog = contextDb
+                            .WithdrawalLog
+                            .Where(_wl => _wl.AccountId == account.Id
+                            && _wl.BotId == bot.Id
+                            && _wl.DateTime == GetTodayDate())
+                            .Single();
+
+                        if (withdrawalLog == null)
+                        {
+                            _logger.Log(LogLevelMyDich.FATAL,
+                                Source.MONEY_COLLECTOR_SERVICE,
+                                "При подтверждении успешной транзакции не была найдена запись о старте этой транзакции",
+                                accountId: account.Id);
+                            return;
+                        }
+                        withdrawalLog.TransactionStatus = TransactionStatus.TRANSACTION_COMPLETED_SUCCESSFULL;
+                        withdrawalLog.TransactionStatusString = TransactionStatus.TRANSACTION_COMPLETED_SUCCESSFULL.ToString();
+
+                        contextDb.SaveChanges();
+                        _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, "Транзакция прошла успешно");
                     }
                     else
                     {
-                        _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, $"На аккаунте нет денег. Остановка всех ботов", accountId: account.Id);
-
-                        //остановить всех ботов, которые принадлежат обанкротившемуся аккаунту
-                        List<RouteRecord> rrs = contextDb
-                            .RouteRecords
-                            .Join(contextDb.Bots,
-                                _rr=>_rr.BotId ,
-                                __bot=>bot.Id,
-                                (_rr, __bot) => new RouteRecord
-                                {
-                                  BotId = _rr.BotId,
-                                  ForestLink = _rr.ForestLink,
-                                  Bot = __bot
-                                }).ToList();
-
-                        for (int q = 0; q < rrs.Count; q++)
-                        {
-                            if (rrs[q].Bot != null)
-                            {
-                                bool bot_belongs_to_the_desired_account = rrs[q].Bot.OwnerId == account.Id;
-
-                                //бот принадлежит обанкротившемуся аккаунту
-                                if (bot_belongs_to_the_desired_account)
-                                {
-                                    //остановить
-                                    _botsAirstripService.StopBot(rrs[q].Bot.Id, account.Id);
-
-                                }
-
-                            }
-                            else
-                            {
-                                _logger.Log(LogLevelMyDich.FATAL, Source.MONEY_COLLECTOR_SERVICE, "Join по RouteRecords не удался");
-                            }
-                        }
-                    }
-
-                    //Создать запись о удачной транзакции
-                    WithdrawalLog withdrawalLog = contextDb
-                        .WithdrawalLog
-                        .Where(_wl => _wl.AccountId == account.Id
-                        && _wl.BotId == bot.Id
-                        && _wl.DateTime == GetTodayDate())
-                        .Single();
-
-                    if (withdrawalLog == null)
-                    {
+                        //Произошло дерьмо
                         _logger.Log(LogLevelMyDich.FATAL,
                             Source.MONEY_COLLECTOR_SERVICE,
-                            "При подтверждении успешной транзакции не была найдена запись о старте этой трензакции",
-                            accountId: account.Id);
+                            $"Неадекватная цена. botId={botId} цена ={account.Money }");
                         return;
                     }
-                    withdrawalLog.TransactionStatus = TransactionStatus.TRANSACTION_COMPLETED_SUCCESSFULL;
-                    withdrawalLog.TransactionStatusString = TransactionStatus.TRANSACTION_COMPLETED_SUCCESSFULL.ToString();
-
-                    contextDb.SaveChanges();
-
-                }
-                else
-                {
-                    //Произошло дерьмо
-                    _logger.Log(LogLevelMyDich.FATAL,
-                        Source.MONEY_COLLECTOR_SERVICE,
-                        $"Неадекватная цена. botId={botId} цена ={account.Money }");
-                    return;
-                }             
+                }   
             }
 
 
