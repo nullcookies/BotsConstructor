@@ -25,7 +25,7 @@ namespace DataLayer
         }
 
 
-        public ApplicationContext GetDbContext()
+        public ApplicationContext GetNewDbContext()
         {
             return new ApplicationContext(
                 new DbContextOptionsBuilder<ApplicationContext>()

@@ -1,30 +1,62 @@
-﻿using DataLayer.Models;
+﻿using DataLayer;
+using DataLayer.Models;
 using DataLayer.Services;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 
+//@&&&&%%%%%%#######(((((((((#######%%%%%
+//@&&&&%%%%%#######(#%%&,((((((#######%%%
+//@&&&%%%%%%#####((%@@@@@.(((((((#####%%%
+//@&&&%%%%###((((((&@&&@@(/(((((((#####%&
+//@&&%%%%%###((((((&#(/#&*////(((((###%%&
+//@&%%%%%###((((/(*%%%(#(./////((((##%%&&
+//@&%%%%%###(((///#&/(//#//////((((##%%%&
+//@&%%%%%###(((////%(&%/(//////((((###%%%
+//@&%%%%%###(((/%@@@&#(&(//////((((###%%%
+//@&%%%%%%###(@@@@@@@%%&#@&////(((((##%%%
+//@&%%%%%%%##&@@@@@@@@@@#@@///((((((##%%%
+//@&%%%%%%%##@@@@@@@@@@@%@@@//((((((##%%%
+//@&&%%%%%%#@@@@@@@@@@@@@@@@/(((((((##%%%
+//@&&&%%%%%%%@@@@(        @@((((((((##%%&
+//@&&&%%%%%&&@@@@@@@@@@@@%@@@((((((###%%&
+//@&&&&&%%%%@@@@@@@@@@@@@(@@@(((((###%%%&
+//@&&&&&&%@@@@&@@@@@@@@@@((@@@(((####%%&&
+//@@&&&&&%&@@@#@@@@@@@@%@((&@@((#####%%&&
+//@@@&&&&@@@@%%@@@@@@@@(&((#@@@#####%%&&&
+//@@@@&&&@&@@%&@@@@@@@@%%((#@@@#@@@&%%&&&
+
+
 namespace Website.Services.Bookkeeper
 {
     public class StupidBotForSalesBookkeeper
     {
-        ApplicationContext _contextDb;
+        DbContextWrapper _dbContextWrapper;
+
+
+        ApplicationContext _contextDbOnlyRead { get
+            {
+                return _dbContextWrapper.GetNewDbContext();
+            }
+        }
         StupidLogger _logger;
 
-        public StupidBotForSalesBookkeeper(ApplicationContext context, StupidLogger _logger )
+        public StupidBotForSalesBookkeeper(IConfiguration configuration, StupidLogger _logger )
         {
-            _contextDb = context;
+
+            this._dbContextWrapper = new DbContextWrapper(configuration);
             this._logger = _logger;
         }
 
         public StupidPriceInfo GetPriceInfo(int botId)
         {
-
+           
             DateTime week_ago = DateTime.Now.AddDays(-7);
 
-            int number_of_orders_over_the_past_week = _contextDb
+            int number_of_orders_over_the_past_week = _contextDbOnlyRead
                 .Orders
                 .Where(_or => _or.BotId == botId && _or.DateTime >= week_ago).Count();
 
@@ -33,11 +65,11 @@ namespace Website.Services.Bookkeeper
                 .AddMinutes(-DateTime.Now.Minute)
                 .AddSeconds(-DateTime.Now.Second);
 
-            int answersCountToday = _contextDb
+            int answersCountToday = _contextDbOnlyRead
                 .Orders
                 .Where(_or => _or.BotId == botId && _or.DateTime > today_00_00).Count();
 
-            BotForSalesPrice price = _contextDb.BotForSalesPrices.LastOrDefault();
+            BotForSalesPrice price = _contextDbOnlyRead.BotForSalesPrices.LastOrDefault();
             StupidPriceInfo priceInfo = null;
 
             if (price != null)
@@ -66,6 +98,9 @@ namespace Website.Services.Bookkeeper
             }
 
             return priceInfo;
+
+           
+            
 
         }
 

@@ -39,7 +39,7 @@ namespace Website.Services
         /// <returns> JObject со статусом запроса.</returns>
         public JObject StartBot(int botId, int accountId)
         {
-            ApplicationContext _contextDb = _dbContextWrapper.GetDbContext();
+            ApplicationContext _contextDb = _dbContextWrapper.GetNewDbContext();
             BotDB bot = _contextDb.Bots.Find(botId);
             JObject jObject = null;
 
@@ -198,7 +198,7 @@ namespace Website.Services
         public JObject StopBot(int botId, int accountId)
         {
 
-            ApplicationContext _contextDb = _dbContextWrapper.GetDbContext();
+            ApplicationContext _contextDb = _dbContextWrapper.GetNewDbContext();
 
             JObject jObject = null;
             BotDB bot = _contextDb.Bots.Find(botId);

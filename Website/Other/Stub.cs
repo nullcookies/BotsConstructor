@@ -155,12 +155,12 @@ namespace Website.Other
         }
 
 
-        public static async void RegisterInMonitor()
+        public static async Task RegisterInMonitor()
         {
             await Stub.Register();
         }
 
-        public static async void UnregisterInMonitor()
+        public static async Task UnregisterInMonitor()
         {
             await Stub.Unregister();
         }

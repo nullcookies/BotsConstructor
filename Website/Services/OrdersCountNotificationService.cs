@@ -29,7 +29,7 @@ namespace Website.Services
         ApplicationContext _contextDb {
             get
             {
-                return _dbContextWrapper.GetDbContext();
+                return _dbContextWrapper.GetNewDbContext();
             }
         }
         DbContextWrapper _dbContextWrapper;

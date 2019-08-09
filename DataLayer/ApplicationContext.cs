@@ -692,6 +692,8 @@ namespace DataLayer.Models
 
         [Required]
         public int BotId { get; set; }
+
+        [ForeignKey("BotId")]
         public BotDB BotDB { get; set; }
 
         [Required]

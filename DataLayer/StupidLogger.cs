@@ -37,7 +37,7 @@ namespace DataLayer.Services
 
         private void SaveLogsToDb()
         {
-            ApplicationContext _contextDb = _dbContextWrapper.GetDbContext();
+            ApplicationContext _contextDb = _dbContextWrapper.GetNewDbContext();
 
             if (!logMessages.IsEmpty)
             {

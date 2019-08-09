@@ -156,7 +156,7 @@ namespace Website.Services
         {
             get
             {
-                return _dbContextWrapper.GetDbContext();
+                return _dbContextWrapper.GetNewDbContext();
             }
         }
 

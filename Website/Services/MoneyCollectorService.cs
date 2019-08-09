@@ -2,20 +2,88 @@
 using DataLayer.Models;
 using DataLayer.Services;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Website.Services.Bookkeeper;
 
+/*
+ Эта херня периодически падает с 
 
+    System.ObjectDisposedException: Cannot access a disposed object. A common cause of this error is disposing a context that was resolved from dependency injection and then later trying to use the same context instance elsewhere in your application.
+This may occur is you are calling Dispose() on the context, or wrapping the context in a using statement.
+If you are using dependency injection, you should let the dependency injection container take care of disposing context instances.
+
+    Это значит, что объект контекста используется в разных потоках.
+    Один поток заканчивает, убивает контекст, а другой ловит ошибку
+
+    Или где-то есть async void 
+    нужно заменить на async Task
+
+
+    
+     */
+
+
+//    @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@&@@@&&&###############((((((((((((((((((((((((((((((((((((((((((((((((**/(#%%&&@@@@@@@@###%#**../////////////////////////////********//////////////////////////////////
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@&@@@@&%(#############((#((((((((((((((((((((((((((((((((((((((((((((/*/#%&&%%%&@@@@@@@@#/*/#(//,,*///////////////////*****************////////////////////////////////
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@&@@@@&&####################((((((((((((((((((((((((((((((((((((((((/(####%%%%%&&&&@@@@@@@&&%%%#(/*,/////////////******************************////////////////////////
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@&@@@@@@%####################(((#(((((((((((((((((((((((((((((((((((/%####%%%%&&&&&&&&@@@@@&&@&&&%(/,*/////////***********************************/////////////////////
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@&####################(((#((((((((((((((((((((((((((((((((((((######%%%&&&&&&@@@@@@@@@@@@&&%#/,*//////****************************************//////////////////
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%########################(((((((((((((((((((((((((((((((((((######%%%&&&&@@@@@@@@@@@@@@@&%%#/**/*********************************************/////////////////
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%########################(((((((((((((((((((((((((((((((((((#######%%&&&&@@@@@@&@@@@@@@@@@&%(/***************,,,,,,,,,,*************************//////////////
+//&@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@&##########################(((((((((((((((((((((((((((((((((((###%%&&%%&&&&&&&&&&&&@@@@@@@@&#/************,,,,,,,,,,,,,,,,,,********************//////////////
+//&&@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@&%#######################(((((((((((((((((((((((((((((((((#%%###%@@&%%%&@@&&&@@&&&&&&@@@@@@&&#/*********,,,,,,,,,,,,,,,,,,,,,,,,,*****************////////////
+//&&&&@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@&%#############################((((((((((((((((((((((((((((##%%%@@@@@&%&&&&&&@@&&&&&&@@@@@@&@&/********,,,,,,,,,....,,,,,,,,,,,,,,,,,*************////////////
+//&&@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@&%#################################(((((((((((((((((((((((((%%%@@@@@&&&&&&&&&@@&&&&&&@@@@@@@@&#/******,,,,,,,,...........,,,,,,,,,,,,,,*************//////////
+//&&&&&@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@&##############################(#((((((#(((((((((((((((((((##%@@@@@@&%&&@@@@@@&&&&&@@@@@@@@@@#/*****,,,,,,,................,,,,,,,,,,,*************//////////
+//&&&&&&@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@&%#######################((####%((#%&((%&%**((((((((((((((((#%%&@@@@@&&%&&@@@@@@@&&@@@@@@@@@&&#(/*,*,,,,,,,,...................,,,,,,,,,*************/////////
+//&&&&&&@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@&&#####################(%&&@@@&%%#/#&&%%/(,,(#/(((((((((((((###%%&&@@@@&&&@@@@@@@@@@@@@@@@&&%%#((*,,,,,,,,,....................,,,,,,,,,*************/////////
+//&&&&&&&@@&&@@@@@@@@@@@@@@@@@@@@@@@@@@@@&%#################%&&&@&@@@@@@@@@@&#/,.#*(&@@@&((((((((((((##%%%%&@@@@&&&@@@@@@@@@@@@@@@@&&&&%%//,,,,,,,,,......................,,,,,,,,***********//////////
+//&&&&&&&&&@@@@&&@@@@@@@@@@@@@@@@@@@@@@@@&%################&@@@&&&@@@@@@&&&&###/*,,,*@@@&((((((((((((#%%&##%&@@@@@@@@@@@@@@@@@@@@@@@&&&&%%(,,,,,,,,,,.....................,,,,,,,,***********//////////
+//&&&&&&&&&&&&@@@@@@@@@@@@@@@@@@@@@@@@@@@&%###############&&@@&&%%@@@&&@@@@@%(%(#((%%*/%%((#####((((((##%%&&@@@@@@@@@@@@@@@@@@@@@@@@@&&&&%#*.,,,,,,,,,,,**,,..............,,,,,,,************//////////
+//&&&&&&&&&&&&&&&&&&@@@@@@@@@@@@@@@@@@@@@&%##############&&&&&%%%#%&&&&@@@@@@&&&&%#(%%###(#########(((##%%&&@@@@@@@@@@@@@@@@@@@@@@@@@@@&&%(*,**,,*%&@&#,....,,...........,,,,,,,,***********///////////
+//&&&&&&&&&&&&&&&&&&@@@@@@@@@@@@@@@@@@@@@&%#############%&&&&&%%##%##%@@@@@@@@@@&&%%&@@@@&%%%#%%%####((%&@@@@@@@@@@@@@@@@@@@@@@@@@@@@&&&%##(/**(%@@&/.      .,*,........,,,,,,,,,**********////////////
+//&&&&&&&&&&&&&&&&&&@@@@@@@@@@@@@@@@@@@@&%##############&&%%&%#####%&@@@@@@@@@@@@%%#&@@@@@@%#%&&&&&%#*@@@@@@@@@@@@@@@@@@@@@&@&&&&@@@@@&&%%&&&&&%@@@(..,**/#%%%####/,..,,,,,,,,,**********//////////////
+//&&&&&&&&&&&&&&&@@&@@@@@@@@@@@@@@@@@@@@&%#############%&%%%&#####%%@&&@@@@@@@@@&&&&@@@@@@@@&&&@@@&&&@@@@@@@@@@@@@@@@@@@@@@@@@@&&&&&@@@@@@@@@&&@@%/((#(#%&&&@&&&&&%%%(,,,,,,,,**********///////////////
+//&&&&&&&&&&&&&&&&&&@@@@@@@@@@@@@@@@@@@@&((############%%%%%%((####%&&&&&&&&@@@@@&&@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@&&&&&&@@@@@@@@@@&&&&&&&&&@@@@@@&&&&%%%(,,,**********//////////////////
+//&&&&&&&&&&&&&&&&&&@@@@@@@@@@@@@@@@@@@@&#(//##########%%&%&(((##%%&&&&@&&&&@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@&@@@@@@&@@@@@@@@@@@@@@&&&&&&@@@@@@@@@@@@@@&&@@@@@@@@@&&&&%%#**********////////////////////
+//&&&&&&&&&&&&&&&&&&@@@@@@@@@@@@@@@@@@@&&##((/*(#######%&&&@#%%%%%(%%&@@@@@@@@@@&@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@&&@@&&@@@@@@@@@@&&@@@@@@@@@@@@@@@@@@@@@@@@@@@&&&&%%#******///////////////////////
+//&&&&&&&&&&&&&&&&&&@@@@@@@@@@@@@@@@@@@&%#####((//#####%&&@@@@&&&&##%&@@@@@&&&&&&@@&&@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@&&&&&&&@@@&&@@@@&&&@@@@@@@@@@@@@@@@@@@@@@@@@@@@&&&%%%#/**//////////////////////(//
+//&&&&&&&&&&&&&&&&&&@@@@@@@@@@@@@@@@@@@&%#########(/(##%&&@@@@@@@&#(%&&@@@@&&&&&@&&&@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@&@@@@@@@@@&&&@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@&&&%%%#////////////////////(/(((((
+//&&&&&&&&&&&&&&&&&&@@@@@@@@@@@&@@@@@@&%############(/(&&@@@@@@@&&#(%%&&@@@@&&&&&&@&@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@&@&&&@@@@&&&&&@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@&&&%%%////////////////(((((((((((
+//&&%&&&&&&&&&&&&&&&@@@@@@@@@@@&@@@@@@&################&@@@@@@@@&&%(#%&&@@@@@&&&&@@@@@@@@@@@@@@@@@@@@@@@&&@&@@@@@@@@@&&@@@@&&&&&&&&@@@&@&@@@@@@@@@@@@@@@@@@@@@@@@@@@@@&&&&%%(/////////////(((((((((((((
+//%%%&&&&&&&&&&&&&&&@@@@@@@@@@&@@@@@@&&##############%&&@@@@@@@&&&&%&&%&@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@&&&@&@@@@@@@@&&@@@@&&&@&&&&&&@@@&&&&@&@@@@@@@@@@@@@@@@@@@@@@@@@@&&&%%%((///(((((((((((((((((((((
+//%%%%&&&&&&&&&&&&&&@@@@@@@@@@&@@@@@@&%###############&@@@&@@@&&&&&&&&&&&&&@@@@@@@@@@@@@@@@@@@@@@@@@@@&&@&&&&@@@@@@@&&@@@%&&&@&&%&&&%@@@@%%&%%&@@@@@@@@@@@@@@@@@@@@@@@@@&&&%%%(((((((((((((((((((((((((
+//%%%%%%&&&&&&&&&&&&@@@@@@@@@@@@@@@@@&%###############&@@@@@@&&&&&&&&&&&&&&&@@@@@&@@@@@@@@@@@@@@@@@@@@&&&&&&&@@@@@@&&@@@%%&&@@&&&&&&&%%@@@&#@@&%%&@@@@@@@@@@@@@@@@@@@@@@&&&&%%%((((((((((((((((((((((((
+//%%%%%%%&&&&&&&&&&&@@@@@@@@@&@@@@@@&%################@@@&&@@@&&&&&&&&&@@@&&&@@@@@@@@@@@@@@@@@@@@@@@@&&&&&&&&&@@@@&&@&@%&&@&@@&&&&&&&&%%@@@&#@@@&&&@@@@@@@@@@@@@@@@@@@@@&&&&%%%%(((((((((((((((((((((((
+//%%%%%%%%&&&&&&&&&&@@@@@@@&&&@@@@@&&################%@@&%#%&&&&&&&@&@@@@&&&&&@@@@@@@@@@@@@@@@@@@@@@@&%&&&&&&&@@@@&&&&%%&%@&@@&&&&&&&%%%#@@@@#%@@@@&&@@@@@@@@@@@@@@@@@@@@@&&&%%%%((((((((((((((((((((((
+//%%%%%%%%%&&&&&&&&&@@@@@@@&&@@@@@@&&################%&@%&%&&&&&&&&&&@&&%%&&&&@@@@@@@@@@@@@@@@@@@@@@@&%%&&&%&&@@@@@@%%%&%&@&@@&&&&&&&&%%##&@@&%#@@@@@@@@@@@@@@@@@@@@@@@@@@@&&&%%%#(((((((((((((((((((((
+//%%%%%%%%%%&&&&&&&@@@@@@@@&&@@@@&@&%################%&&%%&&&@&@&&&&@&&&&&&&&&&@@@@@@@@@@@@@@@@@&&@@&%%%&&&%&&&@@@@@%%%%%&@&@@@@&&&&&&&%%##&&@@%#@@@@@@@@@@@@@@@@@@@@@@@@@@&&&%%%%#((((((((((((((((((((
+//%%%%%%%%%%&&&&&&&@@@@@@@&&@@@@@@&&#################%&&&%&&@@@@@@&&&@&&&%%&&&&@@@@@@@@@@@@@@@@@&&@@&%%%%%&%&&&@@@&%%%%%&&@&@@@@&&&&&&&&%%#(%&@@&(@@@@@@@@@@@@@@@@@@@@@@@@@@&&&%%%%#(((((((((((((((((((
+//%%%%%%%%%%&&&&&&&@@@@@@@&@@@@@&&&%#################%%%&&@@@&&&@@@@&&&&&&&&&&@@@@@@@@@@@@@@@@@@@&&@&%%%&%&&&&&&@@#%%%%&&&@&@@&&&&&&&&%%%%%###&&&%(@@@@@@@@@@@@@@@@@@@@@@@@@@&%%%%%%#((((((((((((((((((
+//%%%%%%%%%%&&&&&&&@@@@@&&&@@@@&@&&#####################&&&&%%%%&@@@@&&&&&&&&@@@@@@@@@@@@@@@@@@@&%&@&%%#%%&&&&&&@%%%%%%&&&@&@@&@&@&&%&%&%%%####%&&&#@@@@@@@@@@@@@@@@@@@@@@@@@@&%%%%%#((((((((((((((((((
+//##%%%%%%%%%%&&&&&@@@@&&&@@@&&@@@&####################%%&&%%%%&&&@&@&&%&&&&&&@@@@&@@@@@@&&&&@@&&%%&&%%%%%&@&&&&%%%%%%%&&&@&@@&&&&&&&&&&&&%%#((%&&&%(@@@@@@@@@@@@@@@@@@@@@@@@@&&%%%%#(#((((((((((((((((
+//##%%%%%%%%%%%%%&&@@@@&&@@@@@@&@&%####################%%&&%%%&&&&&&&&&%%%&&&&&&@@@@@@&&%%%%&@@%&&%&&%#%%%&&&&@&#%%%%&%&&&@&@@&@&@&&&&&&&%%%%#((#&&&%#@@@@@@@@@@@@@@@@@@@@@@@@&&&%%%%(#((((##((((((((((
+//&%%%%%%%%%%%%%%&&@@@&@@@@&&@&@@&%####################%%%&&%&&&&&&@@&&&&%%%&&&&&@@&&%%%%%%%&&%%%%%&&&###%&&@&@%#%%%%&%&&&@&@@&@&&&@@&&&&&&%%##(#%&@@%%@@@@@@@@@@@@@@@@@@@@@@@@&&%%%%#(###(((((((((((((
+//@&&&%%%%%%%%%%&&&@@@@@@@&&&@&&&%#####################%&#%&#%&&&&&&@@@@@&&%&&&&&&%%%%%%%%%&&%##%%%%%&###%&&@@%#%%%%%&%&&&@&@@&@&&&@@&&&&%%%%#%###%&&&%@@@@@@@@@@@@@@@@@@@@@@@@&&&%%%######((##((((((((
+//&&@&&&&%%%%%&&&&&&&&@@&@&&&&&&&#######################&##%#####%%&&@@&@@&&&&&%%%%%%%%%%%%&&####%%%%&###%&&@&#%%%%%&&&&&&@&@@&@&&&&&@@&&&&&%%#%#(%&&@&#@@@@@@@@@@@@@@@@@@@@@@@@&&%%%##(########(((((((
+//&&&&&&&&&&&&&&&&&&@@&&&&&&&&&%#######################%%&#%#####%%&@@@@@@&&&&%%%%%%%%%#%#%%##(####%%&####&&&%#%%%%%&&&&&&&&&&&@&@&&&&&&@&@&&&%%%%(&&@@&&@@@@@@@@@@@@@@@@@@@@@@@&&&%%%%(#########((###(
+//&&&&&&&&&&&&&&&&@@&&&&&&%%%##########################%%&####(###%%&@@@@@@&&&%%%%%%%%%%%%%%##(#####%%##%#&&%#%%%%%%&&&&&&@&@@&&&&&&&&@&&&&&&%%%%%%#&@@&%@@@@@@@@@@@@@@@@@@@@@@@&&&%%%%%%/((#####((((((
+//&&&&&&&&&&&&&&&&&&&%%%%##((((##################&%%##%%#&&##((###%&&&@@@@@&&&&&&&%%%%%%#%#%#((####(%%%%#%%%##%%%%%%&&&@&&&&&&&&&@@@@&@@@&@&&&&%%%%%#@@@&&@@@@@@@@@@@@@@@@@@@@@@@&&%%&&%%###(((((//////
+//&&&&&&&&&&&&&&&&&&%%##(((((((#################%&#&&#%%&#&%#((##%%&&@@@@@@&&&&&&%%%%%%%#%%%#((##(#(#%&#######%%%%%%&&&&%&&&&@&&&@@@@@&&@@@@@@&%%%%&&%@@@&@@@@@@@@@@@@@@@@@@@@@@@&&%&%%%%%#/*/////(((((
+//@@@@&&&&&&&&&&&&&&&&%#((((((((################%&#%&%#%&&%##(###%%&&@@@@@@&&&&&&&&&%%%%#%%##(###(#((%&#######%%%%%%&&&&%&&&@@&&&@@@@@@&@@@@@@&&%%%&&&&@@&@@@@@@@@@@@@@@@@@@@@@@@&&%%%%%%%%%%#(((((((((
 namespace Website.Services
 {
     public class MoneyCollectorService
     {
         private StupidLogger _logger;
         private DbContextWrapper _dbContextWrapper;
+        private IServiceScopeFactory serviceScopeFactory;
         private StupidBotForSalesBookkeeper _bookkeper;
         private BotsAirstripService _botsAirstripService;
 
@@ -23,17 +91,25 @@ namespace Website.Services
             StupidLogger _logger,
             IConfiguration configuration,
             StupidBotForSalesBookkeeper _bookkeper,
-            BotsAirstripService botsAirstripService)
+            BotsAirstripService botsAirstripService,
+            IServiceScopeFactory serviceScopeFactory)
         {
             this._logger = _logger;
             this._bookkeper = _bookkeper;
             this._botsAirstripService = botsAirstripService;
             _dbContextWrapper = new DbContextWrapper(configuration);
-
+            this.serviceScopeFactory = serviceScopeFactory;
             _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, "Констуктор сервиса сбора денег.");
 
-            (new Thread( CollectPeriodically ))
-                .Start();
+            (new Thread(
+                () =>
+                {
+                    CollectPeriodicallyAsync().Wait();
+                }
+                )).Start();
+
+            //(new thread(collectperiodically))
+            //    .Start();
 
         }
 
@@ -42,52 +118,56 @@ namespace Website.Services
         /// <summary>
         /// При запуске ждёт до 00 05 по UTC и запускает метод снятия денег с аккаунтов
         /// </summary>
-        public void CollectPeriodically()
+        public async Task CollectPeriodicallyAsync()
         {
-            lock (lockObj)
-            {
-                _logger.Log(LogLevelMyDich.IMPORTANT_INFO, Source.MONEY_COLLECTOR_SERVICE, "Запуск сервиса для сбора денег");
+
             
-                //Задержка до 5 минут первого часа ночи
-                DateTime tomorrow_00_05_00 = DateTime.UtcNow
-                  .AddDays(1)
-                  .AddHours(-DateTime.UtcNow.Hour)
-                  .AddMinutes(-DateTime.UtcNow.Minute+5)
-                  .AddSeconds(-DateTime.UtcNow.Second);
 
-                TimeSpan interval = tomorrow_00_05_00 - DateTime.UtcNow;
+            _logger.Log(LogLevelMyDich.IMPORTANT_INFO, Source.MONEY_COLLECTOR_SERVICE, "Запуск сервиса для сбора денег");
 
-                _logger.Log(LogLevelMyDich.IMPORTANT_INFO, Source.MONEY_COLLECTOR_SERVICE, $"До первого сбора денег осталось {interval}");
-                //Ждёмс
-                Thread.Sleep(interval);
+            //Задержка до 5 минут первого часа ночи
+            DateTime tomorrow_00_05_00 = DateTime.UtcNow
+              .AddDays(1)
+              .AddHours(-DateTime.UtcNow.Hour)
+              .AddMinutes(-DateTime.UtcNow.Minute + 5)
+              .AddSeconds(-DateTime.UtcNow.Second);
 
-                while (true)
+            TimeSpan interval = tomorrow_00_05_00 - DateTime.UtcNow;
+
+            _logger.Log(LogLevelMyDich.IMPORTANT_INFO, Source.MONEY_COLLECTOR_SERVICE, $"До первого сбора денег осталось {interval}");
+            //Ждёмс
+            //Thread.Sleep(interval);
+
+            while (true)
+            {
+                try
                 {
-                    try
-                    {
-                        Collect();
-                    }
-                    catch (Exception eee)
-                    {
-                        _logger.Log(LogLevelMyDich.FATAL, Source.MONEY_COLLECTOR_SERVICE, "Сервис списывания денег упал", ex: eee);
-                        Console.WriteLine(eee.Message);
-                    }
-              
-                    //Суточная задержка
-                    //Может просто себя вызвать?
-                    Thread.Sleep(new TimeSpan(24, 0, 0));
+                    await Collect();
                 }
+                catch (Exception eee)
+                {
+                    _logger.Log(LogLevelMyDich.FATAL, Source.MONEY_COLLECTOR_SERVICE, "Сервис списывания денег упал", ex: eee);
+                    Console.WriteLine(eee.Message);
+                }
+
+                //Суточная задержка
+                //Может просто себя вызвать?
+                var day = new TimeSpan(0, 0, 30);
+                _logger.Log(LogLevelMyDich.IMPORTANT_INFO, Source.MONEY_COLLECTOR_SERVICE, "Задержка перед следующим запуском списывания денег" + day);
+                Thread.Sleep(day);
             }
+
         }
 
         //Списание денег со всех аккаунтов
-        private void Collect()
+        private async Task Collect()
         {
-            
+            int number = 1;
+           
+
             _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, "Старт списывания денег");
 
-            ApplicationContext contextDb = _dbContextWrapper
-                .GetDbContext();
+            var contextDb = _dbContextWrapper.GetNewDbContext();
 
             var dt = GetTodayDate().AddDays(-1);
             var blrs = contextDb
@@ -95,7 +175,7 @@ namespace Website.Services
                 .Where(_blr => _blr.StartTime >= dt)
                 .Select(_blr => _blr.BotId)
                 .ToList();
-
+            _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, " " + number++);
             //Боты, которые запускались сегодня (с повторами)
             List<int> botIds = new List<int>();
 
@@ -107,6 +187,7 @@ namespace Website.Services
                     botIds.Add(blrs[i]);
                 }
             }
+            _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, " " + number++);
 
             //Боты, которые запускались сегодня (уникальные)
             BotForSalesPrice actualPrice = contextDb
@@ -118,6 +199,7 @@ namespace Website.Services
                 _logger.Log(LogLevelMyDich.FATAL, Source.MONEY_COLLECTOR_SERVICE, "");
                 throw new Exception("Нет тарифа в бд! аааааа");
             }
+            _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, " " + number++);
 
             //TODO все боты считаются ботами для продаж
 
@@ -126,28 +208,46 @@ namespace Website.Services
             //Все боты, которые сегодня работали
             for (int i = 0; i < botIds.Count; i++)
             {
+                _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, " " + number++);
+
                 int botId = botIds[i];
 
                 _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, $"В цикле  botId={botId}");
 
+                _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, " " + number++);
 
-                var priceInfo = _bookkeper.GetPriceInfo(botId);
-
+                StupidPriceInfo priceInfo = null;
                 BotDB bot = null;
-                Account account= null;
-              
-                bot = contextDb
-                        .Bots
-                        .Find(botId);
+                Account account = null;
 
-                account = contextDb
-                        .Accounts
-                        .Find(bot.OwnerId);
-              
+                try
+                {
+                priceInfo= _bookkeper.GetPriceInfo(botId);
+
+
+
+                    bot = contextDb
+                            .Bots
+                            .Find(botId);
+
+                    account = contextDb
+                            .Accounts
+                            .Find(bot.OwnerId);
+
+                }catch(Exception ee)
+                {
+                    _logger.Log(LogLevelMyDich.FATAL, Source.MONEY_COLLECTOR_SERVICE, "Упало согласно ожиданиям");
+
+                }
+
+                _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, " " + number++);
+
+
+
 
                 _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, $"priceInfo.SumToday = {priceInfo.SumToday}");
                 _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, $"В цикле  account.Id={account.Id}");
-
+                _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, " " + number++);
                 //Цена за день адекватная
                 if (priceInfo.SumToday > 0)
                 {
@@ -155,16 +255,17 @@ namespace Website.Services
                     //Может возникнуть, если запущено несколько сервисов списывания денег
 
                     var date = GetTodayDate();
+                    _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, " " + number++);
 
-                  
-                    WithdrawalLog existingTransaction = _dbContextWrapper
-                        .GetDbContext()
+
+                    WithdrawalLog existingTransaction = contextDb
                         .WithdrawalLog
                         .Where(_wl =>
                             _wl.BotId == botId
                             && _wl.DateTime == date)
-                        .SingleOrDefault() ;    
-                   
+                        .SingleOrDefault();
+
+                    _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, " " + number++);
 
                     //если с ботом есть транзакция 
                     if (existingTransaction != null)
@@ -173,6 +274,7 @@ namespace Website.Services
                             Source.MONEY_COLLECTOR_SERVICE,
                             $"existingTransaction != null, existingTransaction.Status={existingTransaction.TransactionStatus}");
 
+                        _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, " " + number++);
 
                         switch (existingTransaction.TransactionStatus)
                         {
@@ -200,6 +302,7 @@ namespace Website.Services
                         }
 
                     }
+                    _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, " " + number++);
 
                     var today = GetTodayDate();
                     //Нет начатых транзакций с этим (бот, день)
@@ -212,20 +315,28 @@ namespace Website.Services
                         TransactionStatusString = TransactionStatus.TRANSACTION_STARTED.ToString(),
                         DateTime = today
                     });
+                    _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, " " + number++);
 
                     contextDb.SaveChanges();
-                    
+
 
                     _logger.Log(LogLevelMyDich.INFO,
                         Source.MONEY_COLLECTOR_SERVICE,
                         $"account.Money = {account.Money}");
+                    _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, " " + number++);
 
 
                     //если у аккаунта есть деньги
                     if (account.Money > 0)
                     {
+                        _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, " " + number++);
+
                         if (priceInfo.SumToday >= 0)
                         {
+
+                            _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, " " + number++);
+
+
                             //списать деньги
                             account.Money -= priceInfo.SumToday;
                             _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, $"После списывания на аккаунте осталось {account.Money}", accountId: account.Id);
@@ -238,6 +349,9 @@ namespace Website.Services
                     }
                     else
                     {
+
+                        _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, " " + number++);
+
                         _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, $"На аккаунте нет денег. Остановка всех ботов", accountId: account.Id);
 
 
@@ -254,6 +368,9 @@ namespace Website.Services
                                     Bot = __bot
                                 }).ToList();
 
+                        _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, " " + number++);
+
+
                         //По всем ботам этого аккаунта
                         for (int q = 0; q < rrs.Count; q++)
                         {
@@ -265,8 +382,11 @@ namespace Website.Services
                                 //бот принадлежит обанкротившемуся аккаунту
                                 if (bot_belongs_to_the_desired_account)
                                 {
-                                    _logger.Log(LogLevelMyDich.INFO,Source.MONEY_COLLECTOR_SERVICE,
+                                    _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE,
                                         $"Вызов остановки бота bot.Id= {_bot.Id}, _bot.OwnerId={_bot.OwnerId} ");
+
+                                    _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, " " + number++);
+
 
                                     //остановить
                                     JObject result = _botsAirstripService.StopBot(rrs[q].Bot.Id, account.Id);
@@ -288,24 +408,29 @@ namespace Website.Services
                         }
                     }
 
-                    
+
+                    _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, " " + number++);
+
                     //Создать запись о удачной транзакции
                     WithdrawalLog withdrawalLog = contextDb
                         .WithdrawalLog
-                        .Where(_wl => 
+                        .Where(_wl =>
                             _wl.BotId == bot.Id
                             && _wl.DateTime == today)
                         .Single();
 
                     if (withdrawalLog == null)
                     {
-                        _logger.Log(LogLevelMyDich.FATAL,Source.MONEY_COLLECTOR_SERVICE,
+                        _logger.Log(LogLevelMyDich.FATAL, Source.MONEY_COLLECTOR_SERVICE,
                             "При подтверждении успешной транзакции не была найдена запись о старте этой транзакции",
                             accountId: account.Id);
 
                         throw new Exception("При подтверждении успешной транзакции не была найдена запись о старте этой транзакции");
 
                     }
+
+                    _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, " " + number++);
+
 
 
                     withdrawalLog.TransactionStatus = TransactionStatus.TRANSACTION_COMPLETED_SUCCESSFULL;
@@ -314,17 +439,20 @@ namespace Website.Services
 
                     contextDb.SaveChanges();
                     _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, "Транзакция прошла успешно");
-                    
+
+                    _logger.Log(LogLevelMyDich.INFO, Source.MONEY_COLLECTOR_SERVICE, " " + number++);
+
+
                 }
                 else
                 {
                     //Произошло дерьмо
-                    _logger.Log(LogLevelMyDich.FATAL,Source.MONEY_COLLECTOR_SERVICE,
+                    _logger.Log(LogLevelMyDich.FATAL, Source.MONEY_COLLECTOR_SERVICE,
                         $"Неадекватная цена. botId={botId} цена ={account.Money }");
 
                     throw new Exception("Неадекватная цена");
                 }
-            }            
+            }
         }
 
         private DateTime GetTodayDate()
