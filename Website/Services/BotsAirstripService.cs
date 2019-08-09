@@ -234,7 +234,7 @@ namespace Website.Services
 
                             if (rr == null)
                             {
-                                _logger.Log(LogLevelMyDich.INFO, Source.BOTS_AIRSTRIP_SERVICE, "Лес нормально удалил запись о боте");
+                                _logger.Log(LogLevelMyDich.INFO, Source.BOTS_AIRSTRIP_SERVICE, $"Бот {bot.Id} был нормально остановлен.");
                                 jObject = new JObject()
                                 {
                                     { "success", true}

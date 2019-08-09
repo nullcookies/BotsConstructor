@@ -94,11 +94,7 @@ namespace Website
                   options.AccessDeniedPath = new Microsoft.AspNetCore.Http.PathString("/Account/Login");
               });
         }
-
-
-
-
-
+        
 
         public void Configure(IApplicationBuilder app, 
             IHostingEnvironment env, 
@@ -108,10 +104,7 @@ namespace Website
         {
             //оно не хочет очищать таблицу
             //_contextDb.Database.ExecuteSqlCommand("TRUNCATE TABLE [RouteRecords]");
-            
-            //var service = app.ApplicationServices.GetService<MoneyCollectorService>();
-            //service.Start();
-
+         
             _contextDb.RouteRecords.RemoveRange(_contextDb.RouteRecords);
             _contextDb.SaveChanges();
 

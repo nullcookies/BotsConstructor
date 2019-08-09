@@ -414,7 +414,8 @@ namespace DataLayer.Models
         USER_INTERFACE_ERROR_OR_HACKING_ATTEMPT,
         I_AM_AN_IDIOT,
         WARNING,
-        SPYING
+        SPYING,
+        IMPORTANT_INFO
     }
 
     [Table("RouteRecords")]
@@ -698,6 +699,7 @@ namespace DataLayer.Models
         [Required]
         public string TransactionStatusString { get; set; }
 
+        public decimal Price { get; set; }
         /// <summary>
         /// День, за который списываются деньги
         /// </summary>
