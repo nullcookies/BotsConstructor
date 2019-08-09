@@ -258,6 +258,35 @@ class RootNode extends TreeNode {
     }
 }
 
+/** Базовый класс для узлов с одним ребёнком. */
+class OneChildNode extends TreeNode {
+    /**
+     * Создаёт основу для узла с одним ребёнком.
+     * @param {BaseParams} parameters Параметры узла.
+     */
+    constructor(parameters) {
+        super(parameters);
+    }
+
+    /** Вставка узлов запрещена для этого типа узлов! */
+    insertChild() {
+        throw new Error("Input-узел может иметь только одного ребёнка!");
+    }
+
+    /**
+     * Добавляет нового ребёнка к узлу, если текущий узел ещё не имеет детей.
+     * @param {TreeNode} child Новый узел, который необходимо добавить.
+     */
+    appendChild(child) {
+        if (this.childrenWrappers.length == 0) {
+            super.appendChild(child);
+        }
+        else {
+            throw new Error("Input-узел может иметь только одного ребёнка!");
+        }
+    }
+}
+
 /**Обёртка для узлов.*/
 class NodeWrapper {
     /**

@@ -89,40 +89,11 @@ class InputParams extends BaseParams {
      * @param {string} name Название узла.
      * @param {string} message Сообщение узла.
      * @param {number} inputType Число, соответствующее типу input-узла.
-     * @param {boolean} isTemplate Является ли узел шаблонным.
      */
-    constructor(name, message, inputType, isTemplate) {
+    constructor(name, message, inputType) {
         super(nodeTypes.input, name, message);
         /** Число, соответствующее типу input-узла. */
         this.inputType = inputType;
-        this.isTemplate = isTemplate;
-    }
-}
-
-/** Узел для ввода данных. */
-class InputNode extends TreeNode {
-    /**
-     * Создаёт input-узел.
-     * @param {string} name Название узла.
-     * @param {string} message Сообщение узла.
-     * @param {number} inputType Число, соответствующее типу input-узла.
-     * @param {boolean} isTemplate Является ли узел шаблонным.
-     */
-    constructor(name, message, inputType, isTemplate) {
-        super(new InputParams(name, message, inputType, isTemplate));
-    }
-
-    insertChild() {
-        throw new Error("Input-узел может иметь только одного ребёнка!");
-    }
-
-    appendChild(child) {
-        if (this.childrenWrappers.length == 0) {
-            super.appendChild(child);
-        }
-        else {
-            throw new Error("Input-узел может иметь только одного ребёнка!");
-        }
     }
 }
 
@@ -139,6 +110,6 @@ const templates = Object.freeze([
         new ProductProperty("Характеристика 1", ["Подтип 1", "Подтип 2", "Подтип 3"]),
         new ProductProperty("Характеристика 2", ["Подвид 1", "Подвид 2", "Подвид 3"])
     ]).makeTemplate()),
-    new InputNode("Ввод данных", "Тут пользователь должен ввести данные нужного типа.", 1, true),
-    new TreeNode(new BaseParams(nodeTypes.sendOrder, "Отправить заказ", "При переходе сюда сформированный заказ отправляется Вам.").makeTemplate())
+    new OneChildNode(new InputParams("Ввод данных", "Тут пользователь должен ввести данные нужного типа.", 1).makeTemplate()),
+    new OneChildNode(new BaseParams(nodeTypes.sendOrder, "Отправить заказ", "При переходе сюда сформированный заказ отправляется Вам.").makeTemplate())
 ]);
