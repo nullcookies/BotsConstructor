@@ -58,6 +58,7 @@ class BaseParams {
      * @returns Возвращает текущее свойство.
      */
     makeTemplate() {
+        /** Является ли узел шаблонным. */
         this.isTemplate = true;
         return this;
     }
@@ -124,15 +125,18 @@ class TreeNode {
         }
     }
 
-    /** Удаляет текущий узел. */
+    /** Удаляет текущий узел и всех его детей рекурсивно. */
     remove() {
         delete allNodes[this.id];
+        while (this.childrenWrappers.length > 0) {
+            this.childrenWrappers.pop().remove();
+        }
         this.container.remove();
     }
 
     /**
      * Клонирует узел без родителя и детей.
-     * @returns {TreeNode} Возвращает новый узел с такими же параметрами.
+     * @returns {TreeNode} Возвращает новый узел с такими же параметрами, но не шаблонный.
      */
     cloneNode() {
         let parameters = deepClone(this.parameters);
