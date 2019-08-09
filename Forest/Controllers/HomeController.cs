@@ -414,6 +414,14 @@ namespace DeleteMeWebhook.Controllers
                 ForestLink = link
             };
 
+            BotLaunchRecord blr = new BotLaunchRecord()
+            {
+                BotId = botId,
+                StartTime = DateTime.Now
+            };
+
+
+
             //Выбор записи из БД
             RouteRecord rrDb = _context.RouteRecords.Where(_rr => _rr.BotId == botId).SingleOrDefault();
 
@@ -432,7 +440,8 @@ namespace DeleteMeWebhook.Controllers
                 _logger.Log(LogLevelMyDich.INFO, Source.FOREST, $" Создание новой записи о запущеном боте" + $"{rr.BotId}  {rr.ForestLink}");
                 _context.RouteRecords.Add(rr);
             }
-
+            _context.BotLaunchRecords.Add(blr);
+            
             _context.SaveChanges();
 
             return true;

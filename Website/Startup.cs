@@ -83,6 +83,7 @@ namespace Website
             services.AddSingleton<OrdersCountNotificationService>();
             services.AddSingleton<BotForSalesStatisticsService>();
             services.AddSingleton<TotalLog>();
+            services.AddTransient<BotsAirstripService>();
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
               .AddCookie(options =>

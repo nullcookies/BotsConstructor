@@ -28,6 +28,8 @@ namespace DataLayer.Models
         public DbSet<BotForSalesStatistics> BotForSalesStatistics { get; set; }
         public DbSet<Moderator> Moderators { get; set; }
         public DbSet<BotForSalesPrice> BotForSalesPrices { get; set; }
+        public DbSet<BotLaunchRecord> BotLaunchRecords { get; set; }
+        public DbSet<WithdrawalLog> WithdrawalLog { get; set; }
 
         public ApplicationContext(DbContextOptions<ApplicationContext> options)
            : base(options)
@@ -397,18 +399,28 @@ namespace DataLayer.Models
         [Key]
         public int BotId { get; set; }
 
-
+        [ForeignKey("BotId")]
+        public BotDB Bot { get; set; }
 
         /// <summary>
         /// Хранит ссылку на сервер леса.
         /// Например http://localhost:8080/Home/ http://15.41.87.12/Home/
-        /// Если нужно остановить бота, то добавьте StopBot
-        /// Если нужно запустить бота, то добавьте RunNewBot
         /// </summary>
         [Required]
         public string ForestLink { get; set; }
     }
 
+    public class BotLaunchRecord
+    {
+        [Key]
+        public int Id { get; set; }
+
+        [Required]
+        public int BotId { get; set; }
+
+        [Required]
+        public DateTime StartTime { get; set; }
+    }
     /// <summary>
     /// Заказ.
     /// </summary>
@@ -642,5 +654,37 @@ namespace DataLayer.Models
         [Required]
         public DateTime DateTime { get; set; }
 
+    }
+
+    public class WithdrawalLog
+    {
+        [Key]
+        public int Id { get; set; }
+
+        [Required]
+        public int AccountId { get; set; }
+        public  Account Account { get; set; }
+
+        [Required]
+        public int BotId { get; set; }
+        public BotDB BotDB { get; set; }
+
+        [Required]
+        public TransactionStatus TransactionStatus { get; set; }
+        [Required]
+        public string TransactionStatusString { get; set; }
+
+        /// <summary>
+        /// День, за который списываются деньги
+        /// </summary>
+        public DateTime DateTime { get; set;}
+
+    }
+
+    public enum TransactionStatus
+    {
+        TRANSACTION_STARTED,
+        TRANSACTION_COMPLETED_SUCCESSFULL,
+        TRANSACTION_FAILED
     }
 }

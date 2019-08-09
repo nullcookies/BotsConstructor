@@ -22,20 +22,23 @@ namespace Website.Controllers
         StupidLogger _logger;
         ApplicationContext _contextDb;
         IHostingEnvironment _appEnvironment;
-        BotForSalesStatisticsService _botForSalesStatisticsService;
         StupidBotForSalesBookkeeper _bookkeper;
+        BotsAirstripService _botsAirstripService;
+        BotForSalesStatisticsService _botForSalesStatisticsService;
 
         public BotForSalesSettingsController(ApplicationContext context, 
                 IHostingEnvironment appEnvironment, 
-                StupidLogger _logger, 
+                StupidLogger logger, 
                 BotForSalesStatisticsService botForSalesStatisticsService,
-                StupidBotForSalesBookkeeper _bookkeper)
+                StupidBotForSalesBookkeeper bookkeper,
+                BotsAirstripService botsAirstripService)
         {
-            this._logger = _logger;
+            _logger = logger;
+            _bookkeper = bookkeper;
             _appEnvironment = appEnvironment;
-            this._contextDb = context ?? throw new ArgumentNullException(nameof(context));
+            _botsAirstripService = botsAirstripService;
             _botForSalesStatisticsService = botForSalesStatisticsService;
-            this._bookkeper = _bookkeper;
+            _contextDb = context ?? throw new ArgumentNullException(nameof(context));
         }
 
 
@@ -140,103 +143,9 @@ namespace Website.Controllers
                 return StatusCode(403);
             }
 
+            JObject answer = _botsAirstripService.StopBot(botId, accountId);
 
-            JObject jObject = null;
-            BotDB bot = _contextDb.Bots.Find(botId);
-
-            if (bot != null)
-            {
-                if (bot.OwnerId == accountId)
-                {
-                    RouteRecord record = _contextDb.RouteRecords.Find(bot.Id);                    
-
-                    if (record != null)
-                    {
-                     
-                        try
-                        {
-                            //запрос на остановку бота
-
-                            string forestUrl = record.ForestLink + "/Home/StopBot";
-                            string data = "botId=" + bot.Id;
-                            var result = Stub.SendPost(forestUrl, data).Result;
-
-                            RouteRecord normal_rr = _contextDb.RouteRecords.Where(_rr => _rr.BotId == botId).SingleOrDefault();                            
-
-                            if (normal_rr == null)
-                            {
-                                //лес нормально удалил запись о боте
-                                Console.WriteLine("//лес нормально удалил запись о боте");
-                                 jObject = new JObject()
-                                    {
-                                        { "success", true}
-                                    };
-                                return Json(jObject);
-                            }
-                            else
-                            {
-                                Console.WriteLine("//лес не нормально удалил запись о боте");
-                                _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, Source.WEBSITE, $"При остановке бота botId={botId}," +
-                                    $" accountId={accountId}. Лес ответил Ok, но не удалил RouteRecord из БД ");
-
-                                jObject = new JObject()
-                                    {
-                                        { "success", false},
-                                        {"failMessage", " Не удалось остановить бота." }
-                                    };
-                                return Json(jObject);
-                            }
-
-                        }catch(Exception exe)
-                        {
-                            _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, Source.WEBSITE, $"При остановке бота(botId={bot.Id}, " +
-                            $"ownerId={bot.OwnerId}, пользователем accountId={accountId}) не удалось выполнить post запрос на лес." +
-                            $"Exception message ={exe.Message}");
-
-                            jObject = new JObject()
-                                    {
-                                        { "success", false},
-                                        {"failMessage", " Не удалось остановить бота. Возможно, есть проблемы с соединением." }
-                                    };
-                            return Json(jObject);
-                        }
-                    }
-                    else
-                    {
-                        _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, Source.WEBSITE, $"При остановке бота(botId={bot.Id}, " +
-                            $"ownerId={bot.OwnerId}, пользователем accountId={accountId}) в БД не была найдена" +
-                            $"запись о сервере на котором бот работает. Возможно, она была удалена или не добавлена.");
-
-                        jObject = new JObject()
-                            {
-                                { "success", false},
-                                {"failMessage", " Бот уже остановлен." }
-                            };
-                        return Json(jObject);
-
-                    }
-                    
-                }
-                else
-                {
-                    jObject = new JObject()
-                        {
-                            { "success", false},
-                            {"failMessage", " У вас не доступа к этому боту." }
-                        };
-                    return Json(jObject);
-                }
-            }
-            else
-            {
-                jObject = new JObject()
-                        {
-                            { "success", false},
-                            {"failMessage", " Такого бота не существует." }
-                        };
-                return Json(jObject);
-            }
-
+            return Json(answer);
             
         }
 
@@ -252,115 +161,16 @@ namespace Website.Controllers
         public IActionResult RunBotForSalesFromDraft(int botId)
         {
             _logger.Log(LogLevelMyDich.INFO, Source.WEBSITE, $"Сайт. Запуск бота. botId={botId}");
-            
-            BotDB bot = _contextDb.Bots.Find(botId);
-            JObject jObject = null;
 
-            //TODO бот оплачен?
-
-            //без токена запускаться нельзя
-            if (bot.Token == null)
-            {
-                _logger.Log(LogLevelMyDich.USER_INTERFACE_ERROR_OR_HACKING_ATTEMPT, Source.WEBSITE, $"Попытка запутить бота без токена. botId={botId}");
-                jObject = new JObject()
-                {
-                    { "success", false},
-                    {"failMessage", "Запуск бота не возможен без токена. Установите токен в настройках бота." }
-                };
-                return Json(jObject);
+            int accountId = 0;
+            try{
+                accountId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("Из cookies не удалось извлечь accountId");
+            }catch{
+                return StatusCode(403);
             }
 
-            //без разметки запускаться нельзя
-            if (bot.Markup == null)
-            {
-                _logger.Log(LogLevelMyDich.USER_INTERFACE_ERROR_OR_HACKING_ATTEMPT, Source.WEBSITE, $"Попытка запутить бота без разметки. botId={botId}");
-                jObject = new JObject()
-                {
-                    { "success", false},
-                    {"failMessage", "Запуск бота не возможен без разметки. Нажмите \"Редактировать разметку черновика\"" }
-                };
-                return Json(jObject);
-            }
-
-            //Если бот уже запущен, вернуть ошибку
-            RouteRecord existingRecord = _contextDb.RouteRecords.Find(botId);
-            if (existingRecord != null)
-            {
-                _logger.Log(LogLevelMyDich.USER_INTERFACE_ERROR_OR_HACKING_ATTEMPT, Source.WEBSITE, $"Попытка запутить запущенного бота.");
-                jObject = new JObject()
-                {
-                    { "success", false},
-                    {"failMessage", "Этот бот уже запущен. (" }
-                };
-                return Json(jObject);
-            }
-
-
-
-			try
-			{
-                //TODO брать ссылку из монитора
-                string forestUrl = "http://localhost:8080/Home/RunNewBot";
-
-                //Попытка запуска в лесу
-                string data = "botId=" + botId;
-				var result = Stub.SendPost(forestUrl, data).Result;
-
-                JObject answer = (JObject) JsonConvert.DeserializeObject(result);
-
-                bool successfulStart = (bool) answer["success"];
-                string failMessage = (string) answer["failMessage"];
-
-                if (successfulStart)
-                {
-                    //Лес нормально сделал запись о запуске?
-                    RouteRecord rr = _contextDb.RouteRecords.Find(botId);
-                    if (rr != null)
-                    {
-                        //лес нормально сделал запись о том, что бот запущен
-
-                        jObject = new JObject()
-                        {
-                            { "success", true}
-                        };
-                        return Json(jObject);
-                    }
-                    else
-                    {
-                        _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, Source.WEBSITE, $"Лес вернул Ок (нормальный запуск бота), но не сделал запись в бд. botId={botId}");
-
-                        jObject = new JObject()
-                        {
-                            { "success", false},
-                            {"failMessage", "Ошибка сервера при запуске бота" }
-                        };
-                        return Json(jObject);
-
-                    }
-                }
-                else
-                {
-                    jObject = new JObject()
-                        {
-                            { "success", false},
-                            {"failMessage", "Ошибка сервера при запуске бота."+failMessage }
-                        };
-                    return Json(jObject);
-                }               
-
-			}
-			catch(Exception ex)
-			{
-                                
-                _logger.Log(LogLevelMyDich.ERROR, Source.WEBSITE, $"Не удалось запустить бота. botId={botId}. ex.Message={ex.Message}");
-
-                jObject = new JObject()
-                        {
-                            { "success", false},
-                            {"failMessage", "Не удалось запустить бота. Возможно, возникла проблема соединения" }
-                        };
-                return Json(jObject);
-            }
+            JObject answer = _botsAirstripService.StartBot(botId, accountId);
+            return Json(answer);
         }
 
 

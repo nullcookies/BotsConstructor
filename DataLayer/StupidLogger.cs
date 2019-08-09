@@ -10,6 +10,9 @@ using System.Collections.Generic;
 
 namespace DataLayer.Services
 {
+    /// <summary>
+    /// Лучший логгер за последнюю тысячу лет
+    /// </summary>
     public class StupidLogger
     {      
 
@@ -57,7 +60,19 @@ namespace DataLayer.Services
             }
         }
 
-        public void Log(LogLevelMyDich logLevel, Source errorSource, string comment = "", int accountId = default(int), Exception ex = null)
+        /// <summary>
+        /// Лу
+        /// </summary>
+        /// <param name="logLevel"></param>
+        /// <param name="errorSource"></param>
+        /// <param name="comment"></param>
+        /// <param name="accountId"></param>
+        /// <param name="ex"></param>
+        public void Log(LogLevelMyDich logLevel, 
+            Source errorSource, 
+            string comment = "", 
+            int accountId = default(int), 
+            Exception ex = null)
         {
 
             DateTime dt = DateTime.Now;
@@ -87,6 +102,9 @@ namespace DataLayer.Services
         WEBSITE,
         FOREST,
         MONITOR,
-        OTHER
+        OTHER,
+        MONEY_COLLECTOR_SERVICE,
+        BOTS_AIRSTRIP_SERVICE
+
     }
 }
