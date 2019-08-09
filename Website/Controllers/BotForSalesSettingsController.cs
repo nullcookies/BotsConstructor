@@ -220,7 +220,14 @@ namespace Website.Controllers
             ViewData["countOfOrders"] = Round(_pi.AnswersCountToday) ;
             ViewData["number_of_orders_over_the_past_week"] = Round(_pi.Number_of_orders_over_the_past_week) ;
 
+            DateTime tomorrow_00_05_00 = DateTime.UtcNow
+                .AddDays(1)
+                .AddHours(-DateTime.UtcNow.Hour)
+                .AddMinutes(-DateTime.UtcNow.Minute + 5)
+                .AddSeconds(-DateTime.UtcNow.Second);
 
+            TimeSpan interval = tomorrow_00_05_00 - DateTime.UtcNow;
+            ViewData["time before withdrawing money"] = interval.ToString(@"hh\:mm");
 
             return View();
         }
