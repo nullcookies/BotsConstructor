@@ -41,9 +41,10 @@
 <script>
     let root = templates[nodeTypes.root];
     let main = $(root.container).attr("id", "main");
-    root.appendChild(templates[2].cloneNode());
     for (let i = 0; i < 10; i++) {
-        root.appendChild(templates[2].cloneNode());
+        let child = templates[2].cloneNode();
+        child.appendChild(templates[3].cloneNode());
+        root.appendChild(child);
     }
     $("#main-container").append(main);
     let nodesMenu = $("#nodes-menu");

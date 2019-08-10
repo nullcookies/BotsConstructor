@@ -55,12 +55,17 @@ class BaseParams {
 
     /**
      * Делает текущий узел шаблонным.
-     * @returns Возвращает текущее свойство.
+     * @returns Возвращает текущий класс.
      */
     makeTemplate() {
         /** Является ли узел шаблонным. */
         this.isTemplate = true;
         return this;
+    }
+
+    /** Открывает форму для редактирования параметров. */
+    edit() {
+        //TODO
     }
 }
 
@@ -168,11 +173,14 @@ class TreeNode {
      */
     insertChild(index, child) {
         child.parent = this;
-        this.childrenWrappers.splice(index, 0, child.createWrapper(index));
+        let childWrapper = child.createWrapper(index);
+        this.childrenWrappers.splice(index, 0, childWrapper);
 
         for (let i = index + 1; i < this.childrenWrappers.length; i++) {
             this.childrenWrappers[i].index = i;
         }
+
+        $(this.childrenWrappers[index].container).before(childWrapper.container);
     }
 
     /**
@@ -213,10 +221,14 @@ class TreeNode {
      */
     addMiddleNode(index, child) {
         child.parent = this;
+        let childWrapper = child.createWrapper(index);
         let oldWrapper = this.childrenWrappers[index];
         oldWrapper.node.parent = child;
         oldWrapper.index = 0;
-        this.childrenWrappers[index] = child.createWrapper(index);
+        this.childrenWrappers[index] = childWrapper;
+        child.childrenWrappers.push(oldWrapper);
+        $(oldWrapper.container).before(childWrapper.container);
+        $(child.container.lastChild).before($(oldWrapper.container).detach());
     }
 
     /**
@@ -226,14 +238,18 @@ class TreeNode {
      */
     addGroupNode(index, child) {
         child.parent = this;
+        let childWrapper = child.createWrapper(index);
         let newIndex = 0;
+        $(this.childrenWrappers[index].container).before(childWrapper.container);
         for (let i = index; i < this.childrenWrappers.length; i++) {
             let oldWrapper = this.childrenWrappers[i];
             oldWrapper.node.parent = child;
             oldWrapper.index = newIndex;
+            child.childrenWrappers.push(oldWrapper);
             newIndex++;
+            $(child.container.lastChild).before($(oldWrapper.container).detach());
         }
-        this.childrenWrappers.splice(index, this.childrenWrappers.length, child.createWrapper(index));
+        this.childrenWrappers.splice(index, this.childrenWrappers.length, childWrapper);
     }
 }
 
