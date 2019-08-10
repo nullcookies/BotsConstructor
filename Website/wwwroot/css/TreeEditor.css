@@ -34,6 +34,8 @@
     border: 2px solid black;
     border-radius: 10px 10px;
     clear: both;
+    background-color: gray;
+    padding: 5px;
 }
 
 .nodeHolder {
@@ -99,12 +101,41 @@
 }
 
 .nodeName {
-    width: 100%;
-    word-wrap: break-word;
-    white-space: normal;
+    margin: auto;
+    max-width: 100%;
+    max-height: 100%;
+    color: azure;
+    font-size: x-large;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .hovered {
     border-color: lightsteelblue;
     background-color: aliceblue;
+}
+
+.bg1 {
+    background-color: firebrick;
+}
+
+.bg2 {
+    background-color: royalblue;
+}
+
+.bg3 {
+    background-color: orangered;
+}
+
+.bg4 {
+    background-color: forestgreen;
+}
+
+.bg5 {
+    background-color: darkslateblue;
+}
+
+.bg6 {
+    background-color: darkorchid;
 }

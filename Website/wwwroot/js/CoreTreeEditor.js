@@ -85,8 +85,7 @@ class TreeNode {
         this.container = document.createElement("div");
 
         let nodeElement = document.createElement("div");
-        nodeElement.className = "node";
-        //nodeElement.id = "node_" + this.id;
+        nodeElement.className = "node bg" + parameters.type;
 
         let nodeName = document.createElement("p");
         nodeName.innerText = this.parameters.name;
