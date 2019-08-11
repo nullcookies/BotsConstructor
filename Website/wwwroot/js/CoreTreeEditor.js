@@ -129,13 +129,22 @@ class TreeNode {
         }
     }
 
-    /** Удаляет текущий узел и всех его детей рекурсивно. */
-    remove() {
-        delete allNodes[this.id];
-        while (this.childrenWrappers.length > 0) {
-            this.childrenWrappers.pop().remove();
+    /**
+     * Удаляет текущий узел и всех его детей рекурсивно.
+     * @param {boolean} hard Если true, то не спрашивает перед удалением.
+     */
+    remove(hard) {
+        if (hard || this.childrenWrappers.length == 0 || confirm("Вы точно хотите удалить узел вместе с его детьми?")) {
+            delete allNodes[this.id];
+            while (this.childrenWrappers.length > 0) {
+                this.childrenWrappers.pop().node.remove(true);
+            }
+            this.container.remove();
+            return true;
         }
-        this.container.remove();
+        else {
+            return false;
+        }
     }
 
     /**
@@ -343,7 +352,8 @@ class NodeWrapper {
 
     /**Полностью удаляет обёртку вместе с узлом. */
     remove() {
-        this.node.remove();
-        this.container.remove();
+        if (this.node.remove()) {
+            this.container.remove();
+        }
     }
 }
