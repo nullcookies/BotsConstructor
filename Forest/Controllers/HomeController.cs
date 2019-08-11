@@ -33,21 +33,28 @@ namespace DeleteMeWebhook.Controllers
             _logger = logger;
         }
 
+        /// <summary>
+        /// Принимает сообщения для ботов из Telegram
+        /// </summary>
+        /// <param name="update"></param>
+        /// <returns></returns>
         [Route("{telegramBotUsername}")]
         public IActionResult Index([FromBody]Update update)
         {
 
             string botUsername = RouteData.Values["telegramBotUsername"].ToString();
-
-            BotsContainer.BotsDictionary[botUsername]?.AcceptUpdate(update);
+            
             if (BotsContainer.BotsDictionary.TryGetValue(botUsername, out BotWrapper botWrapper))
             {
                 botWrapper.AcceptUpdate(update);
             }
             else
             {
-                ConsoleWriter.WriteLine("Пришло обновление для бота, которого нет в списке онлайн ботов", ConsoleColor.Red);
-                ConsoleWriter.WriteLine("BotUsername="+botUsername, ConsoleColor.Red);
+                _logger.Log(
+                    LogLevelMyDich.WARNING, 
+                    Source.FOREST, 
+                    $"Пришло обновление для бота, которого нет в списке онлайн ботов. botUsername={botUsername}");
+
             }
 
             return Ok();

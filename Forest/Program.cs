@@ -12,7 +12,7 @@ namespace DeleteMeWebhook
 {
     public class Program
     {
-        public static bool WebhookIsEnabledInDebugMode = false;
+        public static bool WebhookIsEnabledInDebugMode = true;
         public static string Url;
 
         public static void Main(string[] args)
@@ -44,8 +44,13 @@ namespace DeleteMeWebhook
                 bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
                 if (isWindows)
                 { 
-                    string hardcodeLink = "https://3e93e1c7.ngrok.io/" + new TelegramBotClient(token).GetMeAsync().Result.Username;
-
+                    //string hardcodeLink = "https://3e93e1c7.ngrok.io/" + new TelegramBotClient(token).GetMeAsync().Result.Username;
+                    string hardcodeLink = Ngrok.GetMyAddress().Result+"/"+ new TelegramBotClient(token).GetMeAsync().Result.Username;
+                    string test23 = hardcodeLink.Substring(4, 1);
+                    if (test23 != "s")
+                    {
+                        hardcodeLink =  hardcodeLink.Insert(4, "s");
+                    }
                     BotWrapper botWrapper = Stub.CreateBot(token, hardcodeLink);
 
                     Stub.RunAndRegisterBot(botWrapper); 

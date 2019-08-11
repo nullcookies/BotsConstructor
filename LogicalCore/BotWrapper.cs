@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 
 namespace LogicalCore
 {
@@ -37,10 +38,35 @@ namespace LogicalCore
             base.Stop();
         }
 
+        public override void AcceptUpdate(Update update)
+        {
+            switch (update.Type)
+            {
+                case (UpdateType.Message):
+                    AcceptMessage(update.Message);
+                    break;
+                case (UpdateType.CallbackQuery):
+                    AcceptCallbackQuery(update.CallbackQuery);
+                    break;
+                default:
+                    ConsoleWriter.WriteLine($"Unexpected update type={update.Type}");
+                    break;
+            }
+        }
+
+        private void StatisticsUpdate(int userTelegramId)
+        {
+            //Инкремент счетчика сообщений
+            
+        }
+
         protected override void AcceptMessage(Message message)
         {
             int telegramId = message.From.Id;
 
+            StatisticsUpdate(telegramId);
+
+            Console.WriteLine("Сообщение "+message.Text);
             try
             {
                 Session session = GetSessionByTelegramId(telegramId);
@@ -55,6 +81,8 @@ namespace LogicalCore
         protected override void AcceptCallbackQuery(CallbackQuery callbackQuerry)
         {
             int telegramId = callbackQuerry.From.Id;
+
+            StatisticsUpdate(telegramId);
 
             Session session = GetSessionByTelegramId(telegramId);
             session.TakeControl(callbackQuerry);
@@ -78,7 +106,8 @@ namespace LogicalCore
 
         public Session GetSessionByTelegramId(int id)
         {
-            Session session = sessionsDictionary.GetOrAdd(id, new Session(MegaTree.root, id, this));
+            Session session = sessionsDictionary.GetOrAdd(id, new Session(MegaTree.root, id, this));            
+
             if (BotOwner != null && BotOwner.Session == null && BotOwner.id == id)
             {
                 BotOwner.Session = session;
