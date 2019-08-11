@@ -16,16 +16,25 @@ namespace LogicalCore
         public readonly VariablesContainer globalVars; // Глобальные переменные, которые видны для всех сессий
 		public List<string> Languages => tmm.languages;
 		public Action<VariablesContainer> InitializeSessionVars { get; set; } // вызывается для каждой сессии в конструкторе
+        public StatisticsContainer StatisticsContainer;
 
-		public BotWrapper(int botId, string link, string token, /*int ownerID, MegaTree tree,*/ TextMessagesManager textManager = null,
-			GlobalFilter filter = null, VariablesContainer globalVariables = null) : base(botId, link, token)
+        public BotWrapper(int botId, 
+            string link, 
+            string token,
+            /*int ownerID, MegaTree tree,*/
+            TextMessagesManager textManager = null,
+			GlobalFilter filter = null, 
+            VariablesContainer globalVariables = null
+            
+            ) : base(botId, link, token)
 		{
 			sessionsDictionary = new ConcurrentDictionary<int, Session>();
 			tmm = textManager ?? new BaseTextMessagesManager();
 			//MegaTree = tree ?? throw new ArgumentNullException(nameof(tree));
 			globalFilter = filter ?? new GlobalFilter();
 			globalVars = globalVariables ?? new VariablesContainer();
-			//BotOwner = new BotOwner(ownerID, this);
+            //BotOwner = new BotOwner(ownerID, this);
+
 		}
 
 		public void SetOwner(int ownerID)
@@ -54,17 +63,11 @@ namespace LogicalCore
             }
         }
 
-        private void StatisticsUpdate(int userTelegramId)
-        {
-            //Инкремент счетчика сообщений
-            
-        }
+     
 
         protected override void AcceptMessage(Message message)
         {
             int telegramId = message.From.Id;
-
-            StatisticsUpdate(telegramId);
 
             Console.WriteLine("Сообщение "+message.Text);
             try
@@ -82,7 +85,6 @@ namespace LogicalCore
         {
             int telegramId = callbackQuerry.From.Id;
 
-            StatisticsUpdate(telegramId);
 
             Session session = GetSessionByTelegramId(telegramId);
             session.TakeControl(callbackQuerry);
@@ -113,6 +115,21 @@ namespace LogicalCore
                 BotOwner.Session = session;
             }
             return session;
+        }
+    }
+
+    public class BotBotStatistics
+    {
+        public List<int> usersTelegramIds = new List<int>();
+        public int NumberOfMessages;
+    }    
+    public class StupidBotAntispam
+    {
+        List<int> blocketUsersIds = new List<int>();
+
+        public bool UserIsBlockedForThisBot()
+        {
+
         }
     }
 }
