@@ -10,7 +10,7 @@ using System;
 using DataLayer.Models;
 using DataLayer.Services;
 using System.Runtime.InteropServices;
-
+using Forest.Services;
 
 namespace DeleteMeWebhook
 {
@@ -46,7 +46,7 @@ namespace DeleteMeWebhook
 
 			services.AddSingleton<DBConnector>();
             services.AddSingleton<StupidLogger>();
-
+            services.AddSingleton<BotStatisticsSynchronizer>();
 
         }
 

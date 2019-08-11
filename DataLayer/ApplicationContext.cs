@@ -30,6 +30,7 @@ namespace DataLayer.Models
         public DbSet<BotForSalesPrice> BotForSalesPrices { get; set; }
         public DbSet<BotLaunchRecord> BotLaunchRecords { get; set; }
         public DbSet<WithdrawalLog> WithdrawalLog { get; set; }
+        public DbSet<Record_BotUsername_UserTelegramId> BotUsers { get; set; }
 
         public ApplicationContext(DbContextOptions<ApplicationContext> options)
            : base(options)
@@ -715,4 +716,15 @@ namespace DataLayer.Models
         TRANSACTION_COMPLETED_SUCCESSFULL,
         TRANSACTION_FAILED
     }
+
+    public class Record_BotUsername_UserTelegramId
+    {
+        [Key]
+        public int Id { get; set; }
+        [Required]
+        public string BotUsername { get; set; }
+        [Required]
+        public int BotUserTelegramId { get; set; }
+    }
+
 }

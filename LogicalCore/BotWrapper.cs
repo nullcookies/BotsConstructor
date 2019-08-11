@@ -16,7 +16,9 @@ namespace LogicalCore
         public readonly VariablesContainer globalVars; // Глобальные переменные, которые видны для всех сессий
 		public List<string> Languages => tmm.languages;
 		public Action<VariablesContainer> InitializeSessionVars { get; set; } // вызывается для каждой сессии в конструкторе
-        public StatisticsContainer StatisticsContainer;
+
+        public BotStatistics StatisticsContainer;
+        public StupidBotAntispam StupidBotAntispam;
 
         public BotWrapper(int botId, 
             string link, 
@@ -118,7 +120,7 @@ namespace LogicalCore
         }
     }
 
-    public class BotBotStatistics
+    public class BotStatistics
     {
         public List<int> usersTelegramIds = new List<int>();
         public int NumberOfMessages;
@@ -127,10 +129,13 @@ namespace LogicalCore
     {
         List<int> blocketUsersIds = new List<int>();
 
-        public bool UserIsBlockedForThisBot()
+        public bool UserIsBlockedForThisBot(int userTelegramId)
         {
+            return blocketUsersIds.Contains(userTelegramId);
 
         }
+
+        
     }
 }
 

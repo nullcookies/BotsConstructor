@@ -11,22 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Website.Services.Bookkeeper;
 
-/*
- Эта херня периодически падает с 
 
-    System.ObjectDisposedException: Cannot access a disposed object. A common cause of this error is disposing a context that was resolved from dependency injection and then later trying to use the same context instance elsewhere in your application.
-This may occur is you are calling Dispose() on the context, or wrapping the context in a using statement.
-If you are using dependency injection, you should let the dependency injection container take care of disposing context instances.
-
-    Это значит, что объект контекста используется в разных потоках.
-    Один поток заканчивает, убивает контекст, а другой ловит ошибку
-
-    Или где-то есть async void 
-    нужно заменить на async Task
-
-
-    
-     */
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@&@@@&&&###############((((((((((((((((((((((((((((((((((((((((((((((((**/(#%%&&@@@@@@@@###%#**../////////////////////////////********//////////////////////////////////
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@&@@@@&%(#############((#((((((((((((((((((((((((((((((((((((((((((((/*/#%&&%%%&@@@@@@@@#/*/#(//,,*///////////////////*****************////////////////////////////////
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@&@@@@&&####################((((((((((((((((((((((((((((((((((((((((/(####%%%%%&&&&@@@@@@@&&%%%#(/*,/////////////******************************////////////////////////
@@ -132,7 +117,8 @@ namespace Website.Services
             _logger.Log(LogLevelMyDich.IMPORTANT_INFO, Source.MONEY_COLLECTOR_SERVICE, $"До первого сбора денег осталось {interval}");
 
             //Ждёмс
-            Thread.Sleep(interval);
+            //Thread.Sleep(interval);
+            await Task.Delay(interval);
 
             while (true)
             {
@@ -150,7 +136,8 @@ namespace Website.Services
                 //Может просто себя вызвать?
                 var day = new TimeSpan(24, 0, 0);
                 _logger.Log(LogLevelMyDich.IMPORTANT_INFO, Source.MONEY_COLLECTOR_SERVICE, "Задержка перед следующим запуском списывания денег" + day);
-                Thread.Sleep(day);
+                //Thread.Sleep(day);
+                await Task.Delay(day);
             }
 
         }
