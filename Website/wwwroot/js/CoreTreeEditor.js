@@ -1,10 +1,5 @@
 ﻿"use strict";
 
-function isObject(obj) {
-    var type = typeof obj;
-    return type === 'function' || type === 'object' && !!obj;
-};
-
 /**
  * Выполняет глубокое копирование объекта.
  * @template T Тип объекта.
@@ -12,21 +7,14 @@ function isObject(obj) {
  * @returns {T} Возвращает клон объекта.
  */
 function deepClone(src) {
-    let clone = {};
+    let clone = Object.create(Object.getPrototypeOf(src));
     for (let prop in src) {
-        if (src[prop] != null && typeof (src[prop] === "object")) {
+        if (src[prop] != null && typeof (src[prop]) === "object") {
             clone[prop] = deepClone(src[prop]);
         }
         else {
             clone[prop] = src[prop];
         }
-        //if (src.hasOwnProperty(prop)) {
-        //    if (isObject(src[prop])) {
-        //        clone[prop] = deepClone(src[prop]);
-        //    } else {
-        //        clone[prop] = src[prop];
-        //    }
-        //}
     }
     return clone;
 }
