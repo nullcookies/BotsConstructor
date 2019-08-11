@@ -138,7 +138,7 @@ class TreeNode {
             this.container.appendChild(appenderDiv);
         }
         else {
-            this.container.firstElementChild.className += " template";
+            nodeElement.className += " template";
         }
     }
 
@@ -147,7 +147,8 @@ class TreeNode {
         for (let i = this.childrenWrappers.length - 1; i >= 0; i--) {
             this.removeChild(i);
         }
-        this.container.remove();
+        $(this.container).fadeOut("slow", $(this).remove);
+        //this.container.remove();
         delete allNodes[this.id];
     }
 
@@ -374,6 +375,7 @@ class NodeWrapper {
     /** Полностью удаляет обёртку вместе с узлом. */
     remove() {
         this.node.remove();
-        this.container.remove();
+        $(this.container).slideUp("slow", $(this).remove);
+        //this.container.remove();
     }
 }
