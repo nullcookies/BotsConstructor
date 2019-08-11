@@ -14,13 +14,19 @@ function isObject(obj) {
 function deepClone(src) {
     let clone = {};
     for (let prop in src) {
-        if (src.hasOwnProperty(prop)) {
-            if (isObject(src[prop])) {
-                clone[prop] = deepClone(src[prop]);
-            } else {
-                clone[prop] = src[prop];
-            }
+        if (src[prop] != null && typeof (src[prop] === "object")) {
+            clone[prop] = deepClone(src[prop]);
         }
+        else {
+            clone[prop] = src[prop];
+        }
+        //if (src.hasOwnProperty(prop)) {
+        //    if (isObject(src[prop])) {
+        //        clone[prop] = deepClone(src[prop]);
+        //    } else {
+        //        clone[prop] = src[prop];
+        //    }
+        //}
     }
     return clone;
 }
@@ -37,7 +43,7 @@ let nextId = 0;
 const allNodes = {};
 
 /** Базовый класс параметров узлов. */
-class BaseParams {
+class NodeParams {
     /**
      * Создаёт обычный набор параметров.
      * @param {number} type Число, соответствующее типу узла.
@@ -64,7 +70,8 @@ class BaseParams {
     }
 
     /** Открывает форму для редактирования параметров. */
-    edit() {
+    openModal() {
+        alert(this.name);
         //TODO
     }
 }
@@ -73,7 +80,7 @@ class BaseParams {
 class TreeNode {
     /**
      * Создаёт обычный узел.
-     * @param {BaseParams} parameters Параметры узла.
+     * @param {NodeParams} parameters Параметры узла.
      */
     constructor(parameters) {
         /** Набор параметров узла. */
@@ -105,6 +112,18 @@ class TreeNode {
             nextId++;
             allNodes[this.id] = this;
 
+            let buttonsDiv = document.createElement("div");
+            buttonsDiv.className = "buttonsDiv";
+            this.deleteBtn = document.createElement("button");
+            this.deleteBtn.className = "btn btn-outline-danger nodeButton";
+            let trashSpan = document.createElement("span");
+            trashSpan.className = "oi oi-trash";
+            trashSpan.style = "margin-left: 2px";
+            this.editBtn = document.createElement("button");
+            this.editBtn.className = "btn btn-outline-primary nodeButton";
+            let wrenchSpan = document.createElement("span");
+            wrenchSpan.className = "oi oi-wrench";
+
             let appenderDiv = document.createElement("div");
             appenderDiv.className = "appenderDiv";
 
@@ -118,6 +137,11 @@ class TreeNode {
             let appenderHolder = document.createElement("div");
             appenderHolder.className = "nodeHolder";
 
+            buttonsDiv.appendChild(this.deleteBtn);
+            this.deleteBtn.appendChild(trashSpan);
+            buttonsDiv.appendChild(this.editBtn);
+            this.editBtn.appendChild(wrenchSpan);
+            nodeElement.appendChild(buttonsDiv);
             arrowsDiv.appendChild(vertAdderArr);
             arrowsDiv.appendChild(horizAdderArr);
             appenderDiv.appendChild(arrowsDiv);
@@ -131,20 +155,13 @@ class TreeNode {
 
     /**
      * Удаляет текущий узел и всех его детей рекурсивно.
-     * @param {boolean} hard Если true, то не спрашивает перед удалением.
      */
-    remove(hard) {
-        if (hard || this.childrenWrappers.length == 0 || confirm("Вы точно хотите удалить узел вместе с его детьми?")) {
-            delete allNodes[this.id];
-            while (this.childrenWrappers.length > 0) {
-                this.childrenWrappers.pop().node.remove(true);
-            }
-            this.container.remove();
-            return true;
+    remove() {
+        for (let i = this.childrenWrappers.length - 1; i >= 0; i--) {
+            this.removeChild(i);
         }
-        else {
-            return false;
-        }
+        this.container.remove();
+        delete allNodes[this.id];
     }
 
     /**
@@ -209,12 +226,14 @@ class TreeNode {
      */
     removeChild(index) {
         let childWrapper = this.childrenWrappers[index];
-        let child = childWrapper.node;
-        this.childrenWrappers.splice(index, 1, child.childrenWrappers);
+        this.childrenWrappers.splice(index, 1);
+
         // меняет родителя для наследников удаляемого узла
-        for (let c = 0; c < child.childrenWrappers.length; c++) {
-            child.childrenWrappers[c].node.parent = this;
-        }
+        //let child = childWrapper.node;
+        //this.childrenWrappers.splice(index, 1, child.childrenWrappers);
+        //for (let c = 0; c < child.childrenWrappers.length; c++) {
+        //    child.childrenWrappers[c].node.parent = this;
+        //}
 
         for (let i = index; i < this.childrenWrappers.length; i++) {
             this.childrenWrappers[i].index = i;
@@ -270,7 +289,8 @@ class RootNode extends TreeNode {
      * @param {string} message Сообщение узла.
      */
     constructor(name, message) {
-        super(new BaseParams(1, name, message));
+        super(new NodeParams(1, name, message));
+        this.deleteBtn.setAttribute("disabled", "");
     }
 
     remove() {
@@ -286,7 +306,7 @@ class RootNode extends TreeNode {
 class OneChildNode extends TreeNode {
     /**
      * Создаёт основу для узла с одним ребёнком.
-     * @param {BaseParams} parameters Параметры узла.
+     * @param {NodeParams} parameters Параметры узла.
      */
     constructor(parameters) {
         super(parameters);
@@ -319,8 +339,27 @@ class NodeWrapper {
      * @param {TreeNode} node Узел.
      */
     constructor(index, node) {
+        /** Индекс узла в коллекции родителя. */
         this.index = index;
+        /** Узел, который находится в этой обёртке. */
         this.node = node;
+
+        this.node.deleteBtn.onclick =
+            /**
+             * Удаляет узел с его детьми рекурсивно. Если узел имеет детей, то нужно подтвердить действие.
+             * @this {NodeWrapper}
+             */
+            function () {
+                if (this.node.childrenWrappers.length == 0 || confirm("Вы точно хотите удалить узел вместе с его детьми?")) {
+                    this.node.parent.removeChild(this.index);
+                }
+            }.bind(this);
+
+        //this.node.editBtn.onclick = this.node.parameters.edit.bind(this.node.parameters);
+        console.log(this.node.parameters);
+        //this.node.parameters.openModal();
+        //this.node.editBtn.onclick = this.node.parameters.openModal.call(this.node.parameters);
+
         this.container = document.createElement("div");
         this.container.className = "wrapperContainer";
 
@@ -350,10 +389,11 @@ class NodeWrapper {
         this.container.appendChild(childContainer);
     }
 
-    /**Полностью удаляет обёртку вместе с узлом. */
+    /**
+     * Полностью удаляет обёртку вместе с узлом.
+     */
     remove() {
-        if (this.node.remove()) {
-            this.container.remove();
-        }
+        this.node.remove();
+        this.container.remove();
     }
 }

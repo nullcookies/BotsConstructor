@@ -24,7 +24,7 @@ const inputTypes = Object.freeze({
 });
 
 /** Параметры для узла-секции. */
-class SectionParams extends BaseParams {
+class SectionParams extends NodeParams {
     /**
      * Создаёт параметры узла-секции.
      * @param {string} name Название узла.
@@ -54,7 +54,7 @@ class ProductProperty {
 }
 
 /** Параметры для продуктового узла. */
-class ProductParams extends BaseParams {
+class ProductParams extends NodeParams {
     /**
      * Создаёт параметры товарного узла.
      * @param {string} name Название узла.
@@ -83,7 +83,7 @@ class ProductParams extends BaseParams {
 }
 
 /** Параметры для input-узла. */
-class InputParams extends BaseParams {
+class InputParams extends NodeParams {
     /**
      * Создаёт параметры для input-узла.
      * @param {string} name Название узла.
@@ -104,12 +104,12 @@ class InputParams extends BaseParams {
 const templates = Object.freeze([
     undefined,
     new RootNode("Корень", "Добро пожаловать в начало!"),
-    new TreeNode(new BaseParams(nodeTypes.info, "Инфо-узел", "Тут может быть любая информация для пользователя.").makeTemplate()),
+    new TreeNode(new NodeParams(nodeTypes.info, "Инфо-узел", "Тут может быть любая информация для пользователя.").makeTemplate()),
     new TreeNode(new SectionParams("Раздел", "Этот узел позволяет удобно работать с большим количеством детских узлов.", collectionTypes.block).makeTemplate()),
     new TreeNode(new ProductParams("Товар", "Тут можно настроить цены товаров с разными подтипами.", [
         new ProductProperty("Характеристика 1", ["Подтип 1", "Подтип 2", "Подтип 3"]),
         new ProductProperty("Характеристика 2", ["Подвид 1", "Подвид 2", "Подвид 3"])
     ]).makeTemplate()),
     new OneChildNode(new InputParams("Ввод данных", "Тут пользователь должен ввести данные нужного типа.", 1).makeTemplate()),
-    new OneChildNode(new BaseParams(nodeTypes.sendOrder, "Отправить заказ", "При переходе сюда сформированный заказ отправляется Вам.").makeTemplate())
+    new OneChildNode(new NodeParams(nodeTypes.sendOrder, "Отправить заказ", "При переходе сюда сформированный заказ отправляется Вам.").makeTemplate())
 ]);
