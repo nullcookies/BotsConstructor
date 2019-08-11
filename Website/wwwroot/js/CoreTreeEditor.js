@@ -109,6 +109,7 @@ class TreeNode {
             trashSpan.style = "margin-left: 2px";
             this.editBtn = document.createElement("button");
             this.editBtn.className = "btn btn-outline-primary nodeButton";
+            this.editBtn.onclick = this.parameters.openModal.bind(this.parameters);
             let wrenchSpan = document.createElement("span");
             wrenchSpan.className = "oi oi-wrench";
 
@@ -141,9 +142,7 @@ class TreeNode {
         }
     }
 
-    /**
-     * Удаляет текущий узел и всех его детей рекурсивно.
-     */
+    /** Удаляет текущий узел и всех его детей рекурсивно. */
     remove() {
         for (let i = this.childrenWrappers.length - 1; i >= 0; i--) {
             this.removeChild(i);
@@ -343,11 +342,6 @@ class NodeWrapper {
                 }
             }.bind(this);
 
-        //this.node.editBtn.onclick = this.node.parameters.edit.bind(this.node.parameters);
-        console.log(this.node.parameters);
-        //this.node.parameters.openModal();
-        //this.node.editBtn.onclick = this.node.parameters.openModal.call(this.node.parameters);
-
         this.container = document.createElement("div");
         this.container.className = "wrapperContainer";
 
@@ -377,9 +371,7 @@ class NodeWrapper {
         this.container.appendChild(childContainer);
     }
 
-    /**
-     * Полностью удаляет обёртку вместе с узлом.
-     */
+    /** Полностью удаляет обёртку вместе с узлом. */
     remove() {
         this.node.remove();
         this.container.remove();
