@@ -134,15 +134,22 @@ namespace LogicalCore
     }
 
     /// <summary>
-    /// Хранит список пользователей бота и кол-во сообщений
+    /// Хранит список пользователей бота и кол-во сообщений.
+    /// Если статистика инициализирована неправильно (Значения в 
+    /// БД больше, чем значения в памяти), то оно должно поругаться в лог
+    /// и занести в память значения из бд
     /// </summary>
     public class BotStatistics
     {
-        private List<int> _usersTelegramIds = new List<int>();
+        private HashSet<int> _usersTelegramIds;
         private long _numberOfMessages;
 
-        public BotStatistics(List<int> usersTelegramIds, long numberOfMessages)
+        public BotStatistics(HashSet<int> usersTelegramIds, long numberOfMessages)
         {
+            if (usersTelegramIds == null)
+                usersTelegramIds = new HashSet<int>();
+         
+
             if (usersTelegramIds.Count > numberOfMessages)
             {
                 throw new Exception( $"Количество пользователей бота не может быть больше кол-ва сообщений" +
@@ -154,6 +161,20 @@ namespace LogicalCore
             _numberOfMessages = numberOfMessages;
         }
 
+        public bool TryExpandTheListOfUsers(HashSet<int> dbListOfUsers)
+        {
+            bool at_least_one_user_has_been_added = false;
+            foreach (var userTelegramId in dbListOfUsers)
+            {
+                if (!_usersTelegramIds.Contains(userTelegramId))
+                {
+                    at_least_one_user_has_been_added = true;
+                    _usersTelegramIds.Add(userTelegramId);
+                }
+            }
+
+            return at_least_one_user_has_been_added;
+        }
         public int GetNumberOfAllUsers()
         {
             return _usersTelegramIds.Count;
@@ -163,10 +184,18 @@ namespace LogicalCore
         {
             List<int> newUsersTelegramIds = new List<int>();
 
-            for (int i = 0; i < _usersTelegramIds.Count; i++)
+            foreach (int userTelegramId in dbUsersTelegramIds)
             {
-                int userTelegramId = _usersTelegramIds[i];
+                if (!_usersTelegramIds.Contains(userTelegramId))
+                {
+                    throw new Exception($"Набор telegramId пользователей в памяти не содержит" +
+                        $"telegramId={userTelegramId} из бд");
+                }
+            }
 
+            //Поиск новых значений
+            foreach (int userTelegramId in _usersTelegramIds)
+            {
                 //O(1)
                 if (!dbUsersTelegramIds.Contains(userTelegramId))
                 {

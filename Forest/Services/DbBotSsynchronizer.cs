@@ -4,6 +4,7 @@ using DataLayer.Services;
 using DeleteMeWebhook;
 using LogicalCore;
 using Microsoft.Extensions.Configuration;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -15,7 +16,6 @@ namespace Forest.Services
         private DbContextWrapper _dbContextWrapper;
         private StupidLogger _logger;
 
-        public void Start() { }
         public BotStatisticsSynchronizer(IConfiguration configuration, StupidLogger logger)
         {
             _dbContextWrapper = new DbContextWrapper(configuration);
@@ -49,7 +49,7 @@ namespace Forest.Services
             {
                 SyncBotData();
 
-                int five_minutes = 5 * 60*1000;
+                //int five_minutes = 5 * 60*1000;
                 int five_seconds = 5 *1000;
                 //await Task.Delay(1000 );
                 Thread.Sleep(five_seconds);
@@ -83,9 +83,7 @@ namespace Forest.Services
              {
                 BotWrapper botWrapper = null;
                 BotsContainer.BotsDictionary.TryGetValue(botUsername, out botWrapper);
-
-                 
-
+                
                 if (botWrapper == null)
                 {
                     _logger.Log(
@@ -93,8 +91,10 @@ namespace Forest.Services
                         Source.FOREST,
                         $"При обновлении статистики не удалось получить достпук к " +
                         $"боту botUsername={botUsername} в статическом контейнере");
+                    continue;
                 }
-                 
+
+                #region Обновление кол-ва сообщений в бд 
                 //запись статистики бота из бд
                 BotForSalesStatistics statisticsDb = allStatistics
                     .Where(_stat => _stat.BotId == botWrapper.BotID)
@@ -110,7 +110,7 @@ namespace Forest.Services
                     continue;
                 }
                  
-
+                //кол-во сообщений из памяти
                 long actualNumberOfMessages = botWrapper.StatisticsContainer.NumberOfMessages;
 
                 if (actualNumberOfMessages < statisticsDb.NumberOfUniqueMessages)
@@ -123,7 +123,7 @@ namespace Forest.Services
                         $"statisticsDb.NumberOfUniqueMessages = {statisticsDb.NumberOfUniqueMessages}");
 
                     //Это может произойти, если при старте бота из бд не была извлечена статистика бота,
-                    //которая накописаль за прошлые запуски
+                    //которая накопилась за прошлые запуски
 
                     //Заношу в память данные из бд, чтобы такой ошибки больше не было
                     actualNumberOfMessages = statisticsDb.NumberOfUniqueMessages;
@@ -134,15 +134,63 @@ namespace Forest.Services
                     statisticsDb.NumberOfUniqueMessages = actualNumberOfMessages;
                 }
 
-                
+                #endregion
+
+
+                #region Обновление списка пользователей в бд
                 var dbBotUsers = allBotsUsers
                     .Where(_record => _record.BotUsername == botUsername)
                     .Select(_record=>_record.BotUserTelegramId)
                     .ToHashSet();
 
-                List<int> newUsersTelegramIds = botWrapper
-                    .StatisticsContainer
-                    .GetNewUsersTelegramIds(dbBotUsers);
+                List<int> newUsersTelegramIds = null;
+
+                //Упадёт, если в памяти не будет хотя бы одного id из БД
+                try
+                {
+                    newUsersTelegramIds = botWrapper
+                        .StatisticsContainer
+                        .GetNewUsersTelegramIds(dbBotUsers);
+
+                }
+                catch(Exception ee)
+                {
+                    _logger.Log(LogLevelMyDich.ERROR,
+                        Source.FOREST,
+                        "При обновлении списка пользователей произошла ошибка", ex:ee);
+                }
+
+                if (newUsersTelegramIds == null)
+                {
+                    //Не удалось нормально извлечь новых пользователей
+                    //Обновить память для соответствия в бд и попробовать снова
+                    bool success = botWrapper.StatisticsContainer.TryExpandTheListOfUsers(dbBotUsers);
+                    if (!success)
+                    {
+                        try
+                        {
+                            newUsersTelegramIds = botWrapper
+                              .StatisticsContainer
+                              .GetNewUsersTelegramIds(dbBotUsers);
+                        }catch(Exception eee)
+                        {
+                            _logger.Log(LogLevelMyDich.ERROR,
+                                Source.FOREST,
+                                "При повторной попытке синхронизировать кол-во пользователей было брошено исключение",
+                                ex: eee);
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        _logger.Log(LogLevelMyDich.ERROR,
+                            Source.FOREST,
+                            "Попытка добавить недостающих пользователей не увенчалась успехом.");
+                        continue;
+                    }
+                }
+
+
 
                 int actualNumberOfUsers = botWrapper.StatisticsContainer.GetNumberOfAllUsers();
 
@@ -182,7 +230,10 @@ namespace Forest.Services
                     Source.FOREST,
                     $"При обновлении статистики к списку пользователей добавлено " +
                     $"list.Count={newUsersRecords.Count} новых пользователей");
-             }
+
+                #endregion
+
+            }
 
 
             context.SaveChanges();

@@ -320,10 +320,10 @@ namespace DeleteMeWebhook.Controllers
                     .Where(_stat => _stat.BotId == botId)
                     .SingleOrDefault();
 
-                List<int> botUserstelegramIds = _contextDb.BotUsers
+                HashSet<int> botUserstelegramIds = _contextDb.BotUsers
                     .Where(_rec => _rec.BotUsername == botUsername)
                     .Select(_rec=>_rec.BotUserTelegramId) 
-                    .ToList();
+                    .ToHashSet();
 
                 if(botUserstelegramIds.Count> stat.NumberOfUniqueMessages)
                 {
