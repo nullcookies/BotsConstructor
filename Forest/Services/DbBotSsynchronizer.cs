@@ -4,11 +4,9 @@ using DataLayer.Services;
 using DeleteMeWebhook;
 using LogicalCore;
 using Microsoft.Extensions.Configuration;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Forest.Services
 {
@@ -30,16 +28,16 @@ namespace Forest.Services
             (new Thread(
               () =>
               {
-              try
-              {
+                //try
+                //{
                   RunSyncDbBots();
-                  }
-                  catch (Exception ee)
-                  {
-                      _logger.Log(LogLevelMyDich.ERROR,
-                          Source.FOREST,
-                          "Упал сервис синхронизации статистики ботов", ex: ee);
-                  }
+                //}
+                //catch (Exception ee)
+                //{
+                //    _logger.Log(LogLevelMyDich.ERROR,
+                //        Source.FOREST,
+                //        "Упал сервис синхронизации статистики ботов", ex: ee);
+                //}
               }
               )).Start();
 
@@ -113,7 +111,7 @@ namespace Forest.Services
                 }
                  
 
-                int actualNumberOfMessages = botWrapper.StatisticsContainer.NumberOfMessages;
+                long actualNumberOfMessages = botWrapper.StatisticsContainer.NumberOfMessages;
 
                 if (actualNumberOfMessages < statisticsDb.NumberOfUniqueMessages)
                 {
@@ -123,10 +121,18 @@ namespace Forest.Services
                         $"меньше старого значения кол-ва сообщений у бота в БД." +
                         $"actualNumberOfMessages{actualNumberOfMessages}, " +
                         $"statisticsDb.NumberOfUniqueMessages = {statisticsDb.NumberOfUniqueMessages}");
+
+                    //Это может произойти, если при старте бота из бд не была извлечена статистика бота,
+                    //которая накописаль за прошлые запуски
+
+                    actualNumberOfMessages = statisticsDb.NumberOfUniqueMessages;
+                }
+                else
+                {
+                    //Обновление кол-ва сообщений
+                    statisticsDb.NumberOfUniqueMessages = actualNumberOfMessages;
                 }
 
-                //Обновление кол-ва сообщений
-                statisticsDb.NumberOfUniqueMessages = actualNumberOfMessages;
                 
                 var dbBotUsers = allBotsUsers
                     .Where(_record => _record.BotUsername == botUsername)
@@ -149,6 +155,13 @@ namespace Forest.Services
                         $"пользователей");
                 }
 
+                //Обновление кол-ва пользователей
+                var botStat = context.BotForSalesStatistics
+                    .Find(botWrapper.BotID);
+
+                botStat.NumberOfUniqueUsers = actualNumberOfUsers;
+
+                //Обновление списка пользователей бота
                 List<Record_BotUsername_UserTelegramId> newUsersRecords = 
                     new List<Record_BotUsername_UserTelegramId>();
 

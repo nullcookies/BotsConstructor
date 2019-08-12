@@ -164,7 +164,7 @@ namespace LogicalCore
 
             return newUsersTelegramIds;
         }
-        public int NumberOfMessages
+        public long NumberOfMessages
         {
             get
             {

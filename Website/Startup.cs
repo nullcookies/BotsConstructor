@@ -100,8 +100,13 @@ namespace Website
             IHostingEnvironment env, 
             ApplicationContext _contextDb, 
             TotalLog totalLog,
-            MoneyCollectorService moneyCollectorService)
+            MoneyCollectorService moneyCollectorService,
+            StupidLogger logger)
         {
+
+            logger.Log(LogLevelMyDich.IMPORTANT_INFO,
+                Source.WEBSITE,
+                "Запуск сервера сайта");
             //оно не хочет очищать таблицу
             //_contextDb.Database.ExecuteSqlCommand("TRUNCATE TABLE [RouteRecords]");
          

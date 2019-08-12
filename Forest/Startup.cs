@@ -52,9 +52,16 @@ namespace DeleteMeWebhook
 
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, BotStatisticsSynchronizer botStatisticsSynchronizer)
+        public void Configure(IApplicationBuilder app, 
+            IHostingEnvironment env, 
+            BotStatisticsSynchronizer botStatisticsSynchronizer,
+            StupidLogger logger)
         {
-         
+
+            logger.Log(LogLevelMyDich.IMPORTANT_INFO,
+                Source.WEBSITE,
+                "Запуск сервера леса");
+
 
             app.UseDeveloperExceptionPage();
 
