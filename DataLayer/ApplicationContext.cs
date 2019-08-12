@@ -31,6 +31,8 @@ namespace DataLayer.Models
         public DbSet<BotLaunchRecord> BotLaunchRecords { get; set; }
         public DbSet<WithdrawalLog> WithdrawalLog { get; set; }
         public DbSet<Record_BotUsername_UserTelegramId> BotUsers { get; set; }
+        public DbSet<BannedUser> BannedUsers { get; set; }
+
 
         public ApplicationContext(DbContextOptions<ApplicationContext> options)
            : base(options)
@@ -48,7 +50,21 @@ namespace DataLayer.Models
             //Нельзя добавить модератора дважды к аккаунту
             modelBuilder.Entity<Moderator>().HasIndex(_mo => new { _mo.AccountId, _mo.BotId}).IsUnique();
 
+            //Нельзя дважды банить одного пользователя
+            modelBuilder.Entity<BannedUser>().HasIndex(_bu => new { _bu.BotUsername, _bu.UserTelegramId}).IsUnique();
 
+            //Пользователь считается однажды
+            modelBuilder.Entity<Record_BotUsername_UserTelegramId>()
+                .HasIndex(_rec => 
+                    new
+                    {
+                        _rec.BotUsername,
+                        _rec.BotUserTelegramId
+                    })
+                .IsUnique();
+
+
+            //В одну дату нельзя снимать деньги больше одного раза
             modelBuilder.Entity<WithdrawalLog>().HasIndex(_wl=> new
             {
                 _wl.BotId,
@@ -725,6 +741,16 @@ namespace DataLayer.Models
         public string BotUsername { get; set; }
         [Required]
         public int BotUserTelegramId { get; set; }
+    }
+
+    public class BannedUser
+    {
+        [Key]
+        public int Id { get; set; }
+        [Required]
+        public string BotUsername { get; set; }
+        [Required]
+        public int UserTelegramId { get; set; }
     }
 
 }

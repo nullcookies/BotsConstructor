@@ -10,7 +10,7 @@ namespace DataLayer
 {
     public class DbContextWrapper
     {
-        private readonly string _connextionString;       
+        private readonly string _connectionString;       
 
         public DbContextWrapper(IConfiguration configuration)
         {
@@ -18,10 +18,17 @@ namespace DataLayer
             bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
             if (isWindows)
-                _connextionString = configuration.GetConnectionString("PostgresConnectionDevelopment");
+                _connectionString = configuration.GetConnectionString("PostgresConnectionDevelopment");
             else
-                _connextionString = configuration.GetConnectionString("PostgresConnectionLinux");
+                _connectionString = configuration.GetConnectionString("PostgresConnectionLinux");
             
+        }
+        public DbContextWrapper(string connectionString)
+        {
+            if (connectionString != null)
+            {
+                _connectionString = connectionString;
+            }
         }
 
 
@@ -29,7 +36,7 @@ namespace DataLayer
         {
             return new ApplicationContext(
                 new DbContextOptionsBuilder<ApplicationContext>()
-                .UseNpgsql(_connextionString)
+                .UseNpgsql(_connectionString)
                 .Options);
         }
     }
