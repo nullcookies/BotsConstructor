@@ -125,6 +125,7 @@ namespace Forest.Services
                     //Это может произойти, если при старте бота из бд не была извлечена статистика бота,
                     //которая накописаль за прошлые запуски
 
+                    //Заношу в память данные из бд, чтобы такой ошибки больше не было
                     actualNumberOfMessages = statisticsDb.NumberOfUniqueMessages;
                 }
                 else

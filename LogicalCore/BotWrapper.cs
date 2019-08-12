@@ -17,7 +17,7 @@ namespace LogicalCore
         public List<string> Languages => tmm.languages;
         public Action<VariablesContainer> InitializeSessionVars { get; set; } // вызывается для каждой сессии в конструкторе
 
-        public BotStatistics StatisticsContainer = new BotStatistics();
+        public BotStatistics StatisticsContainer;
         public StupidBotAntispam StupidBotAntispam;
 
         public BotWrapper(int botId,
@@ -26,10 +26,12 @@ namespace LogicalCore
             /*int ownerID, MegaTree tree,*/
             TextMessagesManager textManager = null,
             GlobalFilter filter = null,
-            VariablesContainer globalVariables = null
+            VariablesContainer globalVariables = null,
+            BotStatistics botStatistics = null
 
             ) : base(botId, link, token)
         {
+            StatisticsContainer = botStatistics;
             sessionsDictionary = new ConcurrentDictionary<int, Session>();
             tmm = textManager ?? new BaseTextMessagesManager();
             //MegaTree = tree ?? throw new ArgumentNullException(nameof(tree));
@@ -131,16 +133,26 @@ namespace LogicalCore
         }
     }
 
+    /// <summary>
+    /// Хранит список пользователей бота и кол-во сообщений
+    /// </summary>
     public class BotStatistics
     {
         private List<int> _usersTelegramIds = new List<int>();
-        private int _numberOfMessages;
+        private long _numberOfMessages;
 
-        //public List<int> GetAllUsersTelegramIds()
-        // {
-        //     //Зачем тут копирование?
-        //     return new List<int>(usersTelegramIds);
-        // }
+        public BotStatistics(List<int> usersTelegramIds, long numberOfMessages)
+        {
+            if (usersTelegramIds.Count > numberOfMessages)
+            {
+                throw new Exception( $"Количество пользователей бота не может быть больше кол-ва сообщений" +
+                    $" пользователей = {usersTelegramIds.Count}," +
+                    $" сообщений = {numberOfMessages}");
+            }
+
+            _usersTelegramIds = usersTelegramIds;
+            _numberOfMessages = numberOfMessages;
+        }
 
         public int GetNumberOfAllUsers()
         {
@@ -163,7 +175,7 @@ namespace LogicalCore
             }
 
             return newUsersTelegramIds;
-        }
+        } 
         public long NumberOfMessages
         {
             get
