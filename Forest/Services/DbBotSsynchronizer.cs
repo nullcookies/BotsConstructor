@@ -3,6 +3,7 @@ using DataLayer.Models;
 using DataLayer.Services;
 using DeleteMeWebhook;
 using LogicalCore;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,60 +17,77 @@ namespace Forest.Services
         private DbContextWrapper _dbContextWrapper;
         private StupidLogger _logger;
 
-        public BotStatisticsSynchronizer(DbContextWrapper dbContextWrapper)
+        public void Start() { }
+        public BotStatisticsSynchronizer(IConfiguration configuration, StupidLogger logger)
         {
-            _dbContextWrapper = dbContextWrapper;
+            _dbContextWrapper = new DbContextWrapper(configuration);
+            _logger = logger;
+
+            _logger.Log(LogLevelMyDich.INFO,
+                Source.FOREST,
+                "Конструктор синхронизатора бд");
 
             (new Thread(
               () =>
               {
-                  RunSyncDbBots().Wait();
+              try
+              {
+                  RunSyncDbBots();
+                  }
+                  catch (Exception ee)
+                  {
+                      _logger.Log(LogLevelMyDich.ERROR,
+                          Source.FOREST,
+                          "Упал сервис синхронизации статистики ботов", ex: ee);
+                  }
               }
               )).Start();
 
         }
 
-        private async Task RunSyncDbBots()
+        private void RunSyncDbBots()
         {
-
             while (true)
             {
                 SyncBotData();
-                //Через каждые 5 минут
-                await Task.Delay(1000 * 60 * 5);
+
+                int five_minutes = 5 * 60*1000;
+                int five_seconds = 5 *1000;
+                //await Task.Delay(1000 );
+                Thread.Sleep(five_seconds);
             }
         }
 
+        //TODO Эта хрень не потокобезопасна
         private void SyncBotData()
         {
+            _logger.Log(LogLevelMyDich.INFO,
+                Source.FOREST,
+                "Старт обновления статистики ботов");
+
+                         
             ApplicationContext context = _dbContextWrapper.GetNewDbContext();
 
-            //List<BotForSalesStatistics> allDbStatistics = context
-            //    .BotForSalesStatistics
-            //    .Join(context.Bots,
-            //    _stat=>_stat.BotId,
-            //    _bot=>_bot.Id,
-            //    (_stat, _bot)=>new BotForSalesStatistics
-            //    {
-            //        Bot = _bot,
-            //        NumberOfOrders =_stat.NumberOfOrders,
-            //        NumberOfUniqueMessages = _stat.NumberOfUniqueMessages,
-            //        NumberOfUniqueUsers = _stat.NumberOfUniqueUsers,
-            //        BotId = _stat.BotId
-            //    }).ToList();
 
             List<BotForSalesStatistics> allStatistics = context
                 .BotForSalesStatistics
                 .ToList();
+             
 
             List<Record_BotUsername_UserTelegramId> allBotsUsers = context
                 .BotUsers
                 .ToList();
+             
 
-            foreach (var botUsername in BotsContainer.BotsDictionary.Keys)
-            {
+            //Для всех ботов в этом лесу актуальные данные кол-ва сообщений 
+            //и данные о пользователях переносит в БД
+             foreach (var botUsername in BotsContainer.BotsDictionary.Keys)
+             {
                 BotWrapper botWrapper = null;
                 BotsContainer.BotsDictionary.TryGetValue(botUsername, out botWrapper);
+
+                 
+
                 if (botWrapper == null)
                 {
                     _logger.Log(
@@ -78,10 +96,12 @@ namespace Forest.Services
                         $"При обновлении статистики не удалось получить достпук к " +
                         $"боту botUsername={botUsername} в статическом контейнере");
                 }
-
+                 
+                //запись статистики бота из бд
                 BotForSalesStatistics statisticsDb = allStatistics
                     .Where(_stat => _stat.BotId == botWrapper.BotID)
                     .SingleOrDefault();
+                 
 
                 if (statisticsDb == null)
                 {
@@ -91,8 +111,10 @@ namespace Forest.Services
                         $"botUsername={botUsername}, botWrapper.BotID{botWrapper.BotID}");
                     continue;
                 }
+                 
 
                 int actualNumberOfMessages = botWrapper.StatisticsContainer.NumberOfMessages;
+
                 if (actualNumberOfMessages < statisticsDb.NumberOfUniqueMessages)
                 {
                     _logger.Log(LogLevelMyDich.ERROR,
@@ -102,38 +124,61 @@ namespace Forest.Services
                         $"actualNumberOfMessages{actualNumberOfMessages}, " +
                         $"statisticsDb.NumberOfUniqueMessages = {statisticsDb.NumberOfUniqueMessages}");
                 }
+
+                //Обновление кол-ва сообщений
                 statisticsDb.NumberOfUniqueMessages = actualNumberOfMessages;
-
-
-                List<int> memorybotUsers = botWrapper.StatisticsContainer.usersTelegramIds;
-
-                List<int> dbBotUsers = allBotsUsers
+                
+                var dbBotUsers = allBotsUsers
                     .Where(_record => _record.BotUsername == botUsername)
                     .Select(_record=>_record.BotUserTelegramId)
-                    .ToList();
+                    .ToHashSet();
 
-                if (dbBotUsers.Count > memorybotUsers.Count)
+                List<int> newUsersTelegramIds = botWrapper
+                    .StatisticsContainer
+                    .GetNewUsersTelegramIds(dbBotUsers);
+
+                int actualNumberOfUsers = botWrapper.StatisticsContainer.GetNumberOfAllUsers();
+
+                if (dbBotUsers.Count > actualNumberOfUsers)
                 {
                     _logger.Log(LogLevelMyDich.WARNING,
                         Source.FOREST,
                         $"Обновление статистики бота. У бота " +
                         $"botUsername {botUsername} botWrapper.BotID={botWrapper.BotID}" +
-                        $"старое количество пользователей в БД больше кол-ва пользователей в БД");
+                        $"старое количество пользователей в БД больше актуального кол-ва " +
+                        $"пользователей");
                 }
 
-                dbBotUsers.AddRange(memorybotUsers);
+                List<Record_BotUsername_UserTelegramId> newUsersRecords = 
+                    new List<Record_BotUsername_UserTelegramId>();
 
-                //Магия, которая убирает дубликаты
-                dbBotUsers.GroupBy(x => x).Select(x => x.First());
+                for (int i = 0; i < newUsersTelegramIds.Count; i++)
+                {
+                    int newUserTelegramId = newUsersTelegramIds[i];
+                    newUsersRecords.Add(new Record_BotUsername_UserTelegramId()
+                    {
+                        BotUsername = botUsername,
+                        BotUserTelegramId = newUserTelegramId
+                    });
+                }
 
+                context.BotUsers.AddRange(newUsersRecords);
 
-            }
+                _logger.Log(LogLevelMyDich.INFO,
+                    Source.FOREST,
+                    $"При обновлении статистики к списку пользователей добавлено " +
+                    $"list.Count={newUsersRecords.Count} новых пользователей");
+             }
 
 
             context.SaveChanges();
-            //Для всех ботов в лесу
-            //Записать новую статистику бота в бд
-            //Обновить список спамеров для бота
+
+
+
+            _logger.Log(LogLevelMyDich.INFO,
+                Source.FOREST,
+                "Окончание обновления статистики ботов");
+
         }
     }
 }

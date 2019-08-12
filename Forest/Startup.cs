@@ -48,10 +48,14 @@ namespace DeleteMeWebhook
             services.AddSingleton<StupidLogger>();
             services.AddSingleton<BotStatisticsSynchronizer>();
 
+
+
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, BotStatisticsSynchronizer botStatisticsSynchronizer)
         {
+         
+
             app.UseDeveloperExceptionPage();
 
             //app.UseHttpsRedirection();

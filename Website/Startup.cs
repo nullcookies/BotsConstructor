@@ -62,7 +62,7 @@ namespace Website
 
                                                
                              
-            services.AddEntityFrameworkNpgsql().AddDbContext<ApplicationContext>(opt=>opt.UseNpgsql(connection)).BuildServiceProvider(); 
+            services.AddEntityFrameworkNpgsql().AddDbContext<ApplicationContext>(opt=>opt.UseNpgsql(connection) ).BuildServiceProvider(); 
             
 
             //my
