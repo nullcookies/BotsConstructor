@@ -47,6 +47,7 @@ namespace DeleteMeWebhook
 			services.AddSingleton<DBConnector>();
             services.AddSingleton<StupidLogger>();
             services.AddSingleton<BotStatisticsSynchronizer>();
+            services.AddSingleton<BannedUsersSynchronizer>();
 
 
 
@@ -55,7 +56,8 @@ namespace DeleteMeWebhook
         public void Configure(IApplicationBuilder app, 
             IHostingEnvironment env, 
             BotStatisticsSynchronizer botStatisticsSynchronizer,
-            StupidLogger logger)
+            StupidLogger logger,
+            BannedUsersSynchronizer bannedUsersSynchronizer)
         {
 
             logger.Log(LogLevelMyDich.IMPORTANT_INFO,

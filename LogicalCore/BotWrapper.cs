@@ -27,11 +27,14 @@ namespace LogicalCore
             TextMessagesManager textManager = null,
             GlobalFilter filter = null,
             VariablesContainer globalVariables = null,
-            BotStatistics botStatistics = null
+            BotStatistics botStatistics = null,
+            StupidBotAntispam antispam = null
 
             ) : base(botId, link, token)
         {
-            StatisticsContainer = botStatistics;
+
+            StatisticsContainer = botStatistics == null?new BotStatistics():botStatistics ;
+            StupidBotAntispam = antispam == null ? new StupidBotAntispam() : antispam;
             sessionsDictionary = new ConcurrentDictionary<int, Session>();
             tmm = textManager ?? new BaseTextMessagesManager();
             //MegaTree = tree ?? throw new ArgumentNullException(nameof(tree));
@@ -78,6 +81,13 @@ namespace LogicalCore
             //На случай запуска через long polling
             StatisticsContainer.UpdateStatistics(telegramId);
 
+            bool isBlocked = StupidBotAntispam.UserIsBlockedForThisBot(telegramId);
+            if (isBlocked)
+            {
+                //TODO ответить, что заблокирован
+                BotClient.SendTextMessageAsync(message.Chat.Id,"это же бан");
+                return;
+            }
 
             try
             {
@@ -95,9 +105,16 @@ namespace LogicalCore
         {
             int telegramId = callbackQuerry.From.Id;
 
-
             //На случай запуска через long polling
             StatisticsContainer.UpdateStatistics(telegramId);
+
+            bool isBlocked = StupidBotAntispam.UserIsBlockedForThisBot(telegramId);
+            if (isBlocked)
+            {
+                //TODO ответить, что заблокирован
+                BotClient.SendTextMessageAsync(callbackQuerry.Message.Chat.Id, "это же бан");
+                return;
+            }
 
             Session session = GetSessionByTelegramId(telegramId);
             session.TakeControl(callbackQuerry);
@@ -160,6 +177,13 @@ namespace LogicalCore
             _usersTelegramIds = usersTelegramIds;
             _numberOfMessages = numberOfMessages;
         }
+
+        public BotStatistics()
+        {
+            _usersTelegramIds = new HashSet<int>();
+            _numberOfMessages = 0;
+        }
+
 
         public bool TryExpandTheListOfUsers(HashSet<int> dbListOfUsers)
         {
@@ -239,15 +263,47 @@ namespace LogicalCore
     }
     public class StupidBotAntispam
     {
-        List<int> blocketUsersIds = new List<int>();
+        HashSet<int> _blocketUsersIds = new HashSet<int>();
+
+        public StupidBotAntispam(HashSet<int> blocketUsersIds)
+        {
+            this._blocketUsersIds = blocketUsersIds;
+        }
+
+        public StupidBotAntispam()
+        {
+            this._blocketUsersIds = new HashSet<int>();
+        }
 
         public bool UserIsBlockedForThisBot(int userTelegramId)
         {
-            return blocketUsersIds.Contains(userTelegramId);
-
+            return _blocketUsersIds.Contains(userTelegramId);
         }
 
+        public void UpdateTheListOfBannedUsers(HashSet<int> dbBannedUsersTelegramIds)
+        {
+            foreach (var telegramId in _blocketUsersIds)
+            {
+                //Если в памяти есть забаненый пользователь, а в бд его нет (пользователя разбанили)
+                if (!dbBannedUsersTelegramIds.Contains(telegramId))
+                {
+                    //залогировать это событие
+                    Console.WriteLine("Из списка забаненых пользователей пропал" +
+                        $"пользователь с id={telegramId}");
+                }
+            }
 
+            foreach (var telegramId in dbBannedUsersTelegramIds)
+            {
+                //Добавлен новый забаненый пользователь
+                if (!_blocketUsersIds.Contains(telegramId))
+                {
+                    _blocketUsersIds.Add(telegramId);
+                    Console.WriteLine("Добавлен новый забаненый пользователь");
+                }
+            }
+            _blocketUsersIds = dbBannedUsersTelegramIds;
+        }
     }
 }
 

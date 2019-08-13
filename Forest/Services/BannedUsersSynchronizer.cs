@@ -63,11 +63,42 @@ namespace Forest.Services
                 "Старт синхронизации забаненных пользователей ");
 
 
-            ApplicationContext context = _dbContextWrapper.GetNewDbContext();
+            ApplicationContext contextDb = _dbContextWrapper.GetNewDbContext();
+            //Записать в память новых забаненных пользователей, если они есть
+            int countOfBptsInThisForest = BotsContainer.BotsDictionary.Count;
+            foreach (string botUsername in BotsContainer.BotsDictionary.Keys)
+            {
+                BotWrapper botWrapper = null;
+                bool success = BotsContainer.BotsDictionary.TryGetValue(botUsername, out botWrapper);
+                if (!success)
+                {
+                    _logger.Log(LogLevelMyDich.ERROR,
+                        Source.FOREST,
+                        "При синхронизации списка забаненных пользователей не удалось извлечь " +
+                        "объект бота из статического словаря");
+                    continue;
+                }
+
+                if (botWrapper == null)
+                {
+                    _logger.Log(LogLevelMyDich.ERROR,
+                        Source.FOREST,
+                        "При синхронизаци спсика забаненных пользователей из котейнера был извлечён" +
+                        "бот = null");
+                }
+
+                HashSet<int> bannedUsers = contextDb
+                    .BannedUsers
+                    .Where(_bu => _bu.BotUsername == botUsername)
+                    .Select(_bu=>_bu.UserTelegramId)
+                    .ToHashSet();
+
+                botWrapper.StupidBotAntispam
+                    .UpdateTheListOfBannedUsers(bannedUsers);
+
+            }
 
 
-
-            context.SaveChanges();
             _logger.Log(LogLevelMyDich.INFO,
                 Source.FOREST,
                 "Окончание синхронизации забаненных пользователей ");
