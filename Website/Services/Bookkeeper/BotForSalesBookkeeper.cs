@@ -8,32 +8,13 @@ using System.Linq;
 using System.Threading.Tasks;
 
 
-//@&&&&%%%%%%#######(((((((((#######%%%%%
-//@&&&&%%%%%#######(#%%&,((((((#######%%%
-//@&&&%%%%%%#####((%@@@@@.(((((((#####%%%
-//@&&&%%%%###((((((&@&&@@(/(((((((#####%&
-//@&&%%%%%###((((((&#(/#&*////(((((###%%&
-//@&%%%%%###((((/(*%%%(#(./////((((##%%&&
-//@&%%%%%###(((///#&/(//#//////((((##%%%&
-//@&%%%%%###(((////%(&%/(//////((((###%%%
-//@&%%%%%###(((/%@@@&#(&(//////((((###%%%
-//@&%%%%%%###(@@@@@@@%%&#@&////(((((##%%%
-//@&%%%%%%%##&@@@@@@@@@@#@@///((((((##%%%
-//@&%%%%%%%##@@@@@@@@@@@%@@@//((((((##%%%
-//@&&%%%%%%#@@@@@@@@@@@@@@@@/(((((((##%%%
-//@&&&%%%%%%%@@@@(        @@((((((((##%%&
-//@&&&%%%%%&&@@@@@@@@@@@@%@@@((((((###%%&
-//@&&&&&%%%%@@@@@@@@@@@@@(@@@(((((###%%%&
-//@&&&&&&%@@@@&@@@@@@@@@@((@@@(((####%%&&
-//@@&&&&&%&@@@#@@@@@@@@%@((&@@((#####%%&&
-//@@@&&&&@@@@%%@@@@@@@@(&((#@@@#####%%&&&
-//@@@@&&&@&@@%&@@@@@@@@%%((#@@@#@@@&%%&&&
 
 
 namespace Website.Services.Bookkeeper
 {
     public class StupidBotForSalesBookkeeper
     {
+        StupidLogger _logger;
         DbContextWrapper _dbContextWrapper;
 
 
@@ -42,7 +23,6 @@ namespace Website.Services.Bookkeeper
                 return _dbContextWrapper.GetNewDbContext();
             }
         }
-        StupidLogger _logger;
 
         public StupidBotForSalesBookkeeper(IConfiguration configuration, StupidLogger _logger )
         {
@@ -58,7 +38,9 @@ namespace Website.Services.Bookkeeper
 
             int number_of_orders_over_the_past_week = _contextDbOnlyRead
                 .Orders
-                .Where(_or => _or.BotId == botId && _or.DateTime >= week_ago).Count();
+                .Where(_or => _or.BotId == botId 
+                    && _or.DateTime >= week_ago)
+                .Count();
 
             DateTime today_00_00 = DateTime.Now
                 .AddHours(-DateTime.Now.Hour)
@@ -67,7 +49,9 @@ namespace Website.Services.Bookkeeper
 
             int answersCountToday = _contextDbOnlyRead
                 .Orders
-                .Where(_or => _or.BotId == botId && _or.DateTime > today_00_00).Count();
+                .Where(_or => _or.BotId == botId
+                    && _or.DateTime > today_00_00)
+                .Count();
 
             BotForSalesPrice price = _contextDbOnlyRead.BotForSalesPrices.LastOrDefault();
             StupidPriceInfo priceInfo = null;
@@ -87,13 +71,7 @@ namespace Website.Services.Bookkeeper
             {
                 _logger.Log(LogLevelMyDich.FATAL, Source.WEBSITE, $"В базе нет ни одной записи о цене. botId={botId}");
 
-                priceInfo = new StupidPriceInfo(
-                   0,
-                   0,
-                   0,
-                   0,
-                   0,
-                   1);
+                priceInfo = new StupidPriceInfo(0,0,0,0,0,1);
 
             }
 

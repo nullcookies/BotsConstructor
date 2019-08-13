@@ -32,6 +32,7 @@ namespace DataLayer.Models
         public DbSet<WithdrawalLog> WithdrawalLog { get; set; }
         public DbSet<Record_BotUsername_UserTelegramId> BotUsers { get; set; }
         public DbSet<BannedUser> BannedUsers { get; set; }
+        public DbSet<BotWorkLog> BotWorkLogs { get; set; }
 
 
         public ApplicationContext(DbContextOptions<ApplicationContext> options)
@@ -142,7 +143,7 @@ namespace DataLayer.Models
                 new BotLaunchRecord(){
                     Id = int.MinValue,
                     BotId = 1_000_000,
-                    StartTime  = DateTime.Now.AddHours(-5)                   
+                    Time  = DateTime.Now.AddHours(-5)                   
                 }
             });
 
@@ -208,6 +209,7 @@ namespace DataLayer.Models
 
         }
     }
+
 
     [Table("Accounts")]
     public class Account
@@ -406,7 +408,14 @@ namespace DataLayer.Models
         public int Id { get; set; }
         public string LogLevelString { get; set; }
         [Required]
-        public string SourceString  { get; set; }
+        public string SourceString
+        {
+            get
+            {
+                return Source.ToString();
+            }
+            set{}
+         }
         public string Message{ get; set; }
 
         public int AccountId { get; set; }
@@ -461,8 +470,28 @@ namespace DataLayer.Models
         public int BotId { get; set; }
 
         [Required]
-        public DateTime StartTime { get; set; }
+        public BotStatus BotStatus { get; set; }
+
+        [Required]
+        public string BotStatusString {
+            get
+            {
+                return BotStatus.ToString();
+            }
+            set{}
+        }
+
+
+        [Required]
+        public DateTime Time { get; set; }
     }
+
+    public enum BotStatus
+    {
+        STARTED,
+        STOPPED
+    }
+
     /// <summary>
     /// Заказ.
     /// </summary>
@@ -716,7 +745,13 @@ namespace DataLayer.Models
         [Required]
         public TransactionStatus TransactionStatus { get; set; }
         [Required]
-        public string TransactionStatusString { get; set; }
+        public string TransactionStatusString {
+            get
+            {
+                return TransactionStatus.ToString();
+            }
+            set{}
+        }
 
         public decimal Price { get; set; }
         /// <summary>
@@ -751,6 +786,20 @@ namespace DataLayer.Models
         public string BotUsername { get; set; }
         [Required]
         public int UserTelegramId { get; set; }
+    }
+
+    /// <summary>
+    /// В этой таблице хранятся записи о работе ботов
+    /// На её основе определяется работал бот в этот день или нет
+    /// </summary>
+    public class BotWorkLog
+    {
+        [Key]
+        public int Id { get; set; }
+        [Required]
+        public int BotId { get; set; }
+        [Required]
+        public DateTime InspectionTime { get; set; }
     }
 
 }

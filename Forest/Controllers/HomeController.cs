@@ -440,9 +440,9 @@ namespace DeleteMeWebhook.Controllers
             BotLaunchRecord blr = new BotLaunchRecord()
             {
                 BotId = botId,
-                StartTime = DateTime.Now
+                BotStatus = BotStatus.STARTED,
+                Time= DateTime.Now
             };
-
 
 
             //Выбор записи из БД

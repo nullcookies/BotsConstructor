@@ -10,9 +10,6 @@ using System.Collections.Generic;
 
 namespace DataLayer.Services
 {
-    /// <summary>
-    /// Лучший логгер за последнюю тысячу лет
-    /// </summary>
     public class StupidLogger
     {      
 
@@ -23,7 +20,10 @@ namespace DataLayer.Services
         {
             logMessages = new ConcurrentQueue<LogMessage>();
             _dbContextWrapper = new DbContextWrapper(configuration);
+
+#pragma warning disable CS4014 // Так как этот вызов не ожидается, выполнение существующего метода продолжается до завершения вызова
             PeriodicFooAsync(TimeSpan.FromSeconds(1), CancellationToken.None);
+#pragma warning restore CS4014 // Так как этот вызов не ожидается, выполнение существующего метода продолжается до завершения вызова
         }
 
         private async Task PeriodicFooAsync(TimeSpan interval, CancellationToken cancellationToken)
@@ -60,14 +60,6 @@ namespace DataLayer.Services
             }
         }
 
-        /// <summary>
-        /// Лу
-        /// </summary>
-        /// <param name="logLevel"></param>
-        /// <param name="errorSource"></param>
-        /// <param name="comment"></param>
-        /// <param name="accountId"></param>
-        /// <param name="ex"></param>
         public void Log(LogLevelMyDich logLevel, 
             Source errorSource, 
             string comment = "", 
@@ -105,6 +97,6 @@ namespace DataLayer.Services
         OTHER,
         MONEY_COLLECTOR_SERVICE,
         BOTS_AIRSTRIP_SERVICE
-
     }
+
 }

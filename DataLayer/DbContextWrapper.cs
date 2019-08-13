@@ -36,8 +36,8 @@ namespace DataLayer
         {
             return new ApplicationContext(
                 new DbContextOptionsBuilder<ApplicationContext>()
-                .UseNpgsql(_connectionString)
-                .Options);
+                    .UseNpgsql(_connectionString)
+                    .Options);
         }
     }
 }
