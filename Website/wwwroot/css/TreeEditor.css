@@ -24,11 +24,11 @@
     margin: 15px;
 }
 
-.template{
+.template {
     margin: 15px auto;
 }
 
-.node{
+.node {
     height: 125px;
     width: 200px;
     border: 2px solid black;
@@ -111,6 +111,11 @@
     overflow: hidden;
     text-overflow: ellipsis;
     word-break: break-word;
+    -moz-user-select: -moz-none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    -o-user-select: none;
+    user-select: none;
 }
 
 .buttonsDiv {
