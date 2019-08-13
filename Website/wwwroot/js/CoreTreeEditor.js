@@ -19,15 +19,18 @@ function deepClone(src) {
     return clone;
 }
 
-/*
- * TreeNode имеет "добавитель" и множество обёрток, которые содержат в себе дочерние узлы, места для вставки и стрелки.
- * Каждая обёртка "знает" свой индекс в массиве детей родителя. При создании, обёртка цепляет слушатели событий.
- * Индекс обёртки может меняться при вставке и удалении узлов. Узлы в меню имеют свою собственную обёртку.
+/**
+ * Выбранный узел.
+ * @type {TreeNode}
  */
+let selectedNode = null;
 
 /** Следующий ID для нового узла. */
 let nextId = 0;
-/** @type {Object.<number, TreeNode>} */
+/**
+ * Все узлы в дереве.
+ * @type {Object.<number, TreeNode>}
+ */
 const allNodes = {};
 
 /** Базовый класс параметров узлов. */
@@ -73,19 +76,52 @@ class TreeNode {
     constructor(parameters) {
         /** Набор параметров узла. */
         this.parameters = parameters;
-        /** Родительский узел.
-         * @type {TreeNode}
-         */
-        this.parent = null;
-        /** Обёртки узлов-наследников.
-         * @type {NodeWrapper[]}
-         */
-        this.childrenWrappers = [];
 
         this.container = document.createElement("div");
 
         let nodeElement = document.createElement("div");
         nodeElement.className = "node bg" + parameters.type;
+        $(nodeElement).draggable({
+            cancel: ".btn",
+            revert: "invalid",
+            containment: "document",
+            helper: "clone",
+            cursor: "move",
+            zIndex: 1000,
+            opacity: 0.75,
+            start: function (event, ui) {
+                if (selectedNode != null) {
+                    delete allNodes[selectedNode.id];
+                    if (selectedNode.id == nextId + 1) {
+                        nextId = selectedNode.id;
+                    }
+                }
+                ui.helper.data('dropped', false);
+                if (this.parameters.isTemplate) {
+                    selectedNode = this.cloneNode();
+                }
+                else {
+                    selectedNode = this;
+                    let jqWrCont = $(this.wrapper.container);
+                    jqWrCont.children(".childContainer").addClass("transparent50");
+                    jqWrCont.find(".ui-droppable").not("verticalFillArrow:first").droppable("disable");
+                }
+            }.bind(this),
+            stop: function (event, ui) {
+                if (selectedNode == this) {
+                    if (!ui.helper.data('dropped')) {
+                        delete allNodes[selectedNode.id];
+                        if (selectedNode.id == nextId + 1) {
+                            nextId = selectedNode.id;
+                        }
+                    }
+                    selectedNode = null;
+                }
+                let jqWrCont = $(this.wrapper.container);
+                jqWrCont.children(".childContainer").removeClass("transparent50");
+                jqWrCont.find(".ui-droppable").droppable("enable");
+            }.bind(this)
+        });
 
         let nodeName = document.createElement("p");
         nodeName.innerText = this.parameters.name;
@@ -96,6 +132,15 @@ class TreeNode {
 
         // Шаблонам не нужны стрелки и другие дополнительные элементы.
         if (!parameters.isTemplate) {
+            /** Родительский узел.
+             * @type {TreeNode}
+             */
+            this.parent = null;
+            /** Обёртки узлов-наследников.
+             * @type {NodeWrapper[]}
+             */
+            this.childrenWrappers = [];
+
             this.id = nextId;
             nextId++;
             allNodes[this.id] = this;
@@ -125,6 +170,19 @@ class TreeNode {
 
             let appenderHolder = document.createElement("div");
             appenderHolder.className = "nodeHolder";
+            $(appenderHolder).droppable({
+                accept: ".node",
+                tolerance: "pointer",
+                drop: function (event, ui) {
+                    if (this.checkAddPermission(selectedNode)) {
+                        this.appendChild(selectedNode);
+                        ui.helper.data('dropped', true);
+                    }
+                    else {
+                        alert("Ошибка! Невозможно добавить узел в качестве ребёнка в его ветвь.");
+                    }
+                }.bind(this)
+            });
 
             buttonsDiv.appendChild(this.deleteBtn);
             this.deleteBtn.appendChild(trashSpan);
@@ -136,10 +194,31 @@ class TreeNode {
             appenderDiv.appendChild(arrowsDiv);
             appenderDiv.appendChild(appenderHolder);
             this.container.appendChild(appenderDiv);
+
+            /** Обёртка текущего узла. */
+            this.wrapper = new NodeWrapper(this);
         }
         else {
             nodeElement.className += " template";
         }
+    }
+
+    /**
+     * Проверяет, можно ли добавить узел.
+     * @param {TreeNode} node Добавляемый узел.
+     * @returns {boolean} Возвращает true, если можно, иначе false.
+     */
+    checkAddPermission(node) {
+        let tmpParent = this;
+
+        while (tmpParent != null) {
+            if (tmpParent == node) {
+                return false;
+            }
+            tmpParent = tmpParent.parent;
+        }
+
+        return true;
     }
 
     /** Удаляет текущий узел и всех его детей рекурсивно. */
@@ -172,22 +251,13 @@ class TreeNode {
     }
 
     /**
-     * Создаёт обёртку узла.
-     * @param {number} index Индекс узла.
-     * @returns {NodeWrapper} Возвращает обёртку для узла.
-     */
-    createWrapper(index) {
-        return new NodeWrapper(index, this);
-    }
-
-    /**
      * Вставляет новый узел в указанное место.
      * @param {number} index Индекс узла.
      * @param {TreeNode} child Узел, который вставляется.
      */
     insertChild(index, child) {
         child.parent = this;
-        let childWrapper = child.createWrapper(index);
+        let childWrapper = child.wrapper.setIndex(index);
         this.childrenWrappers.splice(index, 0, childWrapper);
 
         for (let i = index + 1; i < this.childrenWrappers.length; i++) {
@@ -203,7 +273,7 @@ class TreeNode {
      */
     appendChild(child) {
         child.parent = this;
-        let childWrapper = child.createWrapper(this.childrenWrappers.length);
+        let childWrapper = child.wrapper.setIndex(this.childrenWrappers.length);
         this.childrenWrappers.push(childWrapper);
         this.container.insertBefore(childWrapper.container, this.container.lastChild);
     }
@@ -237,7 +307,7 @@ class TreeNode {
      */
     addMiddleNode(index, child) {
         child.parent = this;
-        let childWrapper = child.createWrapper(index);
+        let childWrapper = child.wrapper.setIndex(index);
         let oldWrapper = this.childrenWrappers[index];
         oldWrapper.node.parent = child;
         oldWrapper.index = 0;
@@ -254,7 +324,7 @@ class TreeNode {
      */
     addGroupNode(index, child) {
         child.parent = this;
-        let childWrapper = child.createWrapper(index);
+        let childWrapper = child.wrapper.setIndex(index);
         let newIndex = 0;
         $(this.childrenWrappers[index].container).before(childWrapper.container);
         for (let i = index; i < this.childrenWrappers.length; i++) {
@@ -279,6 +349,7 @@ class RootNode extends TreeNode {
     constructor(name, message) {
         super(new NodeParams(1, name, message));
         this.deleteBtn.setAttribute("disabled", "");
+        $(this.container).children(".node").draggable("disable");
     }
 
     remove() {
@@ -323,12 +394,11 @@ class OneChildNode extends TreeNode {
 class NodeWrapper {
     /**
      * Создаёт основную обёртку узла.
-     * @param {number} index Индекс узла в коллекции родителя.
      * @param {TreeNode} node Узел.
      */
-    constructor(index, node) {
+    constructor(node) {
         /** Индекс узла в коллекции родителя. */
-        this.index = index;
+        this.index = 0;
         /** Узел, который находится в этой обёртке. */
         this.node = node;
 
@@ -370,6 +440,16 @@ class NodeWrapper {
 
         this.container.appendChild(arrowsDiv);
         this.container.appendChild(childContainer);
+    }
+
+    /**
+     * Устанавливает индекс узла в коллекции родителя.
+     * @param {number} index Индекс узла.
+     * @returns {NodeWrapper} Возвращает текущую обёртку.
+     */
+    setIndex(index) {
+        this.index = index;
+        return this;
     }
 
     /** Полностью удаляет обёртку вместе с узлом. */

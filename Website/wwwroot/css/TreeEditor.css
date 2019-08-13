@@ -19,8 +19,8 @@
     position: absolute;
     top: 0;
     left: 0;
-    bottom: 0;
     right: 0;
+    min-height: 100%;
     margin: 15px;
 }
 
@@ -142,9 +142,15 @@
     border-style: solid;
 }
 
-.hovered {
+.ui-droppable-hover {
     border-color: lightsteelblue;
     background-color: aliceblue;
+    visibility: visible;
+}
+
+.transparent50 {
+    opacity: 0.5;
+    filter: alpha(opacity=50);
 }
 
 .bg1 {
