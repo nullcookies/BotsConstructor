@@ -172,7 +172,8 @@ class TreeNode {
 
             let appenderHolder = document.createElement("div");
             appenderHolder.className = "nodeHolder";
-            $(appenderHolder).droppable({
+
+            let dropOptions = {
                 accept: ".node",
                 tolerance: "pointer",
                 drop: function (event, ui) {
@@ -184,7 +185,10 @@ class TreeNode {
                         alert("Ошибка! Невозможно добавить узел в качестве ребёнка в его ветвь.");
                     }
                 }.bind(this)
-            });
+            };
+            $(vertAdderArr).droppable(dropOptions);
+            $(horizAdderArr).droppable(dropOptions);
+            $(appenderHolder).droppable(dropOptions);
 
             buttonsDiv.appendChild(this.deleteBtn);
             this.deleteBtn.appendChild(trashSpan);
@@ -333,15 +337,16 @@ class TreeNode {
      * @param {TreeNode} child Промежуточный узел, который добавляется в качестве ребёнка текущему узлу.
      */
     addMiddleNode(index, child) {
+        let childWrapper = child.detach().setIndex(index);
         child.parent = this;
-        let childWrapper = child.wrapper.setIndex(index);
         let oldWrapper = this.childrenWrappers[index];
         oldWrapper.node.parent = child;
-        oldWrapper.index = 0;
+        oldWrapper.index = child.childrenWrappers.length;
         this.childrenWrappers[index] = childWrapper;
         child.childrenWrappers.push(oldWrapper);
-        $(oldWrapper.container).before(childWrapper.container);
-        $(child.container.lastChild).before($(oldWrapper.container).detach());
+        let jqOldWr = $(oldWrapper.container);
+        $(childWrapper.container).insertBefore(jqOldWr);
+        $(child.container).children(".appenderDiv").before(jqOldWr);
     }
 
     /**
@@ -350,8 +355,8 @@ class TreeNode {
      * @param {TreeNode} child Промежуточный узел, который добавляется в качестве ребёнка текущему узлу.
      */
     addGroupNode(index, child) {
+        let childWrapper = child.detach().setIndex(index);
         child.parent = this;
-        let childWrapper = child.wrapper.setIndex(index);
         let newIndex = 0;
         $(this.childrenWrappers[index].container).before(childWrapper.container);
         for (let i = index; i < this.childrenWrappers.length; i++) {
@@ -451,6 +456,21 @@ class NodeWrapper {
         horizArr.className = "baseArrow horizontalAdderArrow";
         let fillArrow = document.createElement("div");
         fillArrow.className = "baseArrow verticalFillArrow";
+
+        $(horizArr).droppable({
+            accept: ".node",
+            tolerance: "pointer",
+            drop: function (event, ui) {
+                let parentNode = this.node.parent;
+                if (parentNode.checkAddPermission(selectedNode)) {
+                    parentNode.addMiddleNode(this.index, selectedNode);
+                    ui.helper.data('dropped', true);
+                }
+                else {
+                    alert("Ошибка! Невозможно вставить промежуточный узел в качестве ребёнка в его ветвь.");
+                }
+            }.bind(this)
+        });
 
         let childContainer = document.createElement("div");
         childContainer.className = "childContainer";
