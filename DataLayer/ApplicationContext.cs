@@ -103,7 +103,7 @@ namespace DataLayer.Models
                     MaxPrice = 3,
                     MinPrice = 2,
                     MagicParameter = 10,
-                    DateTime = DateTime.Now,
+                    DateTime = DateTime.UtcNow,
                     DailyPrice = 7
                 };
 
@@ -143,7 +143,7 @@ namespace DataLayer.Models
                 new BotLaunchRecord(){
                     Id = int.MinValue,
                     BotId = 1_000_000,
-                    Time  = DateTime.Now.AddHours(-5)                   
+                    Time  = DateTime.UtcNow.AddHours(-5)                   
                 }
             });
 

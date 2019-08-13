@@ -441,7 +441,7 @@ namespace DeleteMeWebhook.Controllers
             {
                 BotId = botId,
                 BotStatus = BotStatus.STARTED,
-                Time= DateTime.Now
+                Time= DateTime.UtcNow
             };
 
 
@@ -464,6 +464,8 @@ namespace DeleteMeWebhook.Controllers
                 _contextDb.RouteRecords.Add(rr);
             }
             _contextDb.BotLaunchRecords.Add(blr);
+
+            _contextDb.BotWorkLogs.Add(new BotWorkLog() { BotId = botId, InspectionTime = DateTime.UtcNow });
             
             _contextDb.SaveChanges();
 

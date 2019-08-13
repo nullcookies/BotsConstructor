@@ -11,12 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Website.Services.Bookkeeper;
 
-/*
- Как найти всех ботов, которые сегодня работали?
- Варианты:
-    1) Взять записи из специальной таблицы за сегодня
-    
-     */
+
 namespace Website.Services
 {
     public class MoneyCollectorService
@@ -46,7 +41,7 @@ namespace Website.Services
                 {
                     CollectPeriodically();
                 }
-                )).Start();         
+            )).Start();         
         }
 
         
@@ -66,7 +61,9 @@ namespace Website.Services
               .AddMinutes(-DateTime.UtcNow.Minute + 5)
               .AddSeconds(-DateTime.UtcNow.Second);
 
-            TimeSpan interval = tomorrow_00_05_00 - DateTime.UtcNow;
+            //TimeSpan interval = tomorrow_00_05_00 - DateTime.UtcNow;
+            TimeSpan interval = new TimeSpan(0, 0, 10);
+
 
             _logger.Log(LogLevelMyDich.IMPORTANT_INFO, Source.MONEY_COLLECTOR_SERVICE, $"До первого сбора денег осталось {interval}");
 
@@ -74,31 +71,25 @@ namespace Website.Services
             Thread.Sleep(interval);
             //await Task.Delay(interval);
 
-            while (true)
+          
+            try
             {
-                try
-                {
-                    Collect();
-                }
-                catch (Exception eee)
-                {
-                    _logger.Log(LogLevelMyDich.FATAL, Source.MONEY_COLLECTOR_SERVICE, "Сервис списывания денег упал", ex: eee);
-                    Console.WriteLine(eee.Message);
-                }
-
-                //Суточная задержка
-                //Может просто себя вызвать?
-                var day = new TimeSpan(24, 0, 0);
-                _logger.Log(LogLevelMyDich.IMPORTANT_INFO, Source.MONEY_COLLECTOR_SERVICE, "Задержка перед следующим запуском списывания денег" + day);
-                Thread.Sleep(day);
+                Collect();
             }
+            catch (Exception eee)
+            {
+                _logger.Log(LogLevelMyDich.FATAL, Source.MONEY_COLLECTOR_SERVICE, "Сервис списывания денег упал", ex: eee);
+                Console.WriteLine(eee.Message);
+            }
+
+            CollectPeriodically();
 
         }
 
 
 
         //Списание денег со всех аккаунтов
-        //за ботовЮ которые работали вчера.
+        //за ботов, которые работали вчера.
         //Например: запуск происходит в 00 05 / 13 08 2019
         //Тогда метод должен списать деньги за ботов, которые запускались 
         // с 00 00 / 12 08 2019 до 23 59 /12 08 2019
@@ -111,11 +102,17 @@ namespace Website.Services
             var today_00_00 = GetTodayDate();
 
 
-            //Все боты, которые работали за вчера
+            ////Все боты, которые работали за вчера
+            //List<int> idsOfTheBotsThatWorkedYesterday = contextDb.BotWorkLogs
+            //    .Where(_bl => _bl.InspectionTime > yesterday_00_00
+            //        && _bl.InspectionTime < today_00_00)
+            //    .Select(_bl => _bl.BotId)
+            //    .ToList();
+
+
+            //Все боты, которые работали раньше
             List<int> idsOfTheBotsThatWorkedYesterday = contextDb.BotWorkLogs
-                .Where(_bl => _bl.InspectionTime > yesterday_00_00
-                    && _bl.InspectionTime< today_00_00)
-                .Select(_bl=>_bl.BotId)
+                .Select(_bl => _bl.BotId)
                 .ToList();
 
 

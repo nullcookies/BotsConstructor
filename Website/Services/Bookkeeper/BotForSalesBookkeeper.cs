@@ -34,7 +34,7 @@ namespace Website.Services.Bookkeeper
         public StupidPriceInfo GetPriceInfo(int botId)
         {
            
-            DateTime week_ago = DateTime.Now.AddDays(-7);
+            DateTime week_ago = DateTime.UtcNow.AddDays(-7);
 
             int number_of_orders_over_the_past_week = _contextDbOnlyRead
                 .Orders
@@ -42,10 +42,10 @@ namespace Website.Services.Bookkeeper
                     && _or.DateTime >= week_ago)
                 .Count();
 
-            DateTime today_00_00 = DateTime.Now
-                .AddHours(-DateTime.Now.Hour)
-                .AddMinutes(-DateTime.Now.Minute)
-                .AddSeconds(-DateTime.Now.Second);
+            DateTime today_00_00 = DateTime.UtcNow
+                .AddHours(-DateTime.UtcNow.Hour)
+                .AddMinutes(-DateTime.UtcNow.Minute)
+                .AddSeconds(-DateTime.UtcNow.Second);
 
             int answersCountToday = _contextDbOnlyRead
                 .Orders

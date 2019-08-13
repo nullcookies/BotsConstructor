@@ -22,7 +22,7 @@ namespace Forest.Services
             _logger = logger;
 
             _logger.Log(LogLevelMyDich.INFO,
-                Source.FOREST,
+                Source.BANNED_USERS_SYNCHRONIZER,
                 "Конструктор синхронизатора бд");
 
             (new Thread(
@@ -35,7 +35,7 @@ namespace Forest.Services
                   //catch (Exception ee)
                   //{
                   //    _logger.Log(LogLevelMyDich.ERROR,
-                  //        Source.FOREST,
+                  //        Source.BANNED_USERS_SYNCHRONIZER,
                   //        "Упал сервис синхронизации статистики ботов", ex: ee);
                   //}
               }
@@ -51,7 +51,7 @@ namespace Forest.Services
 
                 
                 int five_seconds = 5 * 1000;
-                Thread.Sleep(five_seconds);
+                Thread.Sleep(five_seconds*10);
             }
         }
 
@@ -59,7 +59,7 @@ namespace Forest.Services
         private void SyncBotData()
         {
             _logger.Log(LogLevelMyDich.INFO,
-                Source.FOREST,
+                Source.BANNED_USERS_SYNCHRONIZER,
                 "Старт синхронизации забаненных пользователей ");
 
 
@@ -73,7 +73,7 @@ namespace Forest.Services
                 if (!success)
                 {
                     _logger.Log(LogLevelMyDich.ERROR,
-                        Source.FOREST,
+                        Source.BANNED_USERS_SYNCHRONIZER,
                         "При синхронизации списка забаненных пользователей не удалось извлечь " +
                         "объект бота из статического словаря");
                     continue;
@@ -82,7 +82,7 @@ namespace Forest.Services
                 if (botWrapper == null)
                 {
                     _logger.Log(LogLevelMyDich.ERROR,
-                        Source.FOREST,
+                        Source.BANNED_USERS_SYNCHRONIZER,
                         "При синхронизаци спсика забаненных пользователей из котейнера был извлечён" +
                         "бот = null");
                 }
@@ -100,7 +100,7 @@ namespace Forest.Services
 
 
             _logger.Log(LogLevelMyDich.INFO,
-                Source.FOREST,
+                Source.BANNED_USERS_SYNCHRONIZER,
                 "Окончание синхронизации забаненных пользователей ");
 
         }

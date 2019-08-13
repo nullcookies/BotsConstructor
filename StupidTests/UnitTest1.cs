@@ -31,7 +31,7 @@ namespace StupidTests
                     new LogMessage
                     {
                         AccountId = 000,
-                        DateTime = DateTime.Now,
+                        DateTime = DateTime.UtcNow,
                         LogLevel = LogLevelMyDich.INFO,
                         Message = "qq",
                         Source = DataLayer.Services.Source.OTHER,
@@ -58,7 +58,7 @@ namespace StupidTests
                     new LogMessage
                     {
                         AccountId = 111,
-                        DateTime = DateTime.Now,
+                        DateTime = DateTime.UtcNow,
                         LogLevel = LogLevelMyDich.INFO,
                         Message = "qq",
                         Source = DataLayer.Services.Source.OTHER,
@@ -86,7 +86,7 @@ namespace StupidTests
                         new LogMessage
                     {
                         AccountId = 222,
-                        DateTime = DateTime.Now,
+                        DateTime = DateTime.UtcNow,
                         LogLevel = LogLevelMyDich.INFO,
                         Message = "qq",
                         Source = DataLayer.Services.Source.OTHER,
@@ -116,7 +116,7 @@ namespace StupidTests
                     new LogMessage
                     {
                         AccountId = 333,
-                        DateTime = DateTime.Now,
+                        DateTime = DateTime.UtcNow,
                         LogLevel = LogLevelMyDich.INFO,
                         Message = "qq",
                         Source = DataLayer.Services.Source.OTHER,
@@ -146,7 +146,7 @@ namespace StupidTests
                         new LogMessage
                         {
                             AccountId = 444,
-                            DateTime = DateTime.Now,
+                            DateTime = DateTime.UtcNow,
                             LogLevel = LogLevelMyDich.INFO,
                             Message = "qq",
                             Source = DataLayer.Services.Source.OTHER,

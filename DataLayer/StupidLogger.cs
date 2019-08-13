@@ -67,7 +67,7 @@ namespace DataLayer.Services
             Exception ex = null)
         {
 
-            DateTime dt = DateTime.Now;
+            DateTime dt = DateTime.UtcNow;
 
             LogMessage logRecord = new LogMessage()
             {
@@ -96,7 +96,9 @@ namespace DataLayer.Services
         MONITOR,
         OTHER,
         MONEY_COLLECTOR_SERVICE,
-        BOTS_AIRSTRIP_SERVICE
+        BOTS_AIRSTRIP_SERVICE,
+        BANNED_USERS_SYNCHRONIZER,
+        BOT_STATISTICS_SYNCHRONIZER
     }
 
 }
