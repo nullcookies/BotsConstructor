@@ -765,8 +765,7 @@ namespace DataLayer.Models
     public enum TransactionStatus
     {
         TRANSACTION_STARTED,
-        TRANSACTION_COMPLETED_SUCCESSFULL,
-        TRANSACTION_FAILED
+        TRANSACTION_COMPLETED_SUCCESSFULL
     }
 
     public class Record_BotUsername_UserTelegramId

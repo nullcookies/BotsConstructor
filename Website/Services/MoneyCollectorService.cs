@@ -61,9 +61,7 @@ namespace Website.Services
               .AddMinutes(-DateTime.UtcNow.Minute + 5)
               .AddSeconds(-DateTime.UtcNow.Second);
 
-            //TimeSpan interval = tomorrow_00_05_00 - DateTime.UtcNow;
-            TimeSpan interval = new TimeSpan(0, 0, 10);
-
+            TimeSpan interval = tomorrow_00_05_00 - DateTime.UtcNow;
 
             _logger.Log(LogLevelMyDich.IMPORTANT_INFO, Source.MONEY_COLLECTOR_SERVICE, $"До первого сбора денег осталось {interval}");
 
@@ -71,7 +69,7 @@ namespace Website.Services
             Thread.Sleep(interval);
             //await Task.Delay(interval);
 
-          
+
             try
             {
                 Collect();
@@ -102,16 +100,10 @@ namespace Website.Services
             var today_00_00 = GetTodayDate();
 
 
-            ////Все боты, которые работали за вчера
-            //List<int> idsOfTheBotsThatWorkedYesterday = contextDb.BotWorkLogs
-            //    .Where(_bl => _bl.InspectionTime > yesterday_00_00
-            //        && _bl.InspectionTime < today_00_00)
-            //    .Select(_bl => _bl.BotId)
-            //    .ToList();
-
-
-            //Все боты, которые работали раньше
+            //Все боты, которые работали за вчера
             List<int> idsOfTheBotsThatWorkedYesterday = contextDb.BotWorkLogs
+                .Where(_bl => _bl.InspectionTime > yesterday_00_00
+                    && _bl.InspectionTime < today_00_00)
                 .Select(_bl => _bl.BotId)
                 .ToList();
 
@@ -164,18 +156,13 @@ namespace Website.Services
                         {
                             //Другой сервис снимает деньги
                             case TransactionStatus.TRANSACTION_STARTED:
-                                //отложить задачу 
+                                //TODO отложить задачу 
                                 break;
                             //Другой сервис снял деньги
                             case TransactionStatus.TRANSACTION_COMPLETED_SUCCESSFULL:
                                 _logger.Log(LogLevelMyDich.ERROR, Source.MONEY_COLLECTOR_SERVICE, "Запущено несколько сервисов списывания денег");
                                 //не делать ничего
                                 continue;
-
-                            //Другой сервис уронил транзакцию
-                            case TransactionStatus.TRANSACTION_FAILED:
-                                //произошло дерьмо
-                                break;
                             default:
                                 //упасть с фатальной ошибкой
                                 _logger.Log(
@@ -210,7 +197,7 @@ namespace Website.Services
 
 
                     //если у аккаунта есть деньги
-                    if (account.Money > 0)
+                    if (account.Money >= 0)
                     {
                         if (priceInfo.SumToday >= 0)
                         {
