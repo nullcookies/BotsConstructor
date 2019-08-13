@@ -60,36 +60,30 @@
     float: left;
 }
 
-.verticalAdderArrow {
+.baseArrow {
     display: flex;
-    height: 10.5px;
-    width: 0;
     border: 2px solid black;
     margin-left: 100px;
+}
+
+.verticalAdderArrow {
+    height: 10.5px;
+    width: 0;
 }
 
 .verticalNodeArrow {
-    display: flex;
     height: 85.5px;
     width: 0;
-    border: 2px solid black;
-    margin-left: 100px;
 }
 
 .horizontalAdderArrow {
-    display: flex;
     height: 0;
     width: 100px;
-    border: 2px solid black;
-    margin-left: 100px;
 }
 
 .verticalFillArrow {
-    display: flex;
     flex: 1;
     width: 0;
-    border: 2px solid black;
-    margin-left: 100px;
 }
 
 .wrapperContainer {

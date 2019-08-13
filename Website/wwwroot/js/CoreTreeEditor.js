@@ -117,9 +117,11 @@ class TreeNode {
                     }
                     selectedNode = null;
                 }
-                let jqWrCont = $(this.wrapper.container);
-                jqWrCont.children(".childContainer").removeClass("transparent50");
-                jqWrCont.find(".ui-droppable").droppable("enable");
+                if (!this.parameters.isTemplate) {
+                    let jqWrCont = $(this.wrapper.container);
+                    jqWrCont.children(".childContainer").removeClass("transparent50");
+                    jqWrCont.find(".ui-droppable").droppable("enable");
+                }
             }.bind(this)
         });
 
@@ -164,9 +166,9 @@ class TreeNode {
             let arrowsDiv = document.createElement("div");
             arrowsDiv.className = "arrows";
             let vertAdderArr = document.createElement("div");
-            vertAdderArr.className = "verticalAdderArrow";
+            vertAdderArr.className = "baseArrow verticalAdderArrow";
             let horizAdderArr = document.createElement("div");
-            horizAdderArr.className = "horizontalAdderArrow";
+            horizAdderArr.className = "baseArrow horizontalAdderArrow";
 
             let appenderHolder = document.createElement("div");
             appenderHolder.className = "nodeHolder";
@@ -256,15 +258,15 @@ class TreeNode {
      * @param {TreeNode} child Узел, который вставляется.
      */
     insertChild(index, child) {
+        let childWrapper = child.detach().setIndex(index);
         child.parent = this;
-        let childWrapper = child.wrapper.setIndex(index);
         this.childrenWrappers.splice(index, 0, childWrapper);
 
         for (let i = index + 1; i < this.childrenWrappers.length; i++) {
             this.childrenWrappers[i].index = i;
         }
-
-        $(this.childrenWrappers[index].container).before(childWrapper.container);
+        
+        this.container.insertBefore(childWrapper.container, this.childrenWrappers[index + 1].container);
     }
 
     /**
@@ -272,10 +274,35 @@ class TreeNode {
      * @param {TreeNode} child Узел, который добавляется.
      */
     appendChild(child) {
+        let childWrapper = child.detach().setIndex(this.childrenWrappers.length);
         child.parent = this;
-        let childWrapper = child.wrapper.setIndex(this.childrenWrappers.length);
         this.childrenWrappers.push(childWrapper);
         this.container.insertBefore(childWrapper.container, this.container.lastChild);
+    }
+
+    /**
+     * Отсоединяет узел от родителя.
+     * @param {any} index Индекс узла.
+     * @returns {NodeWrapper} Возвращает обёртку узла.
+     */
+    detachChild(index) {
+        let childWrapper = this.childrenWrappers[index];
+        childWrapper.node.parent = null;
+        this.childrenWrappers.splice(index, 1);
+        return childWrapper;
+    }
+
+    /**
+     * Отсоединяет узел.
+     * @returns {NodeWrapper} Возвращает обёртку узла.
+     */
+    detach() {
+        if (this.parent == null) {
+            return this.wrapper;
+        }
+        else {
+            return this.parent.detachChild(this.wrapper.index);
+        }
     }
 
     /**
@@ -419,17 +446,31 @@ class NodeWrapper {
         let arrowsDiv = document.createElement("div");
         arrowsDiv.className = "arrows";
         let vertNodeArr = document.createElement("div");
-        vertNodeArr.className = "verticalNodeArrow";
+        vertNodeArr.className = "baseArrow verticalNodeArrow";
         let horizArr = document.createElement("div");
-        horizArr.className = "horizontalAdderArrow";
+        horizArr.className = "baseArrow horizontalAdderArrow";
         let fillArrow = document.createElement("div");
-        fillArrow.className = "verticalFillArrow";
+        fillArrow.className = "baseArrow verticalFillArrow";
 
         let childContainer = document.createElement("div");
         childContainer.className = "childContainer";
 
         let inserter = document.createElement("div");
         inserter.className = "nodeHolder";
+        $(inserter).droppable({
+            accept: ".node",
+            tolerance: "pointer",
+            drop: function (event, ui) {
+                let parentNode = this.node.parent;
+                if (parentNode.checkAddPermission(selectedNode)) {
+                    parentNode.insertChild(this.index, selectedNode);
+                    ui.helper.data('dropped', true);
+                }
+                else {
+                    alert("Ошибка! Невозможно вставить узел в качестве ребёнка в его ветвь.");
+                }
+            }.bind(this)
+        });
 
         arrowsDiv.appendChild(vertNodeArr);
         arrowsDiv.appendChild(horizArr);
