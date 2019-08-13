@@ -142,6 +142,10 @@
     visibility: visible;
 }
 
+.hoveredArrow {
+    border-color: lightsteelblue;
+}
+
 .transparent50 {
     opacity: 0.5;
     filter: alpha(opacity=50);

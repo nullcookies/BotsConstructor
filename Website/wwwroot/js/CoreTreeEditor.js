@@ -85,6 +85,7 @@ class TreeNode {
             cancel: ".btn",
             revert: "invalid",
             containment: "document",
+            cursorAt: { top: 50, left: 50 },
             helper: "clone",
             cursor: "move",
             zIndex: 1000,
@@ -104,7 +105,7 @@ class TreeNode {
                     selectedNode = this;
                     let jqWrCont = $(this.wrapper.container);
                     jqWrCont.children(".childContainer").addClass("transparent50");
-                    jqWrCont.find(".ui-droppable").not("verticalFillArrow:first").droppable("disable");
+                    jqWrCont.find(".ui-droppable").not(".verticalFillArrow:first").droppable("disable");
                 }
             }.bind(this),
             stop: function (event, ui) {
@@ -186,7 +187,20 @@ class TreeNode {
                     }
                 }.bind(this)
             };
-            $(vertAdderArr).droppable(dropOptions);
+
+            $(vertAdderArr).droppable(dropOptions).on("dropover", function (event, ui) {
+                let prevIndex = this.childrenWrappers.length - 1;
+                if (prevIndex >= 0) {
+                    $(this.childrenWrappers[prevIndex].container).
+                        children(".arrows").children(".verticalFillArrow").addClass("hoveredArrow");
+                }
+            }.bind(this)).on("dropout drop", function (event, ui) {
+                let prevIndex = this.childrenWrappers.length - 1;
+                if (prevIndex >= 0) {
+                    $(this.childrenWrappers[prevIndex].container).
+                        children(".arrows").children(".verticalFillArrow").removeClass("hoveredArrow");
+                }
+            }.bind(this));
             $(horizAdderArr).droppable(dropOptions);
             $(appenderHolder).droppable(dropOptions);
 
@@ -365,7 +379,7 @@ class TreeNode {
             oldWrapper.index = newIndex;
             child.childrenWrappers.push(oldWrapper);
             newIndex++;
-            $(child.container.lastChild).before($(oldWrapper.container).detach());
+            $(child.container).children(".appenderDiv").before(oldWrapper.container);
         }
         this.childrenWrappers.splice(index, this.childrenWrappers.length, childWrapper);
     }
@@ -457,6 +471,39 @@ class NodeWrapper {
         let fillArrow = document.createElement("div");
         fillArrow.className = "baseArrow verticalFillArrow";
 
+        let outNodeFunc = function (event, ui) {
+            let prevIndex = this.index - 1;
+            if (prevIndex >= 0) {
+                $(this.node.parent.childrenWrappers[prevIndex].container).
+                    children(".arrows").children(".verticalFillArrow").removeClass("hoveredArrow");
+            }
+        }.bind(this);
+        
+        $(vertNodeArr).droppable({
+            accept: ".node",
+            tolerance: "pointer",
+            drop: function (event, ui) {
+                outNodeFunc(event, ui);
+
+                let parentNode = this.node.parent;
+                if (parentNode.checkAddPermission(selectedNode)) {
+                    parentNode.addGroupNode(this.index, selectedNode);
+                    ui.helper.data('dropped', true);
+                }
+                else {
+                    alert("Ошибка! Невозможно вставить групповой узел в качестве ребёнка в его ветвь.");
+                }
+            }.bind(this),
+            over: function (event, ui) {
+                let prevIndex = this.index - 1;
+                if (prevIndex >= 0) {
+                    $(this.node.parent.childrenWrappers[prevIndex].container).
+                        children(".arrows").children(".verticalFillArrow").addClass("hoveredArrow");
+                }
+            }.bind(this),
+            out: outNodeFunc
+        });
+
         $(horizArr).droppable({
             accept: ".node",
             tolerance: "pointer",
@@ -470,6 +517,53 @@ class NodeWrapper {
                     alert("Ошибка! Невозможно вставить промежуточный узел в качестве ребёнка в его ветвь.");
                 }
             }.bind(this)
+        });
+
+        let outFillFunc = function (event, ui) {
+            let nextIndex = this.index + 1;
+            if (nextIndex < this.node.parent.childrenWrappers.length - 1) {
+                $(this.node.parent.childrenWrappers[nextIndex].container).
+                    children(".arrows").children(".verticalNodeArrow").removeClass("hoveredArrow");
+            }
+            else {
+                $(this.node.parent.container).children(".appenderDiv").
+                    children(".arrows").children(".verticalAdderArrow").removeClass("hoveredArrow");
+            }
+        }.bind(this);
+
+        $(fillArrow).droppable({
+            accept: ".node",
+            tolerance: "pointer",
+            drop: function (event, ui) {
+                outFillFunc(event, ui);
+
+                let parentNode = this.node.parent;
+                if (parentNode.checkAddPermission(selectedNode)) {
+                    let nextIndex = this.index + 1;
+                    if (nextIndex < this.node.parent.childrenWrappers.length) {
+                        parentNode.addGroupNode(nextIndex, selectedNode);
+                    }
+                    else {
+                        parentNode.appendChild(selectedNode);
+                    }
+                    ui.helper.data('dropped', true);
+                }
+                else {
+                    alert("Ошибка! Невозможно вставить групповой узел в качестве ребёнка в его ветвь.");
+                }
+            }.bind(this),
+            over: function (event, ui) {
+                let nextIndex = this.index + 1;
+                if (nextIndex < this.node.parent.childrenWrappers.length) {
+                    $(this.node.parent.childrenWrappers[nextIndex].container).
+                        children(".arrows").children(".verticalNodeArrow").addClass("hoveredArrow");
+                }
+                else {
+                    $(this.node.parent.container).children(".appenderDiv").
+                        children(".arrows").children(".verticalAdderArrow").addClass("hoveredArrow");
+                }
+            }.bind(this),
+            out: outFillFunc
         });
 
         let childContainer = document.createElement("div");
