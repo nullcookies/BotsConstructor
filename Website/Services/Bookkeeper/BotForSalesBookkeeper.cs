@@ -8,8 +8,6 @@ using System.Linq;
 using System.Threading.Tasks;
 
 
-
-
 namespace Website.Services.Bookkeeper
 {
     public class StupidBotForSalesBookkeeper
@@ -31,7 +29,7 @@ namespace Website.Services.Bookkeeper
             this._logger = _logger;
         }
 
-        public StupidPriceInfo GetPriceInfo(int botId)
+        public StupidPriceInfo GetPriceInfo(int botId, DateTime dateTime)
         {
            
             DateTime week_ago = DateTime.UtcNow.AddDays(-7);
@@ -56,9 +54,16 @@ namespace Website.Services.Bookkeeper
             BotForSalesPrice price = _contextDbOnlyRead.BotForSalesPrices.LastOrDefault();
             StupidPriceInfo priceInfo = null;
 
+            bool bot_was_working_today = _contextDbOnlyRead.BotWorkLogs
+                .Where(_wl => _wl.BotId == botId
+                    && _wl.InspectionTime.DayOfYear == dateTime.DayOfYear)
+                .Any();
+
+
             if (price != null)
             {
                 priceInfo = new StupidPriceInfo(
+                    bot_was_working_today,
                     answersCountToday,
                     number_of_orders_over_the_past_week,
                     price.MaxPrice,
@@ -71,7 +76,7 @@ namespace Website.Services.Bookkeeper
             {
                 _logger.Log(LogLevelMyDich.FATAL, Source.WEBSITE, $"В базе нет ни одной записи о цене. botId={botId}");
 
-                priceInfo = new StupidPriceInfo(0,0,0,0,0,1);
+                priceInfo = new StupidPriceInfo(false,0,0,0,0,0,1);
 
             }
 
@@ -94,6 +99,7 @@ namespace Website.Services.Bookkeeper
         public readonly decimal DailyConst;
 
         public StupidPriceInfo(
+            bool bot_was_working_today,
             int answersCountToday, 
             int number_of_orders_over_the_past_week,
             decimal max, 
@@ -101,21 +107,50 @@ namespace Website.Services.Bookkeeper
             decimal dailyConst,
             decimal magiсParameter)
         {
+            if (!bot_was_working_today)
+            {
+                if(answersCountToday != 0)
+                {
+                    //Бот сегодня не работал, но принимал заказы
+                    //Это не возможно
+
+                    bot_was_working_today = true;
+                    throw new Exception("Бот сегодня не работал, но принимал заказы");
+                    //Пробросить сюда логгер?
+                }
+            }
+
             AnswersCountToday = answersCountToday;
             Number_of_orders_over_the_past_week = number_of_orders_over_the_past_week;
             DailyConst = dailyConst;
 
             // 2 + (0;1]
-            
+
             OneAnswerPrice = min + ((max - min) - (Number_of_orders_over_the_past_week) / (Number_of_orders_over_the_past_week + magiсParameter));
 
             //Показ двух знаков после запятой
             decimal roundedOneAnswerPrice = Math.Floor(OneAnswerPrice * 100) / 100;
             OneAnswerPrice = roundedOneAnswerPrice;
 
-            SumToday = DailyConst + AnswersCountToday * OneAnswerPrice;
+
+            if (bot_was_working_today)
+            {
+              
+                SumToday = DailyConst + AnswersCountToday * OneAnswerPrice;
+            }
+            else
+            {
+                SumToday = 0;
+            }
+           
+
+
+          
                      
 
         }        
     }    
+
+
+    
 }

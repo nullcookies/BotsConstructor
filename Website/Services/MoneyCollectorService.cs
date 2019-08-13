@@ -127,7 +127,7 @@ namespace Website.Services
                 StupidPriceInfo priceInfo = null;
 
                 bot = contextDb.Bots.Find(botId);
-                priceInfo = _bookkeper.GetPriceInfo(botId);
+                priceInfo = _bookkeper.GetPriceInfo(botId, DateTime.Today.AddDays(-1));
                 account = contextDb.Accounts.Find(bot.OwnerId);
                  
                 //Цена за день адекватная

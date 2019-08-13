@@ -48,7 +48,7 @@ namespace Website.Controllers
         {
             BotDB bot = _contextDb.Bots.Find(botId);
 
-            StupidPriceInfo _pi = _bookkeper.GetPriceInfo(botId);
+            StupidPriceInfo _pi = _bookkeper.GetPriceInfo(botId, DateTime.Today);
             ViewData["sum"] = Round(_pi.SumToday);
 
             ViewData["botId"] = botId;
@@ -212,7 +212,7 @@ namespace Website.Controllers
         [HttpGet]
         public IActionResult PriceDetails(int botId)
         {
-            StupidPriceInfo _pi = _bookkeper.GetPriceInfo(botId);
+            StupidPriceInfo _pi = _bookkeper.GetPriceInfo(botId, DateTime.Today);
 
             ViewData["sum"] = Round(_pi.SumToday);
             ViewData["dailyPrice"] = Round(_pi.DailyConst) ;
