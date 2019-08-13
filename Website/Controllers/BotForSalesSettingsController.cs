@@ -48,7 +48,7 @@ namespace Website.Controllers
         {
             BotDB bot = _contextDb.Bots.Find(botId);
 
-            StupidPriceInfo _pi = _bookkeper.GetPriceInfo(botId, DateTime.Today);
+            StupidPriceInfo _pi = _bookkeper.GetPriceInfo(botId, DateTime.UtcNow);
             ViewData["sum"] = Round(_pi.SumToday);
 
             ViewData["botId"] = botId;
@@ -197,6 +197,25 @@ namespace Website.Controllers
                     }
                 }
 
+                //снять со счёта стоимость бота
+                StupidPriceInfo priceInfo = _bookkeper.GetPriceInfo(botId, DateTime.UtcNow);
+                Account account = _contextDb.Accounts.Find(removableBot.OwnerId);
+
+                //Цена адекватная
+                if (priceInfo.SumToday >= 0)
+                {
+                    account.Money -= priceInfo.SumToday;
+                }
+                else
+                {
+                    _logger.Log(LogLevelMyDich.FATAL,
+                        Source.WEBSITE,
+                        $"Удаление бота. При снятии денег с аккаунта {removableBot.OwnerId} цена была отрицательной");
+                    throw new Exception("");
+                }
+
+                _contextDb.SaveChanges();
+
                 _contextDb.Remove(removableBot);
                 _contextDb.SaveChanges();
 
@@ -212,7 +231,7 @@ namespace Website.Controllers
         [HttpGet]
         public IActionResult PriceDetails(int botId)
         {
-            StupidPriceInfo _pi = _bookkeper.GetPriceInfo(botId, DateTime.Today);
+            StupidPriceInfo _pi = _bookkeper.GetPriceInfo(botId, DateTime.UtcNow);
 
             ViewData["sum"] = Round(_pi.SumToday);
             ViewData["dailyPrice"] = Round(_pi.DailyConst) ;
