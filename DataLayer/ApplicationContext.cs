@@ -394,6 +394,7 @@ namespace DataLayer.Models
     [Table("AccountsToResetPassword")]
     public class AccountToResetPassword
     {
+        [Key]
         public int Id { get; set; }
         [Required]
         public int AccountId { get; set; }
