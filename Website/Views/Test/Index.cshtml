@@ -1,160 +1,136 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <title></title>
+    <meta charset="utf-8">
+
+    <title>Collapsible Tree Example</title>
+
     <style>
-        table {
-            border: 0
+
+        .node circle {
+            fill: #fff;
+            stroke: steelblue;
+            stroke-width: 3px;
         }
 
-        .commslog-data {
-            font-family: Consolas, Courier New, Courier, monospace;
+        .node text {
+            font: 12px sans-serif;
         }
 
-        .commslog-server {
-            background-color: red;
-            color: white
-        }
-
-        .commslog-client {
-            background-color: green;
-            color: white
+        .link {
+            fill: none;
+            stroke: #ccc;
+            stroke-width: 2px;
         }
     </style>
+
 </head>
+
+
 <body>
-    <h1>WebSocket Sample Application</h1>
-    <p id="stateLabel">Ready to connect...</p>
-    <div>
-        <label for="connectionUrl">WebSocket Server URL:</label>
-        <input id="connectionUrl" />
-        <button id="connectButton" type="submit">Connect</button>
-    </div>
-    <p></p>
-    <div>
-        <label for="sendMessage">Message to send:</label>
-        <input id="sendMessage" disabled />
-        <button id="sendButton" type="submit" disabled>Send</button>
-        <button id="closeButton" disabled>Close Socket</button>
-    </div>
-    <h2>Communication Log</h2>
-    <table style="width: 800px">
-        <thead>
-            <tr>
-                <td style="width: 100px">From</td>
-                <td style="width: 100px">To</td>
-                <td>Data</td>
-            </tr>
-        </thead>
-        <tbody id="commsLog"></tbody>
-    </table>
+ъ
+    <!-- load the d3.js library -->
+    <script src="https://d3js.org/d3.v3.min.js"></script>
+
     <script>
-        var connectionForm = document.getElementById("connectionForm");
-        var connectionUrl = document.getElementById("connectionUrl");
-        var connectButton = document.getElementById("connectButton");
-        var stateLabel = document.getElementById("stateLabel");
-        var sendMessage = document.getElementById("sendMessage");
-        var sendButton = document.getElementById("sendButton");
-        var sendForm = document.getElementById("sendForm");
-        var commsLog = document.getElementById("commsLog");
-        var socket;
-        var scheme = document.location.protocol == "https:" ? "wss" : "ws";
-        var port = document.location.port ? (":" + document.location.port) : "";
-        connectionUrl.value = scheme + "://" + document.location.hostname + port + "/ws";
 
-        function updateState() {
-            function disable() {
-                sendMessage.disabled = true;
-                sendButton.disabled = true;
-                closeButton.disabled = true;
+
+
+        var treeData = [
+            {
+                "name": "Top Level",
+                "parent": "null",
+                "children": [
+                    {
+                        "name": "Level 2: A",
+                        "parent": "Top Level",
+                        "children": [
+                            {
+                                "name": "Son of A",
+                                "parent": "Level 2: A"
+                            },
+                            {
+                                "name": "Daughter of A",
+                                "parent": "Level 2: A"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Level 2: B",
+                        "parent": "Top Level"
+                    }
+                ]
             }
+        ];
 
-            function enable() {
-                sendMessage.disabled = false;
-                sendButton.disabled = false;
-                closeButton.disabled = false;
-            }
+        // ************** Generate the tree diagram	 *****************
+        var margin = { top: 40, right: 120, bottom: 20, left: 120 },
+            width = 960 - margin.right - margin.left,
+            height = 500 - margin.top - margin.bottom;
 
-            connectionUrl.disabled = true;
-            connectButton.disabled = true;
+        var i = 0;
 
-            if (!socket) {
-                disable();
-            } else {
-                switch (socket.readyState) {
-                    case WebSocket.CLOSED:
-                        stateLabel.innerHTML = "Closed";
-                        disable();
-                        connectionUrl.disabled = false;
-                        connectButton.disabled = false;
-                        break;
-                    case WebSocket.CLOSING:
-                        stateLabel.innerHTML = "Closing...";
-                        disable();
-                        break;
-                    case WebSocket.CONNECTING:
-                        stateLabel.innerHTML = "Connecting...";
-                        disable();
-                        break;
-                    case WebSocket.OPEN:
-                        stateLabel.innerHTML = "Open";
-                        enable();
-                        break;
-                    default:
-                        stateLabel.innerHTML = "Unknown WebSocket State: " + socket.readyState;
-                        disable();
-                        break;
-                }
-            }
+        var tree = d3.layout.tree()
+            .size([height, width]);
+
+        var diagonal = d3.svg.diagonal()
+            .projection(function (d) { return [d.x, d.y]; });
+
+        var svg = d3.select("body").append("svg")
+            .attr("width", width + margin.right + margin.left)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        root = treeData[0];
+
+        update(root);
+
+        function update(source) {
+
+            // Compute the new tree layout.
+            var nodes = tree.nodes(root).reverse(),
+                links = tree.links(nodes);
+
+            // Normalize for fixed-depth.
+            nodes.forEach(function (d) { d.y = d.depth * 100; });
+
+            // Declare the nodes…
+            var node = svg.selectAll("g.node")
+                .data(nodes, function (d) { return d.id || (d.id = ++i); });
+
+            // Enter the nodes.
+            var nodeEnter = node.enter().append("g")
+                .attr("class", "node")
+                .attr("transform", function (d) {
+                    return "translate(" + d.x + "," + d.y + ")";
+                });
+
+            nodeEnter.append("circle")
+                .attr("r", 10)
+                .style("fill", "#fff");
+
+            nodeEnter.append("text")
+                .attr("y", function (d) {
+                    return d.children || d._children ? -18 : 18;
+                })
+                .attr("dy", ".35em")
+                .attr("text-anchor", "middle")
+                .text(function (d) { return d.name; })
+                .style("fill-opacity", 1);
+
+            // Declare the links…
+            var link = svg.selectAll("path.link")
+                .data(links, function (d) { return d.target.id; });
+
+            // Enter the links.
+            link.enter().insert("path", "g")
+                .attr("class", "link")
+                .attr("d", diagonal);
+
         }
 
-        closeButton.onclick = function () {
-            if (!socket || socket.readyState != WebSocket.OPEN) {
-                alert("socket not connected");
-            }
-            socket.close(1000, "Closing from client");
-        }
-
-        sendButton.onclick = function () {
-            if (!socket || socket.readyState != WebSocket.OPEN) {
-                alert("socket not connected");
-            }
-            var data = sendMessage.value;
-            socket.send(data);
-            commsLog.innerHTML += '<tr>' +
-                '<td class="commslog-client">Client</td>' +
-                '<td class="commslog-server">Server</td>' +
-                '<td class="commslog-data">' + data + '</td>'
-            '</tr>';
-        }
-
-        connectButton.onclick = function () {
-            stateLabel.innerHTML = "Connecting";
-            socket = new WebSocket(connectionUrl.value);
-            socket.onopen = function (event) {
-                updateState();
-                commsLog.innerHTML += '<tr>' +
-                    '<td colspan="3" class="commslog-data">Connection opened</td>' +
-                    '</tr>';
-            };
-
-            socket.onclose = function (event) {
-                updateState();
-                commsLog.innerHTML += '<tr>' +
-                    '<td colspan="3" class="commslog-data">Connection closed. Code: ' + event.code + '. Reason: ' + event.reason + '</td>' +
-                    '</tr>';
-            };
-
-            socket.onerror = updateState;
-            socket.onmessage = function (event) {
-                commsLog.innerHTML += '<tr>' +
-                    '<td class="commslog-server">Server</td>' +
-                    '<td class="commslog-client">Client</td>' +
-                    '<td class="commslog-data">' + event.data + '</td>'
-                '</tr>';
-            };
-        };
     </script>
+
 </body>
-</html>  
+</html>

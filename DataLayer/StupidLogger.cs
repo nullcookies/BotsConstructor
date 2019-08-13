@@ -15,15 +15,34 @@ namespace DataLayer.Services
 
         DbContextWrapper _dbContextWrapper;
         ConcurrentQueue<LogMessage> logMessages;
+        ConcurrentQueue<SpyRecord> spyMessages;
 
         public StupidLogger(IConfiguration configuration)
         {
             logMessages = new ConcurrentQueue<LogMessage>();
+            spyMessages = new ConcurrentQueue<SpyRecord>();
             _dbContextWrapper = new DbContextWrapper(configuration);
 
 #pragma warning disable CS4014 // Так как этот вызов не ожидается, выполнение существующего метода продолжается до завершения вызова
             PeriodicFooAsync(TimeSpan.FromSeconds(1), CancellationToken.None);
 #pragma warning restore CS4014 // Так как этот вызов не ожидается, выполнение существующего метода продолжается до завершения вызова
+        }
+
+        public void LogSpyRecord(string pathCurrent, string pathFrom, int accountId)
+        {
+
+            DateTime dt = DateTime.UtcNow;
+
+            SpyRecord spyRecord = new SpyRecord()
+            {
+                Time= dt,
+                PathCurrent=pathCurrent,
+                PathFrom=pathFrom,
+                AccountId= accountId
+            };
+
+
+            spyMessages.Enqueue(spyRecord);
         }
 
         private async Task PeriodicFooAsync(TimeSpan interval, CancellationToken cancellationToken)
@@ -54,8 +73,24 @@ namespace DataLayer.Services
                     }
                     
                 }
-
                 _contextDb.LogMessages.AddRange(_logMessages);
+
+                int numberOfSpyMessages = spyMessages.Count;
+                List<SpyRecord> _spyMessages = new List<SpyRecord>();
+
+                for (int i = 0; i < numberOfSpyMessages; i++)
+                {
+                    bool successfully = spyMessages.TryDequeue(out SpyRecord mes);
+
+                    if (successfully)
+                    {
+                        _spyMessages.Add(mes);
+                    }
+
+                }
+
+                _contextDb.SpyRecords.AddRange(_spyMessages);
+
                 _contextDb.SaveChanges();
             }
         }

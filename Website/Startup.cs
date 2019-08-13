@@ -153,16 +153,16 @@ namespace Website
                 var firstLang = userLangs.Split(',').FirstOrDefault();
 
                 string lang = "";
-                switch (firstLang)
+                if (firstLang.ToLower().Contains("ru"))
                 {
-                    case "ru":
-                        lang = "ru";
-                        break;
-                    default:
-                        lang = "en";
-                        break;
+                    lang = "ru";
                 }
-
+                else
+                {
+                    lang = "en";
+                }
+                
+              
                 //switch culture
                 Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo(lang);
                 Thread.CurrentThread.CurrentUICulture = Thread.CurrentThread.CurrentCulture;
@@ -188,16 +188,8 @@ namespace Website
                     name: "default",
                     template: "{controller=Main}/{action=Index}/{id?}");
             });
-
-           
-            //Stub.RegisterInMonitor();
-                      
           
         }
-
-
-       
-
     }
 }
 

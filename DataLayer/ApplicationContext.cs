@@ -33,6 +33,7 @@ namespace DataLayer.Models
         public DbSet<Record_BotUsername_UserTelegramId> BotUsers { get; set; }
         public DbSet<BannedUser> BannedUsers { get; set; }
         public DbSet<BotWorkLog> BotWorkLogs { get; set; }
+        public DbSet<SpyRecord> SpyRecords { get; set; }
 
 
         public ApplicationContext(DbContextOptions<ApplicationContext> options)
@@ -210,6 +211,7 @@ namespace DataLayer.Models
         }
     }
 
+  
 
     [Table("Accounts")]
     public class Account
@@ -801,5 +803,21 @@ namespace DataLayer.Models
         [Required]
         public DateTime InspectionTime { get; set; }
     }
+
+    public class SpyRecord
+    {
+        [Key]
+        public int Id { get; set; }
+        [Required]
+        public DateTime Time { get; set; }
+        [Required]
+        public string PathCurrent { get; set; }
+        [Required]
+        public string PathFrom { get; set; }
+        [Required]
+        public int AccountId { get; set; }
+    }
+
+
 
 }

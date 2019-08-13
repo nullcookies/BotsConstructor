@@ -27,13 +27,11 @@ namespace Website.Other.Middlewares
             int accountId = 0;
             int.TryParse(idStr, out accountId);
 
-            string path = context.Request.Path;
+            string pathFrom = context.Request.Headers["Referer"].ToString();
+            string pathCurrent = context.Request.Scheme+"://"+ context.Request.Host.Value + context.Request.Path;
 
-            _logger.Log(
-                LogLevelMyDich.SPYING, 
-                Source.WEBSITE, 
-                $"path={path}", 
-                accountId: accountId);
+
+            _logger.LogSpyRecord(pathCurrent, pathFrom, accountId);
         }
     }
 }

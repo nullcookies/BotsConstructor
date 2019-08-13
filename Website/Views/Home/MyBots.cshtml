@@ -1,4 +1,4 @@
-﻿@{ 
+﻿@{
     Layout = "_LayoutHome";
 }
 @*<link rel="stylesheet" href="path/to/font-awesome/css/font-awesome.min.css">*@
@@ -15,23 +15,23 @@
         @{
             foreach (var bot in ViewData["bots"] as List<BotOnHomePage>)
             {
-        <tr>
-            <th scope="row">@bot.Number</th>
+                <tr>
+                    <th scope="row">@bot.Number</th>
 
-            
 
-            <td><a href="https://telegram.me/@bot.Name">@@@bot.Name</a> </td>
-            <td>@bot.Status</td>
-            <td>
-                <a asp-controller="BotForSalesSettings" asp-action="Settings" asp-route-botId="@bot.BotId" class="btn btn-info">Настройки</a>
-            </td>
-        </tr>
+
+                    <td><a href="https://telegram.me/@bot.Name">@@@bot.Name</a> </td>
+                    <td>@bot.Status</td>
+                    <td>
+                        <a asp-controller="BotForSalesSettings" asp-action="Settings" asp-route-botId="@bot.BotId" class="btn btn-info">Настройки</a>
+                    </td>
+                </tr>
             }
         }
 
 
 
     </tbody>
-    
+
 </table>
-<a  class="btn btn-secondary btn-lg btn-block"  asp-area="" asp-controller="BotCreation"  asp-action="Index"  >Создать бота</a>
+<a class="btn btn-secondary btn-lg btn-block" asp-area="" asp-controller="BotCreation" asp-action="Index">Создать бота</a>
