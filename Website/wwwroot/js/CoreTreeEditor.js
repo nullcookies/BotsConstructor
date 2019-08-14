@@ -139,12 +139,19 @@ class TreeNode {
              * @type {TreeNode}
              */
             this.parent = null;
-            /** Обёртки узлов-наследников.
-             * @type {NodeWrapper[]}
+            /**
+             * Обёртка первого из узлов-наследников.
+             * @type {NodeWrapper}
              */
-            this.childrenWrappers = [];
+            this.firstChild = null;
+            /**
+             * Обёртка последнего из узлов-наследников.
+             * @type {NodeWrapper}
+             */
+            this.lastChild = null;
 
             this.id = nextId;
+            nodeName.innerText += this.id;
             nextId++;
             allNodes[this.id] = this;
 
@@ -189,15 +196,13 @@ class TreeNode {
             };
 
             $(vertAdderArr).droppable(dropOptions).on("dropover", function (event, ui) {
-                let prevIndex = this.childrenWrappers.length - 1;
-                if (prevIndex >= 0) {
-                    $(this.childrenWrappers[prevIndex].container).
+                if (this.lastChild != null) {
+                    $(this.lastChild.container).
                         children(".arrows").children(".verticalFillArrow").addClass("hoveredArrow");
                 }
             }.bind(this)).on("dropout drop", function (event, ui) {
-                let prevIndex = this.childrenWrappers.length - 1;
-                if (prevIndex >= 0) {
-                    $(this.childrenWrappers[prevIndex].container).
+                if (this.lastChild != null) {
+                    $(this.lastChild.container).
                         children(".arrows").children(".verticalFillArrow").removeClass("hoveredArrow");
                 }
             }.bind(this));
@@ -243,8 +248,8 @@ class TreeNode {
 
     /** Удаляет текущий узел и всех его детей рекурсивно. */
     remove() {
-        for (let i = this.childrenWrappers.length - 1; i >= 0; i--) {
-            this.removeChild(i);
+        while (this.lastChild != null) {
+            this.removeChild(this.lastChild.node);
         }
         $(this.container).fadeOut("slow", $(this).remove);
         //this.container.remove();
@@ -261,30 +266,34 @@ class TreeNode {
         return new TreeNode(parameters);
     }
 
-    /** Возвращает детей текущего узла.
+    /**
+     * Возвращает детей текущего узла.
      * @returns {TreeNode[]} Возвращает массив детей.
-    */
+     */
     get children() {
-        return this.childrenWrappers.map(function (wrapper) {
-            return wrapper.node;
-        });
+        let childrenNodes = [];
+        let tmpChildWrapper = this.firstChild;
+        while (tmpChildWrapper != null) {
+            childrenNodes.push(tmpChildWrapper.node);
+            tmpChildWrapper = tmpChildWrapper.next;
+        }
+
+        return childrenNodes;
     }
 
     /**
      * Вставляет новый узел в указанное место.
-     * @param {number} index Индекс узла.
+     * @param {NodeWrapper} afterWrapper Обёртка, перед которой необходимо вставить узел.
      * @param {TreeNode} child Узел, который вставляется.
      */
-    insertChild(index, child) {
-        let childWrapper = child.detach().setIndex(index);
+    insertChild(afterWrapper, child) {
+        let childWrapper = child.detach();
         child.parent = this;
-        this.childrenWrappers.splice(index, 0, childWrapper);
-
-        for (let i = index + 1; i < this.childrenWrappers.length; i++) {
-            this.childrenWrappers[i].index = i;
+        afterWrapper.setPrev(childWrapper);
+        if (this.firstChild == afterWrapper) {
+            this.firstChild = childWrapper;
         }
-        
-        this.container.insertBefore(childWrapper.container, this.childrenWrappers[index + 1].container);
+        this.container.insertBefore(childWrapper.container, afterWrapper.container);
     }
 
     /**
@@ -292,22 +301,35 @@ class TreeNode {
      * @param {TreeNode} child Узел, который добавляется.
      */
     appendChild(child) {
-        let childWrapper = child.detach().setIndex(this.childrenWrappers.length);
+        let childWrapper = child.detach();
         child.parent = this;
-        this.childrenWrappers.push(childWrapper);
-        this.container.insertBefore(childWrapper.container, this.container.lastChild);
+        if (this.firstChild == null) {
+            this.firstChild = childWrapper;
+        }
+        else {
+            this.lastChild.setNext(childWrapper);
+        }
+        this.lastChild = childWrapper;
+        $(this.container).children(".appenderDiv").before(childWrapper.container);
     }
 
     /**
      * Отсоединяет узел от родителя.
-     * @param {any} index Индекс узла.
+     * @param {TreeNode} child Узел, который отсоединяют.
      * @returns {NodeWrapper} Возвращает обёртку узла.
      */
-    detachChild(index) {
-        let childWrapper = this.childrenWrappers[index];
-        childWrapper.node.parent = null;
-        this.childrenWrappers.splice(index, 1);
-        return childWrapper;
+    detachChild(child) {
+        child.parent = null;
+        let childWrapper = child.wrapper;
+
+        if (this.firstChild == childWrapper) {
+            this.firstChild = this.firstChild.next;
+        }
+        else if (this.lastChild == childWrapper) {
+            this.lastChild = this.lastChild.prev;
+        }
+
+        return childWrapper.detach();
     }
 
     /**
@@ -319,69 +341,62 @@ class TreeNode {
             return this.wrapper;
         }
         else {
-            return this.parent.detachChild(this.wrapper.index);
+            return this.parent.detachChild(this);
         }
     }
 
     /**
      * Удаляет узел.
-     * @param {number} index Индекс узла.
+     * @param {TreeNode} child Узел, который необходимо удалить.
      */
-    removeChild(index) {
-        let childWrapper = this.childrenWrappers[index];
-        this.childrenWrappers.splice(index, 1);
+    removeChild(child) {
+        let childWrapper = child.wrapper;
+
+        if (this.firstChild == childWrapper) {
+            this.firstChild = this.firstChild.next;
+        }
+        else if (this.lastChild == childWrapper) {
+            this.lastChild = this.lastChild.prev;
+        }
+
+        childWrapper.detach();
 
         // меняет родителя для наследников удаляемого узла
-        //let child = childWrapper.node;
-        //this.childrenWrappers.splice(index, 1, child.childrenWrappers);
-        //for (let c = 0; c < child.childrenWrappers.length; c++) {
-        //    child.childrenWrappers[c].node.parent = this;
-        //}
-
-        for (let i = index; i < this.childrenWrappers.length; i++) {
-            this.childrenWrappers[i].index = i;
-        }
+        // TODO?
 
         childWrapper.remove();
     }
 
     /**
      * Добавляет промежуточный узел между родителем и ребёнком.
-     * @param {number} index Индекс узла, где нужно добавить промежуточный узел.
+     * @param {NodeWrapper} afterWrapper Обёртка узла, перед которой нужно добавить промежуточный узел.
      * @param {TreeNode} child Промежуточный узел, который добавляется в качестве ребёнка текущему узлу.
      */
-    addMiddleNode(index, child) {
-        let childWrapper = child.detach().setIndex(index);
-        child.parent = this;
-        let oldWrapper = this.childrenWrappers[index];
-        oldWrapper.node.parent = child;
-        oldWrapper.index = child.childrenWrappers.length;
-        this.childrenWrappers[index] = childWrapper;
-        child.childrenWrappers.push(oldWrapper);
-        let jqOldWr = $(oldWrapper.container);
-        $(childWrapper.container).insertBefore(jqOldWr);
-        $(child.container).children(".appenderDiv").before(jqOldWr);
+    addMiddleNode(afterWrapper, child) {
+        this.insertChild(afterWrapper, child);
+        child.appendChild(afterWrapper.node);
     }
 
     /**
      * Добавляет промежуточный узел между родителем и группой детей.
-     * @param {number} index Индекс узла, с которого начинается формирование группы до конца массива детей.
+     * @param {NodeWrapper} afterWrapper Обёртка узла, с которой начинается формирование группы до конца массива детей.
      * @param {TreeNode} child Промежуточный узел, который добавляется в качестве ребёнка текущему узлу.
      */
-    addGroupNode(index, child) {
-        let childWrapper = child.detach().setIndex(index);
-        child.parent = this;
-        let newIndex = 0;
-        $(this.childrenWrappers[index].container).before(childWrapper.container);
-        for (let i = index; i < this.childrenWrappers.length; i++) {
-            let oldWrapper = this.childrenWrappers[i];
-            oldWrapper.node.parent = child;
-            oldWrapper.index = newIndex;
-            child.childrenWrappers.push(oldWrapper);
-            newIndex++;
-            $(child.container).children(".appenderDiv").before(oldWrapper.container);
+    addGroupNode(afterWrapper, child) {
+        this.insertChild(afterWrapper, child);
+        afterWrapper.prev = child.lastChild;
+        if (child.firstChild == null) {
+            child.firstChild = afterWrapper;
         }
-        this.childrenWrappers.splice(index, this.childrenWrappers.length, childWrapper);
+        child.lastChild = this.lastChild;
+        this.lastChild = child.wrapper;
+        child.wrapper.next = null;
+        let tmpChildWrapper = afterWrapper;
+        while (tmpChildWrapper != null) {
+            tmpChildWrapper.node.parent = child;
+            $(child.container).children(".appenderDiv").before(tmpChildWrapper.container);
+            tmpChildWrapper = tmpChildWrapper.next;
+        }
     }
 }
 
@@ -427,7 +442,7 @@ class OneChildNode extends TreeNode {
      * @param {TreeNode} child Новый узел, который необходимо добавить.
      */
     appendChild(child) {
-        if (this.childrenWrappers.length == 0) {
+        if (this.firstChild == null) {
             super.appendChild(child);
         }
         else {
@@ -443,10 +458,18 @@ class NodeWrapper {
      * @param {TreeNode} node Узел.
      */
     constructor(node) {
-        /** Индекс узла в коллекции родителя. */
-        this.index = 0;
         /** Узел, который находится в этой обёртке. */
         this.node = node;
+        /**
+         * Предыдущая обёртка в коллекции родителя.
+         * @type {NodeWrapper}
+         */
+        this.prev = null;
+        /**
+         * Следующая обёртка в коллекции родителя.
+         * @type {NodeWrapper}
+         */
+        this.next = null;
 
         this.node.deleteBtn.onclick =
             /**
@@ -454,8 +477,8 @@ class NodeWrapper {
              * @this {NodeWrapper}
              */
             function () {
-                if (this.node.childrenWrappers.length == 0 || confirm("Вы точно хотите удалить узел вместе с его детьми?")) {
-                    this.node.parent.removeChild(this.index);
+                if (this.node.firstChild == null || confirm("Вы точно хотите удалить узел вместе с его детьми?")) {
+                    this.node.parent.removeChild(this.node);
                 }
             }.bind(this);
 
@@ -472,9 +495,8 @@ class NodeWrapper {
         fillArrow.className = "baseArrow verticalFillArrow";
 
         let outNodeFunc = function (event, ui) {
-            let prevIndex = this.index - 1;
-            if (prevIndex >= 0) {
-                $(this.node.parent.childrenWrappers[prevIndex].container).
+            if (this.prev != null) {
+                $(this.prev.container).
                     children(".arrows").children(".verticalFillArrow").removeClass("hoveredArrow");
             }
         }.bind(this);
@@ -487,7 +509,7 @@ class NodeWrapper {
 
                 let parentNode = this.node.parent;
                 if (parentNode.checkAddPermission(selectedNode)) {
-                    parentNode.addGroupNode(this.index, selectedNode);
+                    parentNode.addGroupNode(this, selectedNode);
                     ui.helper.data('dropped', true);
                 }
                 else {
@@ -495,9 +517,8 @@ class NodeWrapper {
                 }
             }.bind(this),
             over: function (event, ui) {
-                let prevIndex = this.index - 1;
-                if (prevIndex >= 0) {
-                    $(this.node.parent.childrenWrappers[prevIndex].container).
+                if (this.prev != null) {
+                    $(this.prev.container).
                         children(".arrows").children(".verticalFillArrow").addClass("hoveredArrow");
                 }
             }.bind(this),
@@ -510,7 +531,7 @@ class NodeWrapper {
             drop: function (event, ui) {
                 let parentNode = this.node.parent;
                 if (parentNode.checkAddPermission(selectedNode)) {
-                    parentNode.addMiddleNode(this.index, selectedNode);
+                    parentNode.addMiddleNode(this, selectedNode);
                     ui.helper.data('dropped', true);
                 }
                 else {
@@ -520,9 +541,8 @@ class NodeWrapper {
         });
 
         let outFillFunc = function (event, ui) {
-            let nextIndex = this.index + 1;
-            if (nextIndex < this.node.parent.childrenWrappers.length - 1) {
-                $(this.node.parent.childrenWrappers[nextIndex].container).
+            if (this.next != null) {
+                $(this.next.container).
                     children(".arrows").children(".verticalNodeArrow").removeClass("hoveredArrow");
             }
             else {
@@ -539,9 +559,8 @@ class NodeWrapper {
 
                 let parentNode = this.node.parent;
                 if (parentNode.checkAddPermission(selectedNode)) {
-                    let nextIndex = this.index + 1;
-                    if (nextIndex < this.node.parent.childrenWrappers.length) {
-                        parentNode.addGroupNode(nextIndex, selectedNode);
+                    if (this.next != null) {
+                        parentNode.addGroupNode(this.next, selectedNode);
                     }
                     else {
                         parentNode.appendChild(selectedNode);
@@ -553,9 +572,8 @@ class NodeWrapper {
                 }
             }.bind(this),
             over: function (event, ui) {
-                let nextIndex = this.index + 1;
-                if (nextIndex < this.node.parent.childrenWrappers.length) {
-                    $(this.node.parent.childrenWrappers[nextIndex].container).
+                if (this.next != null) {
+                    $(this.next.container).
                         children(".arrows").children(".verticalNodeArrow").addClass("hoveredArrow");
                 }
                 else {
@@ -577,7 +595,7 @@ class NodeWrapper {
             drop: function (event, ui) {
                 let parentNode = this.node.parent;
                 if (parentNode.checkAddPermission(selectedNode)) {
-                    parentNode.insertChild(this.index, selectedNode);
+                    parentNode.insertChild(this, selectedNode);
                     ui.helper.data('dropped', true);
                 }
                 else {
@@ -598,12 +616,53 @@ class NodeWrapper {
     }
 
     /**
-     * Устанавливает индекс узла в коллекции родителя.
-     * @param {number} index Индекс узла.
-     * @returns {NodeWrapper} Возвращает текущую обёртку.
+     * Устанавливает обёртку перед текущей.
+     * @param {NodeWrapper} wrapper Новая обёртка.
      */
-    setIndex(index) {
-        this.index = index;
+    setPrev(wrapper) {
+        let oldPrev = this.prev;
+        this.prev = wrapper;
+        if (oldPrev != null) {
+            oldPrev.next = wrapper;
+        }
+        if (wrapper != null) {
+            wrapper.prev = oldPrev;
+            wrapper.next = this;
+        }
+    }
+
+    /**
+     * Устанавливает обёртку после текущей.
+     * @param {NodeWrapper} wrapper Новая обёртка.
+     */
+    setNext(wrapper) {
+        let oldNext = this.next;
+        this.next = wrapper;
+        if (oldNext != null) {
+            oldNext.prev = wrapper;
+        }
+        if (wrapper != null) {
+            wrapper.next = oldNext;
+            wrapper.prev = this;
+        }
+    }
+
+    /**
+     * Отсоединяет текущую обёртку.
+     * @returns {NodeWrapper} Возвращает обёртку.
+     */
+    detach() {
+        if (this.prev != null) {
+            this.prev.next = this.next;
+        }
+
+        if (this.next != null) {
+            this.next.prev = this.prev;
+        }
+
+        this.prev = null;
+        this.next = null;
+
         return this;
     }
 

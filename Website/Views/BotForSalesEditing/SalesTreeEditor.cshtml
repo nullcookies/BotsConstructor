@@ -39,16 +39,16 @@
 <div id="main-container"></div>
 
 <script>
-    let root = templates[nodeTypes.root];
-    let main = $(root.container).attr("id", "main");
-    for (let i = 0; i < 10; i++) {
-        let child = templates[2].cloneNode();
-        child.appendChild(templates[3].cloneNode());
-        root.appendChild(child);
-    }
-    $("#main-container").append(main);
     let nodesMenu = $("#nodes-menu");
     for (let i = nodeTypes.root + 1; i < templates.length; i++) {
         nodesMenu.append(templates[i].container);
+    }
+    let root = templates[nodeTypes.root];
+    let main = $(root.container).attr("id", "main");
+    $("#main-container").append(main);
+    for (let i = 0; i < 10; i++) {
+        let child = templates[2].cloneNode();
+        root.appendChild(child);
+        child.appendChild(templates[3].cloneNode());
     }
 </script>
