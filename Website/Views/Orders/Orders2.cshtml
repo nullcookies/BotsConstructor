@@ -302,7 +302,7 @@
                         var sourceElem = document.createElement("source");
                         sourceElem.src = pathURL;
                         audioElem.appendChild(sourceElem);
-                        audioElem.appendChild(linkElem);
+                        //audioElem.appendChild(linkElem); // если не поддерживается
                         listElem.appendChild(audioElem);
                     }
                     else {
@@ -313,7 +313,7 @@
                             var sourceElem = document.createElement("source");
                             sourceElem.src = pathURL;
                             videoElem.appendChild(sourceElem);
-                            videoElem.appendChild(linkElem);
+                            //videoElem.appendChild(linkElem); // если не поддерживается
                             listElem.appendChild(videoElem);
                             isVideo = true;
                             if (previewWasGotten) {

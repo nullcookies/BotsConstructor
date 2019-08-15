@@ -333,7 +333,7 @@ namespace DeleteMeWebhook
 			};
 			botWrapper.globalVars.SetVar("Sushi", Sushi);
 			botWrapper.globalVars.SetVar("Pizza", Pizza);
-			botWrapper.SetOwner(440090552); //389063743 440090552
+			botWrapper.SetOwner(389063743); //389063743 440090552
 			return botWrapper;
 		}
 

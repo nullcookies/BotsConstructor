@@ -36,6 +36,28 @@
     jqLeft.find("#left-content").append(jqNewWrapper);
 </script>
 
+@*<div>TEST UPLOAD <input type="file" id="test-file-input" />
+    <button onclick="
+    $.ajax({
+        url: 'https://api.telegram.org/bot874394768:AAHNuAw_Npa4upCbXEZyagWTRzffVL2MUp8/sendDocument',
+        type: 'post',
+        data: (function () {
+            var fd = new FormData();
+            fd.append('document', $('#test-file-input')[0].files[0]);
+            fd.append('chat_id', 389063743);
+            return fd;
+        })(), 
+        contentType: false, 
+        processData: false, 
+        success: function(response){ 
+            console.log(response);
+        },
+        error: function (xhr, stat, err) {
+            console.log(xhr);
+        }
+    })">UPLOAD</button>
+</div>*@
+
 <div id="main-container"></div>
 
 <script>
