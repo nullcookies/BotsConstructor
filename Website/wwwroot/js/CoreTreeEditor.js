@@ -33,6 +33,45 @@ let nextId = 0;
  */
 const allNodes = {};
 
+/** Базовое модальное окно. */
+const baseModal = $("<div>").attr({
+    class: "modal fade",
+    id: "modalNodeParams",
+    tabindex: -1,
+    role: "dialog",
+    "aria-labelledby": "baseLabel",
+    "aria-hidden": true
+}).append($("<div>").attr({
+    class: "modal-dialog modal-dialog-centered",
+    role: "document"
+}).append($("<div>").addClass("modal-content").append([
+    $("<div>").addClass("modal-header").append([
+        $("<h5>").attr({
+            class: "modal-title",
+            id: "baseLabel"
+        }).text("Node name"),
+        $("<button>").attr({
+            class: "close",
+            "data-dismiss": "modal",
+            "aria-label": "Close"
+        }).append($("<span>").attr("aria-hidden", "true").html('&times;'))
+    ]),
+    $("<div>").addClass("modal-body").append($("<form>").append([
+        $("<div>").addClass("form-row").append([
+            $("<div>").addClass("col").append($("<input>").attr({
+                class: "form-control",
+                type: "file",
+                id: "baseFile"
+            })),
+            $("<div>").addClass("col").append($("<input>").attr({
+                class: "form-control",
+                type: "text",
+                id: "baseMessage"
+            }))
+        ])
+    ]))
+])));
+
 /** Базовый класс параметров узлов. */
 class NodeParams {
     /**
@@ -40,14 +79,17 @@ class NodeParams {
      * @param {number} type Число, соответствующее типу узла.
      * @param {string} name Имя узла, которое будет отображаться на кнопке.
      * @param {string} message Сообщение, которое пользователь увидит при переходе на узел.
+     * @param {string} fileId ID файла (если есть), прикреплённого к сообщению.
      */
-    constructor(type, name, message) {
+    constructor(type, name, message, fileId) {
         /** Число, соответствующее типу узла. */
         this.type = type;
         /** Имя узла, которое будет отображаться на кнопке. */
         this.name = name;
         /** Сообщение, которое пользователь увидит при переходе на узел. */
         this.message = message;
+        /** ID файла (если есть), прикреплённого к сообщению. */
+        this.fileId = fileId;
     }
 
     /**
@@ -62,8 +104,8 @@ class NodeParams {
 
     /** Открывает форму для редактирования параметров. */
     openModal() {
-        alert(this.name);
         //TODO
+        baseModal.find("#baseLabel").text(this.name).end().modal("show");
     }
 }
 
@@ -406,9 +448,10 @@ class RootNode extends TreeNode {
      * Создаёт неудаляемый корень дерева.
      * @param {string} name Имя узла.
      * @param {string} message Сообщение узла.
+     * @param {string} fileId ID файла (если есть), прикреплённого к сообщению.
      */
-    constructor(name, message) {
-        super(new NodeParams(1, name, message));
+    constructor(name, message, fileId) {
+        super(new NodeParams(1, name, message, fileId));
         this.deleteBtn.setAttribute("disabled", "");
         $(this.container).children(".node").draggable("disable");
     }

@@ -30,9 +30,10 @@ class SectionParams extends NodeParams {
      * @param {string} name Название узла.
      * @param {string} message Сообщение узла.
      * @param {number} collectionType Число, которое обозначает тип отправки коллекции.
+     * @param {string} fileId ID файла (если есть), прикреплённого к сообщению.
      */
-    constructor(name, message, collectionType) {
-        super(nodeTypes.section, name, message);
+    constructor(name, message, collectionType, fileId) {
+        super(nodeTypes.section, name, message, fileId);
         /** Число, которое обозначает тип отправки коллекции. */
         this.collType = collectionType;
     }
@@ -44,12 +45,18 @@ class ProductProperty {
      * Создаёт характеристику товара.
      * @param {string} name Название характеристики.
      * @param {string[]} types Виды данной характеристики.
+     * @param {string} message Сообщение (описание) характеристики (если есть).
+     * @param {string} fileId ID файла (если есть), прикреплённого к сообщению.
      */
-    constructor(name, types) {
+    constructor(name, types, message, fileId) {
         /** Название характеристики. */
         this.name = name;
         /** Виды данной характеристики. */
         this.types = types;
+        /** Сообщение (описание) характеристики (если есть). */
+        this.message = message;
+        /** ID файла (если есть), прикреплённого к сообщению. */
+        this.fileId = fileId;
     }
 }
 
@@ -60,9 +67,10 @@ class ProductParams extends NodeParams {
      * @param {string} name Название узла.
      * @param {string} message Сообщение узла.
      * @param {ProductProperty[]} properties Характеристики товара.
+     * @param {string} fileId ID файла (если есть), прикреплённого к сообщению.
      */
-    constructor(name, message, properties) {
-        super(nodeTypes.product, name, message);
+    constructor(name, message, properties, fileId) {
+        super(nodeTypes.product, name, message, fileId);
         /** Характеристики товара. */
         this.properties = properties;
         this.updateCount();
@@ -89,9 +97,10 @@ class InputParams extends NodeParams {
      * @param {string} name Название узла.
      * @param {string} message Сообщение узла.
      * @param {number} inputType Число, соответствующее типу input-узла.
+     * @param {string} fileId ID файла (если есть), прикреплённого к сообщению.
      */
-    constructor(name, message, inputType) {
-        super(nodeTypes.input, name, message);
+    constructor(name, message, inputType, fileId) {
+        super(nodeTypes.input, name, message, fileId);
         /** Число, соответствующее типу input-узла. */
         this.inputType = inputType;
     }
@@ -103,13 +112,13 @@ class InputParams extends NodeParams {
  */
 const templates = Object.freeze([
     undefined,
-    new RootNode("Корень", "Добро пожаловать в начало!"),
-    new TreeNode(new NodeParams(nodeTypes.info, "Инфо-узел", "Тут может быть любая информация для пользователя.").makeTemplate()),
-    new TreeNode(new SectionParams("Раздел", "Этот узел позволяет удобно работать с большим количеством детских узлов.", collectionTypes.block).makeTemplate()),
+    new RootNode("Корень", "Добро пожаловать в начало!", null),
+    new TreeNode(new NodeParams(nodeTypes.info, "Инфо-узел", "Тут может быть любая информация для пользователя.", null).makeTemplate()),
+    new TreeNode(new SectionParams("Раздел", "Этот узел позволяет удобно работать с большим количеством детских узлов.", collectionTypes.block, null).makeTemplate()),
     new TreeNode(new ProductParams("Товар", "Тут можно настроить цены товаров с разными подтипами.", [
-        new ProductProperty("Характеристика 1", ["Подтип 1", "Подтип 2", "Подтип 3"]),
-        new ProductProperty("Характеристика 2", ["Подвид 1", "Подвид 2", "Подвид 3"])
-    ]).makeTemplate()),
-    new OneChildNode(new InputParams("Ввод данных", "Тут пользователь должен ввести данные нужного типа.", 1).makeTemplate()),
-    new OneChildNode(new NodeParams(nodeTypes.sendOrder, "Отправить заказ", "При переходе сюда сформированный заказ отправляется Вам.").makeTemplate())
+        new ProductProperty("Характеристика 1", ["Подтип 1", "Подтип 2", "Подтип 3"], null, null),
+        new ProductProperty("Характеристика 2", ["Подвид 1", "Подвид 2", "Подвид 3"], null, null)
+    ], null).makeTemplate()),
+    new OneChildNode(new InputParams("Ввод данных", "Тут пользователь должен ввести данные нужного типа.", inputTypes.text, null).makeTemplate()),
+    new OneChildNode(new NodeParams(nodeTypes.sendOrder, "Отправить заказ", "При переходе сюда сформированный заказ отправляется Вам.", null).makeTemplate())
 ]);
