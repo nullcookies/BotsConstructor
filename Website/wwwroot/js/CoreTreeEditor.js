@@ -40,7 +40,7 @@ const baseModal = $("<div>").attr({
     role: "dialog",
     "aria-hidden": true
 }).append($("<div>").attr({
-    class: "modal-dialog modal-dialog-centered",
+    class: "modal-dialog modal-dialog-centered modal-lg",
     role: "document"
 }).append($("<div>").addClass("modal-content").append([
     $("<div>").addClass("modal-header").append([
@@ -56,14 +56,16 @@ const baseModal = $("<div>").attr({
     ]),
     $("<div>").addClass("modal-body").append($("<form>").append([
         $("<div>").addClass("form-row").append([
-            $("<div>").addClass("col").append($("<input>").attr({
+            $("<div>").addClass("col col-4").append($("<input>").attr({
                 class: "form-control base-file",
                 type: "file"
             })),
-            $("<div>").addClass("col").append($("<input>").attr({
+            $("<div>").addClass("col").append($("<textarea>").attr({
                 class: "form-control base-message",
-                type: "text"
-            }))
+                rows: 10,
+                cols: 50,
+                placeholder: "Place for text message"
+            }).css("resize", "none"))
         ])
     ]))
 ])));
@@ -104,9 +106,12 @@ class NodeParams {
      */
     openModal() {
         let self = this;
-        baseModal.find(".modal-title").val(this.name).end().modal("show");
+        baseModal.find(".modal-title").val(this.name).end().
+            find(".base-message").val(this.message).end()
+            .modal("show");
         baseModal.one("hide.bs.modal", function () {
             self.name = baseModal.find(".modal-title").val();
+            self.message = baseModal.find(".base-message").val();
         });
         return baseModal;
     }
