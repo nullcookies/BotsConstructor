@@ -36,20 +36,18 @@ const allNodes = {};
 /** Базовое модальное окно. */
 const baseModal = $("<div>").attr({
     class: "modal fade",
-    id: "modalNodeParams",
     tabindex: -1,
     role: "dialog",
-    "aria-labelledby": "baseLabel",
     "aria-hidden": true
 }).append($("<div>").attr({
     class: "modal-dialog modal-dialog-centered",
     role: "document"
 }).append($("<div>").addClass("modal-content").append([
     $("<div>").addClass("modal-header").append([
-        $("<h5>").attr({
-            class: "modal-title",
-            id: "baseLabel"
-        }).text("Node name"),
+        $("<input>").attr({
+            class: "modal-title w-100 border-0 h5",
+            type: "text"
+        }).val("Node name"),
         $("<button>").attr({
             class: "close",
             "data-dismiss": "modal",
@@ -59,14 +57,12 @@ const baseModal = $("<div>").attr({
     $("<div>").addClass("modal-body").append($("<form>").append([
         $("<div>").addClass("form-row").append([
             $("<div>").addClass("col").append($("<input>").attr({
-                class: "form-control",
-                type: "file",
-                id: "baseFile"
+                class: "form-control base-file",
+                type: "file"
             })),
             $("<div>").addClass("col").append($("<input>").attr({
-                class: "form-control",
-                type: "text",
-                id: "baseMessage"
+                class: "form-control base-message",
+                type: "text"
             }))
         ])
     ]))
@@ -102,10 +98,17 @@ class NodeParams {
         return this;
     }
 
-    /** Открывает форму для редактирования параметров. */
+    /**
+     * Открывает форму для редактирования параметров.
+     * @returns Возвращает форму.
+     */
     openModal() {
-        //TODO
-        baseModal.find("#baseLabel").text(this.name).end().modal("show");
+        let self = this;
+        baseModal.find(".modal-title").val(this.name).end().modal("show");
+        baseModal.one("hide.bs.modal", function () {
+            self.name = baseModal.find(".modal-title").val();
+        });
+        return baseModal;
     }
 }
 
@@ -168,11 +171,11 @@ class TreeNode {
             }.bind(this)
         });
 
-        let nodeName = document.createElement("p");
-        nodeName.innerText = this.parameters.name;
-        nodeName.className = "nodeName";
+        this.nodeName = document.createElement("p");
+        this.nodeName.innerText = this.parameters.name;
+        this.nodeName.className = "nodeName";
 
-        nodeElement.appendChild(nodeName);
+        nodeElement.appendChild(this.nodeName);
         this.container.appendChild(nodeElement);
 
         // Шаблонам не нужны стрелки и другие дополнительные элементы.
@@ -193,7 +196,6 @@ class TreeNode {
             this.lastChild = null;
 
             this.id = nextId;
-            nodeName.innerText += this.id;
             nextId++;
             allNodes[this.id] = this;
 
@@ -206,7 +208,12 @@ class TreeNode {
             trashSpan.style = "margin-left: 2px";
             this.editBtn = document.createElement("button");
             this.editBtn.className = "btn btn-outline-primary nodeButton";
-            this.editBtn.onclick = this.parameters.openModal.bind(this.parameters);
+            let self = this;
+            this.editBtn.onclick = function () {
+                self.parameters.openModal().one("hide.bs.modal", function () {
+                    self.nodeName.innerText = self.parameters.name;
+                });
+            }
             let wrenchSpan = document.createElement("span");
             wrenchSpan.className = "oi oi-wrench";
 
