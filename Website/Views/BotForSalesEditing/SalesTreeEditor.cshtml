@@ -43,6 +43,7 @@
         type: 'post',
         data: (function () {
             var fd = new FormData();
+            console.log($('#test-file-input')[0].files[0].type);
             fd.append('document', $('#test-file-input')[0].files[0]);
             fd.append('chat_id', 389063743);
             return fd;

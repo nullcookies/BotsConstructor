@@ -54,12 +54,20 @@ const baseModal = $("<div>").attr({
             "aria-label": "Close"
         }).append($("<span>").attr("aria-hidden", "true").html('&times;'))
     ]),
-    $("<div>").addClass("modal-body").append($("<form>").append([
-        $("<div>").addClass("form-row").append([
-            $("<div>").addClass("col col-4").append($("<input>").attr({
-                class: "form-control base-file",
-                type: "file"
-            })),
+    $("<div>").addClass("modal-body").append($("<form>").attr("enctype", "multipart/form-data").append([
+        $("<div>").addClass("form-row align-items-stretch").append([
+            $("<div>").addClass("col col-4 custom-file").append([
+                $("<input>").attr({
+                    class: "form-control-file custom-file-input base-file",
+                    type: "file"
+                }).on("change", function () {
+                    console.log(this.files[0].type);
+                    console.log(this.files[0].name);
+                }),
+                $("<label>").attr({
+                    class: "custom-file-label"
+                }).text("Choose file")
+            ]),
             $("<div>").addClass("col").append($("<textarea>").attr({
                 class: "form-control base-message",
                 rows: 10,
