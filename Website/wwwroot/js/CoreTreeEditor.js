@@ -41,6 +41,14 @@ const fileTypes = Object.freeze({
     "document": 4
 });
 
+const acceptTypes = Object.freeze({
+    0: "*/*",
+    1: "image/*",
+    2: "audio/*",
+    3: "video/*",
+    4: "*/*"
+});
+
 /**
  * Основная функция изменения типа файла в базовом модальном окне.
  * @param {string} newType Название нового типа.
@@ -54,7 +62,9 @@ function changeInputType(newType) {
     else {
         inputGroup.firstChild.textContent = newType.charAt(0).toUpperCase() + newType.slice(1);
     }
-    inputGroup.parentElement.firstElementChild.firstElementChild.setAttribute("data-type", numType);
+    let input = inputGroup.parentElement.firstElementChild.firstElementChild;
+    input.setAttribute("data-type", numType);
+    input.setAttribute("accept", acceptTypes[numType]);
 }
 
 /** Базовое модальное окно. */
@@ -80,7 +90,7 @@ const baseModal = $("<div>").attr({
     ]),
     $("<div>").addClass("modal-body").append($("<form>").attr("enctype", "multipart/form-data").append([
         $("<div>").addClass("form-row align-items-stretch").append([
-            $("<div>").addClass("col col-4 d-flex flex-column justify-content-start align-items-stretch").append([
+            $("<div>").addClass("col col-5 d-flex flex-column justify-content-start align-items-stretch").append([
                 $("<div>").addClass("flex-fill align-self-stretch rounded border border-secondary"),
                 $("<div>").addClass("input-group").append([
                     $("<div>").addClass("custom-file").append([
