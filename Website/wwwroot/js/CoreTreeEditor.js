@@ -34,11 +34,11 @@ let nextId = 0;
 const allNodes = {};
 
 const fileTypes = Object.freeze({
-    "auto": 0,
-    "image": 1,
-    "audio": 2,
-    "video": 3,
-    "document": 4
+    "Auto": 0,
+    "Image": 1,
+    "Audio": 2,
+    "Video": 3,
+    "Document": 4
 });
 
 const acceptTypes = Object.freeze({
@@ -56,12 +56,7 @@ const acceptTypes = Object.freeze({
 function changeInputType(newType) {
     let inputGroup = this.parentNode.parentNode;
     let numType = fileTypes[newType];
-    if (numType > 0) {
-        inputGroup.firstChild.textContent = "As " + newType;
-    }
-    else {
-        inputGroup.firstChild.textContent = newType.charAt(0).toUpperCase() + newType.slice(1);
-    }
+    inputGroup.firstChild.textContent = newType;
     let input = inputGroup.parentElement.firstElementChild.firstElementChild;
     input.setAttribute("data-type", numType);
     input.setAttribute("accept", acceptTypes[numType]);
@@ -96,11 +91,19 @@ const baseModal = $("<div>").attr({
                     $("<div>").addClass("custom-file").append([
                         $("<input>").attr({
                             class: "form-control-file custom-file-input base-file",
-                            type: "file"
+                            type: "file",
+                            "data-type": 0
                         }).on("change", function () {
-                            console.log(this.files[0].type);
-                            //$(this).parent().children(".custom-file-label").text(this.files[0].name);
-                            console.log(this.files[0].name);
+                            let file = this.files[0];
+                            if (file != null) {
+                                console.log(file.type);
+                                $(this).parent().children(".custom-file-label").text(file.name);
+                                console.log(file.name);
+                                console.log(this.getAttribute("data-type"));
+                            }
+                            else {
+                                $(this).parent().children(".custom-file-label").text("Choose file");
+                            }
                         }),
                         $("<label>").addClass("custom-file-label").text("Choose file")
                     ]),
@@ -114,16 +117,16 @@ const baseModal = $("<div>").attr({
                         }).text("Auto"),
                         $("<div>").addClass("dropdown-menu").append([
                             $("<a>").addClass("dropdown-item").attr("href", "#").text("As image").
-                                on("click", function () { changeInputType.call(this, "image") }),
+                                on("click", function () { changeInputType.call(this, "Image") }),
                             $("<a>").addClass("dropdown-item").attr("href", "#").text("As audio").
-                                on("click", function () { changeInputType.call(this, "audio") }),
+                                on("click", function () { changeInputType.call(this, "Audio") }),
                             $("<a>").addClass("dropdown-item").attr("href", "#").text("As video").
-                                on("click", function () { changeInputType.call(this, "video") }),
+                                on("click", function () { changeInputType.call(this, "Video") }),
                             $("<a>").addClass("dropdown-item").attr("href", "#").text("As document").
-                                on("click", function () { changeInputType.call(this, "document") }),
+                                on("click", function () { changeInputType.call(this, "Document") }),
                             $("<div>").addClass("dropdown-divider").attr("role", "separator"),
                             $("<a>").addClass("dropdown-item").attr("href", "#").text("Auto").
-                                on("click", function () { changeInputType.call(this, "auto") })
+                                on("click", function () { changeInputType.call(this, "Auto") })
                         ])
                     ])
                 ])
