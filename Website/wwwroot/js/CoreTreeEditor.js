@@ -33,6 +33,30 @@ let nextId = 0;
  */
 const allNodes = {};
 
+const fileTypes = Object.freeze({
+    "auto": 0,
+    "image": 1,
+    "audio": 2,
+    "video": 3,
+    "document": 4
+});
+
+/**
+ * Основная функция изменения типа файла в базовом модальном окне.
+ * @param {string} newType Название нового типа.
+ */
+function changeInputType(newType) {
+    let inputGroup = this.parentNode.parentNode;
+    let numType = fileTypes[newType];
+    if (numType > 0) {
+        inputGroup.firstChild.textContent = "As " + newType;
+    }
+    else {
+        inputGroup.firstChild.textContent = newType.charAt(0).toUpperCase() + newType.slice(1);
+    }
+    inputGroup.parentElement.firstElementChild.firstElementChild.setAttribute("data-type", numType);
+}
+
 /** Базовое модальное окно. */
 const baseModal = $("<div>").attr({
     class: "modal fade",
@@ -56,17 +80,43 @@ const baseModal = $("<div>").attr({
     ]),
     $("<div>").addClass("modal-body").append($("<form>").attr("enctype", "multipart/form-data").append([
         $("<div>").addClass("form-row align-items-stretch").append([
-            $("<div>").addClass("col col-4 custom-file").append([
-                $("<input>").attr({
-                    class: "form-control-file custom-file-input base-file",
-                    type: "file"
-                }).on("change", function () {
-                    console.log(this.files[0].type);
-                    console.log(this.files[0].name);
-                }),
-                $("<label>").attr({
-                    class: "custom-file-label"
-                }).text("Choose file")
+            $("<div>").addClass("col col-4 d-flex flex-column justify-content-start align-items-stretch").append([
+                $("<div>").addClass("flex-fill align-self-stretch rounded border border-secondary"),
+                $("<div>").addClass("input-group").append([
+                    $("<div>").addClass("custom-file").append([
+                        $("<input>").attr({
+                            class: "form-control-file custom-file-input base-file",
+                            type: "file"
+                        }).on("change", function () {
+                            console.log(this.files[0].type);
+                            //$(this).parent().children(".custom-file-label").text(this.files[0].name);
+                            console.log(this.files[0].name);
+                        }),
+                        $("<label>").addClass("custom-file-label").text("Choose file")
+                    ]),
+                    $("<div>").addClass("input-group-append").append([
+                        $("<button>").attr({
+                            class: "btn btn-outline-secondary dropdown-toggle base-file-type",
+                            type: "button",
+                            "data-toggle": "dropdown",
+                            "aria-haspopup": true,
+                            "aria-expanded": false
+                        }).text("Auto"),
+                        $("<div>").addClass("dropdown-menu").append([
+                            $("<a>").addClass("dropdown-item").attr("href", "#").text("As image").
+                                on("click", function () { changeInputType.call(this, "image") }),
+                            $("<a>").addClass("dropdown-item").attr("href", "#").text("As audio").
+                                on("click", function () { changeInputType.call(this, "audio") }),
+                            $("<a>").addClass("dropdown-item").attr("href", "#").text("As video").
+                                on("click", function () { changeInputType.call(this, "video") }),
+                            $("<a>").addClass("dropdown-item").attr("href", "#").text("As document").
+                                on("click", function () { changeInputType.call(this, "document") }),
+                            $("<div>").addClass("dropdown-divider").attr("role", "separator"),
+                            $("<a>").addClass("dropdown-item").attr("href", "#").text("Auto").
+                                on("click", function () { changeInputType.call(this, "auto") })
+                        ])
+                    ])
+                ])
             ]),
             $("<div>").addClass("col").append($("<textarea>").attr({
                 class: "form-control base-message",
