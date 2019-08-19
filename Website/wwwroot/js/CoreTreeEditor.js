@@ -116,13 +116,13 @@ const baseModal = $("<div>").attr({
                             "aria-expanded": false
                         }).text("Auto"),
                         $("<div>").addClass("dropdown-menu").append([
-                            $("<a>").addClass("dropdown-item").attr("href", "#").text("As image").
+                            $("<a>").addClass("dropdown-item").attr("href", "#").text("Image").
                                 on("click", function () { changeInputType.call(this, "Image") }),
-                            $("<a>").addClass("dropdown-item").attr("href", "#").text("As audio").
+                            $("<a>").addClass("dropdown-item").attr("href", "#").text("Audio").
                                 on("click", function () { changeInputType.call(this, "Audio") }),
-                            $("<a>").addClass("dropdown-item").attr("href", "#").text("As video").
+                            $("<a>").addClass("dropdown-item").attr("href", "#").text("Video").
                                 on("click", function () { changeInputType.call(this, "Video") }),
-                            $("<a>").addClass("dropdown-item").attr("href", "#").text("As document").
+                            $("<a>").addClass("dropdown-item").attr("href", "#").text("Document").
                                 on("click", function () { changeInputType.call(this, "Document") }),
                             $("<div>").addClass("dropdown-divider").attr("role", "separator"),
                             $("<a>").addClass("dropdown-item").attr("href", "#").text("Auto").

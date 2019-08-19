@@ -9,6 +9,7 @@
 @*<link rel="stylesheet" href="@Url.Content("~/css/orders-pagination.css")" />*@
 @* Нужно для круглых кнопок *@
 <link rel="stylesheet" href="@Url.Content("~/css/bot-for-sales.css")" />
+<script src="~/js/FileManager.js"></script>
 
 <style>
     .break-worded * {
@@ -236,7 +237,7 @@
                 var spinnerElem = document.createElement("span");
                 spinnerElem.className = "spinner-border spinner-border-sm text-secondary";
                 listElem.appendChild(spinnerElem);
-                SetFileHTML(listElem, file);
+                SetFileHTML(bots[botId].token, listElem, file.previewId, file.fileId, true);
             }
             for (var c = 0; c < container.children.length; c++) {
                 var listElem = document.createElement("li");
@@ -245,96 +246,6 @@
                 var newMsgElem = document.createElement("ul");
                 listElem.appendChild(newMsgElem);
                 AddContainers(newMsgElem, container.children[c]);
-            }
-        }
-        function SetFileHTML(listElem, file) {
-            var isVideo = false;
-            var previewWasGotten = false;
-            var spinnerElem = listElem.lastChild;
-            var getURL = `https://api.telegram.org/bot${bots[botId].token}/getFile`;
-            if (file.previewId != undefined) {
-                $.ajax({
-                    url: getURL,
-                    type: 'get',
-                    data: { file_id: file.previewId },
-                    success: function (data) {
-                        previewWasGotten = true;
-                        var file_path = data.result.file_path;
-                        var pathURL = "https://api.telegram.org/file/bot" + bots[botId].token + "/" + file_path;
-                        if (isVideo) {
-                            var videoElem = listElem.getElementsByTagName('video')[0];
-                            videoElem.poster = pathURL;
-                        }
-                        else {
-                            var previewElem = document.createElement("img");
-                            previewElem.src = pathURL;
-                            listElem.appendChild(document.createElement("br"));
-                            listElem.appendChild(previewElem);
-                        }
-                    },
-                    error: function (data) {
-                        ShowError(data.responseJSON.description, spinnerElem);
-                    }
-                });
-            }
-
-            $.ajax({
-                url: getURL,
-                type: 'get',
-                data: { file_id: file.fileId },
-                success: function (data) {
-                    var file_path = data.result.file_path;
-                    var parts = file_path.split('/');
-                    var fileName = parts.pop();
-                    var fileFolder = parts.pop();
-                    var pathURL = "https://api.telegram.org/file/bot" + bots[botId].token + "/" + file_path;
-                    var jqSpinner = $(spinnerElem);
-                    jqSpinner.removeClass("spinner-border spinner-border-sm text-secondary");
-                    jqSpinner.addClass("oi oi-cloud-download");
-                    var linkElem = document.createElement("a");
-                    linkElem.href = pathURL;
-                    linkElem.text = fileName;
-                    linkElem.target = "_blank";
-                    if (fileFolder == "voice" || fileFolder == "music") {
-                        listElem.appendChild(document.createElement("br"));
-                        var audioElem = document.createElement("audio");
-                        audioElem.setAttribute("controls", "");
-                        var sourceElem = document.createElement("source");
-                        sourceElem.src = pathURL;
-                        audioElem.appendChild(sourceElem);
-                        //audioElem.appendChild(linkElem); // если не поддерживается
-                        listElem.appendChild(audioElem);
-                    }
-                    else {
-                        if (fileFolder == "video_notes" || fileFolder == "videos" || fileFolder == "animations") {
-                            listElem.appendChild(document.createElement("br"));
-                            var videoElem = document.createElement("video");
-                            videoElem.setAttribute("controls", "");
-                            var sourceElem = document.createElement("source");
-                            sourceElem.src = pathURL;
-                            videoElem.appendChild(sourceElem);
-                            //videoElem.appendChild(linkElem); // если не поддерживается
-                            listElem.appendChild(videoElem);
-                            isVideo = true;
-                            if (previewWasGotten) {
-                                var previewElem = listElem.getElementsByTagName("img")[0];
-                                videoElem.poster = previewElem.src;
-                                previewElem.remove();
-                            }
-                        }
-                    }
-                    spinnerElem.appendChild(linkElem);
-                },
-                error: function (data) {
-                    ShowError(data.responseJSON.description, spinnerElem);
-                }
-            });
-
-            function ShowError(msg, elem) {
-                jqElem = $(elem);
-                jqElem.removeClass("spinner-border spinner-border-sm text-secondary");
-                jqElem.addClass("oi oi-x text-danger");
-                elem.innerText = msg;
             }
         }
         var newNode = document.getElementById("div_order_").cloneNode(true);
