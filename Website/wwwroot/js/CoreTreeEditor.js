@@ -86,7 +86,8 @@ const baseModal = $("<div>").attr({
     $("<div>").addClass("modal-body").append($("<form>").attr("enctype", "multipart/form-data").append([
         $("<div>").addClass("form-row align-items-stretch").append([
             $("<div>").addClass("col col-5 d-flex flex-column justify-content-start align-items-stretch").append([
-                $("<div>").addClass("flex-fill align-self-stretch rounded border border-secondary"),
+                $("<div>").addClass("fileHolder flex-fill align-self-stretch rounded border border-secondary text-center d-flex flex-column justify-content-center").append(
+                    $("<span>").addClass("spinner-border text-secondary align-baseline")),
                 $("<div>").addClass("input-group").append([
                     $("<div>").addClass("custom-file").append([
                         $("<input>").attr({

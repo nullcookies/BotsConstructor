@@ -151,6 +151,20 @@
     filter: alpha(opacity=50);
 }
 
+.fileHolder > .spinner-border {
+    position: relative;
+    width: 25%;
+    height: auto;
+    font-size: 2rem;
+    margin: auto;
+}
+
+.fileHolder > .spinner-border:after {
+    content: "";
+    display: block;
+    padding-bottom: 100%;
+}
+
 .bg1 {
     background-color: firebrick;
 }
