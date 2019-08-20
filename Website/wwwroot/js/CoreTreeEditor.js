@@ -104,40 +104,42 @@ const baseModal = $("<div>").attr({
                                 let fileType = parseInt(this.getAttribute("data-type"));
                                 let jqFileHolder = jqFileInputDiv.parent().parent().children(".fileHolder");
                                 jqFileHolder.append($("<span>").addClass("spinner-border text-secondary"));
-                                let xhr;
+                                let request;
                                 switch (fileType) {
                                     case fileTypes.Image:
-                                        xhr = SendPhoto(botToken, userId, file);
+                                        request = SendPhoto(botToken, userId, file);
                                         break;
                                     case fileTypes.Audio:
-                                        xhr = SendAudio(botToken, userId, file);
+                                        request = SendAudio(botToken, userId, file);
                                         break;
                                     case fileTypes.Video:
-                                        xhr = SendVideo(botToken, userId, file);
+                                        request = SendVideo(botToken, userId, file);
                                         break;
                                     case fileTypes.Document:
-                                        xhr = SendDocument(botToken, userId, file);
+                                        request = SendDocument(botToken, userId, file);
                                         break;
                                     default:
                                         fileType = file.type.split('/').shift();
                                         switch (fileType) {
                                             case "image":
-                                                xhr = SendPhoto(botToken, userId, file);
+                                                request = SendPhoto(botToken, userId, file);
                                                 break;
                                             case "audio":
-                                                xhr = SendAudio(botToken, userId, file);
+                                                request = SendAudio(botToken, userId, file);
                                                 break;
                                             case "video":
-                                                xhr = SendVideo(botToken, userId, file);
+                                                request = SendVideo(botToken, userId, file);
                                                 break;
                                             default:
-                                                xhr = SendDocument(botToken, userId, file);
+                                                request = SendDocument(botToken, userId, file);
                                                 break;
                                         }
                                         break;
                                 }
-                                xhr.then(function (file) {
-                                    SetFileHTML(botToken, jqFileHolder[0], file.previewId, file.fileId, false);
+                                request.promise.then(function (file) {
+                                    SetFileHTML(botToken, jqFileHolder[0], file.previewId, file.fileId, false).then(function () {
+                                        jqFileHolder.children("br").first().remove();
+                                    });
                                 },
                                 function (jqXHR, textStatus) {
                                     let errMsg = textStatus;
@@ -148,14 +150,14 @@ const baseModal = $("<div>").attr({
                                         addClass("oi oi-x text-danger").text(errMsg);
                                 });
                                 jqFileHolder.closest(".modal").one("hide.bs.modal", function () {
-                                    xhr.abort();
+                                    request.abort();
                                 });
                             }
                             else {
                                 jqFileInputDiv.children(".custom-file-label").text("Choose file");
                             }
                         }),
-                        $("<label>").addClass("custom-file-label").text("Choose file")
+                        $("<label>").addClass("custom-file-label overflow-hidden").text("Choose file")
                     ]),
                     $("<div>").addClass("input-group-append").append([
                         $("<button>").attr({
@@ -182,7 +184,7 @@ const baseModal = $("<div>").attr({
                 ])
             ]),
             $("<div>").addClass("col").append($("<textarea>").attr({
-                class: "form-control base-message",
+                class: "form-control base-message h-100",
                 rows: 10,
                 cols: 50,
                 placeholder: "Place for text message"

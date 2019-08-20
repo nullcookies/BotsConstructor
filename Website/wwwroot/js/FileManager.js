@@ -35,6 +35,7 @@ const imgModal = $("<div>").attr({
  * @param {string} previewId ID превью файла.
  * @param {string} fileId ID файла.
  * @param {boolean} needDownload Нужно ли отображать ссылку для скачивания.
+ * @returns Возвращает promise.
  */
 function SetFileHTML(botToken, elem, previewId, fileId, needDownload) {
     const spinnerElem = elem.lastChild;
@@ -83,6 +84,7 @@ function SetFileHTML(botToken, elem, previewId, fileId, needDownload) {
             if (fileFolder == "voice" || fileFolder == "music") {
                 elem.appendChild(document.createElement("br"));
                 const audioElem = document.createElement("audio");
+                audioElem.addClass("mw-100 mh-100");
                 audioElem.setAttribute("controls", "");
                 const sourceElem = document.createElement("source");
                 sourceElem.src = pathURL;
@@ -94,6 +96,7 @@ function SetFileHTML(botToken, elem, previewId, fileId, needDownload) {
                 if (fileFolder == "video_notes" || fileFolder == "videos" || fileFolder == "animations") {
                     elem.appendChild(document.createElement("br"));
                     const videoElem = document.createElement("video");
+                    videoElem.addClass("mw-100 mh-100");
                     videoElem.setAttribute("controls", "");
                     const sourceElem = document.createElement("source");
                     sourceElem.src = pathURL;
@@ -144,7 +147,7 @@ function SetFileHTML(botToken, elem, previewId, fileId, needDownload) {
         }
     }
 
-    $.when(previewXHR, fileXHR).then(function () {
+    return $.when(previewXHR, fileXHR).then(function () {
         while (postActions.length > 0) {
             postActions.pop()();
         }
@@ -193,15 +196,22 @@ function SendFile(fileType, botToken, userId, file) {
  * @param {string} botToken Токен бота.
  * @param {number} userId ID пользователя, которому отправится изображение.
  * @param {File} file Изображение, которое необходимо отправить.
- * @returns Возвращает XMLHttpRequest.
+ * @returns Возвращает объект из abort и promise.
  */
 function SendPhoto(botToken, userId, file) {
-    return SendFile("photo", botToken, userId, file).then(function (data) {
-        return {
-            previewId: data.result.photo[0].file_id,
-            fileId: data.result.photo.pop().file_id
-        };
-    });
+    const jqXHR = SendFile("photo", botToken, userId, file);
+    return {
+        abort: function () {
+            jqXHR.abort();
+        },
+        promise: jqXHR.then(function (data) {
+            return {
+                jqXHR: jqXHR,
+                previewId: data.result.photo[0].file_id,
+                fileId: data.result.photo.pop().file_id
+            };
+        })
+    };
 }
 
 /**
@@ -209,20 +219,27 @@ function SendPhoto(botToken, userId, file) {
  * @param {string} botToken Токен бота.
  * @param {number} userId ID пользователя, которому отправится аудиофайл.
  * @param {File} file Аудиофайл, который необходимо отправить.
- * @returns Возвращает XMLHttpRequest.
+ * @returns Возвращает объект из abort и promise.
  */
 function SendAudio(botToken, userId, file) {
-    return SendFile("audio", botToken, userId, file).then(function (data) {
-        const audio = data.result.audio;
-        let previewId = null;
-        if (audio.thumb) {
-            previewId = audio.thumb.file_id;
-        }
-        return {
-            previewId: previewId,
-            fileId: audio.file_id
-        };
-    });
+    const jqXHR = SendFile("audio", botToken, userId, file);
+    return {
+        abort: function () {
+            jqXHR.abort();
+        },
+        promise: jqXHR.then(function (data) {
+            const audio = data.result.audio;
+            let previewId = null;
+            if (audio.thumb) {
+                previewId = audio.thumb.file_id;
+            }
+            return {
+                jqXHR: jqXHR,
+                previewId: previewId,
+                fileId: audio.file_id
+            };
+        })
+    };
 }
 
 /**
@@ -230,20 +247,27 @@ function SendAudio(botToken, userId, file) {
  * @param {string} botToken Токен бота.
  * @param {number} userId ID пользователя, которому отправится видеофайл.
  * @param {File} file Видеофайл, который необходимо отправить.
- * @returns Возвращает XMLHttpRequest.
+ * @returns Возвращает объект из abort и promise.
  */
 function SendVideo(botToken, userId, file) {
-    return SendFile("video", botToken, userId, file).then(function (data) {
-        const video = data.result.video;
-        let previewId = null;
-        if (video.thumb) {
-            previewId = video.thumb.file_id;
-        }
-        return {
-            previewId: previewId,
-            fileId: video.file_id
-        };
-    });
+    const jqXHR = SendFile("video", botToken, userId, file);
+    return {
+        abort: function () {
+            jqXHR.abort();
+        },
+        promise: jqXHR.then(function (data) {
+            const video = data.result.video;
+            let previewId = null;
+            if (video.thumb) {
+                previewId = video.thumb.file_id;
+            }
+            return {
+                jqXHR: jqXHR,
+                previewId: previewId,
+                fileId: video.file_id
+            };
+        })
+    };
 }
 
 /**
@@ -251,18 +275,25 @@ function SendVideo(botToken, userId, file) {
  * @param {string} botToken Токен бота.
  * @param {number} userId ID пользователя, которому отправится документ.
  * @param {File} file Документ, который необходимо отправить.
- * @returns Возвращает XMLHttpRequest.
+ * @returns Возвращает объект из abort и promise.
  */
 function SendDocument(botToken, userId, file) {
-    return SendFile("document", botToken, userId, file).then(function (data) {
-        const document = data.result.document;
-        let previewId = null;
-        if (document.thumb) {
-            previewId = document.thumb.file_id;
-        }
-        return {
-            previewId: previewId,
-            fileId: document.file_id
-        };
-    });
+    const jqXHR = SendFile("document", botToken, userId, file);
+    return {
+        abort: function () {
+            jqXHR.abort();
+        },
+        promise: jqXHR.then(function (data) {
+            const document = data.result.document;
+            let previewId = null;
+            if (document.thumb) {
+                previewId = document.thumb.file_id;
+            }
+            return {
+                jqXHR: jqXHR,
+                previewId: previewId,
+                fileId: document.file_id
+            };
+        })
+    };
 }
