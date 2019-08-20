@@ -18,6 +18,9 @@ function deepClone(src) {
     }
     return clone;
 }
+// TODO: устанавливать эти значения из полученных данных.
+let botToken = "747439290:AAFsEae_HLFYi-gBrYy7AtmZpr1gw6qL8rM";
+let userId = 389063743;
 
 /**
  * Выбранный узел.
@@ -86,8 +89,7 @@ const baseModal = $("<div>").attr({
     $("<div>").addClass("modal-body").append($("<form>").attr("enctype", "multipart/form-data").append([
         $("<div>").addClass("form-row align-items-stretch").append([
             $("<div>").addClass("col col-5 d-flex flex-column justify-content-start align-items-stretch").append([
-                $("<div>").addClass("fileHolder flex-fill align-self-stretch rounded border border-secondary text-center d-flex flex-column justify-content-center").append(
-                    $("<span>").addClass("spinner-border text-secondary align-baseline")),
+                $("<div>").addClass("fileHolder flex-fill align-self-stretch rounded border border-secondary text-center d-flex flex-column justify-content-center"),
                 $("<div>").addClass("input-group").append([
                     $("<div>").addClass("custom-file").append([
                         $("<input>").attr({
@@ -96,14 +98,61 @@ const baseModal = $("<div>").attr({
                             "data-type": 0
                         }).on("change", function () {
                             let file = this.files[0];
+                            let jqFileInputDiv = $(this.parentElement);
                             if (file != null) {
-                                console.log(file.type);
-                                $(this).parent().children(".custom-file-label").text(file.name);
-                                console.log(file.name);
-                                console.log(this.getAttribute("data-type"));
+                                jqFileInputDiv.children(".custom-file-label").text(file.name);
+                                let fileType = parseInt(this.getAttribute("data-type"));
+                                let jqFileHolder = jqFileInputDiv.parent().parent().children(".fileHolder");
+                                jqFileHolder.append($("<span>").addClass("spinner-border text-secondary"));
+                                let xhr;
+                                switch (fileType) {
+                                    case fileTypes.Image:
+                                        xhr = SendPhoto(botToken, userId, file);
+                                        break;
+                                    case fileTypes.Audio:
+                                        xhr = SendAudio(botToken, userId, file);
+                                        break;
+                                    case fileTypes.Video:
+                                        xhr = SendVideo(botToken, userId, file);
+                                        break;
+                                    case fileTypes.Document:
+                                        xhr = SendDocument(botToken, userId, file);
+                                        break;
+                                    default:
+                                        fileType = file.type.split('/').shift();
+                                        switch (fileType) {
+                                            case "image":
+                                                xhr = SendPhoto(botToken, userId, file);
+                                                break;
+                                            case "audio":
+                                                xhr = SendAudio(botToken, userId, file);
+                                                break;
+                                            case "video":
+                                                xhr = SendVideo(botToken, userId, file);
+                                                break;
+                                            default:
+                                                xhr = SendDocument(botToken, userId, file);
+                                                break;
+                                        }
+                                        break;
+                                }
+                                xhr.then(function (file) {
+                                    SetFileHTML(botToken, jqFileHolder[0], file.previewId, file.fileId, false);
+                                },
+                                function (jqXHR, textStatus) {
+                                    let errMsg = textStatus;
+                                    if (jqXHR.responseJSON) {
+                                        errMsg = jqXHR.responseJSON.description;
+                                    }
+                                    jqFileHolder.children().first().removeClass("spinner-border text-secondary").
+                                        addClass("oi oi-x text-danger").text(errMsg);
+                                });
+                                jqFileHolder.closest(".modal").one("hide.bs.modal", function () {
+                                    xhr.abort();
+                                });
                             }
                             else {
-                                $(this).parent().children(".custom-file-label").text("Choose file");
+                                jqFileInputDiv.children(".custom-file-label").text("Choose file");
                             }
                         }),
                         $("<label>").addClass("custom-file-label").text("Choose file")

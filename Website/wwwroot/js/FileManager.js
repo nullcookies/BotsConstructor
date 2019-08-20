@@ -37,31 +37,23 @@ const imgModal = $("<div>").attr({
  * @param {boolean} needDownload Нужно ли отображать ссылку для скачивания.
  */
 function SetFileHTML(botToken, elem, previewId, fileId, needDownload) {
-    let isVideo = false;
-    let previewWasGotten = false;
-    let fileWasGotten = false;
     const spinnerElem = elem.lastChild;
     const getURL = "https://api.telegram.org/bot" + botToken + "/getFile";
+    let previewXHR;
+    let fileXHR;
     if (previewId != undefined) {
-        $.ajax({
+        previewXHR = $.ajax({
             url: getURL,
             type: 'get',
             data: { file_id: previewId },
             success: function (data) {
                 const file_path = data.result.file_path;
                 const pathURL = "https://api.telegram.org/file/bot" + botToken + "/" + file_path;
-                if (isVideo) {
-                    const videoElem = elem.getElementsByTagName('video')[0];
-                    videoElem.poster = pathURL;
-                }
-                else {
-                    const previewElem = document.createElement("img");
-                    previewElem.src = pathURL;
-                    elem.appendChild(document.createElement("br"));
-                    elem.appendChild(previewElem);
-                }
-                previewWasGotten = true;
-                PostAction();
+                const previewElem = document.createElement("img");
+                previewElem.src = pathURL;
+                previewElem.className = "mw-100 mh-100";
+                elem.appendChild(document.createElement("br"));
+                elem.appendChild(previewElem);
             },
             error: function (data) {
                 ShowError(data.responseJSON.description, spinnerElem);
@@ -69,7 +61,7 @@ function SetFileHTML(botToken, elem, previewId, fileId, needDownload) {
         });
     }
 
-    $.ajax({
+    fileXHR = $.ajax({
         url: getURL,
         type: 'get',
         data: { file_id: fileId },
@@ -108,7 +100,6 @@ function SetFileHTML(botToken, elem, previewId, fileId, needDownload) {
                     videoElem.appendChild(sourceElem);
                     //videoElem.appendChild(linkElem); // если не поддерживается
                     elem.appendChild(videoElem);
-                    isVideo = true;
                     AddPostAction(function () {
                         const previewElem = elem.getElementsByTagName("img")[0];
                         videoElem.poster = previewElem.src;
@@ -125,26 +116,27 @@ function SetFileHTML(botToken, elem, previewId, fileId, needDownload) {
                                     find(".modal-body > img").one("load", function () {
                                         $(this).parent().parent().parent().css("width", this.width + 2 + "px");
                                     }).attr("src", pathURL).end().
-                                find(".modal-footer > .btn").attr("href", pathURL).end().modal("show")
+                                    find(".modal-footer > .btn").attr("href", pathURL).end().modal("show")
                             };
                         });
+                    }
+                    else {
+                        if (previewId == null) {
+                            jqSpinner.addClass("oi oi-file display-1");
+                        }
                     }
                 }
             }
             if (needDownload) {
                 spinnerElem.appendChild(linkElem);
             }
-            fileWasGotten = true;
-            PostAction();
         },
         error: function (data) {
             ShowError(data.responseJSON.description, spinnerElem);
         }
     });
 
-    let postActions = [function () {
-        console.log("End loading");
-    }];
+    const postActions = [];
 
     function AddPostAction(action) {
         if (action != null) {
@@ -152,13 +144,18 @@ function SetFileHTML(botToken, elem, previewId, fileId, needDownload) {
         }
     }
 
-    function PostAction() {
-        if (previewWasGotten && fileWasGotten) {
-            while (postActions.length > 0) {
-                postActions.pop()();
-            }
+    $.when(previewXHR, fileXHR).then(function () {
+        while (postActions.length > 0) {
+            postActions.pop()();
         }
-    }
+    },
+    function (jqXHR, textStatus) {
+        let errMsg = textStatus;
+        if (jqXHR.responseJSON) {
+            errMsg = jqXHR.responseJSON.description;
+        }
+        ShowError(errMsg, spinnerElem);
+    });
 
     function ShowError(msg, elem) {
         jqElem = $(elem);
@@ -166,4 +163,106 @@ function SetFileHTML(botToken, elem, previewId, fileId, needDownload) {
         jqElem.addClass("oi oi-x text-danger");
         elem.innerText = msg;
     }
+}
+
+/**
+ * Базовый метод для отправки файлов.
+ * @param {string} fileType Тип файла Telegram.
+ * @param {string} botToken Токен бота.
+ * @param {number} userId ID пользователя, которому отправится файл.
+ * @param {File} file Файл, который необходимо отправить.
+ * @returns Возвращает XMLHttpRequest.
+ */
+function SendFile(fileType, botToken, userId, file) {
+    const upperType = fileType.charAt(0).toUpperCase() + fileType.slice(1);
+    const fd = new FormData();
+    fd.append(fileType, file);
+    fd.append('chat_id', userId);
+    return $.ajax({
+        url: 'https://api.telegram.org/bot' + botToken + '/send' + upperType,
+        type: 'POST',
+        method: 'POST',
+        data: fd,
+        contentType: false,
+        processData: false
+    });
+}
+
+/**
+ * Базовый метод для отправки изображений.
+ * @param {string} botToken Токен бота.
+ * @param {number} userId ID пользователя, которому отправится изображение.
+ * @param {File} file Изображение, которое необходимо отправить.
+ * @returns Возвращает XMLHttpRequest.
+ */
+function SendPhoto(botToken, userId, file) {
+    return SendFile("photo", botToken, userId, file).then(function (data) {
+        return {
+            previewId: data.result.photo[0].file_id,
+            fileId: data.result.photo.pop().file_id
+        };
+    });
+}
+
+/**
+ * Базовый метод для отправки аудиофайлов.
+ * @param {string} botToken Токен бота.
+ * @param {number} userId ID пользователя, которому отправится аудиофайл.
+ * @param {File} file Аудиофайл, который необходимо отправить.
+ * @returns Возвращает XMLHttpRequest.
+ */
+function SendAudio(botToken, userId, file) {
+    return SendFile("audio", botToken, userId, file).then(function (data) {
+        const audio = data.result.audio;
+        let previewId = null;
+        if (audio.thumb) {
+            previewId = audio.thumb.file_id;
+        }
+        return {
+            previewId: previewId,
+            fileId: audio.file_id
+        };
+    });
+}
+
+/**
+ * Базовый метод для отправки видеофайлов.
+ * @param {string} botToken Токен бота.
+ * @param {number} userId ID пользователя, которому отправится видеофайл.
+ * @param {File} file Видеофайл, который необходимо отправить.
+ * @returns Возвращает XMLHttpRequest.
+ */
+function SendVideo(botToken, userId, file) {
+    return SendFile("video", botToken, userId, file).then(function (data) {
+        const video = data.result.video;
+        let previewId = null;
+        if (video.thumb) {
+            previewId = video.thumb.file_id;
+        }
+        return {
+            previewId: previewId,
+            fileId: video.file_id
+        };
+    });
+}
+
+/**
+ * Базовый метод для отправки документов.
+ * @param {string} botToken Токен бота.
+ * @param {number} userId ID пользователя, которому отправится документ.
+ * @param {File} file Документ, который необходимо отправить.
+ * @returns Возвращает XMLHttpRequest.
+ */
+function SendDocument(botToken, userId, file) {
+    return SendFile("document", botToken, userId, file).then(function (data) {
+        const document = data.result.document;
+        let previewId = null;
+        if (document.thumb) {
+            previewId = document.thumb.file_id;
+        }
+        return {
+            previewId: previewId,
+            fileId: document.file_id
+        };
+    });
 }
