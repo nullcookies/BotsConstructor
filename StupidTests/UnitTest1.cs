@@ -15,49 +15,33 @@ namespace StupidTests
                "Password=v3rRh4rdp455lidzomObCl4vui49ri4;" +
                "Server=194.9.71.76;" +
                "Port=5432;" +
-               "Database=dev0008r;" +
+               "Database=dev00087386873469827346r;" +
                "Integrated Security=true;" +
                "Pooling=true;";
 
+        const int countOfRecord = 2000;
         [TestMethod]
-        public void DbStressTestingAdequately()
+        public void InitDb()
         {
             DbContextWrapper dbContextWrapper = new DbContextWrapper(connectionString);
 
             ApplicationContext contextDb = dbContextWrapper.GetNewDbContext();
-            for (int i = 0; i < 300; i++)
-            {
-                contextDb.LogMessages.Add(
-                    new LogMessage
-                    {
-                        AccountId = 000,
-                        DateTime = DateTime.UtcNow,
-                        LogLevel = LogLevelMyDich.INFO,
-                        Message = "qq",
-                        Source = DataLayer.Services.Source.OTHER,
-                        SourceString = DataLayer.Services.Source.OTHER.ToString()
-                    });
-            }
+            contextDb.LogMessages.RemoveRange(contextDb.LogMessages);
             contextDb.SaveChanges();
-            Assert.IsTrue(true);
-
         }
 
-
-        //Медленно
         [TestMethod]
         public void DbStressTesting()
         {
             DbContextWrapper dbContextWrapper = new DbContextWrapper(connectionString);
 
             ApplicationContext contextDb = dbContextWrapper.GetNewDbContext();
-            for (int i = 0; i < 300; i++)
+            for (int i = 0; i < countOfRecord; i++)
             {
-
                 contextDb.LogMessages.Add(
                     new LogMessage
                     {
-                        AccountId = 111,
+                        AccountId = 000,
                         DateTime = DateTime.UtcNow,
                         LogLevel = LogLevelMyDich.INFO,
                         Message = "qq",
@@ -70,98 +54,42 @@ namespace StupidTests
 
         }
 
-        //Потеря данных
         [TestMethod]
-        public async Task DbStressTestingAsync()
+        public async Task DbStressTestingTasks()
         {
             DbContextWrapper dbContextWrapper = new DbContextWrapper(connectionString);
 
-            ApplicationContext contextDb = dbContextWrapper.GetNewDbContext();
+            List<Task> tasks = new List<Task>();
 
-            object lock_obj = new object();
-            for (int i = 0; i < 300; i++)
+            for (int i = 0; i < countOfRecord; i++)
             {
+                tasks.Add(
+                    Task.Run( 
+                        ()=>WritetoDb(dbContextWrapper)
+                        ));
+            }
 
-                await contextDb.LogMessages.AddAsync(
-                        new LogMessage
-                    {
-                        AccountId = 222,
-                        DateTime = DateTime.UtcNow,
-                        LogLevel = LogLevelMyDich.INFO,
-                        Message = "qq",
-                        Source = DataLayer.Services.Source.OTHER,
-                        SourceString = DataLayer.Services.Source.OTHER.ToString()
-                    });
-                lock (lock_obj)
+            await Task.WhenAll(tasks);
+
+            Assert.IsTrue(true);
+
+        }
+
+        public async Task WritetoDb(DbContextWrapper dbContextWrapper)
+        {
+            ApplicationContext contextDb = dbContextWrapper.GetNewDbContext();
+            await contextDb.LogMessages.AddAsync(
+                new LogMessage
                 {
-                    contextDb.SaveChangesAsync();
-                }
-            }
-            Assert.IsTrue(true);
+                    AccountId = 111,
+                    DateTime = DateTime.UtcNow,
+                    LogLevel = LogLevelMyDich.INFO,
+                    Message = "qq",
+                    Source = DataLayer.Services.Source.OTHER,
+                    SourceString = DataLayer.Services.Source.OTHER.ToString()
+                });
+            await contextDb.SaveChangesAsync();
         }
-
-
-        //Медленно
-        [TestMethod]
-        public async Task DbStressTestingAsync1()
-        {
-            DbContextWrapper dbContextWrapper = new DbContextWrapper(connectionString);
-
-            ApplicationContext contextDb = dbContextWrapper.GetNewDbContext();
-
-            for (int i = 0; i < 300; i++)
-            {
-
-                await contextDb.LogMessages.AddAsync(
-                    new LogMessage
-                    {
-                        AccountId = 333,
-                        DateTime = DateTime.UtcNow,
-                        LogLevel = LogLevelMyDich.INFO,
-                        Message = "qq",
-                        Source = DataLayer.Services.Source.OTHER,
-                        SourceString = DataLayer.Services.Source.OTHER.ToString()
-                    });
-                
-                await contextDb.SaveChangesAsync();
-                
-            }
-            Assert.IsTrue(true);
-        }
-
-        //медленно + потеря данных
-        [TestMethod]
-        public void DbStressTesting1()
-        {
-            DbContextWrapper dbContextWrapper = new DbContextWrapper(connectionString);
-
-            ApplicationContext contextDb = dbContextWrapper.GetNewDbContext();
-
-            object lock_obj = new object();
-            for (int i = 0; i < 300; i++)
-            {
-                lock(lock_obj)
-                {
-                 contextDb.LogMessages.AddAsync(
-                        new LogMessage
-                        {
-                            AccountId = 444,
-                            DateTime = DateTime.UtcNow,
-                            LogLevel = LogLevelMyDich.INFO,
-                            Message = "qq",
-                            Source = DataLayer.Services.Source.OTHER,
-                            SourceString = DataLayer.Services.Source.OTHER.ToString()
-                        });
-                
-                contextDb.SaveChangesAsync();
-                
-                }
-            }
-
-            
-            Assert.IsTrue(true);
-        }
-
 
     }
 }

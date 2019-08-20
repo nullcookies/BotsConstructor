@@ -330,7 +330,7 @@ namespace DeleteMeWebhook.Controllers
                     stat.NumberOfUniqueMessages = botUserstelegramIds.Count;
                 }
 
-                BotStatistics botStatistics = new BotStatistics(botUserstelegramIds, stat.NumberOfUniqueMessages);
+                BotStatisticsForest botStatistics = new BotStatisticsForest(botUserstelegramIds, stat.NumberOfUniqueMessages);
 
                 BotWrapper botWrapper = new BotWrapper(botId, null, bot.Token, null, null, null, botStatistics: botStatistics)
                 {

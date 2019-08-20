@@ -17,7 +17,7 @@ namespace LogicalCore
         public List<string> Languages => tmm.languages;
         public Action<VariablesContainer> InitializeSessionVars { get; set; } // вызывается для каждой сессии в конструкторе
 
-        public BotStatistics StatisticsContainer;
+        public BotStatisticsForest StatisticsContainer;
         public StupidBotAntispam StupidBotAntispam;
 
         public BotWrapper(int botId,
@@ -27,13 +27,13 @@ namespace LogicalCore
             TextMessagesManager textManager = null,
             GlobalFilter filter = null,
             VariablesContainer globalVariables = null,
-            BotStatistics botStatistics = null,
+            BotStatisticsForest botStatistics = null,
             StupidBotAntispam antispam = null
 
             ) : base(botId, link, token)
         {
 
-            StatisticsContainer = botStatistics == null?new BotStatistics():botStatistics ;
+            StatisticsContainer = botStatistics == null?new BotStatisticsForest():botStatistics ;
             StupidBotAntispam = antispam == null ? new StupidBotAntispam() : antispam;
             sessionsDictionary = new ConcurrentDictionary<int, Session>();
             tmm = textManager ?? new BaseTextMessagesManager();
@@ -156,12 +156,12 @@ namespace LogicalCore
     /// БД больше, чем значения в памяти), то оно должно поругаться в лог
     /// и занести в память значения из бд
     /// </summary>
-    public class BotStatistics
+    public class BotStatisticsForest
     {
         private HashSet<int> _usersTelegramIds;
         private long _numberOfMessages;
 
-        public BotStatistics(HashSet<int> usersTelegramIds, long numberOfMessages)
+        public BotStatisticsForest(HashSet<int> usersTelegramIds, long numberOfMessages)
         {
             if (usersTelegramIds == null)
                 usersTelegramIds = new HashSet<int>();
@@ -178,7 +178,7 @@ namespace LogicalCore
             _numberOfMessages = numberOfMessages;
         }
 
-        public BotStatistics()
+        public BotStatisticsForest()
         {
             _usersTelegramIds = new HashSet<int>();
             _numberOfMessages = 0;

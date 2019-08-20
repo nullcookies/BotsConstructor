@@ -115,7 +115,9 @@ namespace Website.Services.Bookkeeper
                     //Это не возможно
 
                     bot_was_working_today = true;
-                    throw new Exception("Бот сегодня не работал, но принимал заказы");
+
+                    //TODO ронять если не режим тестирования
+                    //throw new Exception("Бот сегодня не работал, но принимал заказы");
                     //Пробросить сюда логгер?
                 }
             }
