@@ -89,7 +89,8 @@ const baseModal = $("<div>").attr({
     $("<div>").addClass("modal-body").append($("<form>").attr("enctype", "multipart/form-data").append([
         $("<div>").addClass("form-row align-items-stretch").append([
             $("<div>").addClass("col col-5 d-flex flex-column justify-content-start align-items-stretch").append([
-                $("<div>").addClass("fileHolder flex-fill align-self-stretch rounded border border-secondary text-center d-flex flex-column justify-content-center"),
+                $("<div>").addClass("fileHolder flex-fill align-self-stretch rounded border border-secondary text-center d-flex flex-column justify-content-center").
+                    append($("<span>").addClass("text-secondary display-4 overflow-hidden").css("word-break", "break-word").text("No file selected")),
                 $("<div>").addClass("input-group").append([
                     $("<div>").addClass("custom-file").append([
                         $("<input>").attr({
@@ -99,10 +100,11 @@ const baseModal = $("<div>").attr({
                         }).on("change", function () {
                             let file = this.files[0];
                             let jqFileInputDiv = $(this.parentElement);
+                            const jqFileHolder = jqFileInputDiv.parent().parent().children(".fileHolder");
+                            jqFileHolder.children().remove();
                             if (file != null) {
                                 jqFileInputDiv.children(".custom-file-label").text(file.name);
                                 let fileType = parseInt(this.getAttribute("data-type"));
-                                let jqFileHolder = jqFileInputDiv.parent().parent().children(".fileHolder");
                                 jqFileHolder.append($("<span>").addClass("spinner-border text-secondary"));
                                 let request;
                                 switch (fileType) {
@@ -136,9 +138,9 @@ const baseModal = $("<div>").attr({
                                         }
                                         break;
                                 }
-                                request.promise.then(function (file) {
+                                const setPromise = request.promise.then(function (file) {
                                     SetFileHTML(botToken, jqFileHolder[0], file.previewId, file.fileId, false).then(function () {
-                                        jqFileHolder.children("br").first().remove();
+                                        jqFileHolder.children("br:first").remove();
                                     });
                                 },
                                 function (jqXHR, textStatus) {
@@ -146,14 +148,26 @@ const baseModal = $("<div>").attr({
                                     if (jqXHR.responseJSON) {
                                         errMsg = jqXHR.responseJSON.description;
                                     }
-                                    jqFileHolder.children().first().removeClass("spinner-border text-secondary").
+                                    jqFileHolder.children(".spinner-border").first().removeClass("spinner-border text-secondary").
                                         addClass("oi oi-x text-danger").text(errMsg);
                                 });
-                                jqFileHolder.closest(".modal").one("hide.bs.modal", function () {
+
+                                const abortRequest = function () {
                                     request.abort();
+                                    setPromise.always(function () {
+                                        jqFileHolder.children("span.oi-x:contains(abort)").remove();
+                                    });
+                                };
+                                const jqSelf = $(this);
+                                jqSelf.one("change", abortRequest);
+                                request.promise.always(function () {
+                                    jqSelf.off("click", abortRequest);
                                 });
+                                jqFileHolder.closest(".modal").one("hide.bs.modal", abortRequest);
                             }
                             else {
+                                jqFileHolder.append($("<span>").addClass("text-secondary display-4 overflow-hidden").
+                                    css("word-break", "break-word").text("No file selected"));
                                 jqFileInputDiv.children(".custom-file-label").text("Choose file");
                             }
                         }),

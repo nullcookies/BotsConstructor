@@ -38,7 +38,7 @@ const imgModal = $("<div>").attr({
  * @returns Возвращает promise.
  */
 function SetFileHTML(botToken, elem, previewId, fileId, needDownload) {
-    const spinnerElem = elem.lastChild;
+    const spinnerElem = elem.getElementsByClassName("spinner-border")[0];
     const getURL = "https://api.telegram.org/bot" + botToken + "/getFile";
     let previewXHR;
     let fileXHR;
