@@ -53,7 +53,9 @@ function SetFileHTML(botToken, elem, previewId, fileId, needDownload) {
                 const previewElem = document.createElement("img");
                 previewElem.src = pathURL;
                 previewElem.className = "mw-100 mh-100";
-                elem.appendChild(document.createElement("br"));
+                if (needDownload) {
+                    elem.appendChild(document.createElement("br"));
+                }
                 elem.appendChild(previewElem);
             },
             error: function (data) {
@@ -74,17 +76,17 @@ function SetFileHTML(botToken, elem, previewId, fileId, needDownload) {
             const pathURL = "https://api.telegram.org/file/bot" + botToken + "/" + file_path;
             const jqSpinner = $(spinnerElem);
             jqSpinner.removeClass("spinner-border spinner-border-sm text-secondary");
-            if (needDownload) {
-                jqSpinner.addClass("oi oi-cloud-download");
-            }
             const linkElem = document.createElement("a");
             linkElem.href = pathURL;
             linkElem.text = fileName;
             linkElem.target = "_blank";
+            if (needDownload) {
+                jqSpinner.addClass("oi oi-cloud-download").append(linkElem);
+            }
             if (fileFolder == "voice" || fileFolder == "music") {
                 elem.appendChild(document.createElement("br"));
                 const audioElem = document.createElement("audio");
-                audioElem.addClass("mw-100 mh-100");
+                audioElem.className = "mw-100 mh-100";
                 audioElem.setAttribute("controls", "");
                 const sourceElem = document.createElement("source");
                 sourceElem.src = pathURL;
@@ -96,7 +98,7 @@ function SetFileHTML(botToken, elem, previewId, fileId, needDownload) {
                 if (fileFolder == "video_notes" || fileFolder == "videos" || fileFolder == "animations") {
                     elem.appendChild(document.createElement("br"));
                     const videoElem = document.createElement("video");
-                    videoElem.addClass("mw-100 mh-100");
+                    videoElem.className = "mw-100 mh-100";
                     videoElem.setAttribute("controls", "");
                     const sourceElem = document.createElement("source");
                     sourceElem.src = pathURL;
@@ -129,9 +131,6 @@ function SetFileHTML(botToken, elem, previewId, fileId, needDownload) {
                         }
                     }
                 }
-            }
-            if (needDownload) {
-                spinnerElem.appendChild(linkElem);
             }
         },
         error: function (data) {

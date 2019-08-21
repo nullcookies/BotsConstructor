@@ -92,6 +92,14 @@ const baseModal = $("<div>").attr({
                 $("<div>").addClass("fileHolder flex-fill align-self-stretch rounded border border-secondary text-center d-flex flex-column justify-content-center").
                     append($("<span>").addClass("text-secondary display-4 overflow-hidden").css("word-break", "break-word").text("No file selected")),
                 $("<div>").addClass("input-group").append([
+                    $("<div>").addClass("input-group-prepend").append($("<button>").attr({
+                        class: "btn btn-outline-danger base-remove-file",
+                        type: "button"
+                    }).on("click", function () {
+                        $(this).parent().parent().children(".custom-file").children(".base-file").data("file_id", null).data("preview_id", null).val("").end().
+                            children(".custom-file-label").text("Choose file").end().parent().parent().children(".fileHolder").empty().append($("<span>").
+                                addClass("text-secondary display-4 overflow-hidden").css("word-break", "break-word").text("No file selected"));
+                    }).append($("<span>").addClass("oi oi-trash"))),
                     $("<div>").addClass("custom-file").append([
                         $("<input>").attr({
                             class: "form-control-file custom-file-input base-file",
@@ -138,10 +146,11 @@ const baseModal = $("<div>").attr({
                                         }
                                         break;
                                 }
-                                const setPromise = request.promise.then(function (file) {
-                                    SetFileHTML(botToken, jqFileHolder[0], file.previewId, file.fileId, false).then(function () {
-                                        jqFileHolder.children("br:first").remove();
-                                    });
+                                const jqSelf = $(this);
+
+                                const setPromise = request.promise.then(function (data) {
+                                    jqSelf.data("file_id", data.fileId).data("preview_id", data.previewId);
+                                    SetFileHTML(botToken, jqFileHolder[0], data.previewId, data.fileId, false);
                                 },
                                 function (jqXHR, textStatus) {
                                     let errMsg = textStatus;
@@ -154,18 +163,22 @@ const baseModal = $("<div>").attr({
 
                                 const abortRequest = function () {
                                     request.abort();
+                                    alert("aborted");
                                     setPromise.always(function () {
                                         jqFileHolder.children("span.oi-x:contains(abort)").remove();
                                     });
                                 };
-                                const jqSelf = $(this);
                                 jqSelf.one("change", abortRequest);
+                                const modal = jqFileHolder.closest(".modal").one("hide.bs.modal", abortRequest);
+                                const jqRemoveFileBtn = jqSelf.closest(".input-group").find(".base-remove-file").one("click", abortRequest);
                                 request.promise.always(function () {
-                                    jqSelf.off("click", abortRequest);
+                                    jqSelf.off("change", abortRequest);
+                                    modal.off("hide.bs.modal", abortRequest);
+                                    jqRemoveFileBtn.off("click", abortRequest);
                                 });
-                                jqFileHolder.closest(".modal").one("hide.bs.modal", abortRequest);
                             }
                             else {
+                                $(this).data("file_id", null).data("preview_id", null);
                                 jqFileHolder.append($("<span>").addClass("text-secondary display-4 overflow-hidden").
                                     css("word-break", "break-word").text("No file selected"));
                                 jqFileInputDiv.children(".custom-file-label").text("Choose file");
@@ -244,11 +257,26 @@ class NodeParams {
     openModal() {
         let self = this;
         baseModal.find(".modal-title").val(this.name).end().
-            find(".base-message").val(this.message).end()
-            .modal("show");
+            find(".base-message").val(this.message).end().
+            find(".base-file").data("file_id", this.fileId).end().
+            find(".base-file").data("preview_id", this.previewId).end().
+            find(".fileHolder").empty().append($("<span>").addClass("text-secondary display-4 overflow-hidden").
+                css("word-break", "break-word").text("No file selected")).end().
+            find(".base-file").val("").end().
+            find(".custom-file-label").text("Choose file").end().
+            modal("show");
+        if (this.fileId != null) {
+            const jqFileHolder = baseModal.find(".fileHolder");
+            jqFileHolder.children().remove().append($("<span>").addClass("spinner-border text-secondary"));
+            SetFileHTML(botToken, jqFileHolder[0], this.previewId, this.fileId, false).then(function () {
+                baseModal.find(".custom-file-label").text("Uploaded file");
+            });
+        }
         baseModal.one("hide.bs.modal", function () {
             self.name = baseModal.find(".modal-title").val();
             self.message = baseModal.find(".base-message").val();
+            self.fileId = baseModal.find(".base-file").data("file_id");
+            self.previewId = baseModal.find(".base-file").data("preview_id");
         });
         return baseModal;
     }
