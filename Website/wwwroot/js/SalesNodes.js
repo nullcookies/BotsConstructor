@@ -23,7 +23,7 @@ const inputTypes = Object.freeze({
     "document": 6
 });
 
-const sectionModal = baseModal.clone().find(".modal-body > form").append($("<fieldset>").
+const sectionModal = baseModal.clone(true).find(".modal-body > form").append($("<fieldset>").
     addClass("form-group collection-set mb-0").append($("<div>").addClass("row").append([
         $("<legend>").addClass("col-form-label col-auto").text("Collection type"),
         $("<div>").addClass("form-check form-check-inline col-auto").append([
