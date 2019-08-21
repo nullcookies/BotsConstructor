@@ -409,7 +409,7 @@ class TreeNode {
                         ui.helper.data('dropped', true);
                     }
                     else {
-                        alert("Ошибка! Невозможно добавить узел в качестве ребёнка в его ветвь.");
+                        alert("Ошибка! Невозможно добавить узел.");
                     }
                 }.bind(this)
             };
@@ -448,11 +448,11 @@ class TreeNode {
     }
 
     /**
-     * Проверяет, можно ли добавить узел.
+     * Проверяет, можно ли добавить узел в текущую ветвь.
      * @param {TreeNode} node Добавляемый узел.
      * @returns {boolean} Возвращает true, если можно, иначе false.
      */
-    checkAddPermission(node) {
+    checkBranchPermission(node) {
         let tmpParent = this;
 
         while (tmpParent != null) {
@@ -462,6 +462,33 @@ class TreeNode {
             tmpParent = tmpParent.parent;
         }
 
+        return true;
+    }
+
+    /**
+     * Проверяет, можно ли добавить узел.
+     * @param {TreeNode} node Добавляемый узел.
+     * @returns {boolean} Возвращает true, если можно, иначе false.
+     */
+    checkAddPermission(node) {
+        return this.checkBranchPermission(node);
+    }
+
+    /**
+     * Проверяет, может ли текущий узел быть промежуточным.
+     * @param {TreeNode} node Узел, перед которым необходимо добавить текущий как промежуточный.
+     * @returns {boolean} Возвращает true, если можно, иначе false.
+     */
+    canBeMiddle(node) {
+        return true;
+    }
+
+    /**
+     * Проверяет, может ли текущий узел быть групповым.
+     * @param {TreeNode} node Узел, перед которым необходимо добавить текущий как групповой.
+     * @returns {boolean} Возвращает true, если можно, иначе false.
+     */
+    canBeGroup(node) {
         return true;
     }
 
@@ -480,7 +507,7 @@ class TreeNode {
      * @returns {TreeNode} Возвращает новый узел с такими же параметрами, но не шаблонный.
      */
     cloneNode() {
-        let parameters = deepClone(this.parameters);
+        const parameters = deepClone(this.parameters);
         delete parameters.isTemplate;
         return new TreeNode(parameters);
     }
@@ -640,6 +667,14 @@ class RootNode extends TreeNode {
     cloneNode() {
         throw new Error("Корень нельзя склонировать!");
     }
+
+    canBeMiddle() {
+        throw new Error("Корень нельзя превратить в промежуточный узел!");
+    }
+
+    canBeGroup() {
+        throw new Error("Корень нельзя превратить в групповой узел!");
+    }
 }
 
 /** Базовый класс для узлов с одним ребёнком. */
@@ -652,22 +687,27 @@ class OneChildNode extends TreeNode {
         super(parameters);
     }
 
-    /** Вставка узлов запрещена для этого типа узлов! */
-    insertChild() {
-        throw new Error("Input-узел может иметь только одного ребёнка!");
+    cloneNode() {
+        const parameters = deepClone(this.parameters);
+        delete parameters.isTemplate;
+        return new OneChildNode(parameters);
     }
 
-    /**
-     * Добавляет нового ребёнка к узлу, если текущий узел ещё не имеет детей.
-     * @param {TreeNode} child Новый узел, который необходимо добавить.
-     */
-    appendChild(child) {
-        if (this.firstChild == null) {
-            super.appendChild(child);
+    checkAddPermission(node) {
+        if (super.checkAddPermission(node)) {
+            return (this.firstChild == null);
         }
         else {
-            throw new Error("Input-узел может иметь только одного ребёнка!");
+            return false;
         }
+    }
+
+    canBeMiddle(node) {
+        return (this.firstChild == null || node == null);
+    }
+
+    canBeGroup(node) {
+        return (node == null || (this.firstChild == null && node.wrapper.next == null));
     }
 }
 
@@ -728,12 +768,12 @@ class NodeWrapper {
                 outNodeFunc(event, ui);
 
                 let parentNode = this.node.parent;
-                if (parentNode.checkAddPermission(selectedNode)) {
+                if (parentNode.checkBranchPermission(selectedNode) && selectedNode.canBeGroup(this.node)) {
                     parentNode.addGroupNode(this, selectedNode);
                     ui.helper.data('dropped', true);
                 }
                 else {
-                    alert("Ошибка! Невозможно вставить групповой узел в качестве ребёнка в его ветвь.");
+                    alert("Ошибка! Невозможно вставить групповой узел.");
                 }
             }.bind(this),
             over: function (event, ui) {
@@ -750,12 +790,12 @@ class NodeWrapper {
             tolerance: "pointer",
             drop: function (event, ui) {
                 let parentNode = this.node.parent;
-                if (parentNode.checkAddPermission(selectedNode)) {
+                if (parentNode.checkBranchPermission(selectedNode) && selectedNode.canBeMiddle(this.node)) {
                     parentNode.addMiddleNode(this, selectedNode);
                     ui.helper.data('dropped', true);
                 }
                 else {
-                    alert("Ошибка! Невозможно вставить промежуточный узел в качестве ребёнка в его ветвь.");
+                    alert("Ошибка! Невозможно вставить промежуточный узел.");
                 }
             }.bind(this)
         });
@@ -778,17 +818,23 @@ class NodeWrapper {
                 outFillFunc(event, ui);
 
                 let parentNode = this.node.parent;
-                if (parentNode.checkAddPermission(selectedNode)) {
-                    if (this.next != null) {
+                if (this.next != null) {
+                    if (parentNode.checkBranchPermission(selectedNode) && selectedNode.canBeGroup(this.next.node)) {
                         parentNode.addGroupNode(this.next, selectedNode);
+                        ui.helper.data('dropped', true);
                     }
                     else {
-                        parentNode.appendChild(selectedNode);
+                        alert("Ошибка! Невозможно вставить групповой узел.");
                     }
-                    ui.helper.data('dropped', true);
                 }
                 else {
-                    alert("Ошибка! Невозможно вставить групповой узел в качестве ребёнка в его ветвь.");
+                    if (parentNode.checkAddPermission(selectedNode)) {
+                        parentNode.appendChild(selectedNode);
+                        ui.helper.data('dropped', true);
+                    }
+                    else {
+                        alert("Ошибка! Невозможно добавить узел.");
+                    }
                 }
             }.bind(this),
             over: function (event, ui) {
@@ -819,7 +865,7 @@ class NodeWrapper {
                     ui.helper.data('dropped', true);
                 }
                 else {
-                    alert("Ошибка! Невозможно вставить узел в качестве ребёнка в его ветвь.");
+                    alert("Ошибка! Невозможно вставить узел.");
                 }
             }.bind(this)
         });
