@@ -260,7 +260,7 @@ class NodeParams {
      * @returns Возвращает форму.
      */
     openModal() {
-        let self = this;
+        const self = this;
         this.modal.find(".modal-title").val(this.name).end().
             find(".base-message").val(this.message).end().
             find(".base-file").data("file_id", this.fileId).end().

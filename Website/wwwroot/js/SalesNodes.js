@@ -23,6 +23,29 @@ const inputTypes = Object.freeze({
     "document": 6
 });
 
+const sectionModal = baseModal.clone().find(".modal-body > form").append($("<fieldset>").
+    addClass("form-group collection-set mb-0").append($("<div>").addClass("row").append([
+        $("<legend>").addClass("col-form-label col-auto").text("Collection type"),
+        $("<div>").addClass("form-check form-check-inline col-auto").append([
+            $("<input>").attr({
+                type: "radio",
+                name: "collection-type",
+                value: collectionTypes.block,
+                class: "form-check-input"
+            }).prop("checked", true),
+            $("<label>").addClass("form-check-label").text("Block node"),
+        ]),
+        $("<div>").addClass("form-check form-check-inline col-auto").append([
+            $("<input>").attr({
+                type: "radio",
+                name: "collection-type",
+                value: collectionTypes.flipper,
+                class: "form-check-input"
+            }),
+            $("<label>").addClass("form-check-label").text("Flipper node")
+        ])
+    ]))).end();
+
 /** Параметры для узла-секции. */
 class SectionParams extends NodeParams {
     /**
@@ -36,6 +59,21 @@ class SectionParams extends NodeParams {
         super(nodeTypes.section, name, message, fileId);
         /** Число, которое обозначает тип отправки коллекции. */
         this.collType = collectionType;
+    }
+
+    get modal() {
+        return sectionModal;
+    }
+
+    openModal() {
+        const self = this;
+        const modal = super.openModal();
+        modal.find("input[name=collection-type]").prop("checked", false).filter("[value=" + this.collType + "]").prop("checked", true);
+        modal.one("hide.bs.modal", function () {
+            self.collType = modal.find("input[name=collection-type]:checked").val();
+        });
+
+        return modal;
     }
 }
 
