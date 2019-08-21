@@ -42,7 +42,7 @@ function SetFileHTML(botToken, elem, previewId, fileId, needDownload) {
     const getURL = "https://api.telegram.org/bot" + botToken + "/getFile";
     let previewXHR;
     let fileXHR;
-    if (previewId != undefined) {
+    if (previewId != null) {
         previewXHR = $.ajax({
             url: getURL,
             type: 'get',

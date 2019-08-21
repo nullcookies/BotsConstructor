@@ -272,7 +272,7 @@ class NodeParams {
             modal("show");
         if (this.fileId != null) {
             const jqFileHolder = this.modal.find(".fileHolder");
-            jqFileHolder.children().remove().append($("<span>").addClass("spinner-border text-secondary"));
+            jqFileHolder.empty().append($("<span>").addClass("spinner-border text-secondary"));
             SetFileHTML(botToken, jqFileHolder[0], this.previewId, this.fileId, false).then(function () {
                 self.modal.find(".custom-file-label").text("Uploaded file");
             });
