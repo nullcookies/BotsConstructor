@@ -250,13 +250,18 @@ class NodeParams {
         return this;
     }
 
+    /** Прикреплённое модальное окно для этого типа параметров. */
+    get modal() {
+        return baseModal;
+    }
+
     /**
      * Открывает форму для редактирования параметров.
      * @returns Возвращает форму.
      */
     openModal() {
         let self = this;
-        baseModal.find(".modal-title").val(this.name).end().
+        this.modal.find(".modal-title").val(this.name).end().
             find(".base-message").val(this.message).end().
             find(".base-file").data("file_id", this.fileId).end().
             find(".base-file").data("preview_id", this.previewId).end().
@@ -266,19 +271,19 @@ class NodeParams {
             find(".custom-file-label").text("Choose file").end().
             modal("show");
         if (this.fileId != null) {
-            const jqFileHolder = baseModal.find(".fileHolder");
+            const jqFileHolder = this.modal.find(".fileHolder");
             jqFileHolder.children().remove().append($("<span>").addClass("spinner-border text-secondary"));
             SetFileHTML(botToken, jqFileHolder[0], this.previewId, this.fileId, false).then(function () {
-                baseModal.find(".custom-file-label").text("Uploaded file");
+                self.modal.find(".custom-file-label").text("Uploaded file");
             });
         }
-        baseModal.one("hide.bs.modal", function () {
-            self.name = baseModal.find(".modal-title").val();
-            self.message = baseModal.find(".base-message").val();
-            self.fileId = baseModal.find(".base-file").data("file_id");
-            self.previewId = baseModal.find(".base-file").data("preview_id");
+        this.modal.one("hide.bs.modal", function () {
+            self.name = self.modal.find(".modal-title").val();
+            self.message = self.modal.find(".base-message").val();
+            self.fileId = self.modal.find(".base-file").data("file_id");
+            self.previewId = self.modal.find(".base-file").data("preview_id");
         });
-        return baseModal;
+        return this.modal;
     }
 }
 
