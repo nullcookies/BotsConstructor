@@ -32,19 +32,12 @@ const sectionModal = baseModal.clone(true).find(".modal-body > form").append($("
                 name: "collection-type",
                 value: collectionTypes.block,
                 class: "form-check-input"
-            }).prop("checked", true),
-            $("<label>").addClass("form-check-label").text("Block node"),
-        ]),
-        $("<div>").addClass("form-check form-check-inline col-auto").append([
-            $("<input>").attr({
-                type: "radio",
-                name: "collection-type",
-                value: collectionTypes.flipper,
-                class: "form-check-input"
             }),
-            $("<label>").addClass("form-check-label").text("Flipper node")
+            $("<label>").addClass("form-check-label").text("Block node")
         ])
     ]))).end();
+
+CloneInputDiv(sectionModal.find("legend:contains(Collection type) ~ div.form-check"), collectionTypes.flipper, "Flipper node");
 
 /** Параметры для узла-секции. */
 class SectionParams extends NodeParams {
@@ -128,6 +121,30 @@ class ProductParams extends NodeParams {
     //TODO: написать методы для красивого добавления и удаления параметров.
 }
 
+const inputModal = baseModal.clone(true).find(".modal-body > form").append($("<fieldset>").
+    addClass("form-group collection-set mb-0").append($("<div>").addClass("row").append([
+        $("<legend>").addClass("col-form-label col-auto pt-0").text("Input type"),
+        $("<div>").addClass("col-auto").append([
+            $("<div>").addClass("form-check").append([
+                $("<input>").attr({
+                    type: "radio",
+                    name: "input-type",
+                    value: inputTypes.text,
+                    class: "form-check-input"
+                }),
+                $("<label>").addClass("form-check-label").text("Text")
+            ])
+        ])
+    ]))).end();
+
+const cloneableInputModalInputDiv = inputModal.find("legend:contains(Input type) ~ div.col-auto > div.form-check");
+
+CloneInputDiv(cloneableInputModalInputDiv, inputTypes.time, "Time");
+CloneInputDiv(cloneableInputModalInputDiv, inputTypes.image, "Image");
+CloneInputDiv(cloneableInputModalInputDiv, inputTypes.audio, "Audio");
+CloneInputDiv(cloneableInputModalInputDiv, inputTypes.video, "Video");
+CloneInputDiv(cloneableInputModalInputDiv, inputTypes.document, "Document");
+
 /** Параметры для input-узла. */
 class InputParams extends NodeParams {
     /**
@@ -141,6 +158,21 @@ class InputParams extends NodeParams {
         super(nodeTypes.input, name, message, fileId);
         /** Число, соответствующее типу input-узла. */
         this.inputType = inputType;
+    }
+
+    get modal() {
+        return inputModal;
+    }
+
+    openModal() {
+        const self = this;
+        const modal = super.openModal();
+        modal.find("input[name=input-type]").prop("checked", false).filter("[value=" + this.inputType + "]").prop("checked", true);
+        modal.one("hide.bs.modal", function () {
+            self.inputType = modal.find("input[name=input-type]:checked").val();
+        });
+
+        return modal;
     }
 }
 

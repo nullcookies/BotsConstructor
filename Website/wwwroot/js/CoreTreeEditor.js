@@ -220,6 +220,19 @@ const baseModal = $("<div>").attr({
     ]))
 ])));
 
+/**
+ * Клонирует div с input'ами, вставляя его родителю с изменёнными параметрами.
+ * @param {JQuery<HTMLElement>} inputDiv Элемент, который нужно скопировать.
+ * @param {any} inputValue Новое значение input'а.
+ * @param {string} labelText Новый текст надписи.
+ */
+function CloneInputDiv(inputDiv, inputValue, labelText) {
+    inputDiv.clone().
+        children("input").attr("value", inputValue).end().
+        children("label").text(labelText).end().
+        appendTo(inputDiv.parent());
+}
+
 /** Базовый класс параметров узлов. */
 class NodeParams {
     /**
