@@ -165,6 +165,10 @@
     padding-bottom: 100%;
 }
 
+.fileHolder > img {
+    object-fit: contain;
+}
+
 .bg1 {
     background-color: firebrick;
 }
