@@ -70,9 +70,11 @@ class SectionParams extends NodeParams {
     }
 }
 
+const productParamDiv = $("<div>").addClass("border border-secondary rounded").width("10rem").height("15rem");
+
 const productModal = baseModal.clone(true).find(".modal-body > form").append($("<div>").
     addClass("row d-flex justify-content-between flex-wrap align-items-stretch border border-secondary rounded my-1 mx-auto p-2").append(
-        $("<div>").addClass("border border-secondary rounded").width("10rem").height("15rem")
+        productParamDiv
 )).end();
 
 /** Характеристика товара. */

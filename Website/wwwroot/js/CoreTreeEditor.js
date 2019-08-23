@@ -57,10 +57,10 @@ const acceptTypes = Object.freeze({
  * @param {string} newType Название нового типа.
  */
 function changeInputType(newType) {
-    let inputGroup = this.parentNode.parentNode;
-    let numType = fileTypes[newType];
+    const inputGroup = this.parentNode.parentNode;
+    const numType = fileTypes[newType];
     inputGroup.firstChild.textContent = newType;
-    let input = inputGroup.parentElement.firstElementChild.firstElementChild;
+    const input = inputGroup.parentElement.children[1].getElementsByTagName("input")[0];
     input.setAttribute("data-type", numType);
     input.setAttribute("accept", acceptTypes[numType]);
 }
@@ -93,7 +93,7 @@ const baseModal = $("<div>").attr({
         $("<div>").addClass("form-row align-items-stretch").append([
             $("<div>").addClass("col col-5 d-flex flex-column justify-content-start align-items-stretch").append([
                 $("<div>").addClass("fileHolder flex-fill align-self-stretch rounded border border-secondary text-center d-flex flex-column justify-content-center").
-                    append(noFileSelectedSpan.clone()),
+                    append(noFileSelectedSpan),
                 $("<div>").addClass("input-group").append([
                     $("<div>").addClass("input-group-prepend").append($("<button>").attr({
                         class: "btn btn-outline-danger base-remove-file",
