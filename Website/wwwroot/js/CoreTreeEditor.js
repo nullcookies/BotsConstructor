@@ -65,6 +65,9 @@ function changeInputType(newType) {
     input.setAttribute("accept", acceptTypes[numType]);
 }
 
+const chooseFile = "Choose file";
+const noFileSelectedSpan = $("<span>").addClass("text-secondary display-4 overflow-hidden").css("word-break", "break-word").text("No file selected");
+
 /** Базовое модальное окно. */
 const baseModal = $("<div>").attr({
     class: "modal fade",
@@ -90,15 +93,14 @@ const baseModal = $("<div>").attr({
         $("<div>").addClass("form-row align-items-stretch").append([
             $("<div>").addClass("col col-5 d-flex flex-column justify-content-start align-items-stretch").append([
                 $("<div>").addClass("fileHolder flex-fill align-self-stretch rounded border border-secondary text-center d-flex flex-column justify-content-center").
-                    append($("<span>").addClass("text-secondary display-4 overflow-hidden").css("word-break", "break-word").text("No file selected")),
+                    append(noFileSelectedSpan.clone()),
                 $("<div>").addClass("input-group").append([
                     $("<div>").addClass("input-group-prepend").append($("<button>").attr({
                         class: "btn btn-outline-danger base-remove-file",
                         type: "button"
                     }).on("click", function () {
                         $(this).parent().parent().children(".custom-file").children(".base-file").data("file_id", null).data("preview_id", null).val("").end().
-                            children(".custom-file-label").text("Choose file").end().parent().parent().children(".fileHolder").empty().append($("<span>").
-                                addClass("text-secondary display-4 overflow-hidden").css("word-break", "break-word").text("No file selected"));
+                            children(".custom-file-label").text(chooseFile).end().parent().parent().children(".fileHolder").empty().append(noFileSelectedSpan.clone());
                     }).append($("<span>").addClass("oi oi-trash"))),
                     $("<div>").addClass("custom-file").append([
                         $("<input>").attr({
@@ -179,12 +181,11 @@ const baseModal = $("<div>").attr({
                             }
                             else {
                                 $(this).data("file_id", null).data("preview_id", null);
-                                jqFileHolder.append($("<span>").addClass("text-secondary display-4 overflow-hidden").
-                                    css("word-break", "break-word").text("No file selected"));
-                                jqFileInputDiv.children(".custom-file-label").text("Choose file");
+                                jqFileHolder.append(noFileSelectedSpan.clone());
+                                jqFileInputDiv.children(".custom-file-label").text(chooseFile);
                             }
                         }),
-                        $("<label>").addClass("custom-file-label overflow-hidden").text("Choose file")
+                        $("<label>").addClass("custom-file-label overflow-hidden").text(chooseFile)
                     ]),
                     $("<div>").addClass("input-group-append").append([
                         $("<button>").attr({
@@ -278,10 +279,9 @@ class NodeParams {
             find(".base-message").val(this.message).end().
             find(".base-file").data("file_id", this.fileId).end().
             find(".base-file").data("preview_id", this.previewId).end().
-            find(".fileHolder").empty().append($("<span>").addClass("text-secondary display-4 overflow-hidden").
-                css("word-break", "break-word").text("No file selected")).end().
+            find(".fileHolder").empty().append(noFileSelectedSpan.clone()).end().
             find(".base-file").val("").end().
-            find(".custom-file-label").text("Choose file").end().
+            find(".custom-file-label").text(chooseFile).end().
             modal("show");
         if (this.fileId != null) {
             const jqFileHolder = this.modal.find(".fileHolder");

@@ -70,6 +70,11 @@ class SectionParams extends NodeParams {
     }
 }
 
+const productModal = baseModal.clone(true).find(".modal-body > form").append($("<div>").
+    addClass("row d-flex justify-content-between flex-wrap align-items-stretch border border-secondary rounded my-1 mx-auto p-2").append(
+        $("<div>").addClass("border border-secondary rounded").width("10rem").height("15rem")
+)).end();
+
 /** Характеристика товара. */
 class ProductProperty {
     /**
@@ -109,6 +114,21 @@ class ProductParams extends NodeParams {
          * @type {number[]}
          */
         this.values = new Array(this.count).fill(0.00);
+    }
+
+    get modal() {
+        return productModal;
+    }
+
+    openModal() {
+        const self = this;
+        const modal = super.openModal();
+        modal.find("");
+        modal.one("hide.bs.modal", function () {
+
+        });
+
+        return modal;
     }
 
     updateCount() {
