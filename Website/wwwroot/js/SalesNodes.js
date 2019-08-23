@@ -70,12 +70,18 @@ class SectionParams extends NodeParams {
     }
 }
 
-const productParamDiv = $("<div>").addClass("border border-secondary rounded").width("10rem").height("15rem");
+const baseParamDiv = $("<div>").addClass("border border-secondary rounded m-1").width("179px").height("250px");
+const productParamDiv = baseParamDiv.clone();
 
 const productModal = baseModal.clone(true).find(".modal-body > form").append($("<div>").
-    addClass("row d-flex justify-content-between flex-wrap align-items-stretch border border-secondary rounded my-1 mx-auto p-2").append(
-        productParamDiv
-)).end();
+    addClass("row d-flex flex-wrap align-items-stretch border border-secondary rounded my-1 mx-auto p-2").append([
+        productParamDiv.clone(),
+        baseParamDiv.clone().addClass("text-center d-flex flex-column justify-content-center").append($("<button>").
+            addClass("btn btn-outline-primary rounded-circle m-auto").attr({
+                style: "width: 3rem; height: 3rem",
+                type: "button"
+            }).append($("<span>").addClass("oi oi-plus")))
+])).end();
 
 /** Характеристика товара. */
 class ProductProperty {
