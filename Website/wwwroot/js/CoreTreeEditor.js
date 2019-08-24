@@ -7,7 +7,13 @@
  * @returns {T} Возвращает клон объекта.
  */
 function deepClone(src) {
-    let clone = Object.create(Object.getPrototypeOf(src));
+    let clone;
+    if (Array.isArray(src)) {
+        clone = new Array();
+    }
+    else {
+        clone = Object.create(Object.getPrototypeOf(src));
+    }
     for (let prop in src) {
         if (src[prop] != null && typeof (src[prop]) === "object") {
             clone[prop] = deepClone(src[prop]);
@@ -16,6 +22,7 @@ function deepClone(src) {
             clone[prop] = src[prop];
         }
     }
+
     return clone;
 }
 // TODO: устанавливать эти значения из полученных данных.
