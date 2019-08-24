@@ -85,8 +85,8 @@ const productPropDiv = basePropDiv.clone().addClass("input-group").append([
     }).prop("required", true)
 ]);
 
-const baseParamDiv = $("<div>").addClass("card border border-secondary rounded m-1 p-1").width("179px").height("250px");
-const productParamDiv = baseParamDiv.clone().addClass("overflow-auto").append([
+const baseParamDiv = $("<div>").addClass("card border border-secondary rounded m-1 p-1").width("179px").height("270px");
+const productParamDiv = baseParamDiv.clone().addClass("param-div").append([
     $("<div>").addClass("card-header input-group p-1").append([
         $("<input>").addClass("form-control rounded border-0 param-name").attr({
             type: "text",
@@ -94,18 +94,14 @@ const productParamDiv = baseParamDiv.clone().addClass("overflow-auto").append([
         }).prop("required", true),
         $("<div>").addClass("input-group-append pl-2").append($("<button>").attr("type", "button").addClass("close").append($("<span>").html("&times;")))
     ]),
-    $("<div>").addClass("card-body p-0").append([
-        productPropDiv.clone(),
-        basePropDiv.clone().addClass("text-center d-flex flex-column justify-content-center").append(baseAddBtn.clone().
-            addClass("add-prop p-0").width("2rem").height("2rem"))
-    ])
+    $("<div>").addClass("card-body overflow-auto p-0").append(basePropDiv.clone().
+        addClass("text-center d-flex flex-column justify-content-center prop-appender").append(baseAddBtn.clone().
+            addClass("add-prop p-0").width("2rem").height("2rem")))
 ]);
 
 const productModal = baseModal.clone(true).find(".modal-body > form").append($("<div>").
-    addClass("row d-flex flex-wrap align-items-stretch border border-secondary rounded my-1 mx-auto p-2").append([
-        productParamDiv.clone(),
-        baseParamDiv.clone().addClass("text-center d-flex flex-column justify-content-center param-appender").append(baseAddBtn.clone().addClass("add-param").css("font-size", "larger"))
-])).end();
+    addClass("row d-flex flex-wrap align-items-stretch border border-secondary rounded my-1 mx-auto p-2").append(baseParamDiv.clone().
+        addClass("text-center d-flex flex-column justify-content-center param-appender").append(baseAddBtn.clone().addClass("add-param").css("font-size", "larger")))).end();
 
 /** Характеристика товара. */
 class ProductProperty {
@@ -155,9 +151,16 @@ class ProductParams extends NodeParams {
     openModal() {
         const self = this;
         const modal = super.openModal();
+        modal.find(".param-div").remove();
         const jqAppender = modal.find(".param-appender");
         for (let i = 0; i < this.properties.length; i++) {
             const iParamDiv = productParamDiv.clone().find(".param-name").val(this.properties[i].name).end();
+            const iParamPropAppender = iParamDiv.find(".prop-appender");
+
+            for (let j = 0; j < this.properties[i].types.length; j++) {
+                iParamPropAppender.before(productPropDiv.clone().find(".prop-name").val(this.properties[i].types[j]).end());
+            }
+
             jqAppender.before(iParamDiv);
         }
         modal.one("hide.bs.modal", function () {
