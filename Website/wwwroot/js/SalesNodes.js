@@ -101,7 +101,8 @@ const productParamDiv = baseParamDiv.clone().addClass("param-div").append([
 
 const productModal = baseModal.clone(true).find(".modal-body > form").append($("<div>").
     addClass("row d-flex flex-wrap align-items-stretch border border-secondary rounded my-1 mx-auto p-2").append(baseParamDiv.clone().
-        addClass("text-center d-flex flex-column justify-content-center param-appender").append(baseAddBtn.clone().addClass("add-param").css("font-size", "larger")))).end();
+        addClass("text-center d-flex flex-column justify-content-center param-appender").append(baseAddBtn.clone().addClass("add-param").css("font-size", "larger")))).
+    append($("<div>").addClass("table-responsive").append($("<table>").addClass("table table-sm param-table"))).end();
 
 /** Характеристика товара. */
 class ProductProperty {
@@ -153,16 +154,39 @@ class ProductParams extends NodeParams {
         const modal = super.openModal();
         modal.find(".param-div").remove();
         const jqAppender = modal.find(".param-appender");
-        for (let i = 0; i < this.properties.length; i++) {
+        const jqParamBox = jqAppender.parent();
+        const jqTable = modal.find(".param-table");
+        jqTable.children().remove();
+        const jqTheadTr = $("<tr>").appendTo($("<thead>").appendTo(jqTable));
+        const jqTbody = $("<tbody>").appendTo(jqTable).append($("<tr>").append($("<td>").width("6rem").append($("<input>").addClass("form-control").attr({
+            type: "text",
+            placeholder: "0.00"
+        }))));
+        for (let i = this.properties.length - 1; i >= 0; i--) {
             const iParamDiv = productParamDiv.clone().find(".param-name").val(this.properties[i].name).end();
             const iParamPropAppender = iParamDiv.find(".prop-appender");
-
-            for (let j = 0; j < this.properties[i].types.length; j++) {
+            jqTheadTr.prepend($("<th>").attr("scope", "col").text(this.properties[i].name));
+            const jqPrevRows = jqTbody.children();
+            iParamPropAppender.before(productPropDiv.clone().find(".prop-name").val(this.properties[i].types[0]).end());
+            for (let j = 1; j < this.properties[i].types.length; j++) {
                 iParamPropAppender.before(productPropDiv.clone().find(".prop-name").val(this.properties[i].types[j]).end());
+                jqTbody.append(jqPrevRows.clone().prepend($("<td>").text(this.properties[i].types[j])));
             }
+            jqPrevRows.prepend($("<td>").text(this.properties[i].types[0]));
 
-            jqAppender.before(iParamDiv);
+            //jqAppender.before(iParamDiv);
+            jqParamBox.prepend(iParamDiv);
         }
+        jqTheadTr.prepend($("<th>").attr("scope", "col").text("#"));
+        const jqAllTbodyRows = jqTbody.children();
+        for (let i = 0; i < this.values.length; i++) {
+            const iNumTh = document.createElement("th");
+            iNumTh.setAttribute("scope", "row");
+            iNumTh.textContent = i + 1;
+            jqAllTbodyRows[i].prepend(iNumTh);
+            jqAllTbodyRows[i].getElementsByTagName("input")[0].value = this.values[i];
+        }
+        jqTheadTr.append($("<th>").attr("scope", "col").text("Price"));
         modal.one("hide.bs.modal", function () {
 
         });
