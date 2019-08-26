@@ -76,7 +76,7 @@ const baseAddBtn = $("<button>").addClass("btn btn-outline-primary rounded-circl
     }).append($("<span>").addClass("oi oi-plus"));
 
 const basePropDiv = $("<div>").addClass("border border-secondary rounded bg-light w-100 my-1 p-1").height("3rem");
-const productPropDiv = basePropDiv.clone().addClass("input-group").append([
+const productPropDiv = basePropDiv.clone().addClass("input-group prop-div").append([
     $("<div>").addClass("input-group-prepend").append($("<button>").attr("type", "button").
         addClass("btn btn-outline-danger remove-prop").append($("<span>").addClass("oi oi-trash"))),
     $("<input>").addClass("form-control prop-name").attr({
@@ -103,6 +103,9 @@ const productModal = baseModal.clone(true).find(".modal-body > form").append($("
     addClass("row d-flex flex-wrap align-items-stretch border border-secondary rounded my-1 mx-auto p-2").append(baseParamDiv.clone().
         addClass("text-center d-flex flex-column justify-content-center param-appender").append(baseAddBtn.clone().addClass("add-param").css("font-size", "larger")))).
     append($("<div>").addClass("table-responsive").append($("<table>").addClass("table table-sm param-table"))).end();
+
+const defaultParamName = "New parameter";
+const defaultPropName = "New property";
 
 /** Характеристика товара. */
 class ProductProperty {
@@ -174,11 +177,21 @@ class ProductParams extends NodeParams {
             const iParamPropAppender = iParamDiv.find(".prop-appender").find(".add-prop").on("click", addProp).end();
             jqTheadTr.prepend(iPropTh);
             const jqPrevRows = jqTbody.children();
-            iParamPropAppender.before(productPropDiv.clone().find(".prop-name").val(this.properties[i].types[0]).end().
-                find(".remove-prop").on("click", removeProp).end());
+            const changeRowsPropNames = function () {
+                const jqThisPropDiv = $(this).closest(".prop-div");
+                const propIndex = jqThisPropDiv.parent().children(".prop-div").index(jqThisPropDiv);
+                const jqThisParamDiv = jqThisPropDiv.closest(".param-div");
+                const paramIndex = jqThisParamDiv.parent().children(".param-div").index(jqThisParamDiv);
+                const jqSelf = $(this);
+                $.each(getPropSectors(paramIndex, propIndex), function (index, value) {
+                    value.children(`td:nth-of-type(${paramIndex + 1})`).text(jqSelf.val());
+                });
+            };
+            iParamPropAppender.before(productPropDiv.clone().find(".prop-name").val(this.properties[i].types[0]).on("change", changeRowsPropNames).
+                end().find(".remove-prop").on("click", removeProp).end());
             for (let j = 1; j < this.properties[i].types.length; j++) {
-                iParamPropAppender.before(productPropDiv.clone().find(".prop-name").val(this.properties[i].types[j]).end().
-                    find(".remove-prop").on("click", removeProp).end());
+                iParamPropAppender.before(productPropDiv.clone().find(".prop-name").val(this.properties[i].types[j]).on("change", changeRowsPropNames).
+                    end().find(".remove-prop").on("click", removeProp).end());
                 jqTbody.append(jqPrevRows.clone().prepend($("<td>").text(this.properties[i].types[j])));
             }
             jqPrevRows.prepend($("<td>").text(this.properties[i].types[0]));
@@ -243,18 +256,26 @@ class ProductParams extends NodeParams {
             updateRowsNumbers();
         }
 
-        function addProp(paramIndex) {
-            console.log("addProp");
+        function addProp() {
+            const jqThisParamDiv = $(this).closest(".param-div");
+            const paramIndex = jqThisParamDiv.parent().children(".param-div").index(jqThisParamDiv);
+            console.log("addProp: " + paramIndex);
             updateRowsNumbers();
         }
 
-        function removeParam(paramIndex) {
-            console.log("removeParam");
+        function removeParam() {
+            const jqThisParamDiv = $(this).closest(".param-div");
+            const paramIndex = jqThisParamDiv.parent().children(".param-div").index(jqThisParamDiv);
+            console.log("removeParam: " + paramIndex);
             updateRowsNumbers();
         }
 
-        function removeProp(paramIndex, propIndex) {
-            console.log("removeProp");
+        function removeProp() {
+            const jqThisPropDiv = $(this).closest(".prop-div");
+            const propIndex = jqThisPropDiv.parent().children(".prop-div").index(jqThisPropDiv);
+            const jqThisParamDiv = jqThisPropDiv.closest(".param-div");
+            const paramIndex = jqThisParamDiv.parent().children(".param-div").index(jqThisParamDiv);
+            console.log("removeProp: prop: " + propIndex + ", param: " + paramIndex);
             updateRowsNumbers();
         }
     }
