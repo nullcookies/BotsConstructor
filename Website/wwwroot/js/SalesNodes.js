@@ -92,7 +92,7 @@ const productParamDiv = baseParamDiv.clone().addClass("param-div").append([
             type: "text",
             placeholder: "Parameter"
         }).prop("required", true),
-        $("<div>").addClass("input-group-append pl-2").append($("<button>").attr("type", "button").addClass("close").append($("<span>").html("&times;")))
+        $("<div>").addClass("input-group-append pl-2").append($("<button>").attr("type", "button").addClass("close remove-param").append($("<span>").html("&times;")))
     ]),
     $("<div>").addClass("card-body overflow-auto p-0").append(basePropDiv.clone().
         addClass("text-center d-flex flex-column justify-content-center prop-appender").append(baseAddBtn.clone().
@@ -138,11 +138,13 @@ class ProductParams extends NodeParams {
         super(nodeTypes.product, name, message, fileId);
         /** Характеристики товара. */
         this.properties = properties;
-        this.updateCount();
+        const count = this.properties.reduce(function (previous, current) {
+            return previous * current.types.length;
+        }, 1);
         /** Значения всех подтипов товара.
          * @type {number[]}
          */
-        this.values = new Array(this.count).fill(0.00);
+        this.values = new Array(count).fill(0.00);
     }
 
     get modal() {
@@ -153,30 +155,34 @@ class ProductParams extends NodeParams {
         const self = this;
         const modal = super.openModal();
         modal.find(".param-div").remove();
-        const jqAppender = modal.find(".param-appender");
+        const jqAppender = modal.find(".param-appender").find(".add-param").on("click", addParam).end();
         const jqParamBox = jqAppender.parent();
         const jqTable = modal.find(".param-table");
         jqTable.children().remove();
         const jqTheadTr = $("<tr>").appendTo($("<thead>").appendTo(jqTable));
-        const jqTbody = $("<tbody>").appendTo(jqTable).append($("<tr>").append($("<td>").width("6rem").append($("<input>").addClass("form-control prop-price").attr({
+        const jqTbody = $("<tbody>").appendTo(jqTable).append($("<tr>").addClass("prop-row").append($("<td>").width("6rem").append($("<input>").addClass("form-control prop-price").attr({
             type: "number",
             step: "any",
             min: 0,
             placeholder: "0.00"
         }))));
         for (let i = this.properties.length - 1; i >= 0; i--) {
-            const iParamDiv = productParamDiv.clone().find(".param-name").val(this.properties[i].name).end();
-            const iParamPropAppender = iParamDiv.find(".prop-appender");
-            jqTheadTr.prepend($("<th>").attr("scope", "col").text(this.properties[i].name));
+            const iPropTh = $("<th>").attr("scope", "col").text(this.properties[i].name);
+            const iParamDiv = productParamDiv.clone().find(".param-name").val(this.properties[i].name).on("change", function () {
+                iPropTh.text($(this).val());
+            }).end().find(".remove-param").on("click", removeParam).end();
+            const iParamPropAppender = iParamDiv.find(".prop-appender").find(".add-prop").on("click", addProp).end();
+            jqTheadTr.prepend(iPropTh);
             const jqPrevRows = jqTbody.children();
-            iParamPropAppender.before(productPropDiv.clone().find(".prop-name").val(this.properties[i].types[0]).end());
+            iParamPropAppender.before(productPropDiv.clone().find(".prop-name").val(this.properties[i].types[0]).end().
+                find(".remove-prop").on("click", removeProp).end());
             for (let j = 1; j < this.properties[i].types.length; j++) {
-                iParamPropAppender.before(productPropDiv.clone().find(".prop-name").val(this.properties[i].types[j]).end());
+                iParamPropAppender.before(productPropDiv.clone().find(".prop-name").val(this.properties[i].types[j]).end().
+                    find(".remove-prop").on("click", removeProp).end());
                 jqTbody.append(jqPrevRows.clone().prepend($("<td>").text(this.properties[i].types[j])));
             }
             jqPrevRows.prepend($("<td>").text(this.properties[i].types[0]));
-
-            //jqAppender.before(iParamDiv);
+            
             jqParamBox.prepend(iParamDiv);
         }
         jqTheadTr.prepend($("<th>").attr("scope", "col").text("#"));
@@ -202,16 +208,56 @@ class ProductParams extends NodeParams {
             }).get();
         });
         return modal;
-    }
 
-    updateCount() {
-        /** Количество всех комбинаций подтипов. */
-        this.count = this.properties.reduce(function (previous, current) {
-            return previous * current.types.length;
-        }, 1);
-    }
+        function updateRowsNumbers() {
+            modal.find(".prop-row").each(function (index) {
+                $(this).children("th").first().text(index + 1);
+            });
+        }
 
-    //TODO: написать методы для красивого добавления и удаления параметров.
+        function getParamSectors(paramIndex) {
+            let size = 1;
+            const sectors = [];
+            const jqRows = modal.find(".prop-row");
+            for (let i = self.properties.length - 1; i > paramIndex; i--) {
+                size *= self.properties[i].types.length;
+            }
+            for (let i = 0; i < jqRows.length; i += size) {
+                sectors.push(jqRows.slice(i, i + size));
+            }
+            return sectors;
+        }
+
+        function getPropSectors(paramIndex, propIndex) {
+            const paramSectors = getParamSectors(paramIndex);
+            const propSectors = [];
+            const delta = self.properties[paramIndex].types.length;
+            for (let i = propIndex; i < paramSectors.length; i += delta) {
+                propSectors.push(paramSectors[i]);
+            }
+            return propSectors;
+        }
+
+        function addParam() {
+            console.log("addParam");
+            updateRowsNumbers();
+        }
+
+        function addProp(paramIndex) {
+            console.log("addProp");
+            updateRowsNumbers();
+        }
+
+        function removeParam(paramIndex) {
+            console.log("removeParam");
+            updateRowsNumbers();
+        }
+
+        function removeProp(paramIndex, propIndex) {
+            console.log("removeProp");
+            updateRowsNumbers();
+        }
+    }
 }
 
 const inputModal = baseModal.clone(true).find(".modal-body > form").append($("<fieldset>").
