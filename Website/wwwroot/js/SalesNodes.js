@@ -158,8 +158,10 @@ class ProductParams extends NodeParams {
         const jqTable = modal.find(".param-table");
         jqTable.children().remove();
         const jqTheadTr = $("<tr>").appendTo($("<thead>").appendTo(jqTable));
-        const jqTbody = $("<tbody>").appendTo(jqTable).append($("<tr>").append($("<td>").width("6rem").append($("<input>").addClass("form-control").attr({
-            type: "text",
+        const jqTbody = $("<tbody>").appendTo(jqTable).append($("<tr>").append($("<td>").width("6rem").append($("<input>").addClass("form-control prop-price").attr({
+            type: "number",
+            step: "any",
+            min: 0,
             placeholder: "0.00"
         }))));
         for (let i = this.properties.length - 1; i >= 0; i--) {
@@ -188,9 +190,17 @@ class ProductParams extends NodeParams {
         }
         jqTheadTr.append($("<th>").attr("scope", "col").text("Price"));
         modal.one("hide.bs.modal", function () {
-
+            modal.find(".param-div").each(function (index) {
+                const jqThisParamDiv = $(this);
+                self.properties[index].name = jqThisParamDiv.find(".param-name").val();
+                self.properties[index].types = jqThisParamDiv.find(".prop-name").map(function () {
+                    return $(this).val();
+                }).get();
+            });
+            self.values = modal.find(".prop-price").map(function () {
+                return parseFloat($(this).val());
+            }).get();
         });
-
         return modal;
     }
 
