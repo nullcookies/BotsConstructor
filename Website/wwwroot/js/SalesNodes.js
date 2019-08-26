@@ -177,7 +177,7 @@ class ProductParams extends NodeParams {
             const iParamPropAppender = iParamDiv.find(".prop-appender").find(".add-prop").on("click", addProp).end();
             jqTheadTr.prepend(iPropTh);
             const jqPrevRows = jqTbody.children();
-            const changeRowsPropNames = function () {
+            function changeRowsPropNames() {
                 const jqThisPropDiv = $(this).closest(".prop-div");
                 const propIndex = jqThisPropDiv.parent().children(".prop-div").index(jqThisPropDiv);
                 const jqThisParamDiv = jqThisPropDiv.closest(".param-div");
@@ -253,7 +253,6 @@ class ProductParams extends NodeParams {
 
         function addParam() {
             console.log("addParam");
-            updateRowsNumbers();
         }
 
         function addProp() {
