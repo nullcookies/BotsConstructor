@@ -162,13 +162,13 @@ class ProductParams extends NodeParams {
         const jqParamBox = jqAppender.parent();
         const jqTable = modal.find(".param-table");
         jqTable.children().remove();
-        const jqTheadTr = $("<tr>").appendTo($("<thead>").appendTo(jqTable));
+        const jqTheadTr = $("<tr>").addClass("param-thead-row").appendTo($("<thead>").appendTo(jqTable));
         const jqTbody = $("<tbody>").appendTo(jqTable).append($("<tr>").addClass("prop-row").append($("<td>").width("6rem").append($("<input>").addClass("form-control prop-price").attr({
             type: "number",
             step: "any",
             min: 0,
             placeholder: "0.00"
-        }))));
+        }).css("min-width", "6rem"))));
         for (let i = this.properties.length - 1; i >= 0; i--) {
             const iPropTh = $("<th>").attr("scope", "col").text(this.properties[i].name);
             const iParamDiv = productParamDiv.clone().find(".param-name").val(this.properties[i].name).on("change", function () {
@@ -177,16 +177,6 @@ class ProductParams extends NodeParams {
             const iParamPropAppender = iParamDiv.find(".prop-appender").find(".add-prop").on("click", addProp).end();
             jqTheadTr.prepend(iPropTh);
             const jqPrevRows = jqTbody.children();
-            function changeRowsPropNames() {
-                const jqThisPropDiv = $(this).closest(".prop-div");
-                const propIndex = jqThisPropDiv.parent().children(".prop-div").index(jqThisPropDiv);
-                const jqThisParamDiv = jqThisPropDiv.closest(".param-div");
-                const paramIndex = jqThisParamDiv.parent().children(".param-div").index(jqThisParamDiv);
-                const jqSelf = $(this);
-                $.each(getPropSectors(paramIndex, propIndex), function (index, value) {
-                    value.children(`td:nth-of-type(${paramIndex + 1})`).text(jqSelf.val());
-                });
-            };
             iParamPropAppender.before(productPropDiv.clone().find(".prop-name").val(this.properties[i].types[0]).on("change", changeRowsPropNames).
                 end().find(".remove-prop").on("click", removeProp).end());
             for (let j = 1; j < this.properties[i].types.length; j++) {
@@ -222,6 +212,17 @@ class ProductParams extends NodeParams {
         });
         return modal;
 
+        function changeRowsPropNames() {
+            const jqSelf = $(this);
+            const jqThisPropDiv = jqSelf.closest(".prop-div");
+            const propIndex = jqThisPropDiv.parent().children(".prop-div").index(jqThisPropDiv);
+            const jqThisParamDiv = jqThisPropDiv.closest(".param-div");
+            const paramIndex = jqThisParamDiv.parent().children(".param-div").index(jqThisParamDiv);
+            $.each(getPropSectors(paramIndex, propIndex), function (index, value) {
+                value.children(`td:nth-of-type(${paramIndex + 1})`).text(jqSelf.val());
+            });
+        };
+
         function updateRowsNumbers() {
             modal.find(".prop-row").each(function (index) {
                 $(this).children("th").first().text(index + 1);
@@ -252,7 +253,17 @@ class ProductParams extends NodeParams {
         }
 
         function addParam() {
-            console.log("addParam");
+            const jqRows = modal.find(".prop-row");
+            const iPropTh = $("<th>").attr("scope", "col").text(defaultParamName).insertBefore(modal.find(".param-thead-row :last-child"));
+            const iParamDiv = productParamDiv.clone().find(".param-name").val(defaultParamName).on("change", function () {
+                iPropTh.text($(this).val());
+            }).end().find(".remove-param").on("click", removeParam).end();
+            const iParamPropAppender = iParamDiv.find(".prop-appender").find(".add-prop").on("click", addProp).end();
+            iParamPropAppender.before(productPropDiv.clone().find(".prop-name").val(defaultPropName).on("change", changeRowsPropNames).
+                end().find(".remove-prop").on("click", removeProp).end());
+            modal.find(".param-appender").before(iParamDiv);
+            jqRows.children(":last-child").before($("<td>").text(defaultPropName));
+            self.properties.push(new ProductProperty(defaultParamName, [defaultPropName], null, null));
         }
 
         function addProp() {
