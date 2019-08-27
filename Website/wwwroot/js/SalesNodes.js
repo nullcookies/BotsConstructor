@@ -168,7 +168,7 @@ class ProductParams extends NodeParams {
             step: "any",
             min: 0,
             placeholder: "0.00"
-        }).css("min-width", "6rem"))));
+        }).css("min-width", "6rem").change(changeRowColor))));
         for (let i = this.properties.length - 1; i >= 0; i--) {
             const iPropTh = $("<th>").attr("scope", "col").text(this.properties[i].name);
             const iParamDiv = productParamDiv.clone().find(".param-name").val(this.properties[i].name).on("change", function () {
@@ -182,7 +182,7 @@ class ProductParams extends NodeParams {
             for (let j = 1; j < this.properties[i].types.length; j++) {
                 iParamPropAppender.before(productPropDiv.clone().find(".prop-name").val(this.properties[i].types[j]).on("change", changeRowsPropNames).
                     end().find(".remove-prop").on("click", removeProp).end());
-                jqTbody.append(jqPrevRows.clone().prepend($("<td>").text(this.properties[i].types[j])));
+                jqTbody.append(jqPrevRows.clone(true).prepend($("<td>").text(this.properties[i].types[j])));
             }
             jqPrevRows.prepend($("<td>").text(this.properties[i].types[0]));
             
@@ -191,11 +191,8 @@ class ProductParams extends NodeParams {
         jqTheadTr.prepend($("<th>").attr("scope", "col").text("#"));
         const jqAllTbodyRows = jqTbody.children();
         for (let i = 0; i < this.values.length; i++) {
-            const iNumTh = document.createElement("th");
-            iNumTh.setAttribute("scope", "row");
-            iNumTh.textContent = i + 1;
-            jqAllTbodyRows[i].prepend(iNumTh);
-            jqAllTbodyRows[i].getElementsByTagName("input")[0].value = this.values[i];
+            jqAllTbodyRows.eq(i).prepend($("<th>").attr("scope", "row").text(i + 1)).
+                find(".prop-price").val(this.values[i]).trigger("change");
         }
         jqTheadTr.append($("<th>").attr("scope", "col").text("Price"));
         modal.one("hide.bs.modal", function () {
@@ -211,6 +208,18 @@ class ProductParams extends NodeParams {
             }).get();
         });
         return modal;
+
+        function changeRowColor() {
+            const jqSelf = $(this);
+            const jqRow = jqSelf.closest("tr");
+            console.log(jqSelf.val());
+            if (jqSelf.val() > 0) {
+                jqRow.removeClass("bg-warning");
+            }
+            else {
+                jqRow.addClass("bg-warning");
+            }
+        }
 
         function changeRowsPropNames() {
             const jqSelf = $(this);
