@@ -88,11 +88,12 @@ const productPropDiv = basePropDiv.clone().addClass("input-group prop-div").appe
 const baseParamDiv = $("<div>").addClass("card border border-secondary rounded m-1 p-1").width("179px").height("270px");
 const productParamDiv = baseParamDiv.clone().addClass("param-div").append([
     $("<div>").addClass("card-header input-group p-1").append([
+        $("<div>").addClass("input-group-prepend").append($("<button>").attr("type", "button").addClass("btn p-0 text-primary edit-param").append($("<span>").addClass("oi oi-cog pt-2"))),
         $("<input>").addClass("form-control rounded border-0 param-name").attr({
             type: "text",
             placeholder: "Parameter"
         }).prop("required", true),
-        $("<div>").addClass("input-group-append pl-2").append($("<button>").attr("type", "button").addClass("close remove-param").append($("<span>").html("&times;")))
+        $("<div>").addClass("input-group-append").append($("<button>").attr("type", "button").addClass("close remove-param").append($("<span>").html("&times;")))
     ]),
     $("<div>").addClass("card-body overflow-auto p-0").append(basePropDiv.clone().
         addClass("text-center d-flex flex-column justify-content-center prop-appender").append(baseAddBtn.clone().
@@ -173,7 +174,7 @@ class ProductParams extends NodeParams {
             const iPropTh = $("<th>").attr("scope", "col").text(this.properties[i].name);
             const iParamDiv = productParamDiv.clone().find(".param-name").val(this.properties[i].name).on("change", function () {
                 iPropTh.text($(this).val());
-            }).end().find(".remove-param").on("click", removeParam).end();
+            }).end().find(".remove-param").on("click", removeParam).end().find(".edit-param").on("click", editParam).end();
             const iParamPropAppender = iParamDiv.find(".prop-appender").find(".add-prop").on("click", addProp).end();
             jqTheadTr.prepend(iPropTh);
             const jqPrevRows = jqTbody.children();
@@ -340,6 +341,35 @@ class ProductParams extends NodeParams {
             else {
                 removeParam.call(this);
             }
+        }
+
+        function editParam() {
+            const jqThisParamDiv = $(this).closest(".param-div");
+            const paramIndex = jqThisParamDiv.parent().children(".param-div").index(jqThisParamDiv);
+            const param = self.properties[paramIndex];
+            baseModal.find(".modal-title").val(param.name).end().
+                find(".base-message").val(param.message).end().
+                find(".base-file").data("file_id", param.fileId).end().
+                find(".base-file").data("preview_id", param.previewId).end().
+                find(".fileHolder").empty().append(noFileSelectedSpan.clone()).end().
+                find(".base-file").val("").end().
+                find(".custom-file-label").text(chooseFile);
+            if (param.fileId != null) {
+                const jqFileHolder = baseModal.find(".fileHolder");
+                jqFileHolder.empty().append($("<span>").addClass("spinner-border text-secondary"));
+                SetFileHTML(botToken, jqFileHolder[0], param.previewId, param.fileId, false).then(function () {
+                    self.modal.find(".custom-file-label").text("Uploaded file");
+                });
+            }
+            baseModal.one("hide.bs.modal", function () {
+                param.name = baseModal.find(".modal-title").val();
+                param.message = baseModal.find(".base-message").val();
+                param.fileId = baseModal.find(".base-file").data("file_id");
+                param.previewId = baseModal.find(".base-file").data("preview_id");
+                self.openModal();
+            });
+            self.modal.modal("hide");
+            baseModal.modal("show");
         }
     }
 }
