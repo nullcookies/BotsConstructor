@@ -287,15 +287,14 @@ class ProductParams extends NodeParams {
             const jqThisParamDiv = $(this).closest(".param-div");
             const paramIndex = jqThisParamDiv.parent().children(".param-div").index(jqThisParamDiv);
             const lastIndex = self.properties[paramIndex].types.length - 1;
-            const lastSectors = getPropSectors(paramIndex, lastIndex);
-            self.properties[paramIndex].types.push(defaultPropName);
             jqThisParamDiv.find(".prop-appender").before(productPropDiv.clone().find(".prop-name").val(defaultPropName).on("change", changeRowsPropNames).
                 end().find(".remove-prop").on("click", removeProp).end());
-            $.each(lastSectors, function (index, value) {
+            $.each(getPropSectors(paramIndex, lastIndex), function (index, value) {
                 value.last().after(value.clone(true).children(`td:nth-of-type(${paramIndex + 1})`).text(defaultPropName).end().
                     find(".prop-price").val(0).trigger("change").end());
             });
             updateRowsNumbers();
+            self.properties[paramIndex].types.push(defaultPropName);
             self.values = modal.find(".prop-price").map(function () {
                 return parseFloat($(this).val());
             }).get();
@@ -327,8 +326,20 @@ class ProductParams extends NodeParams {
             const propIndex = jqThisPropDiv.parent().children(".prop-div").index(jqThisPropDiv);
             const jqThisParamDiv = jqThisPropDiv.closest(".param-div");
             const paramIndex = jqThisParamDiv.parent().children(".param-div").index(jqThisParamDiv);
-            console.log("removeProp: prop: " + propIndex + ", param: " + paramIndex);
-            updateRowsNumbers();
+            if (self.properties[paramIndex].types.length > 1) {
+                jqThisPropDiv.remove();
+                $.each(getPropSectors(paramIndex, propIndex), function (index, value) {
+                    value.remove();
+                });
+                updateRowsNumbers();
+                self.properties[paramIndex].types.splice(propIndex, 1);
+                self.values = modal.find(".prop-price").map(function () {
+                    return parseFloat($(this).val());
+                }).get();
+            }
+            else {
+                removeParam.call(this);
+            }
         }
     }
 }
