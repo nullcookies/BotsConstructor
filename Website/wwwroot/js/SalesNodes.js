@@ -158,7 +158,7 @@ class ProductParams extends NodeParams {
         const self = this;
         const modal = super.openModal();
         modal.find(".param-div").remove();
-        const jqAppender = modal.find(".param-appender").find(".add-param").on("click", addParam).end();
+        const jqAppender = modal.find(".param-appender").find(".add-param").off("click").on("click", addParam).end();
         const jqParamBox = jqAppender.parent();
         const jqTable = modal.find(".param-table");
         jqTable.children().remove();
@@ -260,6 +260,15 @@ class ProductParams extends NodeParams {
             return propSectors;
         }
 
+        function getExceptSectors(paramIndex, propIndex) {
+            const propSectors = getParamSectors(paramIndex);
+            const delta = self.properties[paramIndex].types.length;
+            for (let i = propSectors.length - delta + propIndex; i >= 0; i -= delta) {
+                propSectors.splice(i, 1);
+            }
+            return propSectors;
+        }
+
         function addParam() {
             const jqRows = modal.find(".prop-row");
             const iPropTh = $("<th>").attr("scope", "col").text(defaultParamName).insertBefore(modal.find(".param-thead-row :last-child"));
@@ -293,10 +302,24 @@ class ProductParams extends NodeParams {
         }
 
         function removeParam() {
-            const jqThisParamDiv = $(this).closest(".param-div");
-            const paramIndex = jqThisParamDiv.parent().children(".param-div").index(jqThisParamDiv);
-            console.log("removeParam: " + paramIndex);
-            updateRowsNumbers();
+            if (self.properties.length > 1) {
+                const jqThisParamDiv = $(this).closest(".param-div");
+                const paramIndex = jqThisParamDiv.parent().children(".param-div").index(jqThisParamDiv);
+                jqThisParamDiv.remove();
+                $.each(getExceptSectors(paramIndex, 0), function (index, value) {
+                    value.remove();
+                });
+                modal.find(`.param-thead-row :nth-of-type(${paramIndex + 2})`).remove();
+                modal.find(`.prop-row td:nth-of-type(${paramIndex + 1})`).remove();
+                updateRowsNumbers();
+                self.properties.splice(paramIndex, 1);
+                self.values = modal.find(".prop-price").map(function () {
+                    return parseFloat($(this).val());
+                }).get();
+            }
+            else {
+                alert("Нельзя удалить единственный блок параметров!");
+            }
         }
 
         function removeProp() {
