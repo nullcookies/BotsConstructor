@@ -212,7 +212,6 @@ class ProductParams extends NodeParams {
         function changeRowColor() {
             const jqSelf = $(this);
             const jqRow = jqSelf.closest("tr");
-            console.log(jqSelf.val());
             if (jqSelf.val() > 0) {
                 jqRow.removeClass("bg-warning");
             }
@@ -278,8 +277,19 @@ class ProductParams extends NodeParams {
         function addProp() {
             const jqThisParamDiv = $(this).closest(".param-div");
             const paramIndex = jqThisParamDiv.parent().children(".param-div").index(jqThisParamDiv);
-            console.log("addProp: " + paramIndex);
+            const lastIndex = self.properties[paramIndex].types.length - 1;
+            const lastSectors = getPropSectors(paramIndex, lastIndex);
+            self.properties[paramIndex].types.push(defaultPropName);
+            jqThisParamDiv.find(".prop-appender").before(productPropDiv.clone().find(".prop-name").val(defaultPropName).on("change", changeRowsPropNames).
+                end().find(".remove-prop").on("click", removeProp).end());
+            $.each(lastSectors, function (index, value) {
+                value.last().after(value.clone(true).children(`td:nth-of-type(${paramIndex + 1})`).text(defaultPropName).end().
+                    find(".prop-price").val(0).trigger("change").end());
+            });
             updateRowsNumbers();
+            self.values = modal.find(".prop-price").map(function () {
+                return parseFloat($(this).val());
+            }).get();
         }
 
         function removeParam() {
