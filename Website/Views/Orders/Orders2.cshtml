@@ -341,7 +341,9 @@
         var jqNewNode = $(newNode);
         jqNewNode.attr("id", "div_order_" + orderId);
         jqNewNode.find("a#order_").attr("id", "order_" + orderId);
-        jqNewNode.find("a#bot_").attr("id", "bot_" + botId).attr("href", "/BotEditing/Settings?botId=" + botId).text(bots[botId].name);
+        //TODO отредактировать эту хрень
+        //jqNewNode.find("a#bot_").attr("id", "bot_" + botId).attr("href", "/BotEditing/Settings?botId=" + botId).text(bots[botId].name);
+        jqNewNode.find("a#bot_").attr("id", "bot_" + botId).attr("href", "/BotForSalesSettings/Settings?botId=" + botId).text(bots[botId].name);
 
         jqNewNode.find("div#heading_msg_").attr("id", "heading_msg_" + orderId);
         jqNewNode.find("button#exp_btn_").attr("id", "exp_btn_" + orderId).attr("data-target", "#collapsed_msg_" + orderId).attr("aria-controls", "collapsed_msg_" + orderId).html(`<strong>${sender}</strong>`).on('click', function (e) {

@@ -26,9 +26,9 @@
             <h5 class="my-0 mr-md-auto font-weight-normal"> <a class="text-reset" asp-controller="Main" asp-action="Index">@Localizer["Bots constructor"]</a></h5>
             <nav class="my-2 my-md-0 mr-md-3">
                 <a class="p-2 text-dark" asp-area="" asp-controller="Home" asp-action="Index">@Localizer["Home"]</a>
-                <a class="p-2 text-dark" asp-area="" asp-controller="Main" asp-action="Privacy">@Localizer["Privacy"]</a>
+                @*<a class="p-2 text-dark" asp-area="" asp-controller="Main" asp-action="Privacy">@Localizer["Privacy"]</a>*@
                 <a class="p-2 text-dark" asp-area="" asp-controller="News" asp-action="Index">@Localizer["News"]</a>
-                <a class="p-2 text-dark" href="#">@Localizer["Support"]</a>
+                @*<a class="p-2 text-dark" href="#">@Localizer["Support"]</a>*@
                 <a class="p-2 text-dark" asp-area="" asp-controller="Test" asp-action="Index">Test</a>
                 <a class="p-2 text-dark" asp-area="" asp-controller="Test2" asp-action="Index">Test2</a>
                 <a class="p-2 text-dark" asp-area="" asp-controller="Test3" asp-action="Index" @*asp-route-imageId="asdfas6465sd4f654df"*@ >Test3</a>
@@ -45,7 +45,9 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2019 - Website - <a asp-area="" asp-controller="Main" asp-action="Privacy">Privacy</a>
+            @*&copy; 2019 - bots -*@ <a asp-area="" asp-controller="Main" asp-action="Privacy">@Localizer["Privacy"]</a>
+            @*<a class="p-2 text-dark" href="#">@Localizer["Support"]</a>*@
+
         </div>
     </footer>
 
