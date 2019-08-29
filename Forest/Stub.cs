@@ -20,13 +20,13 @@ namespace DeleteMeWebhook
 		{
 			Sushi = new Dictionary<int, MetaValued<int>>
 			{
-				{ 0, new MetaValued<int>(new MetaText("Sushi", " (id0)"), random.Next(2, 5), "Dollar") },
-				{ 1, new MetaValued<int>(new MetaText("Sushi", " (id1)"), random.Next(2, 5), "Dollar") },
-				{ 2, new MetaValued<int>(new MetaText("Sushi", " (id2)"), random.Next(2, 5), "Dollar") },
-				{ 3, new MetaValued<int>(new MetaText("Sushi", " (id3)"), random.Next(2, 5), "Dollar") },
-				{ 4, new MetaValued<int>(new MetaText("Sushi", " (id4)"), random.Next(2, 5), "Dollar") },
-				{ 5, new MetaValued<int>(new MetaText("Sushi", " (id5)"), random.Next(2, 5), "Dollar") },
-				{ 6, new MetaValued<int>(new MetaText("Sushi", " (id6)"), random.Next(2, 5), "Dollar") }
+				{ 0, new MetaValued<int>(new MetaText("Sushi", " (id0)"), random.Next(2, 5), "Hryvnia") },
+				{ 1, new MetaValued<int>(new MetaText("Sushi", " (id1)"), random.Next(2, 5), "Hryvnia") },
+				{ 2, new MetaValued<int>(new MetaText("Sushi", " (id2)"), random.Next(2, 5), "Hryvnia") },
+				{ 3, new MetaValued<int>(new MetaText("Sushi", " (id3)"), random.Next(2, 5), "Hryvnia") },
+				{ 4, new MetaValued<int>(new MetaText("Sushi", " (id4)"), random.Next(2, 5), "Hryvnia") },
+				{ 5, new MetaValued<int>(new MetaText("Sushi", " (id5)"), random.Next(2, 5), "Hryvnia") },
+				{ 6, new MetaValued<int>(new MetaText("Sushi", " (id6)"), random.Next(2, 5), "Hryvnia") }
 			};
 
 			int pizzaTypesCount = 8, pizzaDiametersCount = pizzaDiameters.Length, pizzaBortsCount = pizzaBorts.Length;
@@ -40,11 +40,62 @@ namespace DeleteMeWebhook
 					for(int k = 0; k < pizzaBortsCount; k++)
 					{
 						int number = k + j * pizzaBortsCount + i * pizzaSubtypesCount;
-						Pizza.Add(number, new MetaValued<int>(new MetaText("Pizza", " ", pizzaDiameters[j], " ", pizzaBorts[k], " (id", number.ToString(), ")"), random.Next(2, 10), "Dollar"));
+						Pizza.Add(number,
+                            new MetaValued<int>(
+                                new MetaText(
+                                    //"Pizza", 
+                                    GetPizzaName(i), 
+                                " ", 
+                                pizzaDiameters[j], 
+                                " ", 
+                                pizzaBorts[k], 
+                                " (id", number.ToString(), ")")
+                                , random.Next(2, 10),
+                                "Hryvnia"));
 					}
 				}
 			}
 		}
+
+        private static string GetPizzaName(int index)
+        {
+            string answer = null;
+
+            switch (index)
+            {
+                case (0):
+                    answer = "Margarita";
+                    break;
+                case (1):
+                    answer = "Hawaiian";
+                    break;
+                case (2):
+                    answer = "Carbonara";
+                    break;
+                case (3):
+                    answer = "Five Cheeses";
+                    break;
+                case (4):
+                    answer = "Bavarian";
+                    break;
+                case (5):
+                    answer = "Calzone";
+                    break;
+                case (6):
+                    answer = "Regina";
+                    break;
+                case (7):
+                    answer = "Pepperoni";
+                    break;
+                default:
+                    throw new Exception("Навернулось 6416846146514");
+            }
+
+            return answer;
+        }
+
+
+
 
 		private static MegaTree GetHardcodedMegaTree(BotWrapper botWrapper)
         {
@@ -172,15 +223,17 @@ namespace DeleteMeWebhook
             megaTree.AddEdge(nodeOrder, nodeDrinks);
 
 
-            MetaValuedContainerInputNode<int> pizzaConstructor = new MetaValuedContainerInputNode<int>("PizzaConstructor", "ConstructedPizza",
+            MetaValuedContainerInputNode<int> pizzaConstructor = new MetaValuedContainerInputNode<int>(
+                "PizzaConstructor", 
+                "ConstructedPizza",
                 new List<MetaValued<int>>(6)
                 {
-                    new MetaValued<int>("Meat", 3, "Dollar"),
-                    new MetaValued<int>("Tomato", 1, "Dollar"),
-                    new MetaValued<int>("Mushrooms", 2, "Dollar"),
-                    new MetaValued<int>("Corn", 1, "Dollar"),
-                    new MetaValued<int>("Pepper", 1, "Dollar"),
-                    new MetaValued<int>("Broccoli", 2, "Dollar")
+                    new MetaValued<int>("Meat", 3, "Hryvnia"),
+                    new MetaValued<int>("Tomato", 1, "Hryvnia"),
+                    new MetaValued<int>("Mushrooms", 2, "Hryvnia"),
+                    new MetaValued<int>("Corn", 1, "Hryvnia"),
+                    new MetaValued<int>("Pepper", 1, "Hryvnia"),
+                    new MetaValued<int>("Broccoli", 2, "Hryvnia")
                 },
                 "MakeYourOwnPizza",
                 (session, container) =>
@@ -198,7 +251,7 @@ namespace DeleteMeWebhook
                         price += ingredient.Value * ingredientCount;
                     }
                     pizzaDesc.Append("=");
-                    MetaValued<int> constructedPizza = new MetaValued<int>(pizzaDesc, price, "Dollar", false);
+                    MetaValued<int> constructedPizza = new MetaValued<int>(pizzaDesc, price, "Hryvnia", false);
                     session.vars.GetVar<MetaValuedContainer<int>>("ShoppingCart").Add(constructedPizza, 1);
                     container.Clear();
                     session.BotClient.SendTextMessageAsync(session.telegramId, session.vars.GetVar<MetaValuedContainer<int>>("ShoppingCart").ToString(session));
@@ -212,9 +265,10 @@ namespace DeleteMeWebhook
 
             megaTree.AddEdge(endPizzaConstruction, nodePizza);
 
-            MetaText inline = new MetaText("*", "Pizza", "*");
+            //MetaText inline = new MetaText("*", "Pizza", "*");
             for (int i = 0; i < 8; i++)
             {
+                MetaText inline = new MetaText("*", GetPizzaName(i), "*");
                 MetaDoubleKeyboardedMessage metaDouble =
                     new MetaDoubleKeyboardedMessage(
                         metaReplyText: "ChoosePizzaSize",
@@ -229,11 +283,21 @@ namespace DeleteMeWebhook
                         parsing: ParseMode.Markdown,
                         replyMsgFirst: false);
 
-				SimpleNode pizzaType = new SimpleNode("Pizza", metaDouble);
+				//SimpleNode pizzaType = new SimpleNode("Pizza", metaDouble);
+				SimpleNode pizzaType = new SimpleNode(GetPizzaName(i), metaDouble);
 
                 megaTree.AddEdge(nodePizza, pizzaType);
 
-                LightNode desc = new LightNode("Description", new MetaInlineMessage(new MetaText("*", "Pizza", i, "*\n", "TestDescPizza"), parsing: ParseMode.Markdown));
+                LightNode desc = new LightNode("Description", 
+                    new MetaInlineMessage(
+                        new MetaText(
+                            "*",
+                            //"Pizza", 
+                            GetPizzaName(i), 
+                            i, 
+                            "*\n", 
+                            "TestDescPizza"
+                            ), parsing: ParseMode.Markdown));
                 metaDouble.DownButtonsLocation = false;
                 megaTree.AddEdge(pizzaType, desc);
                 metaDouble.DownButtonsLocation = true;
@@ -427,6 +491,7 @@ namespace DeleteMeWebhook
                         {"SpecifyTime", "✍️🕐" },
                         {"TimeRequest", "🙏 👉 🚚 🕰 👯 👯 📁.\n 📊: 1⃣5⃣:3⃣0⃣" },
                         {"Dollar", "💵" },
+                        {"Hryvnia", "₴" },
                         {"Cost", "💰: " },
                         {"Plus", "➕" },
                         {"Minus", "➖" },
@@ -442,6 +507,14 @@ namespace DeleteMeWebhook
                         {"Tomato", "🍅" },
                         {"Mushrooms", "🍄" },
                         {"Corn", "🌽" },
+                          {"Margarita", "Маргарита" },
+                        {"Hawaiian", "Гавайская" },
+                        {"Carbonara", "Карбонара" },
+                        {"Five Cheeses", "Пять Сыров" },
+                        {"Bavarian", "Баварская" },
+                        {"Calzone", "Кальцоне" },
+                        {"Regina", "Регина" },
+                        {"Pepperoni", "Пепперони" },
                         {"Pepper", "🌶️" },
                         {"Broccoli", "🥦" }
                     }
@@ -524,6 +597,7 @@ namespace DeleteMeWebhook
                         {"SpecifyTime", "Указать время ✍️🕐" },
                         {"TimeRequest", "Будьте добры указать время доставки 🙏 🕐 ❓.\nФормат ХХ:ХХ Например: 15:30, 9:50, 1:45" },
                         {"Dollar", "$" },
+                        {"Hryvnia", "₴" },
                         {"Cost", "Стоимость: " },
                         {"Plus", "➕" },
                         {"Minus", "➖" },
@@ -539,7 +613,19 @@ namespace DeleteMeWebhook
                         {"Tomato", "Помидоры" },
                         {"Mushrooms", "Грибы" },
                         {"Corn", "Кукуруза" },
+
+                        {"Margarita", "Маргарита" },
+                        {"Hawaiian", "Гавайская" },
+                        {"Carbonara", "Карбонара" },
+                        {"Five Cheeses", "Пять Сыров" },
+                        {"Bavarian", "Баварская" },
+                        {"Calzone", "Кальцоне" },
+                        {"Regina", "Регина" },
+                        {"Pepperoni", "Пепперони" },
+
                         {"Pepper", "Перец" },
+
+
                         {"Broccoli", "Брокколи" }
                     }
                 }

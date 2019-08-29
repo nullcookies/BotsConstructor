@@ -17,14 +17,14 @@ namespace DeleteMeWebhook
 
         public static void Main(string[] args)
         {
-           
+
             //Url = Ngrok.GetMyAddress().Result;
 
             //База
             //ConnectToDatabase();
 
             //Отладка при отсутствии разметки
-            //RunHardcodeBot();
+            RunHardcodeBot();
 
             //Сообщить мастеру про свою работоспособность
 
