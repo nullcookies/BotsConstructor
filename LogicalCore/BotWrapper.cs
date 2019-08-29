@@ -73,7 +73,7 @@ namespace LogicalCore
         }
 
 
-
+        //344399241
         protected override void AcceptMessage(Message message)
         {
             int telegramId = message.From.Id;

@@ -37,7 +37,7 @@ namespace DeleteMeWebhook
         {
             bool WebhookIsOn = IsWebhookNeeded();
 
-            string token = ConfigurationManager.AppSettings["token"];
+            string token = ConfigurationManager.AppSettings["token1"];
 
             if (WebhookIsOn)
             {
