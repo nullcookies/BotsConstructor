@@ -50,7 +50,7 @@ function sendToServer() {
             depthAdding(children[i]);
         }
     }
-
+    console.log(JSON.stringify(allNodes));
     return JSON.stringify(allNodes);
 }
 
@@ -95,13 +95,12 @@ function loadFromJSON(json) {
     }
 
     function showError(msg) {
-        jqSpinnerDiv.removeClass("spinner-border text-primary centered").addClass("text-danger").
-            append([
-                $("<p>").addClass("oi oi-x text-center"),
-                $("<p>").addClass("h3").text("Ошибка загрузки данных:"),
-                $("<p>").addClass("h3").text(msg),
-                $("<p>").addClass("h5 text-dark").text("Попробуйте обновить страницу.")
-            ]);
+        jqSpinnerDiv.removeClass("spinner-border text-primary centered").addClass("text-danger").append([
+            $("<p>").addClass("oi oi-x text-center"),
+            $("<p>").addClass("h3").text("Ошибка загрузки данных:"),
+            $("<p>").addClass("h3").text(msg),
+            $("<p>").addClass("h5 text-dark").text("Попробуйте обновить страницу.")
+        ]);
     }
 }
 
@@ -756,6 +755,13 @@ class RootNode extends TreeNode {
 
     canBeGroup() {
         throw new Error("Корень нельзя превратить в групповой узел!");
+    }
+
+    toJSON() {
+        return {
+            id: this.id,
+            parameters: this.parameters
+        };
     }
 }
 
