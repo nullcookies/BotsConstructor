@@ -28,9 +28,9 @@
 </div>
 
 <script>
-    let jqLeft = $("#left-menus").detach();
-    let jqSidebar = $("#sidebar-wrapper");
-    let jqNewWrapper = jqSidebar.children(":not(.sidebar-heading)").wrapAll(document.createElement("div")).parent().
+    const jqLeft = $("#left-menus").detach();
+    const jqSidebar = $("#sidebar-wrapper");
+    const jqNewWrapper = jqSidebar.children(":not(.sidebar-heading)").wrapAll(document.createElement("div")).parent().
         first().attr("id", "sidebar").addClass("tab-pane fade").attr("role", "tabpanel").
         attr("aria-labelledby", "sidebar-tab").detach();
     jqSidebar.append(jqLeft);
@@ -40,15 +40,15 @@
 <div id="main-container"></div>
 
 <script>
-    let nodesMenu = $("#nodes-menu");
+    const nodesMenu = $("#nodes-menu");
     for (let i = nodeTypes.root + 1; i < templates.length; i++) {
         nodesMenu.append(templates[i].container);
     }
     let root = templates[nodeTypes.root];
-    let main = $(root.container).attr("id", "main");
+    const main = $(root.container).attr("id", "main");
     $("#main-container").append(main);
     for (let i = 0; i < 10; i++) {
-        let child = templates[2].cloneNode();
+        const child = templates[2].cloneNode();
         root.appendChild(child);
         child.appendChild(templates[3].cloneNode());
     }

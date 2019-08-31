@@ -29,19 +29,72 @@ function deepClone(src) {
 let botToken = "747439290:AAFsEae_HLFYi-gBrYy7AtmZpr1gw6qL8rM";
 let userId = 389063743;
 
+/** Отправляет дерево на сервер. */
+function sendToServer() {
+    root.id = 0;
+    const allNodes = [root];
+    const rootChildren = root.children;
+    for (let i = 0; i < rootChildren.length; i++) {
+        depthAdding(rootChildren[i]);
+    }
+    /**
+     * Добавляет узлы в массив, идя в глубину.
+     * @param {TreeNode} node Текущий узел.
+     */
+    function depthAdding(node) {
+        node.id = allNodes.length;
+        node.parentId = node.parent.id;
+        allNodes.push(node);
+        const children = node.children;
+        for (let i = 0; i < children.length; i++) {
+            depthAdding(children[i]);
+        }
+    }
+
+    return JSON.stringify(allNodes);
+}
+
+/**
+ * Восстанавливает дерево из JSON.
+ * @param {string} json Дерево в формате JSON.
+ */
+function loadFromJSON(json) {
+    const array = JSON.parse(json);
+    if (array[0].parameters.type != 1) throw new Error("Первый узел не является корнем!");
+    const jqMainCont = $("#main-container");
+    jqMainCont.children().remove();
+    jqMainCont.append($("<span>").addClass("spinner-border text-primary m-auto centered").attr("role", "status").css("font-size", "5rem"));
+    root = new RootNode(array[0].parameters.name, array[0].parameters.message, array[0].parameters.fileId);
+    const nodes = [root];
+    for (let i = 1; i < array.length; i++) {
+        const jsonParams = array[i].parameters;
+        const template = templates[jsonParams.type];
+        const node = Object.create(Object.getPrototypeOf(template));
+        node.parameters = Object.create(Object.getPrototypeOf(template.parameters));
+        const nodeParams = node.parameters;
+        for (let prop in jsonParams) {
+            if (jsonParams[prop] != null && typeof (jsonParams[prop]) === "object") {
+                nodeParams[prop] = deepClone(jsonParams[prop]);
+            }
+            else {
+                nodeParams[prop] = jsonParams[prop];
+            }
+        }
+        const clonedNode = node.cloneNode();
+        nodes[array[i].parentId].appendChild(clonedNode);
+        nodes.push(clonedNode);
+    }
+
+    jqMainCont.children().fadeOut("slow", function () {
+        $(root.container).attr("id", "main").hide().appendTo(jqMainCont.children().remove().end()).fadeIn("fast");
+    });
+}
+
 /**
  * Выбранный узел.
  * @type {TreeNode}
  */
 let selectedNode = null;
-
-/** Следующий ID для нового узла. */
-let nextId = 0;
-/**
- * Все узлы в дереве.
- * @type {Object.<number, TreeNode>}
- */
-const allNodes = {};
 
 const fileTypes = Object.freeze({
     "Auto": 0,
@@ -330,13 +383,7 @@ class TreeNode {
             zIndex: 1000,
             opacity: 0.75,
             start: function (event, ui) {
-                if (selectedNode != null) {
-                    delete allNodes[selectedNode.id];
-                    if (selectedNode.id == nextId + 1) {
-                        nextId = selectedNode.id;
-                    }
-                }
-                ui.helper.data('dropped', false);
+                //ui.helper.data('dropped', false);
                 if (this.parameters.isTemplate) {
                     selectedNode = this.cloneNode();
                 }
@@ -349,12 +396,6 @@ class TreeNode {
             }.bind(this),
             stop: function (event, ui) {
                 if (selectedNode == this) {
-                    if (!ui.helper.data('dropped')) {
-                        delete allNodes[selectedNode.id];
-                        if (selectedNode.id == nextId + 1) {
-                            nextId = selectedNode.id;
-                        }
-                    }
                     selectedNode = null;
                 }
                 if (!this.parameters.isTemplate) {
@@ -388,10 +429,6 @@ class TreeNode {
              * @type {NodeWrapper}
              */
             this.lastChild = null;
-
-            this.id = nextId;
-            nextId++;
-            allNodes[this.id] = this;
 
             let buttonsDiv = document.createElement("div");
             buttonsDiv.className = "buttonsDiv";
@@ -430,7 +467,7 @@ class TreeNode {
                 drop: function (event, ui) {
                     if (this.checkAddPermission(selectedNode)) {
                         this.appendChild(selectedNode);
-                        ui.helper.data('dropped', true);
+                        //ui.helper.data('dropped', true);
                     }
                     else {
                         alert("Ошибка! Невозможно добавить узел.");
@@ -522,8 +559,6 @@ class TreeNode {
             this.removeChild(this.lastChild.node);
         }
         $(this.container).fadeOut("slow", $(this).remove);
-        //this.container.remove();
-        delete allNodes[this.id];
     }
 
     /**
@@ -668,6 +703,14 @@ class TreeNode {
             tmpChildWrapper = tmpChildWrapper.next;
         }
     }
+
+    toJSON() {
+        return {
+            id: this.id,
+            parentId: (this.parent == null) ? null : this.parent.id,
+            parameters: this.parameters
+        };
+    }
 }
 
 /**Неудаляемый корень. */
@@ -794,7 +837,7 @@ class NodeWrapper {
                 let parentNode = this.node.parent;
                 if (parentNode.checkBranchPermission(selectedNode) && selectedNode.canBeGroup(this.node)) {
                     parentNode.addGroupNode(this, selectedNode);
-                    ui.helper.data('dropped', true);
+                    //ui.helper.data('dropped', true);
                 }
                 else {
                     alert("Ошибка! Невозможно вставить групповой узел.");
@@ -816,7 +859,7 @@ class NodeWrapper {
                 let parentNode = this.node.parent;
                 if (parentNode.checkBranchPermission(selectedNode) && selectedNode.canBeMiddle(this.node)) {
                     parentNode.addMiddleNode(this, selectedNode);
-                    ui.helper.data('dropped', true);
+                    //ui.helper.data('dropped', true);
                 }
                 else {
                     alert("Ошибка! Невозможно вставить промежуточный узел.");
@@ -845,7 +888,7 @@ class NodeWrapper {
                 if (this.next != null) {
                     if (parentNode.checkBranchPermission(selectedNode) && selectedNode.canBeGroup(this.next.node)) {
                         parentNode.addGroupNode(this.next, selectedNode);
-                        ui.helper.data('dropped', true);
+                        //ui.helper.data('dropped', true);
                     }
                     else {
                         alert("Ошибка! Невозможно вставить групповой узел.");
@@ -854,7 +897,7 @@ class NodeWrapper {
                 else {
                     if (parentNode.checkAddPermission(selectedNode)) {
                         parentNode.appendChild(selectedNode);
-                        ui.helper.data('dropped', true);
+                        //ui.helper.data('dropped', true);
                     }
                     else {
                         alert("Ошибка! Невозможно добавить узел.");
@@ -886,7 +929,7 @@ class NodeWrapper {
                 let parentNode = this.node.parent;
                 if (parentNode.checkAddPermission(selectedNode)) {
                     parentNode.insertChild(this, selectedNode);
-                    ui.helper.data('dropped', true);
+                    //ui.helper.data('dropped', true);
                 }
                 else {
                     alert("Ошибка! Невозможно вставить узел.");
@@ -960,6 +1003,5 @@ class NodeWrapper {
     remove() {
         this.node.remove();
         $(this.container).slideUp("slow", $(this).remove);
-        //this.container.remove();
     }
 }

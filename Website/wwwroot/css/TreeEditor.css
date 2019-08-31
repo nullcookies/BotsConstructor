@@ -151,7 +151,7 @@
     filter: alpha(opacity=50);
 }
 
-.fileHolder > .spinner-border {
+.fileHolder > .spinner-border, .centered {
     position: relative;
     width: 25%;
     height: auto;
@@ -159,7 +159,7 @@
     margin: auto;
 }
 
-.fileHolder > .spinner-border:after {
+.fileHolder > .spinner-border:after, .centered:after {
     content: "";
     display: block;
     padding-bottom: 100%;
