@@ -28,6 +28,15 @@
 </div>
 
 <script>
+    let botId = 0;
+    const urlParams = window.location.search.substring(1).split("&");
+    for (let i = 0; i < urlParams.length; i++) {
+        var nameAndVal = urlParams[i].split('=');
+        if (nameAndVal[0] == "botId") {
+            botId = nameAndVal[1];
+            break;
+        }
+    }
     const jqLeft = $("#left-menus").detach();
     const jqSidebar = $("#sidebar-wrapper");
     const jqNewWrapper = jqSidebar.children(":not(.sidebar-heading)").wrapAll(document.createElement("div")).parent().

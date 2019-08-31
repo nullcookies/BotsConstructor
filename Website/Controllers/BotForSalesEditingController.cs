@@ -134,10 +134,19 @@ namespace Website.Controllers
         }
 
 		[HttpGet]
-		//[TypeFilter(typeof(CheckAccessToTheBot))]
+		[TypeFilter(typeof(CheckAccessToTheBot))]
 		public IActionResult SalesTreeEditor(int botId)
 		{
 			return View();
+		}
+
+		[HttpPost]
+		[TypeFilter(typeof(CheckAccessToTheBot))]
+		public IActionResult SaveTree(int botId, string tree)
+		{
+			context.Bots.Find(botId).Markup = tree;
+			context.SaveChanges();
+			return Ok();
 		}
 
 

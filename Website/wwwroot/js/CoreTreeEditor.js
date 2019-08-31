@@ -50,8 +50,23 @@ function sendToServer() {
             depthAdding(children[i]);
         }
     }
-    console.log(JSON.stringify(allNodes));
-    return JSON.stringify(allNodes);
+
+    $.ajax({
+        url: '/BotForSalesEditing/SaveTree',
+        type: 'post',
+        data: { botId: botId, tree: JSON.stringify(allNodes) },
+        success: function (data) {
+            console.log("Success: " + data);
+            SetNewOrdersCount(data);
+        },
+        error: function (data) {
+            console.log("Error: " + data.responseText);
+            //$(button.firstElementChild).removeClass("spinner-border spinner-border-sm");
+            //$(button.firstElementChild).addClass("oi oi-circle-x");
+            //$(button).attr("disabled", "disabled");
+            //console.log(`ERROR! Order with ID = ${orderId} can't be removed.\n${data.responseText}`);
+        }
+    });
 }
 
 /**
