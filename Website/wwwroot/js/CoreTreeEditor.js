@@ -87,7 +87,7 @@ const baseModal = $("<div>").attr({
 }).append($("<div>").addClass("modal-content").append([
     $("<div>").addClass("modal-header").append([
         $("<input>").attr({
-            class: "modal-title w-100 border-0 h5",
+            class: "modal-title bg-transparent w-100 border-0 h5",
             type: "text"
         }).val("Node name"),
         $("<button>").attr({
@@ -101,7 +101,7 @@ const baseModal = $("<div>").attr({
             $("<div>").addClass("col col-5 d-flex flex-column justify-content-start align-items-stretch").append([
                 $("<div>").addClass("fileHolder flex-fill align-self-stretch rounded border border-secondary text-center d-flex flex-column justify-content-center").
                     append(noFileSelectedSpan),
-                $("<div>").addClass("input-group mt-1").append([
+                $("<div>").addClass("input-group mt-1 bg-white").append([
                     $("<div>").addClass("input-group-prepend").append($("<button>").attr({
                         class: "btn btn-outline-danger base-remove-file",
                         type: "button"

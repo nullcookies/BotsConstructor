@@ -81,7 +81,7 @@ const baseAddBtn = $("<button>").addClass("btn btn-outline-primary rounded-circl
     }).append($("<span>").addClass("oi oi-plus"));
 
 const basePropDiv = $("<div>").addClass("border border-secondary rounded bg-light w-100 my-1 p-1").height("3rem");
-const productPropDiv = basePropDiv.clone().addClass("input-group prop-div").append([
+const productPropDiv = basePropDiv.clone().addClass("input-group prop-div bg-white").append([
     $("<div>").addClass("input-group-prepend").append($("<button>").attr("type", "button").
         addClass("btn btn-outline-danger remove-prop").append($("<span>").addClass("oi oi-trash"))),
     $("<input>").addClass("form-control prop-name").attr({
@@ -90,17 +90,17 @@ const productPropDiv = basePropDiv.clone().addClass("input-group prop-div").appe
     }).prop("required", true)
 ]);
 
-const baseParamDiv = $("<div>").addClass("card border border-secondary rounded m-1 p-1").width("179px").height("270px");
+const baseParamDiv = $("<div>").addClass("card border border-secondary rounded m-1").width("179px").height("262px");
 const productParamDiv = baseParamDiv.clone().addClass("param-div").append([
-    $("<div>").addClass("card-header input-group p-1").append([
+    $("<div>").addClass("card-header input-group p-1 bg-light").append([
         $("<div>").addClass("input-group-prepend").append($("<button>").attr("type", "button").addClass("btn p-0 text-primary edit-param").append($("<span>").addClass("oi oi-cog pt-2"))),
-        $("<input>").addClass("form-control rounded border-0 param-name").attr({
+        $("<input>").addClass("form-control bg-transparent rounded border-0 param-name").attr({
             type: "text",
             placeholder: "Parameter"
         }).prop("required", true),
         $("<div>").addClass("input-group-append").append($("<button>").attr("type", "button").addClass("close remove-param").append($("<span>").html("&times;")))
     ]),
-    $("<div>").addClass("card-body overflow-auto p-0").append(basePropDiv.clone().
+    $("<div>").addClass("card-body overflow-auto px-1 py-0").append(basePropDiv.clone().
         addClass("text-center d-flex flex-column justify-content-center prop-appender").append(baseAddBtn.clone().
             addClass("add-prop p-0").width("2rem").height("2rem")))
 ]);
@@ -128,6 +128,8 @@ CloneInputDiv(productModal.find("legend:contains(Display type) ~ div.form-check"
 
 const defaultParamName = "New parameter";
 const defaultPropName = "New property";
+
+const paramModal = baseModal.clone(true).find(".modal-content").addClass("bg-light").end();
 
 /** Характеристика товара. */
 class ProductProperty {
@@ -374,7 +376,7 @@ class ProductParams extends NodeParams {
             const jqThisParamDiv = $(this).closest(".param-div");
             const paramIndex = jqThisParamDiv.parent().children(".param-div").index(jqThisParamDiv);
             const param = self.properties[paramIndex];
-            baseModal.find(".modal-title").val(param.name).end().
+            paramModal.find(".modal-title").val(param.name).end().
                 find(".base-message").val(param.message).end().
                 find(".base-file").data("file_id", param.fileId).end().
                 find(".base-file").data("preview_id", param.previewId).end().
@@ -382,21 +384,21 @@ class ProductParams extends NodeParams {
                 find(".base-file").val("").end().
                 find(".custom-file-label").text(chooseFile);
             if (param.fileId != null) {
-                const jqFileHolder = baseModal.find(".fileHolder");
+                const jqFileHolder = paramModal.find(".fileHolder");
                 jqFileHolder.empty().append($("<span>").addClass("spinner-border text-secondary"));
                 SetFileHTML(botToken, jqFileHolder[0], param.previewId, param.fileId, false).then(function () {
                     self.modal.find(".custom-file-label").text("Uploaded file");
                 });
             }
-            baseModal.one("hide.bs.modal", function () {
-                param.name = baseModal.find(".modal-title").val();
-                param.message = baseModal.find(".base-message").val();
-                param.fileId = baseModal.find(".base-file").data("file_id");
-                param.previewId = baseModal.find(".base-file").data("preview_id");
+            paramModal.one("hide.bs.modal", function () {
+                param.name = paramModal.find(".modal-title").val();
+                param.message = paramModal.find(".base-message").val();
+                param.fileId = paramModal.find(".base-file").data("file_id");
+                param.previewId = paramModal.find(".base-file").data("preview_id");
                 self.openModal();
             });
             self.modal.modal("hide");
-            baseModal.modal("show");
+            paramModal.modal("show");
         }
     }
 }
