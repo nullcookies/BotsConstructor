@@ -29,6 +29,8 @@
 
 <script>
     let botId = 0;
+    let userId = @ViewData["userId"];
+    let botToken = "@ViewData["token"]";
     const urlParams = window.location.search.substring(1).split("&");
     for (let i = 0; i < urlParams.length; i++) {
         var nameAndVal = urlParams[i].split('=');
@@ -44,6 +46,9 @@
         attr("aria-labelledby", "sidebar-tab").detach();
     jqSidebar.append(jqLeft);
     jqLeft.find("#left-content").append(jqNewWrapper);
+    
+    $("#menu-toggle").after($("<button>").addClass("btn btn-success ml-2").attr("type", "button").text("Save").
+        on("click", sendToServer).append($("<span>").addClass("oi oi-cloud-upload")));
 </script>
 
 <div id="main-container"></div>
@@ -54,11 +59,6 @@
         nodesMenu.append(templates[i].container);
     }
     let root = templates[nodeTypes.root];
-    const main = $(root.container).attr("id", "main");
-    $("#main-container").append(main);
-    for (let i = 0; i < 10; i++) {
-        const child = templates[2].cloneNode();
-        root.appendChild(child);
-        child.appendChild(templates[3].cloneNode());
-    }
+    const jsonMarkup = '@Html.Raw(ViewData["json"])';
+    loadFromJSON(jsonMarkup);
 </script>

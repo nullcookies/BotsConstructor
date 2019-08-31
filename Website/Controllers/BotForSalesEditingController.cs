@@ -137,6 +137,10 @@ namespace Website.Controllers
 		[TypeFilter(typeof(CheckAccessToTheBot))]
 		public IActionResult SalesTreeEditor(int botId)
 		{
+			var info = context.Bots.Where((_bot) => _bot.Id == botId).Select((_bot) => new { _bot.Owner.TelegramId, _bot.Token, _bot.Markup }).SingleOrDefault();
+			ViewData["userId"] = info.TelegramId;
+			ViewData["token"] = info.Token;
+			ViewData["json"] = info.Markup;
 			return View();
 		}
 

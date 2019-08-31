@@ -25,12 +25,11 @@ function deepClone(src) {
 
     return clone;
 }
-// TODO: устанавливать эти значения из полученных данных.
-let botToken = "747439290:AAFsEae_HLFYi-gBrYy7AtmZpr1gw6qL8rM";
-let userId = 389063743;
 
 /** Отправляет дерево на сервер. */
 function sendToServer() {
+    const jqSelf = $(this).prop("disabled", true).switchClass("btn-success btn-danger", "btn-warning");
+    const jqSaveSpinner = jqSelf.find("span").removeClass("oi oi-cloud-upload oi-circle-x").addClass("spinner-border spinner-border-sm");
     root.id = 0;
     const allNodes = [root];
     const rootChildren = root.children;
@@ -55,16 +54,15 @@ function sendToServer() {
         url: '/BotForSalesEditing/SaveTree',
         type: 'post',
         data: { botId: botId, tree: JSON.stringify(allNodes) },
-        success: function (data) {
-            console.log("Success: " + data);
-            SetNewOrdersCount(data);
+        success: function () {
+            jqSaveSpinner.removeClass("spinner-border spinner-border-sm").addClass("oi oi-cloud-upload");
+            jqSelf.switchClass("btn-warning", "btn-success").prop("disabled", false);
         },
         error: function (data) {
+            jqSaveSpinner.removeClass("spinner-border spinner-border-sm").addClass("oi oi-circle-x");
+            jqSelf.switchClass("btn-warning", "btn-danger").prop("disabled", false);
+
             console.log("Error: " + data.responseText);
-            //$(button.firstElementChild).removeClass("spinner-border spinner-border-sm");
-            //$(button.firstElementChild).addClass("oi oi-circle-x");
-            //$(button).attr("disabled", "disabled");
-            //console.log(`ERROR! Order with ID = ${orderId} can't be removed.\n${data.responseText}`);
         }
     });
 }
