@@ -350,7 +350,7 @@
 
 
     @* Удаление бота *@
-    <div class="container border border-danger  rounded  " style="margin-bottom:1.5rem; padding-right:0;padding-left:0;">
+    <div class="container border border-danger rounded" style="margin-bottom:1.5rem; padding-right:0;padding-left:0;">
 
         <div class="col ">
 
@@ -461,7 +461,7 @@
                 //$('#btnStopBot').prop("disabled", true);
 
                 alert("Error occurred.  "
-                    + xhr.statusCode);
+                    + xhr.responseText);
             }
         });
 
@@ -513,7 +513,7 @@
             },
             error: function (xhr) {
                 alert("Error occurred. "
-                    + xhr.statusCode);
+                    + xhr.responseText);
             }
         });
     }
