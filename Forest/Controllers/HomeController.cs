@@ -21,8 +21,13 @@ namespace DeleteMeWebhook.Controllers
 {
     public class HomeController : Controller
     {
+		private readonly TryConvert<(string FileId, string PreviewId, string Description)> noFileCheck = (string text, out (string FileId, string PreviewId, string Description) variable) =>
+		{
+			variable = default((string FileId, string PreviewId, string Description));
+			return true;
+		};
 
-        private readonly ApplicationContext _context;
+		private readonly ApplicationContext _context;
 		private readonly DBConnector connector;
         private readonly StupidLogger _logger;
 
@@ -93,176 +98,141 @@ namespace DeleteMeWebhook.Controllers
             //var money = owner.Money;
 
             //создание сериализованного объекта дерева
-            JArray testObj = JsonConvert.DeserializeObject<JArray>(bot.Markup);
+            JArray allNodes = JsonConvert.DeserializeObject<JArray>(bot.Markup);
 
-			if(testObj.Count == 0)
+			if(allNodes.Count == 0)
 			{
 				return StatusCode(403, "Zero objects count.");
 			}
 
 			Dictionary<int, MetaValued<decimal>> Products = new Dictionary<int, MetaValued<decimal>>();
-
-			var nodesDepthLine = new LogicalCore.Node[testObj.Count()];
-			MegaTree megaTree = null;
-
-			int productIdStub = 0;
-            for (int y = 0; y < testObj[0].Count(); y++)
-            {
-                for (int x = 0; x < testObj.Count(); x++)
-                {
-					var nodeJson = testObj[x][y];
-                    if (nodeJson.HasValues)
-                    {
-						LogicalCore.Node logicalNode = null;
-                        string nodeName = (string)nodeJson["nodeName"];
-                        int _x = (int)nodeJson["x"];
-                        int _y = (int)nodeJson["y"];
-						NodeType nodeType = (NodeType)(int)nodeJson["nodeType"];
-                        Node node = new Node() { NodeName = nodeName, X = _x, Y = _y };
-
-                        switch (nodeType)
-                        {
-							case NodeType.Unknown:
-								return StatusCode(403, "Unknown node type.");
-
-							case NodeType.Root:
-								logicalNode = node.ToSimpleNode(false);
-								megaTree = new MegaTree(logicalNode);
+			int allNodesCount = allNodes.Count();
+			var rootParams = allNodes[0]["parameters"];
+			if((int)rootParams["type"] != 1)
+			{
+				return StatusCode(403, "First node is not root node.");
+			}
+			MegaTree megaTree = new MegaTree(new SimpleNode((string)rootParams["name"], GetReplyMsgFromParams(rootParams), false));
+			var treeNodes = new LogicalCore.Node[allNodesCount];
+			treeNodes[0] = megaTree.root;
+			for(int i = 1; i < allNodesCount; i++)
+			{
+				var nodeParams = allNodes[i]["parameters"];
+				LogicalCore.Node node = null;
+				switch ((NodeType)(int)nodeParams["type"])
+				{
+					case NodeType.Info:
+						node = new SimpleNode((string)nodeParams["name"], GetReplyMsgFromParams(nodeParams));
+						break;
+					case NodeType.Section:
+						switch ((CollectionType)(int)nodeParams["collType"])
+						{
+							case CollectionType.Block:
+								node = new BlockNode((string)nodeParams["name"], GetReplyMsgFromParams(nodeParams));
 								break;
-
-                            case NodeType.NewOrder:
-								logicalNode = node.ToSimpleNode();
-								megaTree.AddEdge(nodesDepthLine[x - 1], logicalNode);
+							case CollectionType.Flipper:
+								node = new ChildrenFlipperNode((string)nodeParams["name"], GetDoubleMsgFromParams(nodeParams));
 								break;
-
-                            case NodeType.Section:
-								node.NodeParams = new CollectionNodeParams()
+							default:
+								return StatusCode(403, "Incorrect section node's collection type.");
+						}
+						break;
+					case NodeType.Product:
+						//TODO: записывать / получать из БД ID элементов
+						switch ((DisplayType)(int)nodeParams["displayType"])
+						{
+							//case DisplayType.Simple:
+							//	node = new ProductSimpleNode<decimal>();
+							//	break;
+							//case DisplayType.Multi:
+							//	node = new ProductMultiNode<decimal>((string)nodeParams["name"], productParams.Characteristics.
+							//			Select(_chars => _chars.Values).ToList(), "Products", productParams.Characteristics.
+							//			SelectMany(_chars => _chars.IDs).ToList(), "ShoppingCart", "Добавлено: ", "Добавить",
+							//			new MetaDoubleKeyboardedMessage(productParams.FullDescription, productParams.Message));
+							//	break;
+							default:
+								return StatusCode(403, "Incorrect product node's display type.");
+						}
+						break;
+					case NodeType.Input:
+						switch ((InputType)(int)nodeParams["inputType"])
+						{
+							case InputType.Text:
+								node = new TextInputNode((string)nodeParams["name"], (string)nodeParams["name"],
+									(string text, out string variable) => !string.IsNullOrWhiteSpace(variable = text),
+									GetReplyMsgFromParams(nodeParams));
+								break;
+							case InputType.Time:
+								node = new TimeInputNode((string)nodeParams["name"], (string)nodeParams["name"], GetReplyMsgFromParams(nodeParams));
+								break;
+							case InputType.Image:
+								node = new ImageInputNode((string)nodeParams["name"], (string)nodeParams["name"], noFileCheck, GetReplyMsgFromParams(nodeParams));
+								break;
+							case InputType.Audio:
+								node = new AudioInputNode((string)nodeParams["name"], (string)nodeParams["name"], noFileCheck, GetReplyMsgFromParams(nodeParams));
+								break;
+							case InputType.Video:
+								node = new VideoInputNode((string)nodeParams["name"], (string)nodeParams["name"], noFileCheck, GetReplyMsgFromParams(nodeParams));
+								break;
+							case InputType.Document:
+								node = new DocumentInputNode((string)nodeParams["name"], (string)nodeParams["name"], noFileCheck, GetReplyMsgFromParams(nodeParams));
+								break;
+							default:
+								return StatusCode(403, "Incorrect input node's input type.");
+						}
+						break;
+					case NodeType.SendOrder:
+						//TODO: группы статусов
+						node = new OwnerNotificationNode((string)nodeParams["name"], GetInlineMsgFromParams(nodeParams), connector, 1,
+								(Session session) => new UniversalOrderContainer(session.telegramId)
 								{
-									Message = (string)nodeJson["nodeParams"]["message"],
-									ScrollingMethod = (ScrollingMethod)(int)nodeJson["nodeParams"]["scrollingMethod"],
-								};
-
-								logicalNode = node;
-								megaTree.AddEdge(nodesDepthLine[x - 1], logicalNode);
-								break;
-
-                            case NodeType.Product:
-                                long productId = (long)nodeJson["nodeParams"]["_productId"];
-                                string message = (string)nodeJson["nodeParams"]["message"];
-                                string fullDescription = (string)nodeJson["nodeParams"]["fullDescription"];
-                                List<Characteristic> chars = new List<Characteristic>();
-                                JArray characteristics = (JArray)nodeJson["nodeParams"]["characteristics"];
-
-                                foreach (var characteristic in characteristics)
-                                {
-                                    string charName = (string)characteristic["characteristicName"];
-                                    Characteristic temChar = new Characteristic() { CharacteristicName = charName };
-
-                                    for (int qq = 0; qq < characteristic["arrOfValues"].Count(); qq++)
-                                    {
-                                        temChar.Values.Add((string)characteristic["arrOfValues"][qq]);
-                                    }
-                                    chars.Add(temChar);
-
-                                }
-                                JArray pricesJson = (JArray)nodeJson["nodeParams"]["prices"];
-                                List<string> prices = new List<string>();
-                                for (int ww = 0; ww < pricesJson.Count(); ww++)
-                                {
-                                    prices.Add((string)pricesJson[ww]);
-                                }
-
-                                node.NodeParams = new ProductNodeParams()
-                                {
-                                    ProductId = productId,
-									Message = message,
-                                    FullDescription = fullDescription,
-                                    Characteristics = chars
-                                };
-
-								string[] protoString = new string[chars.Count - 1];
-
-								RecursiveAdder();
-
-								void RecursiveAdder(int index = 0)
+									Items = session.vars.GetVar<MetaValuedContainer<decimal>>("ShoppingCart").
+									Select(_pair => (_pair.Key.ID ?? 0, _pair.Value)).ToArray() // TODO: проверять на null
+								},
+								variables: new (Type, string)[]
 								{
-									if (index < chars.Count - 1)
-									{
-										for (int i = 0; i < chars[index].Values.Count; i++)
-										{
-											protoString[index] = chars[index].Values[i];
-											RecursiveAdder(index + 1);
-										}
-									}
-									else
-									{
-										for (int i = 0; i < chars[index].Values.Count; i++)
-										{
-											MetaText metaText = new MetaText(node.NodeName, " ");
-											foreach (var part in protoString)
-											{
-												metaText.Append(part, " ");
-											}
-											metaText.Append(chars[index].Values[i]);
-											Products.Add(productIdStub,
-												new MetaValued<decimal>(metaText, 160.15m, "american hryvnia", id: productIdStub));
-											chars[index].IDs.Add(productIdStub);
-											productIdStub++;
-										}
-									}
-								}
+									(typeof(MetaValuedContainer<decimal>), "ShoppingCart")//,
+									//(typeof(string), "Address"),
+									//(typeof(TimeSpan), "Time"),
+									//(typeof(string), "Comment")
+								});
+						break;
+					default:
+						return StatusCode(403, "Incorrect node type.");
+				}
 
-								logicalNode = node;
-								megaTree.AddEdge(nodesDepthLine[x - 1], logicalNode);
-								megaTree.AddEdge(logicalNode, nodesDepthLine[x - 1]);
-								break;
+				treeNodes[i] = node;
+				megaTree.AddEdge(treeNodes[(int)allNodes[i]["parentId"]], node);
+			}
 
-                            case NodeType.ConfirmOrder:
-								logicalNode = node;
-								megaTree.AddEdge(nodesDepthLine[x - 1], logicalNode);
-								break;
+			MetaReplyMessage GetReplyMsgFromParams(JToken parameters)
+			{
+				if (!string.IsNullOrWhiteSpace((string)parameters["fileId"]))
+				{
+					return new MetaReplyMessage(new MetaText((string)parameters["message"]), MessageType.Document, (string)parameters["fileId"]);
+				}
+				else
+				{
+					return new MetaReplyMessage(new MetaText((string)parameters["message"]));
+				}
+			}
 
-                            case NodeType.Input:
-                                bool answerIsRequired = (bool)nodeJson["nodeParams"]["answerIsRequired"];
+			MetaInlineMessage GetInlineMsgFromParams(JToken parameters)
+			{
+				if (!string.IsNullOrWhiteSpace((string)parameters["fileId"]))
+				{
+					return new MetaInlineMessage(new MetaText((string)parameters["message"]), MessageType.Document, (string)parameters["fileId"]);
+				}
+				else
+				{
+					return new MetaInlineMessage(new MetaText((string)parameters["message"]));
+				}
+			}
 
-                                Dictionary<string, bool> expectedResponseFormat = new Dictionary<string, bool>();
-                                var expFormats = nodeJson["nodeParams"]["expectedResponseFormat"];
-                                foreach (var pair in expFormats)
-                                {
-                                    var test89274658 = (string)pair["nameOfValue"];
-                                    var test892658 = (bool)pair["value"];
-                                    //expectedResponseFormat.Add(((JProperty)pair).Name, (bool)((JProperty)pair).Value);
-                                    expectedResponseFormat.Add(test89274658, test892658);
-                                }
-                                string _message = (string)nodeJson["nodeParams"]["message"];
-
-                                node.NodeParams = new InputNodeParams()
-                                {
-                                    Message = _message,
-                                    AnswerIsRequired = answerIsRequired,
-                                    ExpectedResponseFormat = expectedResponseFormat
-                                };
-
-								logicalNode = node;
-								megaTree.AddEdge(nodesDepthLine[x - 1], logicalNode);
-								break;
-
-                            case NodeType.SendOrder:
-                                string message3 = (string)nodeJson["nodeParams"]["message"];
-                                node.NodeParams = new SendOrderParams() { Message = message3, Sendable = connector };
-
-								logicalNode = node;
-								megaTree.AddEdge(nodesDepthLine[x - 1], logicalNode);
-								break;
-
-                        }
-						
-						nodesDepthLine[x] = logicalNode;
-					}
-                }
-            }
-
-			BotWrapper botWrapper = new BotWrapper(botId, null, bot.Token, null, null, null)
+			MetaDoubleKeyboardedMessage GetDoubleMsgFromParams(JToken parameters) => new MetaDoubleKeyboardedMessage(metaReplyText: (string)parameters["message"], metaInlineText: (string)parameters["name"],
+				messageType: string.IsNullOrWhiteSpace((string)parameters["fileId"]) ? MessageType.Text : MessageType.Document, messageFile: (string)parameters["fileId"]);
+			
+			BotWrapper botWrapper = new BotWrapper(botId, null, bot.Token)
 			{
 				MegaTree = megaTree
 			};
@@ -317,11 +287,7 @@ namespace DeleteMeWebhook.Controllers
                 return StatusCode(500);
             }
 
-
             Stub.RunAndRegisterBot(botWrapper);
-
-
-
 
 			return Ok();
         }
@@ -333,7 +299,6 @@ namespace DeleteMeWebhook.Controllers
         /// <returns></returns>
         private bool RecordOfTheLaunchOfTheBotWasMadeSuccessfully(int botId)
         {
-
             //Создание новой записи
             string domain = HttpContext.Request.Host.Value;
             var link = $"http://{domain}";
@@ -363,8 +328,6 @@ namespace DeleteMeWebhook.Controllers
                 Console.WriteLine("Создание новой записи о запущеном боте" + $"{rr.BotId}  {rr.ForestLink}");
                 _context.RouteRecords.Add(rr);
             }
-
-
 
             _context.SaveChanges();
             return true;
@@ -427,156 +390,40 @@ namespace DeleteMeWebhook.Controllers
         }
     }
 
-
-    class Node
-    {
-        public string NodeName { get; set; }
-        public int X { get; set; }
-        public int Y { get; set; }
-        public Params NodeParams { get; set; }
-
-		public SimpleNode ToSimpleNode(bool needBack = true)
-		{
-			string file = NodeParams?.File;
-			return new SimpleNode(NodeName, new MetaReplyMessage(NodeParams?.Message ?? NodeName,
-				string.IsNullOrWhiteSpace(file) ? MessageType.Text : MessageType.Document,
-				file), needBack);
-		}
-
-		private static readonly TryConvert<string> notEmptyString =
-			new TryConvert<string>((string text, out string variable) =>
-			!string.IsNullOrWhiteSpace(variable = text));
-
-		public static implicit operator LogicalCore.Node (Node node)
-		{
-			Params parameters = node.NodeParams;
-			if (parameters == null)
-			{
-				return new SimpleNode(node.NodeName, new MetaReplyMessage(node.NodeName, MessageType.Text));
-			}
-			else
-			{
-				if(parameters is CollectionNodeParams collParams)
-				{
-					switch (collParams.ScrollingMethod)
-					{
-						case ScrollingMethod.SendingAll:
-							return new BlockNode(node.NodeName, new MetaReplyMessage(collParams.Message,
-								string.IsNullOrWhiteSpace(collParams.File) ? MessageType.Text : MessageType.Document,
-								collParams.File));
-						case ScrollingMethod.SendingOnlySelected:
-							return new ChildrenFlipperNode(node.NodeName, new MetaDoubleKeyboardedMessage(metaReplyText: collParams.Message,
-								metaInlineText: node.NodeName, messageType: string.IsNullOrWhiteSpace(collParams.File) ? MessageType.Text : MessageType.Document,
-								messageFile: collParams.File));
-						default:
-							throw new NotImplementedException("Unknown scrolling method.");
-					}
-				}
-				else
-				{
-					if(parameters is SendOrderParams sendParams)
-					{
-						return new OwnerNotificationNode(node.NodeName, new MetaInlineMessage(sendParams.Message,
-								string.IsNullOrWhiteSpace(sendParams.File) ? MessageType.Text : MessageType.Document,
-								sendParams.File), sendParams.Sendable, 1,
-								(Session session) => new UniversalOrderContainer(session.telegramId)
-								{
-									Items = session.vars.GetVar<MetaValuedContainer<decimal>>("ShoppingCart").
-									Select(_pair => (_pair.Key.ID ?? 0, _pair.Value)).ToArray() // TODO: проверять на null
-								},
-								variables: new (Type, string)[]
-								{
-									(typeof(MetaValuedContainer<decimal>), "ShoppingCart")//,
-									//(typeof(string), "Address"),
-									//(typeof(TimeSpan), "Time"),
-									//(typeof(string), "Comment")
-								});
-					}
-					else
-					{
-						if(parameters is InputNodeParams inputParams)
-						{
-							//inputParams.ExpectedResponseFormat? I tak soidёt!
-							return new TextInputNode(node.NodeName, "InputVar", notEmptyString, new MetaReplyMessage(inputParams.Message,
-								string.IsNullOrWhiteSpace(inputParams.File) ? MessageType.Text : MessageType.Document,
-								inputParams.File));
-						}
-						else
-						{
-							if(parameters is ProductNodeParams productParams)
-							{
-								int productId = unchecked((int)productParams.ProductId);
-								//long to int? Всё равно потом заменю
-
-								//return new ProductSimpleNode<decimal>(node.NodeName, productParams.Characteristics.
-								//	Select(_chars => _chars.Values).ToList(), "Products", productParams.Characteristics.
-								//	SelectMany(_chars => _chars.IDs).ToList(), productParams.Characteristics.
-								//	Select(_chars => _chars.CharacteristicName).ToList(), "ShoppingCart");
-
-								return new ProductMultiNode<decimal>(node.NodeName, productParams.Characteristics.
-									Select(_chars => _chars.Values).ToList(), "Products", productParams.Characteristics.
-									SelectMany(_chars => _chars.IDs).ToList(), "ShoppingCart", "Добавлено: ", "Добавить",
-									new MetaDoubleKeyboardedMessage(productParams.FullDescription, productParams.Message));
-							}
-							else
-							{
-								throw new NotImplementedException("Unknown type.");
-							}
-						}
-					}
-				}
-			}
-		}
-    }
-
-    internal class Params
-    {
-        public string File { get; set; }
-        public string Message { get; set; }
-    }
-    class CollectionNodeParams : Params
-    {
-        public ScrollingMethod ScrollingMethod { get; set; }
-    }
-    class SendOrderParams : Params
-    {
-		public IOrdersSendable Sendable { get; set; }
-    }
-    class InputNodeParams : Params
-    {
-        public bool AnswerIsRequired { get; set; }
-        public Dictionary<string, bool> ExpectedResponseFormat { get; set; } = new Dictionary<string, bool>();
-    }
-    class ProductNodeParams : Params
-    {
-        public long ProductId { get; set; }
-        public string FullDescription { get; set; }
-        public List<Characteristic> Characteristics { get; set; } = new List<Characteristic>();
-    }
-    class Characteristic
-    {
-        public string CharacteristicName { get; set; }
-        public List<string> Values { get; set; } = new List<string>();
-		public List<int> IDs { get; set; } = new List<int>();
-	}
-
-    enum ScrollingMethod
-    {
-		Unknown = 0,
-		SendingAll = 1,
-        SendingOnlySelected = 2
-    }
-
 	enum NodeType
 	{
 		Unknown = 0,
 		Root = 1,
-		NewOrder = 2,
+		Info = 2,
 		Section = 3,
 		Product = 4,
-		ConfirmOrder = 5,
-		Input = 6,
-		SendOrder = 7
+		Input = 5,
+		SendOrder = 6
+	}
+
+	enum CollectionType
+    {
+		Unknown = 0,
+		Block = 1,
+        Flipper = 2
+	}
+
+	enum DisplayType
+	{
+		Unknown = 0,
+		Simple = 1,
+		Multi = 2
+	}
+
+	enum InputType
+	{
+		Unknown = 0,
+		Text = 1,
+		Time = 2,
+		Image = 3,
+		Audio = 4,
+		Video = 5,
+		Document = 6
 	}
 
 }

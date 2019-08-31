@@ -5,7 +5,7 @@ using Telegram.Bot.Types.Enums;
 
 namespace LogicalCore
 {
-	public abstract class ImageInputNode : FileInputNode
+	public class ImageInputNode : FileInputNode
     {
 		public readonly bool useStickers;
 

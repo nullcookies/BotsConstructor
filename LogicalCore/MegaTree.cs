@@ -21,11 +21,6 @@ namespace LogicalCore
             ConsoleWriter.WriteLine($"К общему списку узлов добавлен корень с именем {root.name}", ConsoleColor.DarkGray);
         }
 
-		public MegaTree(string treeData)
-		{
-			throw new NotImplementedException();
-		}
-
 		public void AddEdge(Node parent, Node child)
         {
             if (parent != child)
