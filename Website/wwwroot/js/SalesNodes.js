@@ -14,6 +14,11 @@ const collectionTypes = Object.freeze({
     "flipper": 2
 });
 
+const displayTypes = Object.freeze({
+    "simple": 1,
+    "multinode": 2
+});
+
 const inputTypes = Object.freeze({
     "text": 1,
     "time": 2,
@@ -100,10 +105,26 @@ const productParamDiv = baseParamDiv.clone().addClass("param-div").append([
             addClass("add-prop p-0").width("2rem").height("2rem")))
 ]);
 
-const productModal = baseModal.clone(true).find(".modal-body > form").append($("<div>").
-    addClass("row d-flex flex-wrap align-items-stretch border border-secondary rounded my-1 mx-auto p-2").append(baseParamDiv.clone().
-        addClass("text-center d-flex flex-column justify-content-center param-appender").append(baseAddBtn.clone().addClass("add-param").css("font-size", "larger")))).
-    append($("<div>").addClass("table-responsive").append($("<table>").addClass("table table-sm param-table"))).end();
+const productModal = baseModal.clone(true).find(".modal-body > form").append([
+    $("<fieldset>").
+        addClass("form-group collection-set mb-0").append($("<div>").addClass("row").append([
+            $("<legend>").addClass("col-form-label col-auto").text("Display type"),
+            $("<div>").addClass("form-check form-check-inline col-auto").append([
+                $("<input>").attr({
+                    type: "radio",
+                    name: "display-type",
+                    value: displayTypes.simple,
+                    class: "form-check-input"
+                }),
+                $("<label>").addClass("form-check-label").text("Simple nodes")
+            ])
+        ])),
+    $("<div>").addClass("row d-flex flex-wrap align-items-stretch border border-secondary rounded my-1 mx-auto p-2").append(baseParamDiv.clone().
+            addClass("text-center d-flex flex-column justify-content-center param-appender").append(baseAddBtn.clone().addClass("add-param").css("font-size", "larger"))),
+    $("<div>").addClass("table-responsive").append($("<table>").addClass("table table-sm param-table"))
+]).end();
+
+CloneInputDiv(productModal.find("legend:contains(Display type) ~ div.form-check"), displayTypes.multinode, "Multinode");
 
 const defaultParamName = "New parameter";
 const defaultPropName = "New property";
@@ -135,11 +156,14 @@ class ProductParams extends NodeParams {
      * Создаёт параметры товарного узла.
      * @param {string} name Название узла.
      * @param {string} message Сообщение узла.
+     * @param {string} displayType Тип отображения узла.
      * @param {ProductProperty[]} properties Характеристики товара.
      * @param {string} fileId ID файла (если есть), прикреплённого к сообщению.
      */
-    constructor(name, message, properties, fileId) {
+    constructor(name, message, displayType, properties, fileId) {
         super(nodeTypes.product, name, message, fileId);
+        /** Тип отображения узла. */
+        this.displayType = displayType;
         /** Характеристики товара. */
         this.properties = properties;
         const count = this.properties.reduce(function (previous, current) {
@@ -158,6 +182,7 @@ class ProductParams extends NodeParams {
     openModal() {
         const self = this;
         const modal = super.openModal();
+        modal.find("input[name=display-type]").prop("checked", false).filter("[value=" + this.displayType + "]").prop("checked", true);
         modal.find(".param-div").remove();
         const jqAppender = modal.find(".param-appender").find(".add-param").off("click").on("click", addParam).end();
         const jqParamBox = jqAppender.parent();
@@ -196,7 +221,9 @@ class ProductParams extends NodeParams {
                 find(".prop-price").val(this.values[i]).trigger("change");
         }
         jqTheadTr.append($("<th>").attr("scope", "col").text("Price"));
+        
         modal.one("hide.bs.modal", function () {
+            self.displayType = modal.find("input[name=display-type]:checked").val();
             modal.find(".param-div").each(function (index) {
                 const jqThisParamDiv = $(this);
                 self.properties[index].name = jqThisParamDiv.find(".param-name").val();
@@ -438,7 +465,7 @@ const templates = Object.freeze([
     new RootNode("Корень", "Добро пожаловать в начало!", null),
     new TreeNode(new NodeParams(nodeTypes.info, "Инфо-узел", "Тут может быть любая информация для пользователя.", null).makeTemplate()),
     new TreeNode(new SectionParams("Раздел", "Этот узел позволяет удобно работать с большим количеством детских узлов.", collectionTypes.block, null).makeTemplate()),
-    new TreeNode(new ProductParams("Товар", "Тут можно настроить цены товаров с разными подтипами.", [
+    new TreeNode(new ProductParams("Товар", "Тут можно настроить цены товаров с разными подтипами.", displayTypes.simple, [
         new ProductProperty("Характеристика 1", ["Подтип 1", "Подтип 2", "Подтип 3"], null, null),
         new ProductProperty("Характеристика 2", ["Подвид 1", "Подвид 2", "Подвид 3"], null, null)
     ], null).makeTemplate()),
