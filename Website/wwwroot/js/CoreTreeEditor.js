@@ -59,35 +59,50 @@ function sendToServer() {
  * @param {string} json Дерево в формате JSON.
  */
 function loadFromJSON(json) {
-    const array = JSON.parse(json);
-    if (array[0].parameters.type != 1) throw new Error("Первый узел не является корнем!");
     const jqMainCont = $("#main-container");
     jqMainCont.children().remove();
-    jqMainCont.append($("<span>").addClass("spinner-border text-primary m-auto centered").attr("role", "status").css("font-size", "5rem"));
-    root = new RootNode(array[0].parameters.name, array[0].parameters.message, array[0].parameters.fileId);
-    const nodes = [root];
-    for (let i = 1; i < array.length; i++) {
-        const jsonParams = array[i].parameters;
-        const template = templates[jsonParams.type];
-        const node = Object.create(Object.getPrototypeOf(template));
-        node.parameters = Object.create(Object.getPrototypeOf(template.parameters));
-        const nodeParams = node.parameters;
-        for (let prop in jsonParams) {
-            if (jsonParams[prop] != null && typeof (jsonParams[prop]) === "object") {
-                nodeParams[prop] = deepClone(jsonParams[prop]);
+    const jqSpinnerDiv = $("<div>").addClass("spinner-border text-primary m-auto centered").attr("role", "status").css("font-size", "5rem").appendTo(jqMainCont);
+    try {
+        const array = JSON.parse(json);
+        const firstNodeParams = array[0].parameters;
+        if (firstNodeParams.type != 1) throw new Error("Первый узел не является корнем!");
+        root = new RootNode(firstNodeParams.name, firstNodeParams.message, firstNodeParams.fileId);
+        const nodes = [root];
+        for (let i = 1; i < array.length; i++) {
+            const jsonParams = array[i].parameters;
+            const template = templates[jsonParams.type];
+            const node = Object.create(Object.getPrototypeOf(template));
+            node.parameters = Object.create(Object.getPrototypeOf(template.parameters));
+            const nodeParams = node.parameters;
+            for (let prop in jsonParams) {
+                if (jsonParams[prop] != null && typeof (jsonParams[prop]) === "object") {
+                    nodeParams[prop] = deepClone(jsonParams[prop]);
+                }
+                else {
+                    nodeParams[prop] = jsonParams[prop];
+                }
             }
-            else {
-                nodeParams[prop] = jsonParams[prop];
-            }
+            const clonedNode = node.cloneNode();
+            nodes[array[i].parentId].appendChild(clonedNode);
+            nodes.push(clonedNode);
         }
-        const clonedNode = node.cloneNode();
-        nodes[array[i].parentId].appendChild(clonedNode);
-        nodes.push(clonedNode);
+
+        jqMainCont.children().fadeOut("slow", function () {
+            $(root.container).attr("id", "main").hide().appendTo(jqMainCont.children().remove().end()).fadeIn("fast");
+        });
+    } catch (e) {
+        showError(e.message);
     }
 
-    jqMainCont.children().fadeOut("slow", function () {
-        $(root.container).attr("id", "main").hide().appendTo(jqMainCont.children().remove().end()).fadeIn("fast");
-    });
+    function showError(msg) {
+        jqSpinnerDiv.removeClass("spinner-border text-primary centered").addClass("text-danger").
+            append([
+                $("<p>").addClass("oi oi-x text-center"),
+                $("<p>").addClass("h3").text("Ошибка загрузки данных:"),
+                $("<p>").addClass("h3").text(msg),
+                $("<p>").addClass("h5 text-dark").text("Попробуйте обновить страницу.")
+            ]);
+    }
 }
 
 /**
