@@ -12,7 +12,7 @@ namespace DeleteMeWebhook
 {
     public class Program
     {
-        public static bool WebhookIsEnabledInDebugMode = true;
+        public static bool WebhookIsEnabledInDebugMode = false;
         public static string Url;
 
         public static void Main(string[] args)
@@ -24,7 +24,7 @@ namespace DeleteMeWebhook
             //ConnectToDatabase();
 
             //Отладка при отсутствии разметки
-            RunHardcodeBot();
+            //RunHardcodeBot();
 
             //Сообщить мастеру про свою работоспособность
 

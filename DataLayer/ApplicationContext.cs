@@ -126,15 +126,26 @@ namespace DataLayer.Models
                 .Property(_botStat => _botStat.NumberOfOrders)
                 .HasDefaultValue(0);
 
-            // Для тестирования
+   //         // Для тестирования
+   //         modelBuilder.Entity<BotDB>().HasData(new List<object>
+			//{
+			//	new {
+   //                 Id = 1_000_000,
+   //                 BotName = "ping_uin_bot",
+   //                 OwnerId = 1_000_001,
+   //                 BotType ="BotForSales",
+   //                 Token = "825321671:AAFoJoGk7VIMU19wvOmiwZHKRwyGptvAqJ4"
+   //             }
+			//});
+              // Для тестирования
             modelBuilder.Entity<BotDB>().HasData(new List<object>
 			{
 				new {
                     Id = 1_000_000,
-                    BotName = "ping_uin_bot",
+                    BotName = "my_pizzeria_bot",
                     OwnerId = 1_000_001,
                     BotType ="BotForSales",
-                    Token = "825321671:AAFoJoGk7VIMU19wvOmiwZHKRwyGptvAqJ4"
+                    Token = "724246784:AAHLOtr3Vz_q0Cf5iQvuY_bf-kVm0s-JAMU"
                 }
 			});
 
@@ -181,28 +192,48 @@ namespace DataLayer.Models
 			// Для тестирования
 			modelBuilder.Entity<Order>().HasData(new List<object>
 			{
-				new {Id = 101, SenderId = 440090552, SenderNickname = "Ruslan Starovoitov", BotId = 1_000_000, ContainerId = 101, OrderStatusGroupId = 1,                    DateTime = DateTime.UtcNow},
-				new {Id = 102, SenderId = 440090552, SenderNickname = "Ruslan Starovoitov", BotId = 1_000_000, ContainerId = 102, OrderStatusGroupId = 1, OrderStatusId = 1, DateTime = DateTime.UtcNow},
-				new {Id = 103, SenderId = 440090552, SenderNickname = "Ruslan Starovoitov", BotId = 1_000_000, ContainerId = 103, OrderStatusGroupId = 1, OrderStatusId = 3, DateTime = DateTime.UtcNow}
+				new {Id = 101, SenderId = 440090552, SenderNickname = "Ivan Ivanov",
+                    BotId = 1_000_000, ContainerId = 101, OrderStatusGroupId = 1,                    DateTime = DateTime.UtcNow},
+                new {Id = 102, SenderId = 460805780, SenderNickname = "Petro Ivanov",
+                    BotId = 1_000_000, ContainerId = 102, OrderStatusGroupId = 1,                    DateTime = DateTime.UtcNow.AddMinutes(-1)}
+                //,
+				//new {Id = 102, SenderId = 440090552, SenderNickname = "Ruslan Starovoitov",
+    //                BotId = 1_000_000, ContainerId = 102, OrderStatusGroupId = 1, OrderStatusId = 1, DateTime = DateTime.UtcNow},
+				//new {Id = 103, SenderId = 440090552, SenderNickname = "Ruslan Starovoitov",
+    //                BotId = 1_000_000, ContainerId = 103, OrderStatusGroupId = 1, OrderStatusId = 3, DateTime = DateTime.UtcNow}
 			});
 
 			modelBuilder.Entity<Inventory>().HasData(new List<object>
 			{
 				new {Id = 101, SessionId = 440090552},
-				new {Id = 102, SessionId = 440090552},
-				new {Id = 103, SessionId = 440090552},
-				new {Id = 104, SessionId = 440090552, ParentId = 102}
+				new {Id = 102, SessionId = 460805780}
+               
 			});
-
-			modelBuilder.Entity<SessionText>().HasData(new List<object>
+           
+            int id = 101;
+            modelBuilder.Entity<SessionText>().HasData(new List<object>
 			{
-				new {Id = 101, Text = "Sho tam?",				InventoryId = 101},
-				new {Id = 102, Text = "N0rmaln0!",				InventoryId = 102},
-				new {Id = 103, Text = "Waiting for Zrada...",	InventoryId = 103},
-				new {Id = 104, Text = "Still waiting...",		InventoryId = 103},
-				new {Id = 105, Text = "Peremoga?",				InventoryId = 103},
-				new {Id = 106, Text = "She ne vmer!",			InventoryId = 104}
-			});
+				new {Id = id++, Text = "Сет Патриот 359 ₴: 1",				InventoryId = 101},
+				new {Id = id++, Text = "Баварская 30 см Хот-дог борт (id40) 3 ₴: 1",				InventoryId = 101},
+				new {Id = id++, Text = "Кальцоне 25 см Обычный борт (id45) 9 ₴: 1",				InventoryId = 101},
+				new {Id = id++, Text = "Стоимость:  371 ₴",				InventoryId = 101},
+				new {Id = id++, Text = "221B Baker Street",				InventoryId = 101},
+				new {Id = id++, Text = "Доставьте пиццу холодной, пожалуйста.",				InventoryId = 101}
+
+                ,
+
+                new {Id = id++, Text = "Карбонара 30 см Хот-дог борт (id22) 2 ₴: 1",              InventoryId = 102},
+                new {Id = id++, Text = "⚙️🍕Собранная пицца🍕⚙️: Помидоры (2); Грибы(2); = 6₴: 1",                InventoryId = 102},
+                new {Id = id++, Text = "Калифорния с креветкой 99 ₴: 1",             InventoryId = 102},
+                new {Id = id++, Text = "Стоимость: 107 ₴",             InventoryId = 102},
+                new {Id = id++, Text = "221B Baker Street",             InventoryId = 102},
+
+                new {Id = id++, Text = "Доставьте пиццу гарячей, пожалуйста.",             InventoryId = 102}
+             
+
+
+
+            });
 
 			//modelBuilder.Entity<ImageMy>().HasIndex(i => new { i.BotId, i.ProductId}).IsUnique();
 
