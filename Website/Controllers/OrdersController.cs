@@ -264,7 +264,7 @@ namespace Website.Controllers
 				{
 					_cont.Id,
 					_cont.ParentId,
-					ItemsIds = _cont.Items.Select(_item => new { _item.Id, _item.Count }).ToArray(),
+					ItemsIds = _cont.Items.Select(_item => new { _item.ItemId, _item.Count }).ToArray(),
 					Texts = _cont.Texts.Select(_text => _text.Text).ToArray(),
 					Files = _cont.Files.Select(_file => new { _file.FileId, _file.PreviewId, _file.Description }).ToArray()
 				}).ToList();
@@ -283,7 +283,7 @@ namespace Website.Controllers
 					{
 						_cont.Id,
 						_cont.ParentId,
-						ItemsIds = _cont.Items.Select(_item => new { _item.Id, _item.Count }).ToArray(),
+						ItemsIds = _cont.Items.Select(_item => new { _item.ItemId, _item.Count }).ToArray(),
 						Texts = _cont.Texts.Select(_text => _text.Text).ToArray(),
 						Files = _cont.Files.Select(_file => new { _file.FileId, _file.PreviewId, _file.Description }).ToArray()
 					});
@@ -301,28 +301,29 @@ namespace Website.Controllers
 				return Content("Incorrect text.");
 			}
 
+			int ownerId = 0;
+			try
+			{
+				ownerId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("В cookies не найден accountId.");
+			}
+			catch
+			{
+				return RedirectToAction("Account", "Login");
+			}
 
 
-            int ownerId = 0;
-            try{
-                ownerId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("В cookies не найден accountId.");
-            }catch{
-                return RedirectToAction("Account", "Login");
-            }
-
-
-            int senderId = _contextDb.Orders.Where(_order => _order.Id == orderId && _order.Bot.OwnerId == ownerId).
+			int senderId = _contextDb.Orders.Where(_order => _order.Id == orderId && _order.Bot.OwnerId == ownerId).
 				Select(_order => _order.SenderId).SingleOrDefault();
 
-			if(senderId == default(int))
+			if (senderId == default(int))
 			{
 				Response.StatusCode = 403;
 				return Content("Incorrect order ID.");
 			}
-
-			//BotForest.SendMessage(senderId, text);
-
-			return new EmptyResult();
+			string botToken = _contextDb.Orders.Where(_order => _order.Id == orderId).Select(_order => _order.Bot.Token).SingleOrDefault();
+			string url = "https://api.telegram.org/bot" + botToken + "/sendMessage";
+			string data = "chat_id=" + senderId + "&text=" + System.Web.HttpUtility.UrlEncode(text);
+			return Ok(Stub.SendPost(url, data).Result);
 		}
 	}
 }

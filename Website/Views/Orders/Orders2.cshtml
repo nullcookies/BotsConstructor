@@ -205,7 +205,7 @@
             var localSum = 0.0;
             for (var i = 0; i < container.itemsIds.length; i++) {
                 var itemInfo = container.itemsIds[i];
-                var item = items[itemInfo.id];
+                var item = items[itemInfo.itemId];
                 var value = parseFloat(item.value) * parseInt(itemInfo.count);
                 var listElem = document.createElement("li");
                 listElem.innerHTML = `${item.name} ${itemInfo.count} X ${item.value} = ${value}`;
@@ -299,6 +299,7 @@
             }
             jqSpan.removeClass("oi oi-chat");
             jqSpan.addClass("spinner-border spinner-border-sm");
+            jqAnswer.prop("disabled", true);
             $.ajax({
                 url: '/Orders/SendCustomAnswer',
                 type: 'post',
@@ -314,6 +315,7 @@
                             jqSendBtn.removeClass("btn-success");
                             jqSpan.removeClass("oi-check");
                             jqSpan.addClass("oi-chat");
+                            jqAnswer.prop("disabled", false);
                             jqAnswer.val("");
                         }
                     }, 1000);
@@ -321,7 +323,7 @@
                 error: function (data) {
                     jqSpan.removeClass("spinner-border spinner-border-sm");
                     jqSpan.addClass("oi oi-x");
-                    jqSendBtn.attr("disabled", "");
+                    jqSendBtn.prop("disabled", true);
                     jqSendBtn.removeClass("btn-primary");
                     jqSendBtn.addClass("btn-danger");
                     console.log(`ERROR! Can't send variables!\n${data.responseText}`);

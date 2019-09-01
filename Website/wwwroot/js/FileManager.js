@@ -173,13 +173,15 @@ function SetFileHTML(botToken, elem, previewId, fileId, needDownload) {
  * @param {string} botToken Токен бота.
  * @param {number} userId ID пользователя, которому отправится файл.
  * @param {File} file Файл, который необходимо отправить.
+ * @param {string=} caption Подпись файла.
  * @returns Возвращает XMLHttpRequest.
  */
-function SendFile(fileType, botToken, userId, file) {
+function SendFile(fileType, botToken, userId, file, caption) {
     const upperType = fileType.charAt(0).toUpperCase() + fileType.slice(1);
     const fd = new FormData();
     fd.append(fileType, file);
     fd.append('chat_id', userId);
+    if (caption != null) fd.append('caption', caption);
     return $.ajax({
         url: 'https://api.telegram.org/bot' + botToken + '/send' + upperType,
         type: 'POST',
@@ -195,10 +197,11 @@ function SendFile(fileType, botToken, userId, file) {
  * @param {string} botToken Токен бота.
  * @param {number} userId ID пользователя, которому отправится изображение.
  * @param {File} file Изображение, которое необходимо отправить.
+ * @param {string=} caption Подпись изображения.
  * @returns Возвращает объект из abort и promise.
  */
-function SendPhoto(botToken, userId, file) {
-    const jqXHR = SendFile("photo", botToken, userId, file);
+function SendPhoto(botToken, userId, file, caption) {
+    const jqXHR = SendFile("photo", botToken, userId, file, caption);
     return {
         abort: function () {
             jqXHR.abort();
@@ -218,10 +221,11 @@ function SendPhoto(botToken, userId, file) {
  * @param {string} botToken Токен бота.
  * @param {number} userId ID пользователя, которому отправится аудиофайл.
  * @param {File} file Аудиофайл, который необходимо отправить.
+ * @param {string=} caption Подпись аудиофайла.
  * @returns Возвращает объект из abort и promise.
  */
-function SendAudio(botToken, userId, file) {
-    const jqXHR = SendFile("audio", botToken, userId, file);
+function SendAudio(botToken, userId, file, caption) {
+    const jqXHR = SendFile("audio", botToken, userId, file, caption);
     return {
         abort: function () {
             jqXHR.abort();
@@ -246,10 +250,11 @@ function SendAudio(botToken, userId, file) {
  * @param {string} botToken Токен бота.
  * @param {number} userId ID пользователя, которому отправится видеофайл.
  * @param {File} file Видеофайл, который необходимо отправить.
+ * @param {string=} caption Подпись видеофайла.
  * @returns Возвращает объект из abort и promise.
  */
-function SendVideo(botToken, userId, file) {
-    const jqXHR = SendFile("video", botToken, userId, file);
+function SendVideo(botToken, userId, file, caption) {
+    const jqXHR = SendFile("video", botToken, userId, file, caption);
     return {
         abort: function () {
             jqXHR.abort();
@@ -274,10 +279,11 @@ function SendVideo(botToken, userId, file) {
  * @param {string} botToken Токен бота.
  * @param {number} userId ID пользователя, которому отправится документ.
  * @param {File} file Документ, который необходимо отправить.
+ * @param {string=} caption Подпись документа.
  * @returns Возвращает объект из abort и promise.
  */
-function SendDocument(botToken, userId, file) {
-    const jqXHR = SendFile("document", botToken, userId, file);
+function SendDocument(botToken, userId, file, caption) {
+    const jqXHR = SendFile("document", botToken, userId, file, caption);
     return {
         abort: function () {
             jqXHR.abort();
