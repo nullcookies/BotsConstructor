@@ -58,6 +58,9 @@ namespace DeleteMeWebhook.Controllers
             return Ok();
         }
 
+		//TODO: реализовать возможность менять для бота
+		private static readonly MetaText priceUnit = new MetaText("грн.");
+
         [HttpPost]
         public IActionResult RunNewBot(int botId)
         {
@@ -108,48 +111,106 @@ namespace DeleteMeWebhook.Controllers
 			Dictionary<int, MetaValued<decimal>> Products = new Dictionary<int, MetaValued<decimal>>();
 			int allNodesCount = allNodes.Count();
 			var rootParams = allNodes[0]["parameters"];
-			if((int)rootParams["type"] != 1)
+			if((int)rootParams["type"] != (int)NodeType.Root)
 			{
 				return StatusCode(403, "First node is not root node.");
 			}
 			MegaTree megaTree = new MegaTree(new SimpleNode((string)rootParams["name"], GetReplyMsgFromParams(rootParams), false));
-			var treeNodes = new LogicalCore.Node[allNodesCount];
+			var treeNodes = new Node[allNodesCount];
 			treeNodes[0] = megaTree.root;
-			for(int i = 1; i < allNodesCount; i++)
+			var variablesInfo = new List<(Type type, string name)>();
+			for (int i = 1; i < allNodesCount; i++)
 			{
 				var nodeParams = allNodes[i]["parameters"];
-				LogicalCore.Node node = null;
+				string nodeName = (string)nodeParams["name"];
+				Node node = null;
 				switch ((NodeType)(int)nodeParams["type"])
 				{
 					case NodeType.Info:
-						node = new SimpleNode((string)nodeParams["name"], GetReplyMsgFromParams(nodeParams));
+						node = new SimpleNode(nodeName, GetReplyMsgFromParams(nodeParams));
 						break;
 					case NodeType.Section:
 						switch ((CollectionType)(int)nodeParams["collType"])
 						{
 							case CollectionType.Block:
-								node = new BlockNode((string)nodeParams["name"], GetReplyMsgFromParams(nodeParams));
+								node = new BlockNode(nodeName, GetReplyMsgFromParams(nodeParams));
 								break;
 							case CollectionType.Flipper:
-								node = new ChildrenFlipperNode((string)nodeParams["name"], GetDoubleMsgFromParams(nodeParams));
+								node = new ChildrenFlipperNode(nodeName, GetDoubleMsgFromParams(nodeParams));
 								break;
 							default:
 								return StatusCode(403, "Incorrect section node's collection type.");
 						}
 						break;
 					case NodeType.Product:
-						//TODO: записывать / получать из БД ID элементов
+						List<List<string>> elements = nodeParams["properties"].Select((section) => section["types"].ToObject<List<string>>()).ToList();
+						List<decimal> prices = nodeParams["values"].ToObject<List<decimal>>();
+
+						List<MetaText> metaTexts = new List<MetaText>();
+						string[] protoString = new string[elements.Count - 1];
+
+						RecursiveAdder();
+
+						void RecursiveAdder(int index = 0)
+						{
+							if (index < elements.Count - 1)
+							{
+								for (int j = 0; j < elements[index].Count; j++)
+								{
+									protoString[index] = elements[index][j];
+									RecursiveAdder(index + 1);
+								}
+							}
+							else
+							{
+								for (int j = 0; j < elements[index].Count; j++)
+								{
+									MetaText metaText = new MetaText(nodeName, " ");
+									foreach (var part in protoString)
+									{
+										metaText.Append(part, " ");
+									}
+									metaText.Append(elements[index][j]);
+									metaTexts.Add(metaText);
+								}
+							}
+						}
+
+						if(metaTexts.Count != prices.Count)
+						{
+							return StatusCode(403, "Incorrect product node's parameters and prices numbers.");
+						}
+
+						Item[] productItems = new Item[metaTexts.Count];
+						for (int j = 0; j < metaTexts.Count; j++)
+						{
+							productItems[j] = new Item()
+							{
+								BotId = botId,
+								Name = metaTexts[j].ToString(),
+								Value = prices[j]
+							};
+						}
+
+						_context.Items.AddRange(productItems);
+						_context.SaveChanges();
+
+						List<int> IDs = productItems.Select((_item) => _item.Id).ToList();
+
+						for(int j = 0; j < metaTexts.Count; j++)
+						{
+							Products.Add(IDs[j], new MetaValued<decimal>(metaTexts[j], prices[j], priceUnit, id: IDs[j]));
+						}
+
 						switch ((DisplayType)(int)nodeParams["displayType"])
 						{
-							//case DisplayType.Simple:
-							//	node = new ProductSimpleNode<decimal>();
-							//	break;
-							//case DisplayType.Multi:
-							//	node = new ProductMultiNode<decimal>((string)nodeParams["name"], productParams.Characteristics.
-							//			Select(_chars => _chars.Values).ToList(), "Products", productParams.Characteristics.
-							//			SelectMany(_chars => _chars.IDs).ToList(), "ShoppingCart", "Добавлено: ", "Добавить",
-							//			new MetaDoubleKeyboardedMessage(productParams.FullDescription, productParams.Message));
-							//	break;
+							case DisplayType.Simple:
+								List<MetaReplyMessage> foldersMsgs = nodeParams["properties"].Select((section) => GetReplyMsgFromParams(section)).ToList();
+								node = new ProductSimpleNode<decimal>(nodeName, elements, "Products", IDs, foldersMsgs, "ShoppingCart", "Добавлено: ", "Добавить", GetDoubleMsgFromParams(nodeParams));
+								break;
+							case DisplayType.Multi:
+								node = new ProductMultiNode<decimal>(nodeName, elements, "Products", IDs, "ShoppingCart", "Добавлено: ", "Добавить", GetDoubleMsgFromParams(nodeParams));
+								break;
 							default:
 								return StatusCode(403, "Incorrect product node's display type.");
 						}
@@ -158,24 +219,24 @@ namespace DeleteMeWebhook.Controllers
 						switch ((InputType)(int)nodeParams["inputType"])
 						{
 							case InputType.Text:
-								node = new TextInputNode((string)nodeParams["name"], (string)nodeParams["name"],
+								node = new TextInputNode(nodeName, nodeName,
 									(string text, out string variable) => !string.IsNullOrWhiteSpace(variable = text),
 									GetReplyMsgFromParams(nodeParams));
 								break;
 							case InputType.Time:
-								node = new TimeInputNode((string)nodeParams["name"], (string)nodeParams["name"], GetReplyMsgFromParams(nodeParams));
+								node = new TimeInputNode(nodeName, nodeName, GetReplyMsgFromParams(nodeParams));
 								break;
 							case InputType.Image:
-								node = new ImageInputNode((string)nodeParams["name"], (string)nodeParams["name"], noFileCheck, GetReplyMsgFromParams(nodeParams));
+								node = new ImageInputNode(nodeName, nodeName, noFileCheck, GetReplyMsgFromParams(nodeParams));
 								break;
 							case InputType.Audio:
-								node = new AudioInputNode((string)nodeParams["name"], (string)nodeParams["name"], noFileCheck, GetReplyMsgFromParams(nodeParams));
+								node = new AudioInputNode(nodeName, nodeName, noFileCheck, GetReplyMsgFromParams(nodeParams));
 								break;
 							case InputType.Video:
-								node = new VideoInputNode((string)nodeParams["name"], (string)nodeParams["name"], noFileCheck, GetReplyMsgFromParams(nodeParams));
+								node = new VideoInputNode(nodeName, nodeName, noFileCheck, GetReplyMsgFromParams(nodeParams));
 								break;
 							case InputType.Document:
-								node = new DocumentInputNode((string)nodeParams["name"], (string)nodeParams["name"], noFileCheck, GetReplyMsgFromParams(nodeParams));
+								node = new DocumentInputNode(nodeName, nodeName, noFileCheck, GetReplyMsgFromParams(nodeParams));
 								break;
 							default:
 								return StatusCode(403, "Incorrect input node's input type.");
@@ -183,19 +244,9 @@ namespace DeleteMeWebhook.Controllers
 						break;
 					case NodeType.SendOrder:
 						//TODO: группы статусов
-						node = new OwnerNotificationNode((string)nodeParams["name"], GetInlineMsgFromParams(nodeParams), connector, 1,
-								(Session session) => new UniversalOrderContainer(session.telegramId)
-								{
-									Items = session.vars.GetVar<MetaValuedContainer<decimal>>("ShoppingCart").
-									Select(_pair => (_pair.Key.ID ?? 0, _pair.Value)).ToArray() // TODO: проверять на null
-								},
-								variables: new (Type, string)[]
-								{
-									(typeof(MetaValuedContainer<decimal>), "ShoppingCart")//,
-									//(typeof(string), "Address"),
-									//(typeof(TimeSpan), "Time"),
-									//(typeof(string), "Comment")
-								});
+						node = new OwnerNotificationNode(nodeName, GetInlineMsgFromParams(nodeParams), connector, 1,
+								UniversalOrderContainer.generateContainerCreator(variablesInfo),
+								variables: variablesInfo.ToArray());
 						break;
 					default:
 						return StatusCode(403, "Incorrect node type.");
@@ -261,24 +312,6 @@ namespace DeleteMeWebhook.Controllers
 				}));
 			};
 			botWrapper.globalVars.SetVar("Products", Products);
-			foreach (var pair in Products) // Продукты должны добавляться в другом месте!!!
-			{
-				Item item = _context.Items.Find(pair.Key);
-				bool isNew = item == null;
-				item = item ?? new Item();
-				item.BotId = botId;
-				item.Name = pair.Value.Text.ToString();
-				item.Value = pair.Value.Value;
-				if(isNew)
-				{
-					_context.Items.Add(item);
-				}
-				else
-				{
-					_context.Items.Attach(item).State = EntityState.Modified;
-				}
-			}
-			_context.SaveChanges();
 
             bool synchronization_was_successful = RecordOfTheLaunchOfTheBotWasMadeSuccessfully(botId);
 

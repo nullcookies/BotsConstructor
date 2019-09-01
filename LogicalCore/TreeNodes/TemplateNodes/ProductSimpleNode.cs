@@ -5,16 +5,16 @@ namespace LogicalCore
 {
 	public class ProductSimpleNode<T> : ProductNode<T>
 	{
-		public ProductSimpleNode(string name, List<List<string>> elements, string itemsContainer, List<int> productsIds, List<string> foldersNames,
+		public ProductSimpleNode(string name, List<List<string>> elements, string itemsContainer, List<int> productsIds, List<MetaReplyMessage> foldersMsgs,
 			string sessionContainer, string addedPrefix = DefaultStrings.PLUS, string addBtnName = DefaultStrings.ADD,
 			IMetaMessage<MetaInlineKeyboardMarkup> metaMessage = null, bool needBack = true) :
 			base(
-				new SimpleNode(name, new MetaReplyMessage(foldersNames[0], ":")),
+				new SimpleNode(name, foldersMsgs[0]),
 				CreateItemNodes(name, itemsContainer, elements, productsIds,
 					sessionContainer, addedPrefix)
 				)
 		{
-			if(foldersNames.Count != elements.Count) throw new ArgumentException("Количество названий разделов не совпадает с количеством секций.");
+			if(foldersMsgs.Count != elements.Count) throw new ArgumentException("Количество названий разделов не совпадает с количеством секций.");
 			int itemNumber = 0;
 			RecursiveSections(headNode);
 
@@ -24,7 +24,7 @@ namespace LogicalCore
 				{
 					for (int i = 0; i < elements[index].Count; i++)
 					{
-						SimpleNode folder = new SimpleNode(elements[index][i], new MetaReplyMessage(foldersNames[index + 1], ":"));
+						SimpleNode folder = new SimpleNode(elements[index][i], foldersMsgs[index + 1]);
 						folder.SetParent(parent);
 						RecursiveSections(folder, index + 1);
 					}
