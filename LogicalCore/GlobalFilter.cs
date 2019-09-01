@@ -34,22 +34,15 @@ namespace LogicalCore
                             return;
                         }
                         string containerName = command.Substring(6);
-                        if(session.vars.TryGetVar(containerName, out MetaValuedContainer<int> container))
-                        {
-                            await container.SendMessage(session);
-                        }
-                        else
-                        {
-							if(session.vars.TryGetVar(containerName, out MetaValuedContainer<decimal> containerDec))
-							{
-								await containerDec.SendMessage(session);
-							}
-							else
-							{
-								await session.BotClient.SendTextMessageAsync(message.Chat.Id, session.Translate("ThisCommandIsUnknown"));
-							}
+						if(session.vars.TryGetVar(containerName, out MetaValuedContainer<decimal> container))
+						{
+							await container.SendMessage(session);
 						}
-                    }
+						else
+						{
+							await session.BotClient.SendTextMessageAsync(message.Chat.Id, session.Translate("ThisCommandIsUnknown"));
+						}
+					}
                 },
                 {"/shotam", (session, message) =>
                     {
@@ -92,7 +85,7 @@ namespace LogicalCore
                         string containerName = ButtonIdManager.GetNextSubstring(callbackQuerry.Data, DefaultStrings.PLUS.Length, out int nextUnder);
                         string varHash = ButtonIdManager.GetNextSubstring(callbackQuerry.Data, nextUnder);
 
-                        if(session.vars.TryGetVar(containerName, out MetaValuedContainer<int> container)
+                        if(session.vars.TryGetVar(containerName, out MetaValuedContainer<decimal> container)
                         && int.TryParse(varHash, out int varHashCode) && container.ContainsKey(varHashCode))
                         {
                             container[varHashCode]++;
@@ -110,7 +103,7 @@ namespace LogicalCore
                         string containerName = ButtonIdManager.GetNextSubstring(callbackQuerry.Data, DefaultStrings.MINUS.Length, out int nextUnder);
                         string varHash = ButtonIdManager.GetNextSubstring(callbackQuerry.Data, nextUnder);
 
-                        if(session.vars.TryGetVar(containerName, out MetaValuedContainer<int> container)
+                        if(session.vars.TryGetVar(containerName, out MetaValuedContainer<decimal> container)
                         && int.TryParse(varHash, out int varHashCode) && container.ContainsKey(varHashCode))
                         {
                             container[varHashCode]--;

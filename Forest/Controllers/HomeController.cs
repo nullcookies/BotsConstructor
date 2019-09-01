@@ -362,7 +362,7 @@ namespace DeleteMeWebhook.Controllers
 				if (!string.IsNullOrWhiteSpace(fileId))
 				{
 					return new MetaDoubleKeyboardedMessage(metaReplyText: (string)parameters["message"], metaInlineText: (string)parameters["name"],
-						messageType: GetMessageTypeByFileId(fileId), messageFile: fileId);
+						useReplyMsgForFile: true, messageType: GetMessageTypeByFileId(fileId), messageFile: fileId);
 				}
 				else
 				{
