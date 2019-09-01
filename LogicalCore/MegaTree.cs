@@ -63,6 +63,11 @@ namespace LogicalCore
 
 		private void AddChildrenIfNeed(Node node)
 		{
+			if(node is ICombined combined)
+			{
+				node = combined.HeadNode;
+			}
+
 			if (!nodeIdDict.TryAdd(node.id, node))
 			{
 				ConsoleWriter.WriteLine($"Узел {node.name} с ID {node.id} встречается в дереве несколько раз. Возможная причина - порталы.", ConsoleColor.Yellow);

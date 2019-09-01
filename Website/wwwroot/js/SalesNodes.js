@@ -304,7 +304,7 @@ class ProductParams extends NodeParams {
             const iPropTh = $("<th>").attr("scope", "col").text(defaultParamName).insertBefore(modal.find(".param-thead-row :last-child"));
             const iParamDiv = productParamDiv.clone().find(".param-name").val(defaultParamName).on("change", function () {
                 iPropTh.text($(this).val());
-            }).end().find(".remove-param").on("click", removeParam).end();
+            }).end().find(".remove-param").on("click", removeParam).end().find(".edit-param").on("click", editParam).end();
             const iParamPropAppender = iParamDiv.find(".prop-appender").find(".add-prop").on("click", addProp).end();
             iParamPropAppender.before(productPropDiv.clone().find(".prop-name").val(defaultPropName).on("change", changeRowsPropNames).
                 end().find(".remove-prop").on("click", removeProp).end());
@@ -373,6 +373,7 @@ class ProductParams extends NodeParams {
         }
 
         function editParam() {
+            self.modal.modal("hide");
             const jqThisParamDiv = $(this).closest(".param-div");
             const paramIndex = jqThisParamDiv.parent().children(".param-div").index(jqThisParamDiv);
             const param = self.properties[paramIndex];
@@ -390,14 +391,13 @@ class ProductParams extends NodeParams {
                     self.modal.find(".custom-file-label").text("Uploaded file");
                 });
             }
-            paramModal.one("hide.bs.modal", function () {
+            paramModal.one("hidden.bs.modal", function () {
                 param.name = paramModal.find(".modal-title").val();
                 param.message = paramModal.find(".base-message").val();
                 param.fileId = paramModal.find(".base-file").data("file_id");
                 param.previewId = paramModal.find(".base-file").data("preview_id");
                 self.openModal();
             });
-            self.modal.modal("hide");
             paramModal.modal("show");
         }
     }

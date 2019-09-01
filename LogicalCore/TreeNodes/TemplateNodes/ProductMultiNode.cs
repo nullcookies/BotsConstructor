@@ -13,9 +13,9 @@ namespace LogicalCore
 					sessionContainer, addedPrefix, true, addBtnName)
 				)
 		{
-			foreach (var itemNode in tailNodes)
+			foreach (var itemNode in TailNodes)
 			{
-				itemNode.SetParent(headNode);
+				itemNode.SetParent(HeadNode);
 			}
 		}
 	}

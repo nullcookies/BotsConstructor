@@ -43,13 +43,15 @@ namespace LogicalCore
             }
             else
             {
-                msg = await Parent.SendReplyMarkup(session);
+                msg = await SendMarkupIfNoChildren(session);
             }
 
             return msg;
         }
 
-        protected override void AddChild(Node child)
+		protected virtual Task<Message> SendMarkupIfNoChildren(Session session) => Parent.SendReplyMarkup(session);
+
+		protected override void AddChild(Node child)
         {
             if (Children.Count > 0) throw new ArgumentException("Узел действия уже содержит один выходной узел.");
             Children.Add(child);

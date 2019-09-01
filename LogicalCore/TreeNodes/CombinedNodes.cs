@@ -9,22 +9,22 @@ namespace LogicalCore
 	/// <summary>
 	/// Некоторое количество узлов, соединённых определённым образом.
 	/// </summary>
-	public abstract class CombinedNodes : Node, ITeleportable
+	public abstract class CombinedNodes : Node, ICombined, ITeleportable
 	{
 		/// <summary>
 		/// Первый узел в цепи (точка входа).
 		/// </summary>
-		public readonly Node headNode;
+		public Node HeadNode { get; }
 		/// <summary>
 		/// Последний узел в цепи (точка выхода).
 		/// </summary>
-		public readonly ActionNode tailNode;
+		public ActionNode TailNode { get; }
 
 		public CombinedNodes(Node head, ActionNode tail) : base("<Combined>", (IMetaMessage)null)
 		{
-			headNode = head ?? throw new ArgumentNullException(nameof(head));
-			tailNode = tail ?? throw new ArgumentNullException(nameof(tail));
-			Children = tailNode.Children;
+			HeadNode = head ?? throw new ArgumentNullException(nameof(head));
+			TailNode = tail ?? throw new ArgumentNullException(nameof(tail));
+			Children = TailNode.Children;
 		}
 
 		public override void AddChildWithButtonRules(Node child, params Predicate<Session>[] rules) =>
@@ -38,6 +38,6 @@ namespace LogicalCore
 
 		public void SetPortal(Node child) => AddChild(child);
 
-		public override void SetParent(Node parent) => headNode.SetParent(parent);
+		public override void SetParent(Node parent) => HeadNode.SetParent(parent);
 	}
 }

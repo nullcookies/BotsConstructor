@@ -16,7 +16,7 @@ namespace LogicalCore
 		{
 			if(foldersMsgs.Count != elements.Count) throw new ArgumentException("Количество названий разделов не совпадает с количеством секций.");
 			int itemNumber = 0;
-			RecursiveSections(headNode);
+			RecursiveSections(HeadNode);
 
 			void RecursiveSections(Node parent, int index = 0)
 			{
@@ -33,7 +33,7 @@ namespace LogicalCore
 				{
 					for (int i = 0; i < elements[index].Count; i++)
 					{
-						tailNodes[itemNumber++].SetParent(parent);
+						TailNodes[itemNumber++].SetParent(parent);
 					}
 				}
 			}

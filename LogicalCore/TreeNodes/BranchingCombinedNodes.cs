@@ -6,23 +6,23 @@ namespace LogicalCore
 	/// <summary>
 	/// Некоторое количество узлов, соединённых определённым образом и с несколькими точками выхода.
 	/// </summary>
-	public abstract class BranchingCombinedNodes : Node, ITeleportable
+	public abstract class BranchingCombinedNodes : Node, ICombined, ITeleportable
 	{
 		/// <summary>
 		/// Первый узел в цепи (точка входа).
 		/// </summary>
-		public readonly Node headNode;
+		public Node HeadNode { get; }
 		/// <summary>
 		/// Последние узлы в цепи (точки выхода).
 		/// </summary>
-		public readonly List<ActionNode> tailNodes;
+		public List<ActionNode> TailNodes { get; }
 
 		public BranchingCombinedNodes(Node head, List<ActionNode> tails) : base("<Combined>", (IMetaMessage)null)
 		{
-			headNode = head ?? throw new ArgumentNullException(nameof(head));
-			tailNodes = tails ?? throw new ArgumentNullException(nameof(tails));
-			if (tailNodes.Count == 0) throw new ArgumentException("Количество конечных узлов должно быть больше 0.");
-			foreach (var tailNode in tailNodes)
+			HeadNode = head ?? throw new ArgumentNullException(nameof(head));
+			TailNodes = tails ?? throw new ArgumentNullException(nameof(tails));
+			if (TailNodes.Count == 0) throw new ArgumentException("Количество конечных узлов должно быть больше 0.");
+			foreach (var tailNode in TailNodes)
 			{
 				tailNode.SetChildrenList(Children);
 			}
@@ -39,6 +39,6 @@ namespace LogicalCore
 
 		public void SetPortal(Node child) => AddChild(child);
 
-		public override void SetParent(Node parent) => headNode.SetParent(parent);
+		public override void SetParent(Node parent) => HeadNode.SetParent(parent);
 	}
 }

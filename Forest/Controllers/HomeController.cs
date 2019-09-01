@@ -82,7 +82,6 @@ namespace DeleteMeWebhook.Controllers
                 return StatusCode(403, "Такой бот уже запущен");
             }
 
-
             ////проверить наличие адекватной разметки
             if (bot.Markup == null)
             {
@@ -94,9 +93,11 @@ namespace DeleteMeWebhook.Controllers
             {
                 return StatusCode(403, "Token was null.");
             }
-            ////проверить наличие достаточного кол-ва денег
 
-            var owner = _context.Accounts.Find(bot.OwnerId);
+			BotWrapper botWrapper = new BotWrapper(botId, null, bot.Token);
+			////проверить наличие достаточного кол-ва денег
+
+			var owner = _context.Accounts.Find(bot.OwnerId);
             //var money = owner.Money;
 
             //создание сериализованного объекта дерева
@@ -115,9 +116,13 @@ namespace DeleteMeWebhook.Controllers
 				return StatusCode(403, "First node is not root node.");
 			}
 			MegaTree megaTree = new MegaTree(new SimpleNode((string)rootParams["name"], GetReplyMsgFromParams(rootParams), false));
+			botWrapper.MegaTree = megaTree;
 			var treeNodes = new Node[allNodesCount];
 			treeNodes[0] = megaTree.root;
-			var variablesInfo = new List<(Type type, string name)>();
+			var variablesInfo = new List<(Type type, string name)>()
+			{
+				(typeof(MetaValuedContainer<decimal>), "ShoppingCart")
+			};
 			for (int i = 1; i < allNodesCount; i++)
 			{
 				var nodeParams = allNodes[i]["parameters"];
@@ -201,17 +206,32 @@ namespace DeleteMeWebhook.Controllers
 							Products.Add(IDs[j], new MetaValued<decimal>(metaTexts[j], prices[j], priceUnit, id: IDs[j]));
 						}
 
-						switch ((DisplayType)(int)nodeParams["displayType"])
+						if(IDs.Count > 1)
 						{
-							case DisplayType.Simple:
-								List<MetaReplyMessage> foldersMsgs = nodeParams["properties"].Select((section) => GetReplyMsgFromParams(section)).ToList();
-								node = new ProductSimpleNode<decimal>(nodeName, elements, "Products", IDs, foldersMsgs, "ShoppingCart", "Добавлено: ", "Добавить", GetDoubleMsgFromParams(nodeParams));
-								break;
-							case DisplayType.Multi:
-								node = new ProductMultiNode<decimal>(nodeName, elements, "Products", IDs, "ShoppingCart", "Добавлено: ", "Добавить", GetDoubleMsgFromParams(nodeParams));
-								break;
-							default:
-								return StatusCode(403, "Incorrect product node's display type.");
+							switch ((DisplayType)(int)nodeParams["displayType"])
+							{
+								case DisplayType.Simple:
+									List<MetaReplyMessage> foldersMsgs = nodeParams["properties"].Select((section) => GetReplyMsgFromParams(section)).ToList();
+									node = new ProductSimpleNode<decimal>(nodeName, elements, "Products", IDs, foldersMsgs, "ShoppingCart", "Добавлено: ", "Добавить", GetDoubleMsgFromParams(nodeParams));
+									Node parentNode = treeNodes[(int)allNodes[i]["parentId"]];
+									if (parentNode is BlockNode)
+									{
+										Node middleNode = new LightNode(nodeName, GetInlineMsgFromParams(nodeParams));
+										middleNode.AddChildWithButtonRules(((ICombined)node).HeadNode);
+										((ITeleportable)node).SetPortal(parentNode);
+										node = middleNode;
+									}
+									break;
+								case DisplayType.Multi:
+									node = new ProductMultiNode<decimal>(nodeName, elements, "Products", IDs, "ShoppingCart", "Добавлено: ", "Добавить", GetDoubleMsgFromParams(nodeParams));
+									break;
+								default:
+									return StatusCode(403, "Incorrect product node's display type.");
+							}
+						}
+						else
+						{
+							node = new ItemNode<decimal>("Products", IDs[0], "ShoppingCart", GetInlineMsgFromParams(nodeParams), nodeName);
 						}
 						break;
 					case NodeType.Input:
@@ -221,21 +241,27 @@ namespace DeleteMeWebhook.Controllers
 								node = new TextInputNode(nodeName, nodeName,
 									(string text, out string variable) => !string.IsNullOrWhiteSpace(variable = text),
 									GetReplyMsgFromParams(nodeParams));
+								variablesInfo.Add((typeof(string), nodeName));
 								break;
 							case InputType.Time:
 								node = new TimeInputNode(nodeName, nodeName, GetReplyMsgFromParams(nodeParams));
+								variablesInfo.Add((typeof(TimeSpan), nodeName));
 								break;
 							case InputType.Image:
 								node = new ImageInputNode(nodeName, nodeName, noFileCheck, GetReplyMsgFromParams(nodeParams));
+								variablesInfo.Add((typeof((string FileId, string PreviewId, string Description)), nodeName));
 								break;
 							case InputType.Audio:
 								node = new AudioInputNode(nodeName, nodeName, noFileCheck, GetReplyMsgFromParams(nodeParams));
+								variablesInfo.Add((typeof((string FileId, string PreviewId, string Description)), nodeName));
 								break;
 							case InputType.Video:
 								node = new VideoInputNode(nodeName, nodeName, noFileCheck, GetReplyMsgFromParams(nodeParams));
+								variablesInfo.Add((typeof((string FileId, string PreviewId, string Description)), nodeName));
 								break;
 							case InputType.Document:
 								node = new DocumentInputNode(nodeName, nodeName, noFileCheck, GetReplyMsgFromParams(nodeParams));
+								variablesInfo.Add((typeof((string FileId, string PreviewId, string Description)), nodeName));
 								break;
 							default:
 								return StatusCode(403, "Incorrect input node's input type.");
@@ -255,37 +281,95 @@ namespace DeleteMeWebhook.Controllers
 				megaTree.AddEdge(treeNodes[(int)allNodes[i]["parentId"]], node);
 			}
 
-			MetaReplyMessage GetReplyMsgFromParams(JToken parameters)
+			MetaText GetMetaTextFromParams(JToken parameters)
 			{
-				if (!string.IsNullOrWhiteSpace((string)parameters["fileId"]))
+				string message = (string)parameters["message"];
+				if (!string.IsNullOrWhiteSpace(message))
 				{
-					return new MetaReplyMessage(new MetaText((string)parameters["message"]), MessageType.Document, (string)parameters["fileId"]);
+					return new MetaText(message);
 				}
 				else
 				{
-					return new MetaReplyMessage(new MetaText((string)parameters["message"]));
+					string name = (string)parameters["name"];
+					if (!string.IsNullOrWhiteSpace(name))
+					{
+						return new MetaText(name);
+					}
+					else
+					{
+						ConsoleWriter.WriteLine("Обнаружен узел без названия. Используется стандартное название.", ConsoleColor.Yellow);
+						return new MetaText("node");
+					}
+				}
+			}
+
+			MessageType GetMessageTypeByFileId(string fileId)
+			{
+				string filePath = botWrapper.BotClient.GetFileAsync(fileId).Result.FilePath;
+				switch (filePath.Split('/')[0])
+				{
+					case "photos":
+						return MessageType.Photo;
+					case "stickers":
+						return MessageType.Sticker;
+					case "documents":
+						return MessageType.Document;
+					case "voice":
+						return MessageType.Voice;
+					case "video_notes":
+						return MessageType.VideoNote;
+					case "music":
+						return MessageType.Audio;
+					case "videos":
+						return MessageType.Video;
+					case "animations":
+						return MessageType.Video;
+					default:
+						ConsoleWriter.WriteLine("Неизвестный тип сообщения, путь: " + filePath, ConsoleColor.Red);
+						return MessageType.Unknown;
+				}
+			}
+
+			MetaReplyMessage GetReplyMsgFromParams(JToken parameters)
+			{
+				string fileId = (string)parameters["fileId"];
+				if (!string.IsNullOrWhiteSpace(fileId))
+				{
+					return new MetaReplyMessage(new MetaText(GetMetaTextFromParams(parameters)), GetMessageTypeByFileId(fileId), fileId);
+				}
+				else
+				{
+					return new MetaReplyMessage(new MetaText(GetMetaTextFromParams(parameters)));
 				}
 			}
 
 			MetaInlineMessage GetInlineMsgFromParams(JToken parameters)
 			{
-				if (!string.IsNullOrWhiteSpace((string)parameters["fileId"]))
+				string fileId = (string)parameters["fileId"];
+				if (!string.IsNullOrWhiteSpace(fileId))
 				{
-					return new MetaInlineMessage(new MetaText((string)parameters["message"]), MessageType.Document, (string)parameters["fileId"]);
+					return new MetaInlineMessage(new MetaText(GetMetaTextFromParams(parameters)), GetMessageTypeByFileId(fileId), fileId);
 				}
 				else
 				{
-					return new MetaInlineMessage(new MetaText((string)parameters["message"]));
+					return new MetaInlineMessage(new MetaText(GetMetaTextFromParams(parameters)));
 				}
 			}
 
-			MetaDoubleKeyboardedMessage GetDoubleMsgFromParams(JToken parameters) => new MetaDoubleKeyboardedMessage(metaReplyText: (string)parameters["message"], metaInlineText: (string)parameters["name"],
-				messageType: string.IsNullOrWhiteSpace((string)parameters["fileId"]) ? MessageType.Text : MessageType.Document, messageFile: (string)parameters["fileId"]);
-			
-			BotWrapper botWrapper = new BotWrapper(botId, null, bot.Token)
+			MetaDoubleKeyboardedMessage GetDoubleMsgFromParams(JToken parameters)
 			{
-				MegaTree = megaTree
-			};
+				string fileId = (string)parameters["fileId"];
+				if (!string.IsNullOrWhiteSpace(fileId))
+				{
+					return new MetaDoubleKeyboardedMessage(metaReplyText: (string)parameters["message"], metaInlineText: (string)parameters["name"],
+						messageType: GetMessageTypeByFileId(fileId), messageFile: fileId);
+				}
+				else
+				{
+					return new MetaDoubleKeyboardedMessage(metaReplyText: (string)parameters["message"], metaInlineText: (string)parameters["name"]);
+				}
+			}
+
 			botWrapper.InitializeSessionVars = (VariablesContainer vars) =>
 			{
 				vars.SetVar(new MetaValuedContainer<decimal>("ShoppingCart", finalFunc: (dict) =>
