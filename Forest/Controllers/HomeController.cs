@@ -27,6 +27,9 @@ namespace DeleteMeWebhook.Controllers
 			return true;
 		};
 
+		//TODO: реализовать возможность менять для бота
+		private static readonly MetaText priceUnit = new MetaText("грн.");
+
 		private readonly ApplicationContext _context;
 		private readonly DBConnector connector;
         private readonly StupidLogger _logger;
@@ -58,9 +61,6 @@ namespace DeleteMeWebhook.Controllers
             return Ok();
         }
 
-		//TODO: реализовать возможность менять для бота
-		private static readonly MetaText priceUnit = new MetaText("грн.");
-
         [HttpPost]
         public IActionResult RunNewBot(int botId)
         {
@@ -80,7 +80,6 @@ namespace DeleteMeWebhook.Controllers
             {
                 _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, $"Лес. Попытка запуска бота, которые уже работает в этом лесу. botId={botId}");
                 return StatusCode(403, "Такой бот уже запущен");
-
             }
 
 

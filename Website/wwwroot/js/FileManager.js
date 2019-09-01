@@ -160,7 +160,7 @@ function SetFileHTML(botToken, elem, previewId, fileId, needDownload) {
     });
 
     function ShowError(msg, elem) {
-        jqElem = $(elem);
+        const jqElem = $(elem);
         jqElem.removeClass("spinner-border spinner-border-sm text-secondary");
         jqElem.addClass("oi oi-x text-danger");
         elem.innerText = msg;
