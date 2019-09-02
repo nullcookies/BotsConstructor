@@ -63,6 +63,15 @@
             display: block;
             font-size: 18px;
         }
+
+    .myCenterAlign {
+        visibility: visible;
+        margin: 0;
+        position: absolute;
+        top: 40%;
+        left: 50%;
+        margin-right: -50%;
+    }
 </style>
 
 <div class="container p-2 ">
@@ -72,8 +81,15 @@
 
         <div class="row p-2">
 
+
             <div class="col-md-3" id="botStatus_stub" style="visibility:hidden;">
                 <div class="card-counter success">
+
+                    @* Спиннер *@
+                    <div class="spinner-border text-info myCenterAlign" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+
                     <i class="fa fa-check"></i>
                     <span class="count-numbers"></span>
                     <span class="count-name"></span>
@@ -81,7 +97,7 @@
             </div>
 
             <div class="col-md-3" id="botStatus_working" style="display:none;">
-                <div class="card-counter success">
+                <div class="card-counter success botStatus">
                     <i class="fa fa-check"></i>
                     <span class="count-numbers">Работает</span>
                     <span class="count-name">Статус</span>
@@ -89,7 +105,7 @@
             </div>
 
             <div class="col-md-3" id="botStatus_fail" style="display:none;">
-                <div class="card-counter danger">
+                <div class="card-counter danger botStatus">
                     <i class="fa fa-ban"></i>
                     <span class="count-numbers">Сбой</span>
                     <span class="count-name">Статус</span>
@@ -134,29 +150,37 @@
 
 
             @*<div class="col-md-3">
-            <div class="card-counter primary">
-                <i class="fa fa-code-fork  "></i>
-                <span class="count-numbers">12</span>
-                <span class="count-name">Заказов</span>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card-counter danger">
-                <i class="fa fa-ticket"></i>
-                <span class="count-numbers">599</span>
-                <span class="count-name">Instances</span>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card-counter bg-warning">
-                <i class="fa fa-database"></i>
-                <span class="count-numbers">6875</span>
-                <span class="count-name">Data</span>
-            </div>
-        </div>*@
+                    <div class="card-counter primary">
+                        <i class="fa fa-code-fork  "></i>
+                        <span class="count-numbers">12</span>
+                        <span class="count-name">Заказов</span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card-counter danger">
+                        <i class="fa fa-ticket"></i>
+                        <span class="count-numbers">599</span>
+                        <span class="count-name">Instances</span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card-counter bg-warning">
+                        <i class="fa fa-database"></i>
+                        <span class="count-numbers">6875</span>
+                        <span class="count-name">Data</span>
+                    </div>
+                </div>*@
 
         </div>
     </div>
+
+
+    <div class=" container">
+        <div class="alert alert-danger" role="alert" id="ErrorMessage" style="display:none;">
+            Сообщение об ошибке
+        </div>
+    </div>
+
 
     @* Запуск и остановка *@
     <div class="container border border-info  rounded  " style="margin-bottom:1.5rem;  padding-right:0;padding-left:0;">
@@ -171,8 +195,8 @@
             <div class="p-2">
 
                 <div class="row">
-                    <button type="button" id="btnStartBot" class="btn btn-success btn-lg btn-block" onclick="runBot()" >Запустить каталог из черновика</button>
-                    <button type="button" id="btnStopBot" class="btn btn-danger btn-lg btn-block" onclick="stopBot()">Остановить</button>
+                    <button type="button" id="btnStartBot" class="btn btn-success btn-lg btn-block" onclick="runBot()" disabled>Запустить каталог из черновика</button>
+                    <button type="button" id="btnStopBot" class="btn btn-danger btn-lg btn-block" onclick="stopBot()" disabled>Остановить</button>
                 </div>
             </div>
         </div>
@@ -285,11 +309,12 @@
                             </div>
                         </div>
                         <div class="row" style="font-weight: 500;">
-                            Для того, чтобы люди из других аккаунтов могли принимать заказы нужно добавить их логины к списку модераторов.
+                            Модератор - аккаунт, который может только принимать заказы от этого бота.
                         </div>
                     </div>
                     <div class="col">
-                        <button type="button" class="btn btn-info btn-lg btn-block" disabled>Управление модераторами</button>
+                        <a class="btn btn-info btn-lg btn-block" asp-controller="ModeratorManagement" asp-action="Index" asp-route-botId="@ViewData["botId"]">Управление модераторами</a>
+                        @*<button type="button" class="btn btn-info btn-lg btn-block" disabled>Управление модераторами</button>*@
                     </div>
                 </div>
 
@@ -309,7 +334,7 @@
 
             <div class="row card-header border-info">
                 <div class="h5 ">
-                    Время работы
+                    Оплата
                 </div>
             </div>
 
@@ -318,22 +343,17 @@
                 <div class="row">
 
                     <div class="col ">
-                        <div class="row">
-                            <div class="h5">
-                                Бла-бла-бла
-                            </div>
-                        </div>
-
+                      
                         <div class="row alert alert-primary align-items-center" style="overflow:hidden;">
 
-                            <div class="col-4 text-break h4">
-                                Время остановки:
+                            <div class="col-6 text-break h4">
+                                Сегодня со счёта будет списано:
                             </div>
-                            <div class="col-4 text-break h4">
-                                <strong>18.08.2019 16:52</strong>
+                            <div class="col-3 text-break h4 text-center">
+                                <strong>@ViewData["sum"] грн</strong>
                             </div>
-                            <div class="col-4">
-                                <button type="button" class="btn btn-info btn-lg btn-block">Продлить</button>
+                            <div class="col-3">
+                                <a  class="btn btn-info btn-lg btn-block" asp-controller="BotForSalesSettings" asp-action="PriceDetails" asp-route-botId="@ViewData["botId"]" >Подробнее</a>
                             </div>
                         </div>
                     </div>
@@ -350,7 +370,7 @@
 
 
     @* Удаление бота *@
-    <div class="container border border-danger rounded" style="margin-bottom:1.5rem; padding-right:0;padding-left:0;">
+    <div class="container border border-danger  rounded  " style="margin-bottom:1.5rem; padding-right:0;padding-left:0;">
 
         <div class="col ">
 
@@ -403,39 +423,32 @@
 
 <script>
 
-    (function setDisabled() {
-        @{
+    function showError(messageStr) {
 
-            string theBotIsRunning = "false";
-            if (ViewData["the bot is running"] != null && (bool)ViewData["the bot is running"] == true)
-            {
-                theBotIsRunning = "true";
-            }
+        var errorMes = $('#ErrorMessage');
+        var errorWindowShown = errorMes.css('display') != 'none';
 
+        var template = "Ошибка сервера.\n";
+        errorMes.html(template + messageStr);
 
 
-         }
-        var theBotIsRunning = @theBotIsRunning ;
-
-        if (theBotIsRunning) {
-            $('#btnStartBot').prop("disabled", true);
-            $('#btnStopBot').removeAttr("disabled");
-        } else {
-            $('#btnStartBot').removeAttr("disabled");
-            $('#btnStopBot').prop("disabled", true);
+        if (!errorWindowShown) {
+            errorMes.show();
+            setTimeout(() => errorMes.hide(), 5000);
         }
 
-    })();
-
-
+    }
 
     function runBot() {
 
+        //Выключить кнопку запуска бота
+        $('#btnStartBot').prop("disabled", true);
+        //Показ спиннера
+        $('#botStatus_stub').show();
+        //Скрыть карточку "Бот остановлен"
+        $('#botStatus_stopped').hide();
+        
        
-
-     
-
-
         console.log("runBot")
         var url_string = window.location.href;
         var url = new URL(url_string);
@@ -446,22 +459,25 @@
             cache: false,
             type: "POST",
             url: url,
-            success: function () {
+            success: function (answer) {
 
-                $('#btnStartBot').prop("disabled", true);
-                $('#btnStopBot').removeAttr("disabled");
+                console.log(answer);
+                if (answer.success == true) {
 
-                
+                } else {
+                    showError(answer.failMessage)
+                }
+                update();
+
             },
-            error: function (xhr) {
+            error: function (xhr) {    
 
-               
+                update();
 
-                //$('#btnStartBot').removeAttr("disabled");
-                //$('#btnStopBot').prop("disabled", true);
-
-                alert("Error occurred.  "
-                    + xhr.responseText);
+                $('#btnStartBot').removeAttr("disabled");                       
+                console.log('Ошибка ');
+                console.log("Error occurred.  "
+                    + xhr.statusCode);
             }
         });
 
@@ -469,9 +485,14 @@
     }
 
     function stopBot() {
-        
 
 
+        //Выключить кнопку остановки бота
+        $('#btnStopBot').prop("disabled", true);
+        //Показ спиннера
+        $('#botStatus_stub').show();
+        //Скрыть карточку "Бот работает"
+        $('#botStatus_working').hide();
 
 
         var url_string = window.location.href;
@@ -482,17 +503,26 @@
             cache: false,
             type: "POST",
             url: url,
-            success: function () {
+            success: function (answer) {
 
-                $('#btnStartBot').removeAttr("disabled");
-                $('#btnStopBot').prop("disabled", true);
-                
+                console.log(answer);
+                if (answer.success == true) {
+
+                } else {
+                    showError(answer.failMessage)
+                }
+                update();
+
             },
             error: function (xhr, ajaxOptions, thrownError) {
 
-                //$('#btnStartBot').prop("disabled", true);
-                //$('#btnStopBot').removeAttr("disabled");
+                update();
+
+                //Включить кнопку остановки бота
+                $('#btnStopBot').removeAttr("disabled");
                 console.log(thrownError);
+                console.log("Error occurred.  "
+                    + xhr.statusCode);
             }
         });
     }
@@ -512,15 +542,15 @@
 
             },
             error: function (xhr) {
-                alert("Error occurred. "
-                    + xhr.responseText);
+                console.log("Error occurred. "
+                    + xhr.statusCode);
             }
         });
     }
 
     function updateStatistics(statisticsInfo) {
 
-        setBotStatus(statisticsInfo.botStatus);
+        setBotStatus(statisticsInfo.botWorks);
 
         $('#ordersCount').html(statisticsInfo.ordersCount);
         $('#usersCount').html(statisticsInfo.usersCount);
@@ -529,36 +559,65 @@
 
     }
 
-    function setBotStatus(botStatus) {
+    function setBotStatus(botWorks) {
 
         $('#botStatus_stub').hide();
 
         $('[id^="botStatus_"]').hide();
-        
-        if (botStatus == "working" || botStatus == "stopped" || botStatus == "fail") {
-            
-            $('#botStatus_' + botStatus).show();
-        
+        if (botWorks != null && botWorks != 'undefined')
+        {
+            if (botWorks) {
+
+                $('#botStatus_stub').hide();
+                $('#botStatus_working').show();
+                
+                $('#btnStopBot').removeAttr("disabled");
+                $('#btnStartBot').prop("disabled", true);
+                
+            } else {
+                $('#botStatus_stub').hide();
+                $('#botStatus_stopped').show();
+
+                $('#btnStopBot').prop("disabled", true);
+                $('#btnStartBot').removeAttr("disabled");
+            }
         } else {
             throw new Error("Неожиданный ответ сервера")
         }
+        
+        
 
 
     }
 </script>
 
-@*<script>
+<script>
     (function () {
         var getWebSocketMessages = function (onMessageReceived) {
-            var url = `wss://${location.host}/BotForSalesSettings/MyWebsocket`
+
+            var url_string = window.location.href;
+            var url = new URL(url_string);
+            var botId = url.searchParams.get("botId");
+
+            var url = `wss://${location.host}/BotForSalesSettings/MyWebsocket?botId=${botId}`
             console.log('url is: ' + url);
 
             var webSocket = new WebSocket(url);
 
             webSocket.onmessage = onMessageReceived;
+            webSocket.onerror = onError;
         };
 
-        var ulElement = document.getElementById('StreamToMe');
+        function onError() {
+
+            console.log("Не удалось установить webSocket соединение");
+            console.log("Запуск long polling");
+            update();
+            setInterval(() => update(), 10000);
+
+        }
+       
+        update();
 
         getWebSocketMessages(function (message) {
 
@@ -569,4 +628,27 @@
         });
     }());
 
-</script>*@
+
+   function update() {
+
+            console.log("ajax update");
+
+            var url_string = window.location.href;
+            var url = new URL(url_string);
+            var botId = url.searchParams.get("botId");
+            
+
+            $.ajax({
+                type: 'POST',
+                url: `/BotForSalesSettings/GetBotForSalesStatistics?botId=${botId}`,
+                success: function (message) {
+                    updateStatistics(message);
+                },
+                error: function () {
+                    console.log("error");
+                }
+            });
+            
+        }
+
+</script>

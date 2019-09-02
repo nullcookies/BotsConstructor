@@ -1,8 +1,8 @@
-﻿@{ 
+﻿@{
     Layout = "_LayoutHome";
 }
 @*<link rel="stylesheet" href="path/to/font-awesome/css/font-awesome.min.css">*@
-<table class="table table-striped">
+<table class="table table-striped" style="max-width:100%;">
     <thead>
         <tr>
             <th scope="col">#</th>
@@ -17,7 +17,10 @@
             {
                 <tr>
                     <th scope="row">@bot.Number</th>
-                    <td>@bot.Name</td>
+
+
+
+                    <td><a href="https://telegram.me/@bot.Name"   target="_blank" >@@@bot.Name</a> </td>
                     <td>@bot.Status</td>
                     <td>
                         <a asp-controller="BotForSalesSettings" asp-action="Settings" asp-route-botId="@bot.BotId" class="btn btn-info">Настройки</a>
@@ -29,6 +32,6 @@
 
 
     </tbody>
-    
+
 </table>
-<a  class="btn btn-secondary btn-lg btn-block"  asp-area="" asp-controller="Home"  asp-action="BotCreation"  >Создать бота</a>
+<a class="btn btn-secondary btn-lg btn-block" asp-area="" asp-controller="BotCreation" asp-action="Index">Создать бота</a>

@@ -28,33 +28,29 @@ namespace Website.Other.Filters
       
         public void OnActionExecuting(ActionExecutingContext context)
         {
-			if (!context.ActionArguments.ContainsKey("botId"))
+            int? botId = context.ActionArguments["botId"] as int?;
+            
+            if (botId == null)
             {
                 //В запросе не был указан botId
-                _logger.Log(LogLevelMyDich.UNAUTHORIZED_ACCESS_ATTEMPT, "В запросе не был указан botId");
+                _logger.Log(LogLevelMyDich.UNAUTHORIZED_ACCESS_ATTEMPT, Source.WEBSITE, "В запросе не был указан botId");
                 context.Result = new StatusCodeResult(404);
                 return;
             }
 
-			int botId = (int)context.ActionArguments["botId"];
-
-
-			var bot = _context.Bots.Find(botId);
-
-             
+            var bot = _context.Bots.Find(botId);
+			
             if (bot == null)
             {
                 //Бота с таким id не существует
-                _logger.Log(LogLevelMyDich.UNAUTHORIZED_ACCESS_ATTEMPT, $"Бота с таким id не существует botId={botId}");
+                _logger.Log(LogLevelMyDich.UNAUTHORIZED_ACCESS_ATTEMPT, Source.WEBSITE, $"Бота с таким id не существует botId={botId}");
                 context.Result = new StatusCodeResult(404);
                 return;
             }
 
             int ownerId = bot.OwnerId;
-
-            
-            
-            int accountId = 0;
+			
+            int accountId = int.MinValue;
 
             try
             {
@@ -62,13 +58,15 @@ namespace Website.Other.Filters
             }
             catch
             {
+                context.Result = new StatusCodeResult(403);
+                _logger.Log(LogLevelMyDich.UNAUTHORIZED_ACCESS_ATTEMPT, Source.WEBSITE, $"Сайт. Из cookies не удалось извлечь accountId. При доступе к боту bot.Id={bot.Id}");
                 return;
             }
 
             if (ownerId != accountId)
             {
                 //Бот не принадлежит этому пользователю
-                _logger.Log(LogLevelMyDich.UNAUTHORIZED_ACCESS_ATTEMPT, $"Бот не принадлежит этому пользователю. accountId={accountId}, ownerId={ownerId}");
+                _logger.Log(LogLevelMyDich.UNAUTHORIZED_ACCESS_ATTEMPT, Source.WEBSITE, $"Бот не принадлежит этому пользователю. accountId={accountId}, ownerId={ownerId}");
 
                 context.Result = new StatusCodeResult(403);
                 return;

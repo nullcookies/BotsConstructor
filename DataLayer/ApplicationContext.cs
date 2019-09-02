@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using DataLayer.Services;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -23,8 +24,17 @@ namespace DataLayer.Models
         public DbSet<UnconfirmedEmail> UnconfirmedEmails { get; set; }
         public DbSet<AccountToResetPassword> AccountsToResetPassword { get; set; }
         public DbSet<RouteRecord> RouteRecords { get; set; }
-
         public DbSet<LogMessage> LogMessages { get; set; }
+        public DbSet<BotForSalesStatistics> BotForSalesStatistics { get; set; }
+        public DbSet<Moderator> Moderators { get; set; }
+        public DbSet<BotForSalesPrice> BotForSalesPrices { get; set; }
+        public DbSet<BotLaunchRecord> BotLaunchRecords { get; set; }
+        public DbSet<WithdrawalLog> WithdrawalLog { get; set; }
+        public DbSet<Record_BotUsername_UserTelegramId> BotUsers { get; set; }
+        public DbSet<BannedUser> BannedUsers { get; set; }
+        public DbSet<BotWorkLog> BotWorkLogs { get; set; }
+        public DbSet<SpyRecord> SpyRecords { get; set; }
+
 
         public ApplicationContext(DbContextOptions<ApplicationContext> options)
            : base(options)
@@ -38,6 +48,30 @@ namespace DataLayer.Models
     
 
             modelBuilder.Entity<RoleType>().HasIndex(role => new { role.Name }).IsUnique();
+
+            //Нельзя добавить модератора дважды к аккаунту
+            modelBuilder.Entity<Moderator>().HasIndex(_mo => new { _mo.AccountId, _mo.BotId}).IsUnique();
+
+            //Нельзя дважды банить одного пользователя
+            modelBuilder.Entity<BannedUser>().HasIndex(_bu => new { _bu.BotUsername, _bu.UserTelegramId}).IsUnique();
+
+            //Пользователь считается однажды
+            modelBuilder.Entity<Record_BotUsername_UserTelegramId>()
+                .HasIndex(_rec => 
+                    new
+                    {
+                        _rec.BotUsername,
+                        _rec.BotUserTelegramId
+                    })
+                .IsUnique();
+
+
+            //В одну дату нельзя снимать деньги больше одного раза
+            modelBuilder.Entity<WithdrawalLog>().HasIndex(_wl=> new
+            {
+                _wl.BotId,
+                _wl.DateTime
+            }).IsUnique();
 
             var roles = new List<RoleType>()
             {
@@ -57,32 +91,86 @@ namespace DataLayer.Models
 
             var accounts = new List<Account>()
             {
-                new Account(){Id = 1_000_000,Email="qqq1@qqq" , Password="qqq", Name="шокаво", RoleTypeId = 1 },
-                new Account(){Id = 1_000_001,Email="qqq2@qqq" ,  Password="qqq", Name="шокаво",  RoleTypeId = 2 }
+                new Account(){Id = 1_000_000,Email="qqq1@qqq" , Password="qqq", Name="Иван Иванов", RoleTypeId = 1 },
+                new Account(){Id = 1_000_001,Email="qqq2@qqq" ,  Password="qqq", Name="Пётр Петров",  RoleTypeId = 2 , Money = 1000},
+                new Account(){Id = 1_000_002,Email="qqq3@qqq" ,  Password="qqq", Name="Сидор Сидоров",  RoleTypeId = 1 }
             };
 
-            
-        
+
+            BotForSalesPrice price =
+                new BotForSalesPrice()
+                {
+                    Id = int.MinValue,
+                    MaxPrice = 3,
+                    MinPrice = 2,
+                    MagicParameter = 10,
+                    DateTime = DateTime.UtcNow,
+                    DailyPrice = 7
+                };
+
+            modelBuilder.Entity<BotForSalesPrice>().HasData(price);
+
+
 
             modelBuilder.Entity<Account>().HasData(accounts);
 
-            modelBuilder.Entity<BotDB>()
-             .Property(_bot => _bot.NumberOfUniqueMessages)
-             .HasDefaultValue(0);
+            modelBuilder.Entity<BotForSalesStatistics>()
+                 .Property(_botStat => _botStat.NumberOfUniqueMessages)
+                 .HasDefaultValue(0);
 
-            modelBuilder.Entity<BotDB>()
-            .Property(_bot => _bot.NumberOfUniqueUsers)
-            .HasDefaultValue(0);
+            modelBuilder.Entity<BotForSalesStatistics>()
+                .Property(_botStat => _botStat.NumberOfUniqueUsers)
+                .HasDefaultValue(0);
 
-            modelBuilder.Entity<BotDB>()
-            .Property(_bot => _bot.NumberOfOrders)
-            .HasDefaultValue(0);
+            modelBuilder.Entity<BotForSalesStatistics>()
+                .Property(_botStat => _botStat.NumberOfOrders)
+                .HasDefaultValue(0);
 
-            // Для тестирования
+   //         // Для тестирования
+   //         modelBuilder.Entity<BotDB>().HasData(new List<object>
+			//{
+			//	new {
+   //                 Id = 1_000_000,
+   //                 BotName = "ping_uin_bot",
+   //                 OwnerId = 1_000_001,
+   //                 BotType ="BotForSales",
+   //                 Token = "825321671:AAFoJoGk7VIMU19wvOmiwZHKRwyGptvAqJ4"
+   //             }
+			//});
+              // Для тестирования
             modelBuilder.Entity<BotDB>().HasData(new List<object>
 			{
-				new {Id = 1_000_000, BotName = "Zradabot01", OwnerId = 1_000_001, BotType="BotForSales"}
+				new {
+                    Id = 1_000_000,
+                    BotName = "my_pizzeria_bot",
+                    OwnerId = 1_000_001,
+                    BotType ="BotForSales",
+                    Token = "724246784:AAHLOtr3Vz_q0Cf5iQvuY_bf-kVm0s-JAMU"
+                }
 			});
+
+            
+            modelBuilder.Entity<BotLaunchRecord>().HasData(new List<BotLaunchRecord>
+            {
+                new BotLaunchRecord(){
+                    Id = int.MinValue,
+                    BotId = 1_000_000,
+                    Time  = DateTime.UtcNow.AddHours(-5)                   
+                }
+            });
+
+
+            modelBuilder.Entity<Moderator>().HasData(new Moderator()
+            {
+                Id = 1_000_000,
+                AccountId = 1_000_002,
+                BotId= 1_000_000
+            });
+
+            modelBuilder.Entity<BotForSalesStatistics>().HasData(new List<BotForSalesStatistics>
+            {
+                new BotForSalesStatistics(){BotId=1_000_000}
+            });
 
 			var statusGroups = new List<object>()
 			{
@@ -104,34 +192,57 @@ namespace DataLayer.Models
 			// Для тестирования
 			modelBuilder.Entity<Order>().HasData(new List<object>
 			{
-				new {Id = 101, SenderId = 440090552, SenderNickname = "Ruslan Starovoitov", BotId = 1_000_000, ContainerId = 101, OrderStatusGroupId = 1,                    DateTime = DateTime.UtcNow},
-				new {Id = 102, SenderId = 440090552, SenderNickname = "Ruslan Starovoitov", BotId = 1_000_000, ContainerId = 102, OrderStatusGroupId = 1, OrderStatusId = 1, DateTime = DateTime.UtcNow},
-				new {Id = 103, SenderId = 440090552, SenderNickname = "Ruslan Starovoitov", BotId = 1_000_000, ContainerId = 103, OrderStatusGroupId = 1, OrderStatusId = 3, DateTime = DateTime.UtcNow}
+				new {Id = 101, SenderId = 440090552, SenderNickname = "Ivan Ivanov",
+                    BotId = 1_000_000, ContainerId = 101, OrderStatusGroupId = 1,                    DateTime = DateTime.UtcNow},
+                new {Id = 102, SenderId = 460805780, SenderNickname = "Petro Ivanov",
+                    BotId = 1_000_000, ContainerId = 102, OrderStatusGroupId = 1,                    DateTime = DateTime.UtcNow.AddMinutes(-1)}
+                //,
+				//new {Id = 102, SenderId = 440090552, SenderNickname = "Ruslan Starovoitov",
+    //                BotId = 1_000_000, ContainerId = 102, OrderStatusGroupId = 1, OrderStatusId = 1, DateTime = DateTime.UtcNow},
+				//new {Id = 103, SenderId = 440090552, SenderNickname = "Ruslan Starovoitov",
+    //                BotId = 1_000_000, ContainerId = 103, OrderStatusGroupId = 1, OrderStatusId = 3, DateTime = DateTime.UtcNow}
 			});
 
 			modelBuilder.Entity<Inventory>().HasData(new List<object>
 			{
 				new {Id = 101, SessionId = 440090552},
-				new {Id = 102, SessionId = 440090552},
-				new {Id = 103, SessionId = 440090552},
-				new {Id = 104, SessionId = 440090552, ParentId = 102}
+				new {Id = 102, SessionId = 460805780}
+               
 			});
-
-			modelBuilder.Entity<SessionText>().HasData(new List<object>
+           
+            int id = 101;
+            modelBuilder.Entity<SessionText>().HasData(new List<object>
 			{
-				new {Id = 101, Text = "Sho tam?",				InventoryId = 101},
-				new {Id = 102, Text = "N0rmaln0!",				InventoryId = 102},
-				new {Id = 103, Text = "Waiting for Zrada...",	InventoryId = 103},
-				new {Id = 104, Text = "Still waiting...",		InventoryId = 103},
-				new {Id = 105, Text = "Peremoga?",				InventoryId = 103},
-				new {Id = 106, Text = "She ne vmer!",			InventoryId = 104}
-			});
+				new {Id = id++, Text = "Сет Патриот 359 ₴: 1",				InventoryId = 101},
+				new {Id = id++, Text = "Баварская 30 см Хот-дог борт (id40) 3 ₴: 1",				InventoryId = 101},
+				new {Id = id++, Text = "Кальцоне 25 см Обычный борт (id45) 9 ₴: 1",				InventoryId = 101},
+				new {Id = id++, Text = "Стоимость:  371 ₴",				InventoryId = 101},
+				new {Id = id++, Text = "221B Baker Street",				InventoryId = 101},
+				new {Id = id++, Text = "Доставьте пиццу холодной, пожалуйста.",				InventoryId = 101}
 
-			modelBuilder.Entity<ImageMy>().HasIndex(i => new { i.BotId, i.ProductId}).IsUnique();
+                ,
 
+                new {Id = id++, Text = "Карбонара 30 см Хот-дог борт (id22) 2 ₴: 1",              InventoryId = 102},
+                new {Id = id++, Text = "⚙️🍕Собранная пицца🍕⚙️: Помидоры (2); Грибы(2); = 6₴: 1",                InventoryId = 102},
+                new {Id = id++, Text = "Калифорния с креветкой 99 ₴: 1",             InventoryId = 102},
+                new {Id = id++, Text = "Стоимость: 107 ₴",             InventoryId = 102},
+                new {Id = id++, Text = "221B Baker Street",             InventoryId = 102},
+
+                new {Id = id++, Text = "Доставьте пиццу гарячей, пожалуйста.",             InventoryId = 102}
+             
+
+
+
+            });
+
+			//modelBuilder.Entity<ImageMy>().HasIndex(i => new { i.BotId, i.ProductId}).IsUnique();
+
+            
 
         }
     }
+
+  
 
     [Table("Accounts")]
     public class Account
@@ -201,8 +312,10 @@ namespace DataLayer.Models
 		[Column("BotId")]
         public int Id { get; set; }
 
+        [Required]
         public string Token { get; set; }
 
+        [Required]
         public string BotName { get; set; }
 
 		[Required]
@@ -215,13 +328,25 @@ namespace DataLayer.Models
 
         public string BotType { get; set; }
 
-        public int NumberOfUniqueUsers { get; set; }
-        public long NumberOfUniqueMessages { get; set; }
-        public long NumberOfOrders { get; set; }
 
         public virtual ICollection<Order> Orders { get; set; }
     }
 
+    public class BotForSalesStatistics
+    {
+        [Key]
+        public int BotId { get; set; }
+
+        [ForeignKey("BotId")]
+        public BotDB Bot { get; set; } 
+
+        [Required]
+        public long NumberOfOrders          { get; set; }
+        [Required]
+        public int  NumberOfUniqueUsers     { get; set; }
+        [Required]
+        public long NumberOfUniqueMessages  { get; set; }
+    }
 
 	/// <summary>
 	/// Статус заказа.
@@ -302,6 +427,7 @@ namespace DataLayer.Models
     [Table("AccountsToResetPassword")]
     public class AccountToResetPassword
     {
+        [Key]
         public int Id { get; set; }
         [Required]
         public int AccountId { get; set; }
@@ -314,13 +440,26 @@ namespace DataLayer.Models
     {
         [Key]
         public int Id { get; set; }
-        
-        //public Exception Exception{ get; set; }
+        public string LogLevelString { get; set; }
+        [Required]
+        public string SourceString
+        {
+            get
+            {
+                return Source.ToString();
+            }
+            set{}
+         }
+        public string Message{ get; set; }
+
+        public int AccountId { get; set; }
+
         public DateTime DateTime { get; set; }
         public LogLevelMyDich LogLevel { get; set; }
 
-        public string Message{ get; set; }
-        public string LogLevelString { get; set; }
+
+        [Required]
+        public Source Source { get; set; }
 
     }
     public enum LogLevelMyDich
@@ -333,7 +472,10 @@ namespace DataLayer.Models
         USER_ERROR,
         UNAUTHORIZED_ACCESS_ATTEMPT,
         USER_INTERFACE_ERROR_OR_HACKING_ATTEMPT,
-        I_AM_AN_IDIOT
+        I_AM_AN_IDIOT,
+        WARNING,
+        SPYING,
+        IMPORTANT_INFO
     }
 
     [Table("RouteRecords")]
@@ -342,16 +484,46 @@ namespace DataLayer.Models
         [Key]
         public int BotId { get; set; }
 
-
+        [ForeignKey("BotId")]
+        public BotDB Bot { get; set; }
 
         /// <summary>
         /// Хранит ссылку на сервер леса.
         /// Например http://localhost:8080/Home/ http://15.41.87.12/Home/
-        /// Если нужно остановить бота, то добавьте StopBot
-        /// Если нужно запустить бота, то добавьте RunNewBot
         /// </summary>
         [Required]
         public string ForestLink { get; set; }
+    }
+
+    public class BotLaunchRecord
+    {
+        [Key]
+        public int Id { get; set; }
+
+        [Required]
+        public int BotId { get; set; }
+
+        [Required]
+        public BotStatus BotStatus { get; set; }
+
+        [Required]
+        public string BotStatusString {
+            get
+            {
+                return BotStatus.ToString();
+            }
+            set{}
+        }
+
+
+        [Required]
+        public DateTime Time { get; set; }
+    }
+
+    public enum BotStatus
+    {
+        STARTED,
+        STOPPED
     }
 
     /// <summary>
@@ -545,4 +717,138 @@ namespace DataLayer.Models
         [ForeignKey("BotId")]
         public virtual BotDB Bot { get; set; }
     }
+
+    [Table("Moderators")]
+    public class Moderator
+    {
+        [Key]
+        [Column("ModeratorId")]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
+
+        [Required]
+        public int BotId { get; set; }
+        [ForeignKey("BotId")]
+        public BotDB BotDB { get; set; }
+
+        [Required]
+        public int AccountId { get; set; }
+        [ForeignKey("AccountId")]
+        public Account Account { get; set; }
+    }
+
+    /// <summary>
+    ///  Таблица хранит всю историю цен. 
+    ///  Актуальное значение костант, конечно же хранится последней
+    ///  записью.
+    /// </summary>
+    public class BotForSalesPrice
+    {
+        [Key]
+        [Column("BotForSalesPriceId")]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
+        [Required]
+        public decimal MaxPrice { get; set; }
+        [Required]
+        public decimal MinPrice { get; set; }
+        [Required]
+        public decimal DailyPrice { get; set; }
+        [Required]
+        public decimal MagicParameter { get; set; }
+        [Required]
+        public DateTime DateTime { get; set; }
+
+    }
+
+    public class WithdrawalLog
+    {
+        [Key]
+        public int Id { get; set; }
+
+        [Required]
+        public int AccountId { get; set; }
+        public  Account Account { get; set; }
+
+        [Required]
+        public int BotId { get; set; }
+
+        [ForeignKey("BotId")]
+        public BotDB BotDB { get; set; }
+
+        [Required]
+        public TransactionStatus TransactionStatus { get; set; }
+        [Required]
+        public string TransactionStatusString {
+            get
+            {
+                return TransactionStatus.ToString();
+            }
+            set{}
+        }
+
+        public decimal Price { get; set; }
+        /// <summary>
+        /// День, за который списываются деньги
+        /// </summary>
+        public DateTime DateTime { get; set;}
+
+    }
+
+    public enum TransactionStatus
+    {
+        TRANSACTION_STARTED,
+        TRANSACTION_COMPLETED_SUCCESSFULL
+    }
+
+    public class Record_BotUsername_UserTelegramId
+    {
+        [Key]
+        public int Id { get; set; }
+        [Required]
+        public string BotUsername { get; set; }
+        [Required]
+        public int BotUserTelegramId { get; set; }
+    }
+
+    public class BannedUser
+    {
+        [Key]
+        public int Id { get; set; }
+        [Required]
+        public string BotUsername { get; set; }
+        [Required]
+        public int UserTelegramId { get; set; }
+    }
+
+    /// <summary>
+    /// В этой таблице хранятся записи о работе ботов
+    /// На её основе определяется работал бот в этот день или нет
+    /// </summary>
+    public class BotWorkLog
+    {
+        [Key]
+        public int Id { get; set; }
+        [Required]
+        public int BotId { get; set; }
+        [Required]
+        public DateTime InspectionTime { get; set; }
+    }
+
+    public class SpyRecord
+    {
+        [Key]
+        public int Id { get; set; }
+        [Required]
+        public DateTime Time { get; set; }
+        [Required]
+        public string PathCurrent { get; set; }
+        [Required]
+        public string PathFrom { get; set; }
+        [Required]
+        public int AccountId { get; set; }
+    }
+
+
+
 }

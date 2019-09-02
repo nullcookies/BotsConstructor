@@ -20,7 +20,7 @@ using System.Threading;
 using Website.Services;
 using DataLayer.Services;
 using DataLayer.Models;
-
+using Telegram.Bot;
 namespace Website.Controllers
 {
     public class TokenReplacementController : Controller
@@ -29,13 +29,13 @@ namespace Website.Controllers
 
         ApplicationContext context;
         IHostingEnvironment _appEnvironment;
-        StupidLogger logger;
+        StupidLogger _logger;
 
         public TokenReplacementController(ApplicationContext context, IHostingEnvironment appEnvironment, StupidLogger  logger)
         {
             this.context = context ?? throw new ArgumentNullException(nameof(context));
             _appEnvironment = appEnvironment;
-            this.logger = logger;
+            this._logger = logger;
         }
 
 
@@ -54,18 +54,34 @@ namespace Website.Controllers
         
         [HttpPost]
         [TypeFilter(typeof(CheckAccessToTheBot))]
-        public IActionResult TokenChange(int botId, string token, string oldToken)
+        public IActionResult TokenChange(int botId, string token)
         {
             if (token?.Length == 45)
             {
-                context.Bots.Find(botId).Token = token;
-                context.SaveChanges();
-                ViewData["currentToken"] = token;
+                var bot = context.Bots.Find(botId);
+                try
+                {
+                    bot.BotName = new TelegramBotClient(token).GetMeAsync().Result.Username;                
+                    bot.Token = token;
+                    context.SaveChanges();
+                    ViewData["currentToken"] = token;
+                }catch(Exception ee)
+                {
+                    int? accountId = Stub.GetAccountIdFromCookies(HttpContext);
+                    _logger.Log(LogLevelMyDich.USER_ERROR, Source.WEBSITE, $"Сайт. Установка токена для бота " +
+                        $"botId={botId}, accountId= {accountId}, token = {token}. Не удалось " +
+                        $"узнать username бота.  Возможно, такой токен не существует. exception="+
+                       ee.Message);
+
+                    ModelState.AddModelError("", "Ошибка обработки токена.");
+                    string currentToken = context.Bots.Find(botId).Token;
+                    ViewData["currentToken"] = currentToken;
+                }
             }
             else
             {
                 ModelState.AddModelError("", "Неверная длина токена");
-                logger.Log(LogLevelMyDich.USER_ERROR, $"Введён токен неверной длины token={token}");
+                _logger.Log(LogLevelMyDich.USER_ERROR, Source.WEBSITE, $"Введён токен неверной длины token={token}");
                 string currentToken = context.Bots.Find(botId).Token;
                 ViewData["currentToken"] = currentToken;
             }

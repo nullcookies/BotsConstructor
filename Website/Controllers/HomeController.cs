@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using DataLayer.Models;
+using DataLayer.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Website.Models;
@@ -14,12 +15,14 @@ namespace Website.Controllers
     [Authorize]
     public class HomeController : Controller
     {
-        ApplicationContext context;
-
-        public HomeController(ApplicationContext context)
+        ApplicationContext _contextDb;
+        StupidLogger _logger;
+        public HomeController(ApplicationContext context, StupidLogger logger)
         {
-            this.context = context ?? throw new ArgumentNullException(nameof(context));
-		}
+            this._contextDb = context ?? throw new ArgumentNullException(nameof(context));
+            _logger = logger;
+
+        }
 
         public IActionResult Index()
         {
@@ -35,29 +38,48 @@ namespace Website.Controllers
                 return StatusCode(403);
             }
             
-            var bots = context.Bots.Where(_bot => _bot.OwnerId == accountId);
+            var bots = _contextDb.Bots.Where(_bot => _bot.OwnerId == accountId);
+            var rrs = _contextDb.RouteRecords.ToList();
             List<BotOnHomePage> modelBots = new List<BotOnHomePage>();
 			int i = 1;
 			foreach (var bot in bots)
 			{
                 
                 string name = "";
-                if (bot.Token == null)
+                if (bot.BotName == null)
                 {
                     name = "Бот ещё не запускался";
                 }
                 else
                 {
-                    //TODO запрос имени бота
-                    name = "botUsername";
+                    name = bot.BotName;
                 }
-				modelBots.Add(new BotOnHomePage() { Number = i++, Name = name, BotId = bot.Id, Status = "Работает" });
+
+                string status = "";
+                int countOfRouteRecords = rrs.Where(_rr => _rr.BotId == bot.Id).Count();
+                switch (countOfRouteRecords)
+                {
+                    case 0:
+                        status = "⛔️Остановлен⛔️";
+                        break;
+                    case 1:
+                        status = "✅Работает✅";
+                        break;
+                    default:
+                        _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, Source.WEBSITE, $"Сайт. При " +
+                            $"запросе всех RouteRecord из бд их количество для бота {bot.Id} " +
+                            $"оказалоссь больше одной");
+                        return StatusCode(500);
+                }
+                modelBots.Add(new BotOnHomePage() { Number = i++, Name = name, BotId = bot.Id, Status = status });
 			}
             ViewData["bots"] = modelBots;
             
             
             return View();
         }
+
+        
 
 		[HttpGet]
         public IActionResult BotCreation()

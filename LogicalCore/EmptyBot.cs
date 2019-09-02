@@ -120,7 +120,7 @@ namespace LogicalCore
             ConsoleWriter.WriteLine($"Start listening for @{BotUsername}", ConsoleColor.Green);
         }
 
-        //TODO Это точно лучший метод остановить приняте сообщений?
+        //TODO Это точно лучший метод остановить принятие сообщений?
         public virtual void Stop()
         {
             if (link == null)

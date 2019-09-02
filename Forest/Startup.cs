@@ -10,7 +10,7 @@ using System;
 using DataLayer.Models;
 using DataLayer.Services;
 using System.Runtime.InteropServices;
-
+using Forest.Services;
 
 namespace DeleteMeWebhook
 {
@@ -46,12 +46,25 @@ namespace DeleteMeWebhook
 
 			services.AddSingleton<DBConnector>();
             services.AddSingleton<StupidLogger>();
+            services.AddSingleton<BotStatisticsSynchronizer>();
+            services.AddSingleton<BannedUsersSynchronizer>();
+
 
 
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, 
+            IHostingEnvironment env, 
+            BotStatisticsSynchronizer botStatisticsSynchronizer,
+            StupidLogger logger,
+            BannedUsersSynchronizer bannedUsersSynchronizer)
         {
+
+            logger.Log(LogLevelMyDich.IMPORTANT_INFO,
+                Source.WEBSITE,
+                "Запуск сервера леса");
+
+
             app.UseDeveloperExceptionPage();
 
             //app.UseHttpsRedirection();

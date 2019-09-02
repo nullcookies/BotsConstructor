@@ -1,4 +1,5 @@
-﻿using DataLayer.Models;
+﻿using DataLayer;
+using DataLayer.Models;
 using DataLayer.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -28,7 +29,7 @@ namespace Website.Services
         ApplicationContext _contextDb {
             get
             {
-                return _dbContextWrapper.GetDbContext();
+                return _dbContextWrapper.GetNewDbContext();
             }
         }
         DbContextWrapper _dbContextWrapper;
@@ -58,7 +59,6 @@ namespace Website.Services
         /// </summary>
         private async Task SendNotificationsOfNewOrders()
         {
-            
             List<Order> allOrders = null;
             
             lock (lockObj)
@@ -157,7 +157,7 @@ namespace Website.Services
         /// <param name="accountId"></param>
         /// <param name="webSocket"></param>
         /// <param name="socketFinishedTcs"></param>
-        public void RegisterInNotificationSystem(int accountId, WebSocket webSocket, TaskCompletionSource<object> socketFinishedTcs)
+        public void RegisterInNotificationSystem(int accountId, WebSocket webSocket)
         {
 
             //На всякий случай
@@ -186,7 +186,7 @@ namespace Website.Services
 
                     if (!addIsOk)
                     {
-                        _logger.Log(LogLevelMyDich.ERROR, $"Сайт. Сервис подсчёта заказов. Не удалось добавить webSocket для аккаунта accountId={accountId},");
+                        _logger.Log(LogLevelMyDich.ERROR, Source.WEBSITE, $"Сайт. Сервис подсчёта заказов. Не удалось добавить webSocket для аккаунта accountId={accountId},");
                     }
                 }
 
@@ -199,6 +199,11 @@ namespace Website.Services
                     _contextDb.Bots.Where(_bot => _bot.OwnerId == accountId).Select(_bot => _bot.Id).ToList();
 
                 //TODO Боты, к которым аккаунт имеет доступ (модератор)
+                List<int> the_bot_ids_which_are_moderated_by_the_account =
+                    _contextDb.Moderators.Where(_mo => _mo.AccountId == accountId).Select(_mo => _mo.BotId).ToList();
+
+                the_bot_ids_on_which_the_account_is_signed
+                    .AddRange(the_bot_ids_which_are_moderated_by_the_account);
 
                 //Для всех ботов на которые аккаунт подписан
                 for (int i = 0; i < the_bot_ids_on_which_the_account_is_signed.Count; i++)
@@ -219,7 +224,7 @@ namespace Website.Services
                         }
                         else
                         {
-                            _logger.Log(LogLevelMyDich.INFO, "К словарю (accountId, List<WebSocket> ) добавлен сокет для аккаунта, который уже существует. Значит открыто несколько вкладок.");
+                            _logger.Log(LogLevelMyDich.INFO, Source.WEBSITE, "К словарю (accountId, List<WebSocket> ) добавлен сокет для аккаунта, который уже существует. Значит открыто несколько вкладок.");
                         }
                     }
                     else
@@ -244,45 +249,10 @@ namespace Website.Services
             public int OrdersCountOld;
             public WebSocket WebSocket;
         }
-        /// Зачем для каждой вкладки? 
-        /// Вообще незачем, но раз упарываться по оптимизации сети,
-        /// то можно представить такую ситуацию:
-        /// 
-        /// на 10 компьютерах открыто по 1 вкладке с одного аккаунта
-        /// на всех 10-ти компьютерах показывается число 3 в количестве заказов
-        /// 
-        /// и тут хоба и включается 11-ый пользователь под тем же аккаунтом
-        /// для него в переменной хранится кол-во заказов 0
-        /// 
-        /// при новой рассылке уведомлений Json с кол-вом заказов отправится только 
-        /// 11-тому, а не всем вкладкам под этим аккаунтом
-        /// 
+      
 
-        private class DbContextWrapper
-        {
-            private readonly string _connextionString;
-
-            public DbContextWrapper(IConfiguration configuration)
-            {
-                
-                bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-
-                if (isWindows)
-                    _connextionString = configuration.GetConnectionString("PostgresConnectionDevelopment");
-                else
-                    _connextionString = configuration.GetConnectionString("PostgresConnectionLinux");
-
-                
-            }
-
-            public ApplicationContext GetDbContext()
-            {
-                return new ApplicationContext(
-                    new DbContextOptionsBuilder<ApplicationContext>()
-                    .UseNpgsql(_connextionString)
-                    .Options);
-            }
-        }
     }
+
+   
 
 }

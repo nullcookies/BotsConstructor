@@ -18,6 +18,8 @@ using System.Threading.Tasks;
 using DataLayer.Models;
 using Website.Services;
 using DataLayer.Services;
+using Website.Other.Middlewares;
+using Website.Services.Bookkeeper;
 
 namespace Website
 {
@@ -60,7 +62,7 @@ namespace Website
 
                                                
                              
-            services.AddEntityFrameworkNpgsql().AddDbContext<ApplicationContext>(opt=>opt.UseNpgsql(connection)).BuildServiceProvider(); 
+            services.AddEntityFrameworkNpgsql().AddDbContext<ApplicationContext>(opt=>opt.UseNpgsql(connection) ).BuildServiceProvider(); 
             
 
             //my
@@ -75,9 +77,15 @@ namespace Website
             services.AddLocalization(options => options.ResourcesPath = "Resources");
 
             services.AddTransient<EmailMessageSender>();
+            services.AddTransient<StupidBotForSalesBookkeeper>();
 
             services.AddSingleton<StupidLogger>();
             services.AddSingleton<OrdersCountNotificationService>();
+            services.AddSingleton<BotForSalesStatisticsService>();
+            services.AddSingleton<TotalLog>();
+            services.AddSingleton<BotsAirstripService>();
+
+            services.AddTransient<MoneyCollectorService>();
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
               .AddCookie(options =>
@@ -86,13 +94,22 @@ namespace Website
                   options.AccessDeniedPath = new Microsoft.AspNetCore.Http.PathString("/Account/Login");
               });
         }
+        
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ApplicationContext _contextDb)
+        public void Configure(IApplicationBuilder app, 
+            IHostingEnvironment env, 
+            ApplicationContext _contextDb, 
+            TotalLog totalLog,
+            MoneyCollectorService moneyCollectorService,
+            StupidLogger logger)
         {
+
+            logger.Log(LogLevelMyDich.IMPORTANT_INFO,
+                Source.WEBSITE,
+                "Запуск сервера сайта");
             //оно не хочет очищать таблицу
             //_contextDb.Database.ExecuteSqlCommand("TRUNCATE TABLE [RouteRecords]");
-
-
+         
             _contextDb.RouteRecords.RemoveRange(_contextDb.RouteRecords);
             _contextDb.SaveChanges();
 
@@ -129,27 +146,23 @@ namespace Website
             
             app.UseWebSockets(wsOptions);
 
-
-         
-
-
             app.Use((context, next) =>
             {
-                
+
                 var userLangs = context.Request.Headers["Accept-Language"].ToString();
                 var firstLang = userLangs.Split(',').FirstOrDefault();
-                
-                string lang = "";
-                switch (firstLang)
-                {
-                    case "ru":
-                        lang = "ru"; 
-                        break;
-                    default:
-                        lang = "en"; 
-                        break;
-                }
 
+                string lang = "";
+                if (firstLang.ToLower().Contains("ru"))
+                {
+                    lang = "ru";
+                }
+                else
+                {
+                    lang = "en";
+                }
+                
+              
                 //switch culture
                 Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo(lang);
                 Thread.CurrentThread.CurrentUICulture = Thread.CurrentThread.CurrentCulture;
@@ -162,7 +175,12 @@ namespace Website
                 return next();
             });
 
-
+            //как это засунуть в Middleware?
+            app.Use(async (context, next) =>
+            {
+                 totalLog.Log(context);
+                await next.Invoke();
+            });
 
             app.UseMvc(routes =>
             {
@@ -170,16 +188,8 @@ namespace Website
                     name: "default",
                     template: "{controller=Main}/{action=Index}/{id?}");
             });
-
-           
-            //Stub.RegisterInMonitor();
-                      
           
         }
-
-
-       
-
     }
 }
 

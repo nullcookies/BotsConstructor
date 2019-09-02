@@ -1,0 +1,28 @@
+﻿
+@{
+    ViewData["Title"] = "PriceDetails";
+    Layout = "_LayoutHome";
+}
+
+
+<div class="container p-2 ">
+    Правила<br>
+    Деньги со счёта аккаунта списываюся ежедневно в полночь по МСК.<br>
+    Если после списывания цены на аккаунте будет отрицательное кол-во средств, то боты будут остановлены.<br>
+
+    До списывания средств осталось: <strong>@ViewData["remaining time to write off money"]</strong>.<br>
+
+    Ценообразование:<br>
+    Цена за день: 7 грн + ( (количество заказов за сутки) * (цена за один заказ) )<br>
+    Цена за один заказ : 2-3 грн. Чем больше заказов за последние 7 дней принимает бот, тем меньше будет цена одного заказа.<br>
+    Цена за сегодня = @ViewData["dailyPrice"] грн + ( (@ViewData["countOfOrders"] заказов за сутки) * (@ViewData["orderPrice"] грн) ) = <strong>@ViewData["sum"] грн</strong>.<br>
+
+    <br><br>
+    Кол-во заказов за последние 7 дней = @ViewData["number_of_orders_over_the_past_week"]
+
+    <br />
+    Деньги будут списаны через @ViewData["time before withdrawing money"]
+
+
+
+</div>

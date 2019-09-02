@@ -465,12 +465,12 @@ class InputParams extends NodeParams {
 const templates = Object.freeze([
     undefined,
     new RootNode("Корень", "Добро пожаловать в начало!", null),
-    new TreeNode(new NodeParams(nodeTypes.info, "Инфо-узел", "Тут может быть любая информация для пользователя.", null).makeTemplate()),
-    new TreeNode(new SectionParams("Раздел", "Этот узел позволяет удобно работать с большим количеством детских узлов.", collectionTypes.block, null).makeTemplate()),
-    new TreeNode(new ProductParams("Товар", "Тут можно настроить цены товаров с разными подтипами.", displayTypes.simple, [
+    new TreeNode(new NodeParams(nodeTypes.info, "Инфо-узел", "Просто узел с каким-то сообщением.", null).makeTemplate()),
+    new TreeNode(new SectionParams("Раздел", "Тут можно выбрать подраздел.", collectionTypes.block, null).makeTemplate()),
+    new TreeNode(new ProductParams("Товар", "Добавьте этот прекрасный товар себе в корзину.", displayTypes.simple, [
         new ProductProperty("Характеристика 1", ["Подтип 1", "Подтип 2", "Подтип 3"], null, null),
         new ProductProperty("Характеристика 2", ["Подвид 1", "Подвид 2", "Подвид 3"], null, null)
     ], null).makeTemplate()),
-    new OneChildNode(new InputParams("Ввод данных", "Тут пользователь должен ввести данные нужного типа.", inputTypes.text, null).makeTemplate()),
-    new OneChildNode(new NodeParams(nodeTypes.sendOrder, "Отправить заказ", "При переходе сюда сформированный заказ отправляется Вам.", null).makeTemplate())
+    new OneChildNode(new InputParams("Ввод данных", "Введите данные нужного типа.", inputTypes.text, null).makeTemplate()),
+    new OneChildNode(new NodeParams(nodeTypes.sendOrder, "Отправить заказ", "Ваш заказ был отправлен.", null).makeTemplate())
 ]);

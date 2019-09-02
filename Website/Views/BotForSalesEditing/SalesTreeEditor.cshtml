@@ -60,5 +60,10 @@
     }
     let root = templates[nodeTypes.root];
     const jsonMarkup = '@Html.Raw(ViewData["json"])';
-    loadFromJSON(jsonMarkup);
+    if (jsonMarkup.length > 0) {
+        loadFromJSON(jsonMarkup);
+    }
+    else {
+        $(root.container).attr("id", "main").appendTo($("#main-container"));
+    }
 </script>

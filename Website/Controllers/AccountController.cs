@@ -135,12 +135,6 @@ namespace Website.Controllers
             return View();
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult PasswordRecovery(string akjsdfh)
-        {
-            return View();
-        }
 
 
         [HttpPost]
@@ -190,7 +184,7 @@ namespace Website.Controllers
                     //TODO это какая-то дичь
                     //Выбрать последний id
                     int? oldId = _context.Accounts.LastOrDefault()?.Id;
-                    int nextId = oldId.GetValueOrDefault() + 1;
+                    int nextId = oldId.GetValueOrDefault() + 100;
 
 
                     Account account = new Account
@@ -198,7 +192,8 @@ namespace Website.Controllers
                         //Разобраться как использоватьэту хрень без id
                         Id = nextId,
 
-                        Email = model.Email,
+                        //Сначала нужно подтвердить email
+                        //Email = model.Email,
                         Name = model.Name,
                         Password = model.Password,
                         RoleTypeId = 1
@@ -237,7 +232,7 @@ namespace Website.Controllers
                     _context.SaveChanges();
 
                     /*await*/
-                    Authenticate(account);
+                    //Authenticate(account);
 
                     return RedirectToAction("Index", "Home");
                 }
@@ -323,7 +318,7 @@ namespace Website.Controllers
                 }
                 else
                 {
-                    throw new Exception("В базе не должно быть больше одной записи для смены пароли");
+                    throw new Exception("В базе не должно быть больше одной записи для смены пароля");
                 }
 
                 string domain = HttpContext.Request.Host.Value;
@@ -340,7 +335,8 @@ namespace Website.Controllers
                 }
                 _context.SaveChanges();
 
-                return RedirectToAction("SuccessfulSend");
+                string message = "На вашу почту отправлено письмо. Для того, чтобы сбросить пароль следуйте инструкциям в письме. ";
+                return RedirectToAction("SuccessfulSend", new { message });
 
             }
             else
@@ -428,7 +424,7 @@ namespace Website.Controllers
                 }
                 else
                 {
-                    ModelState.AddModelError("", $"Пожелуйста, заполните оба поля.");
+                    ModelState.AddModelError("", $"Пожалуйста, заполните оба поля.");
                 }
             }
             else
@@ -436,12 +432,12 @@ namespace Website.Controllers
                 ModelState.AddModelError("", $"Ошибка сервера. Неожиданный формат входящийх данных.");
             }
 
+            
             return View();
         }
 
 
-        [HttpGet]
-        
+        [HttpGet]        
         public IActionResult EmailCheckSuccess(Guid guid, [FromQuery(Name = "accountId")] int accountId)
         {
             var ue   =  _context.UnconfirmedEmails.Where(_ue => _ue.AccountId == accountId).SingleOrDefault();
@@ -488,13 +484,16 @@ namespace Website.Controllers
             }
 
 
-            return View();
+
+            string message = "Поздравляем, ваш email подтверждён";
+            return RedirectToAction("SuccessfulSend", new { message });
         }
 
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult SuccessfulSend()
+        public IActionResult SuccessfulSend( string message)
         {
+            ViewData["message"] = message;
             return View();
         }
     }

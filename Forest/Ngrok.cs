@@ -12,6 +12,43 @@ namespace DeleteMeWebhook
     {
         internal static async Task<string> GetMyAddress()
         {
+
+            try
+            {
+                //запрос на локальный сервер ngrok
+                string localNgrokUrl = "http://localhost:4040/api/tunnels";
+
+
+                WebRequest request = WebRequest.Create(localNgrokUrl);
+                WebResponse response = await request.GetResponseAsync();
+
+                string myNgrokUrl = "";
+
+                using (Stream stream = response.GetResponseStream())
+                {
+                    using (StreamReader reader = new StreamReader(stream))
+                    {
+                        //корявый парсинг json-a с внешним url
+                        string resp = reader.ReadToEnd();
+                        var j = JObject.Parse(resp);
+                        string url = ((string)j.First.First.First.Next["public_url"]);
+
+                        //если достал http, то вставить букву s
+                        if (!url.Contains("https"))
+                            url.Insert(4, "s");
+
+                        myNgrokUrl = url;
+                    }
+                }
+                response.Close();
+                return myNgrokUrl;
+            }
+            catch
+            {
+
+            }
+
+
             const string commands = @"d:
                                       cd d:\WorkingDir\
                                       ngrok http 8080";

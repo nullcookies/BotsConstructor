@@ -1,40 +1,44 @@
-﻿using System;
-using Newtonsoft.Json;
-using System.Linq;
-using Microsoft.AspNetCore.Authorization;
+﻿using DataLayer.Models;
+using DataLayer.Services;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Website.Models;
-using System.Collections.Generic;
-using Website.Other;
-
-using System.Net;
-using System.IO;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Microsoft.AspNetCore.Hosting;
-using Website.Other.Filters;
+using System;
+using System.Linq;
 using System.Net.WebSockets;
 using System.Threading.Tasks;
-using System.Text;
-using System.Threading;
+using Website.Other;
+using Website.Other.Filters;
 using Website.Services;
-using DataLayer.Services;
-using DataLayer.Models;
+using Website.Services.Bookkeeper;
 
 namespace Website.Controllers
 {
     public class BotForSalesSettingsController : Controller
     {
 
-        ApplicationContext _context;
-        IHostingEnvironment _appEnvironment;
         StupidLogger _logger;
+        ApplicationContext _contextDb;
+        IHostingEnvironment _appEnvironment;
+        StupidBotForSalesBookkeeper _bookkeper;
+        BotsAirstripService _botsAirstripService;
+        BotForSalesStatisticsService _botForSalesStatisticsService;
 
-        public BotForSalesSettingsController(ApplicationContext context, IHostingEnvironment appEnvironment, StupidLogger _logger)
+        public BotForSalesSettingsController(ApplicationContext context, 
+                IHostingEnvironment appEnvironment, 
+                StupidLogger logger, 
+                BotForSalesStatisticsService botForSalesStatisticsService,
+                StupidBotForSalesBookkeeper bookkeper,
+                BotsAirstripService botsAirstripService)
         {
-            this._context = context ?? throw new ArgumentNullException(nameof(context));
+            _logger = logger;
+            _bookkeper = bookkeper;
             _appEnvironment = appEnvironment;
-            this._logger = _logger;
+            _botsAirstripService = botsAirstripService;
+            _botForSalesStatisticsService = botForSalesStatisticsService;
+            _contextDb = context ?? throw new ArgumentNullException(nameof(context));
         }
 
 
@@ -42,91 +46,96 @@ namespace Website.Controllers
         [TypeFilter(typeof(CheckAccessToTheBot))]
         public IActionResult Settings(int botId)
         {
-           
-            BotDB bot = _context.Bots.Find(botId);
+            BotDB bot = _contextDb.Bots.Find(botId);
+
+            StupidPriceInfo _pi = _bookkeper.GetPriceInfo(botId, DateTime.UtcNow);
+            ViewData["sum"] = Round(_pi.SumToday);
 
             ViewData["botId"] = botId;
             ViewData["botType"] = bot.BotType;
-
-            
-            RouteRecord record = _context.RouteRecords.Find(botId);
-            if (record != null)
-            {
-                //если работает, то вставить ссылку для установки websocket-а
-                ViewData["linkToForest"] = record.ForestLink;
-
-                Console.WriteLine("record !=null");
-                Console.WriteLine($"record.BotId = {record.BotId}, record.ForestLink={record.ForestLink}");
-
-                ViewData["the bot is running"] = true;
-            }
-            else
-            {
-                ViewData["the bot is running"] = false;
-            }
-
-            //вставить статистику
-            ViewData["ordersCount"] = bot.NumberOfOrders;
-            ViewData["usersCount"] = bot.NumberOfUniqueUsers;
-            ViewData["messagesCount"] = bot.NumberOfUniqueMessages;
+            ViewData["usersCount"] = 0;
+            ViewData["ordersCount"] = 0;
+            ViewData["messagesCount"] = 0;
 
             return View();
         }
 
+        /// <summary>
+        /// Запрос стастистики для бота через ajax
+        /// </summary>
+        /// <param name="botId"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [TypeFilter(typeof(CheckAccessToTheBot))]
+        public IActionResult GetBotForSalesStatistics(int botId)
+        {
+            _logger.Log(LogLevelMyDich.INFO, Source.WEBSITE, "Сайт. Опрос стастистики бота через " +
+                    "ajax (на клиенте не доступен webSocket или кто-то балуется).");
+            try
+            {
+                bool botWorks = _contextDb.RouteRecords.Find(botId) != null? true:false;
+                BotForSalesStatistics stat = _contextDb.BotForSalesStatistics.Find(botId);
+                JObject jObj = new JObject
+                    {
+                        { "botWorks",       botWorks},
+                        { "ordersCount",    stat.NumberOfOrders},
+                        { "usersCount",     stat.NumberOfUniqueUsers},
+                        { "messagesCount",  stat.NumberOfUniqueMessages},
+                    };
+                return Json(jObj);
+
+            }catch(Exception ee)
+            {
+                _logger.Log(LogLevelMyDich.ERROR, Source.WEBSITE, "Сайт. Опрос стастистики бота через " +
+                    "ajax (на клиенте не доступен webSocket или кто-то балуется). Не " +
+                    "удаётся отправить статистику бота. Ошибка "+ee.Message);
+
+                return StatusCode(500);
+            }
+
+        }
+
+        /// <summary>
+        /// Установка websocket-a для подписки на обновление статистики бота 
+        /// </summary>
+        /// <param name="botId"></param>
+        /// <returns></returns>
         [HttpGet]
-        public async Task MyWebsocket()
+        [TypeFilter(typeof(CheckAccessToTheBot))]
+        public async Task MyWebsocket(int botId)
         {
             var context = ControllerContext.HttpContext;
             var isSocketRequest = context.WebSockets.IsWebSocketRequest;
 
             if (isSocketRequest)
             {
-                WebSocket webSocket = await context.WebSockets.AcceptWebSocketAsync();
-                await SendMessage(webSocket, "beliberda");
+                WebSocket webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
+                var socketFinishedTcs = new TaskCompletionSource<object>();
+
+                //Регистрация 
+                _botForSalesStatisticsService.RegisterInNotificationSystem(botId, webSocket);
+
+                //Магия
+                await socketFinishedTcs.Task;
             }
             else
             {
                 context.Response.StatusCode = 400;
             }
         }
-        private async Task SendMessage(WebSocket webSocket, string message)
-        {
-            
-            //working
-            //fail
-            //stopped
-            string botStatus = "working";
-            int ordersCount = 45;
-            int usersCount = 26;
-            int messagesCount = 308;
-
-            JObject JObj = new JObject
-            {
-                { "botStatus", botStatus},
-                { "ordersCount", ordersCount},
-                { "usersCount", usersCount},
-                { "messagesCount", messagesCount},
-            };
-
-            string jsonString = JsonConvert.SerializeObject(JObj);
-            var bytes = Encoding.UTF8.GetBytes(jsonString);
-            var arraySegment = new ArraySegment<byte>(bytes);
-            await webSocket.SendAsync(arraySegment, WebSocketMessageType.Text, true, CancellationToken.None);
-
-            Thread.Sleep(2000);
 
 
-
-        }
-
+        /// <summary>
+        /// Запрос на остановку бота черех ajax
+        /// </summary>
+        /// <param name="botId"></param>
+        /// <returns></returns>
         [HttpPost]
         [TypeFilter(typeof(CheckAccessToTheBot))]
         public IActionResult StopBot(int botId)
-        {
-            Console.WriteLine("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\\n");
-            Console.WriteLine("Остановка бота");
-            Console.WriteLine("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\\n");
-            //TODO Повторное извлечение accountId из cookies
+        {           
+            _logger.Log(LogLevelMyDich.INFO, Source.WEBSITE, "Остановка бота");
+
             int accountId = 0;
             try{
                 accountId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("Из cookies не удалось извлечь accountId");
@@ -134,152 +143,47 @@ namespace Website.Controllers
                 return StatusCode(403);
             }
 
-            BotDB bot = _context.Bots.Find(botId);
+            JObject answer = _botsAirstripService.StopBot(botId, accountId);
 
-            if (bot != null)
-            {
-                if (bot.OwnerId == accountId)
-                {
-                    Console.WriteLine("bot.OwnerId == accountId");
-
-                    RouteRecord record = _context.RouteRecords.Find(bot.Id);
-                    
-
-                    if (record != null)
-                    {
-                        Console.WriteLine(" record != null) ");
-
-                        try
-                        {
-                            Console.WriteLine("try");
-
-                            //запрос на остановку бота
-
-                            string forestUrl = record.ForestLink + "/Home/StopBot";
-                            
-
-                            Console.WriteLine(forestUrl);
-                            string data = "botId=" + bot.Id;
-                            Console.WriteLine("data="+data);
-                            var test63286 = Stub.SendPost(forestUrl, data).Result;
-
-                            Console.WriteLine(" await Stub.SendPost(" + forestUrl);
-
-                            RouteRecord normal_rr = _context.RouteRecords.Where(_rr => _rr.BotId == botId).SingleOrDefault();
-
-                            Console.WriteLine("uteRecord rr = context.RouteRecords.Find(b");
-
-                            if (normal_rr == null)
-                            {
-                                //лес нормально удалил запись о боте
-                                Console.WriteLine("//лес нормально удалил запись о боте");
-                                return Ok();
-                            }
-                            else
-                            {
-                                Console.WriteLine("//лес не нормально удалил запись о боте");
-                                _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, $"При остановке бота botId={botId}," +
-                                    $" accountId={accountId}. Лес ответил Ok, но не удалил RouteRecord из БД ");
-
-                                return StatusCode(500);
-                            }
-
-                        }catch(Exception exe)
-                        {
-                            _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, $"При остановке бота(botId={bot.Id}, " +
-                            $"ownerId={bot.OwnerId}, пользователем accountId={accountId}) не удалось выполнить post запрос на лес." +
-                            $"Exception message ={exe.Message}");
-
-                            return StatusCode(500);
-                        }
-                    }
-                    else
-                    {
-                        _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, $"При остановке бота(botId={bot.Id}, " +
-                            $"ownerId={bot.OwnerId}, пользователем accountId={accountId}) в БД не была найдена" +
-                            $"запись о сервере на котором бот работает. Возможно, она была удалена или не добавлена.");
-                    }
-                    
-                }
-                else
-                {
-                    return StatusCode(403);
-                }
-            }
-            else
-            {
-                return StatusCode(404);
-            }
-
-            return StatusCode(418);
+            return Json(answer);
+            
         }
 
 
 
-
+        /// <summary>
+        /// Запрос на запуск бота через ajax
+        /// </summary>
+        /// <param name="botId"></param>
+        /// <returns></returns>
         [HttpPost]
         [TypeFilter(typeof(CheckAccessToTheBot))]
         public IActionResult RunBotForSalesFromDraft(int botId)
         {
-            _logger.Log(LogLevelMyDich.INFO, $"Сайт. Запуск бота. botId={botId}");
-            Console.WriteLine("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-            Console.WriteLine("Сайт. Запуск бота");
-            Console.WriteLine("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+            _logger.Log(LogLevelMyDich.INFO, Source.WEBSITE, $"Сайт. Запуск бота. botId={botId}");
 
-            BotDB bot = _context.Bots.Find(botId);
-
-            if (bot.Token == null)
-            {
-                _logger.Log(LogLevelMyDich.USER_INTERFACE_ERROR_OR_HACKING_ATTEMPT, $"Попытка запутить бота без токена. botId={botId}");
-                return StatusCode(500);
+            int accountId = 0;
+            try{
+                accountId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("Из cookies не удалось извлечь accountId");
+            }catch{
+                return StatusCode(403);
             }
 
-            string forestUrl = "http://localhost:8080/Home/RunNewBot";
-
-            string data = "botId=" + botId;
-
-			try
-			{
-				var result = Stub.SendPost(forestUrl, data).Result;
-
-                //проверка нормального запуска
-
-                RouteRecord rr = _context.RouteRecords.Find(botId);
-
-                if (rr != null)
-                {
-                    //лес нормально записал запись о том, что бот запущен
-				    return Ok();
-                }
-                else
-                {
-                    _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, $"Лес вернул Ок (нормальный запуск бота), но не сделал запись в бд. botId={botId}");
-                    return StatusCode(500);
-                }
-
-			}
-			catch(Exception ex)
-			{
-                Console.WriteLine("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-                Console.WriteLine(ex.Message);
-                Console.WriteLine("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-
-                _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, $"Не удалось запустить бота. botId={botId}. ex.Message={ex.Message}");
-
-
-                return StatusCode(403, ex.Message);
-			}
+            JObject answer = _botsAirstripService.StartBot(botId, accountId);
+            return Json(answer);
         }
 
+
+        //Запрос на удаление бота через ajax
         [HttpPost]
         [TypeFilter(typeof(CheckAccessToTheBot))]
         public IActionResult DeleteBot(int botId)
         {
             try
             {
-                var removableBot = _context.Bots.Find(botId);
+                var removableBot = _contextDb.Bots.Find(botId);
 
-                RouteRecord rr = _context.RouteRecords.Find(botId);
+                RouteRecord rr = _contextDb.RouteRecords.Find(botId);
 
                 //Удаляемый бот запущен
                 if (rr != null)
@@ -288,30 +192,67 @@ namespace Website.Controllers
                     IActionResult res = StopBot(botId);
                     if (res != Ok())
                     {
-                        _logger.Log(LogLevelMyDich.I_AM_AN_IDIOT, $"Не удалось остановить бота botId={botId}");
+                        _logger.Log(LogLevelMyDich.I_AM_AN_IDIOT, Source.WEBSITE, $"Не удалось остановить бота botId={botId}");
                         return StatusCode(500);
                     }
                 }
 
-                _context.Remove(removableBot);
-                _context.SaveChanges();
+                //снять со счёта стоимость бота
+                StupidPriceInfo priceInfo = _bookkeper.GetPriceInfo(botId, DateTime.UtcNow);
+                Account account = _contextDb.Accounts.Find(removableBot.OwnerId);
+
+                //Цена адекватная
+                if (priceInfo.SumToday >= 0)
+                {
+                    account.Money -= priceInfo.SumToday;
+                }
+                else
+                {
+                    _logger.Log(LogLevelMyDich.FATAL,
+                        Source.WEBSITE,
+                        $"Удаление бота. При снятии денег с аккаунта {removableBot.OwnerId} цена была отрицательной");
+                    throw new Exception("");
+                }
+
+                _contextDb.SaveChanges();
+
+                _contextDb.Remove(removableBot);
+                _contextDb.SaveChanges();
 
                 return Ok();
             }
             catch(Exception ex)
             {
-                _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, $"Не удаётся удалить бота botId={botId}", ex);
+                _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, Source.WEBSITE, $"Не удаётся удалить бота botId={botId}", ex:ex);
                 return StatusCode(500);
             }
         }
 
+        [HttpGet]
+        public IActionResult PriceDetails(int botId)
+        {
+            StupidPriceInfo _pi = _bookkeper.GetPriceInfo(botId, DateTime.UtcNow);
 
+            ViewData["sum"] = Round(_pi.SumToday);
+            ViewData["dailyPrice"] = Round(_pi.DailyConst) ;
+            ViewData["orderPrice"] = Round(_pi.OneAnswerPrice) ;
+            ViewData["countOfOrders"] = Round(_pi.AnswersCountToday) ;
+            ViewData["number_of_orders_over_the_past_week"] = Round(_pi.Number_of_orders_over_the_past_week) ;
 
+            DateTime tomorrow_00_05_00 = DateTime.UtcNow
+                .AddDays(1)
+                .AddHours(-DateTime.UtcNow.Hour)
+                .AddMinutes(-DateTime.UtcNow.Minute + 5)
+                .AddSeconds(-DateTime.UtcNow.Second);
 
+            TimeSpan interval = tomorrow_00_05_00 - DateTime.UtcNow;
+            ViewData["time before withdrawing money"] = interval.ToString(@"hh\:mm");
 
-
-
-
-
+            return View();
+        }
+        private decimal Round(decimal number)
+        {            
+            return  Math.Floor(number * 100) / 100;
+        }
     }
 }
