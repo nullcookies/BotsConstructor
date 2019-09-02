@@ -5,7 +5,7 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace LogicalCore
 {
-    public class MetaReplyKeyboardMarkup : MetaReplyMarkup<KeyboardButton>
+    public class MetaReplyKeyboardMarkup : MetaKeyboardMarkup<KeyboardButton>
     {
         public override bool HaveReplyKeyboard => true;
 
@@ -14,7 +14,19 @@ namespace LogicalCore
         public MetaReplyKeyboardMarkup(List<List<(KeyboardButton button, List<Predicate<Session>> rules)>> buttons) : base (buttons) { }
         public MetaReplyKeyboardMarkup(int rowsCount = 2) : base(rowsCount) { }
 
-        public override void AddNodeButton(Node node, params Predicate<Session>[] rules)
+		public override MetaKeyboardMarkup<KeyboardButton> Clone()
+		{
+			var newButtons = new List<List<(KeyboardButton button, List<Predicate<Session>> rules)>>(buttons.Count);
+			foreach (var row in buttons)
+			{
+				var newRow = new List<(KeyboardButton button, List<Predicate<Session>> rules)>(row.Count);
+				newRow.AddRange(row);
+				newButtons.Add(newRow);
+			}
+			return new MetaReplyKeyboardMarkup(newButtons);
+		}
+
+		public override void AddNodeButton(Node node, params Predicate<Session>[] rules)
         {
             var (button, rulesList) = buttons.SelectMany((list) => list).FirstOrDefault((btnTuple) => btnTuple.button.Text == node.name);
             if (button != null)
@@ -27,7 +39,7 @@ namespace LogicalCore
             }
         }
 
-        public override void AddNodeButton(int rowNumber, Node node, params Predicate<Session>[] rules) =>
+		public override void AddNodeButton(int rowNumber, Node node, params Predicate<Session>[] rules) =>
             AddButton(rowNumber, new KeyboardButton(node.name), rules);
 
         public override void InsertNodeButton(int rowNumber, int columnNumber, Node node, params Predicate<Session>[] rules) =>

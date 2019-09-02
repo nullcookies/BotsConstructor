@@ -22,12 +22,18 @@ namespace LogicalCore
         /// <returns>Возвращает копию клавиатуры, только с переведённым текстом.</returns>
         IReplyMarkup Translate(Session session);
 
-        /// <summary>
-        /// Добавляет специальную кнопку действия.
-        /// </summary>
-        /// <param name="name">Название действия и текст кнопки.</param>
-        /// <param name="rules">Список правил, при выполнении которых кнопка должна быть показана.</param>
-        void AddSpecialButton(string name, params Predicate<Session>[] rules);
+		/// <summary>
+		/// Клонирует данный объект.
+		/// </summary>
+		/// <returns>Возвращает клон объекта.</returns>
+		IMetaReplyMarkup Clone();
+
+		/// <summary>
+		/// Добавляет специальную кнопку действия.
+		/// </summary>
+		/// <param name="name">Название действия и текст кнопки.</param>
+		/// <param name="rules">Список правил, при выполнении которых кнопка должна быть показана.</param>
+		void AddSpecialButton(string name, params Predicate<Session>[] rules);
 
         /// <summary>
         /// Добавляет специальную кнопку действия в указанную строку.

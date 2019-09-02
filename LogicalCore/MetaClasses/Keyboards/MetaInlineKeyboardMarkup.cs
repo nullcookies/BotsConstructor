@@ -5,7 +5,7 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace LogicalCore
 {
-    public class MetaInlineKeyboardMarkup : MetaReplyMarkup<InlineKeyboardButton>
+    public class MetaInlineKeyboardMarkup : MetaKeyboardMarkup<InlineKeyboardButton>
     {
         public override bool HaveReplyKeyboard => false;
 
@@ -14,7 +14,19 @@ namespace LogicalCore
         public MetaInlineKeyboardMarkup(List<List<(InlineKeyboardButton button, List<Predicate<Session>> rules)>> buttons) : base(buttons) { }
         public MetaInlineKeyboardMarkup(int rowsCount = 1) : base(rowsCount) { }
 
-        public override void AddNodeButton(Node node, params Predicate<Session>[] rules)
+		public override MetaKeyboardMarkup<InlineKeyboardButton> Clone()
+		{
+			var newButtons = new List<List<(InlineKeyboardButton button, List<Predicate<Session>> rules)>>(buttons.Count);
+			foreach (var row in buttons)
+			{
+				var newRow = new List<(InlineKeyboardButton button, List<Predicate<Session>> rules)>(row.Count);
+				newRow.AddRange(row);
+				newButtons.Add(newRow);
+			}
+			return new MetaInlineKeyboardMarkup(newButtons);
+		}
+
+		public override void AddNodeButton(Node node, params Predicate<Session>[] rules)
         {
             var (button, rulesList) = buttons.SelectMany((list) => list).FirstOrDefault((btnTuple) => btnTuple.button.Text == node.name);
             if(button != null)
@@ -25,9 +37,9 @@ namespace LogicalCore
             {
                 AddButton(InlineKeyboardButton.WithCallbackData(node.name, ButtonIdManager.GetInlineButtonId(node)), rules);
             }
-        }
+		}
 
-        public override void AddNodeButton(int rowNumber, Node node, params Predicate<Session>[] rules) =>
+		public override void AddNodeButton(int rowNumber, Node node, params Predicate<Session>[] rules) =>
             AddButton(rowNumber, InlineKeyboardButton.WithCallbackData(node.name, ButtonIdManager.GetInlineButtonId(node)), rules);
 
         public override void InsertNodeButton(int rowNumber, int columnNumber, Node node, params Predicate<Session>[] rules) =>

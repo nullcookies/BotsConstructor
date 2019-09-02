@@ -24,7 +24,10 @@ namespace LogicalCore
 				{
 					for (int i = 0; i < elements[index].Count; i++)
 					{
-						SimpleNode folder = new SimpleNode(elements[index][i], foldersMsgs[index + 1]);
+						var foldersMsg = foldersMsgs[index + 1];
+						var clonedMsg = new MetaMessage<MetaKeyboardMarkup<Telegram.Bot.Types.ReplyMarkups.KeyboardButton>>(foldersMsg.Text,
+							foldersMsg.Type, foldersMsg.File, foldersMsg.MetaKeyboard.Clone(), foldersMsg.parseMode);
+						SimpleNode folder = new SimpleNode(elements[index][i], clonedMsg);
 						folder.SetParent(parent);
 						RecursiveSections(folder, index + 1);
 					}
