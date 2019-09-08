@@ -59,7 +59,7 @@
         nodesMenu.append(templates[i].container);
     }
     let root = templates[nodeTypes.root];
-    const jsonMarkup = '@Html.Raw(ViewData["json"])';
+    const jsonMarkup = @Json.Serialize(ViewData["json"]);
     if (jsonMarkup.length > 0) {
         loadFromJSON(jsonMarkup);
     }

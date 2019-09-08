@@ -80,6 +80,7 @@ function loadFromJSON(json) {
         const firstNodeParams = array[0].parameters;
         if (firstNodeParams.type != 1) throw new Error("Первый узел не является корнем!");
         root = new RootNode(firstNodeParams.name, firstNodeParams.message, firstNodeParams.fileId);
+        root.parameters.previewId = firstNodeParams.previewId;
         const nodes = [root];
         for (let i = 1; i < array.length; i++) {
             const jsonParams = array[i].parameters;
