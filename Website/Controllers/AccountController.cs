@@ -191,10 +191,7 @@ namespace Website.Controllers
         }
         #endregion
 
-
-
-        
-
+        //TODO вынести в отдельный контроллер
         [HttpGet]        
         public IActionResult EmailCheckSuccess(Guid guid, [FromQuery(Name = "accountId")] int accountId)
         {

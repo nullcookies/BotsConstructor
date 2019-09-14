@@ -129,7 +129,7 @@ namespace Website.Controllers.SignInUp
             return View();
         }
 
-
+        //TODO
         //Какого хера тут не проверяется guid?
         //Если человек запросил смену пароля, то пока он вводит новый и кто-то может его обогнать
         [HttpPost]
@@ -188,7 +188,7 @@ namespace Website.Controllers.SignInUp
             return View();
         }
 
-
+        //TODO вынести в отдельный контроллер
         [HttpGet]
         [AllowAnonymous]
         public IActionResult SuccessfulSend(string message)

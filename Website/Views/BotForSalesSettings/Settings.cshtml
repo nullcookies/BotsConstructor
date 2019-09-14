@@ -527,6 +527,13 @@
     }
     
     function deleteBot() {
+
+        var deletion_confirmed = confirm('Вы уверены, что хотите полностью удалить этого бота?');
+
+        if (!deletion_confirmed ) {
+            return;
+        }
+
         var url_string = window.location.href;
         var url = new URL(url_string);
         var botId = url.searchParams.get("botId");
