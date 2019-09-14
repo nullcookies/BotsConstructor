@@ -9,6 +9,7 @@
 @*<link rel="stylesheet" href="@Url.Content("~/css/orders-pagination.css")" />*@
 @* Нужно для круглых кнопок *@
 <link rel="stylesheet" href="@Url.Content("~/css/bot-for-sales.css")" />
+<script src="~/js/FileManager.js"></script>
 
 <style>
     .break-worded * {
@@ -204,7 +205,7 @@
             var localSum = 0.0;
             for (var i = 0; i < container.itemsIds.length; i++) {
                 var itemInfo = container.itemsIds[i];
-                var item = items[itemInfo.id];
+                var item = items[itemInfo.itemId];
                 var value = parseFloat(item.value) * parseInt(itemInfo.count);
                 var listElem = document.createElement("li");
                 listElem.innerHTML = `${item.name} ${itemInfo.count} X ${item.value} = ${value}`;
@@ -236,7 +237,7 @@
                 var spinnerElem = document.createElement("span");
                 spinnerElem.className = "spinner-border spinner-border-sm text-secondary";
                 listElem.appendChild(spinnerElem);
-                SetFileHTML(listElem, file);
+                SetFileHTML(bots[botId].token, listElem, file.previewId, file.fileId, true);
             }
             for (var c = 0; c < container.children.length; c++) {
                 var listElem = document.createElement("li");
@@ -247,103 +248,11 @@
                 AddContainers(newMsgElem, container.children[c]);
             }
         }
-        function SetFileHTML(listElem, file) {
-            var isVideo = false;
-            var previewWasGotten = false;
-            var spinnerElem = listElem.lastChild;
-            var getURL = `https://api.telegram.org/bot${bots[botId].token}/getFile`;
-            if (file.previewId != undefined) {
-                $.ajax({
-                    url: getURL,
-                    type: 'get',
-                    data: { file_id: file.previewId },
-                    success: function (data) {
-                        previewWasGotten = true;
-                        var file_path = data.result.file_path;
-                        var pathURL = "https://api.telegram.org/file/bot" + bots[botId].token + "/" + file_path;
-                        if (isVideo) {
-                            var videoElem = listElem.getElementsByTagName('video')[0];
-                            videoElem.poster = pathURL;
-                        }
-                        else {
-                            var previewElem = document.createElement("img");
-                            previewElem.src = pathURL;
-                            listElem.appendChild(document.createElement("br"));
-                            listElem.appendChild(previewElem);
-                        }
-                    },
-                    error: function (data) {
-                        ShowError(data.responseJSON.description, spinnerElem);
-                    }
-                });
-            }
-
-            $.ajax({
-                url: getURL,
-                type: 'get',
-                data: { file_id: file.fileId },
-                success: function (data) {
-                    var file_path = data.result.file_path;
-                    var parts = file_path.split('/');
-                    var fileName = parts.pop();
-                    var fileFolder = parts.pop();
-                    var pathURL = "https://api.telegram.org/file/bot" + bots[botId].token + "/" + file_path;
-                    var jqSpinner = $(spinnerElem);
-                    jqSpinner.removeClass("spinner-border spinner-border-sm text-secondary");
-                    jqSpinner.addClass("oi oi-cloud-download");
-                    var linkElem = document.createElement("a");
-                    linkElem.href = pathURL;
-                    linkElem.text = fileName;
-                    linkElem.target = "_blank";
-                    if (fileFolder == "voice" || fileFolder == "music") {
-                        listElem.appendChild(document.createElement("br"));
-                        var audioElem = document.createElement("audio");
-                        audioElem.setAttribute("controls", "");
-                        var sourceElem = document.createElement("source");
-                        sourceElem.src = pathURL;
-                        audioElem.appendChild(sourceElem);
-                        audioElem.appendChild(linkElem);
-                        listElem.appendChild(audioElem);
-                    }
-                    else {
-                        if (fileFolder == "video_notes" || fileFolder == "videos" || fileFolder == "animations") {
-                            listElem.appendChild(document.createElement("br"));
-                            var videoElem = document.createElement("video");
-                            videoElem.setAttribute("controls", "");
-                            var sourceElem = document.createElement("source");
-                            sourceElem.src = pathURL;
-                            videoElem.appendChild(sourceElem);
-                            videoElem.appendChild(linkElem);
-                            listElem.appendChild(videoElem);
-                            isVideo = true;
-                            if (previewWasGotten) {
-                                var previewElem = listElem.getElementsByTagName("img")[0];
-                                videoElem.poster = previewElem.src;
-                                previewElem.remove();
-                            }
-                        }
-                    }
-                    spinnerElem.appendChild(linkElem);
-                },
-                error: function (data) {
-                    ShowError(data.responseJSON.description, spinnerElem);
-                }
-            });
-
-            function ShowError(msg, elem) {
-                jqElem = $(elem);
-                jqElem.removeClass("spinner-border spinner-border-sm text-secondary");
-                jqElem.addClass("oi oi-x text-danger");
-                elem.innerText = msg;
-            }
-        }
         var newNode = document.getElementById("div_order_").cloneNode(true);
         var jqNewNode = $(newNode);
         jqNewNode.attr("id", "div_order_" + orderId);
         jqNewNode.find("a#order_").attr("id", "order_" + orderId);
-        //TODO отредактировать эту хрень
-        //jqNewNode.find("a#bot_").attr("id", "bot_" + botId).attr("href", "/BotEditing/Settings?botId=" + botId).text(bots[botId].name);
-        jqNewNode.find("a#bot_").attr("id", "bot_" + botId).attr("href", "/BotForSalesSettings/Settings?botId=" + botId).text(bots[botId].name);
+        jqNewNode.find("a#bot_").removeAttr("id").attr("href", "/BotForSalesSettings/Settings?botId=" + botId).text(bots[botId].name);
 
         jqNewNode.find("div#heading_msg_").attr("id", "heading_msg_" + orderId);
         jqNewNode.find("button#exp_btn_").attr("id", "exp_btn_" + orderId).attr("data-target", "#collapsed_msg_" + orderId).attr("aria-controls", "collapsed_msg_" + orderId).html(`<strong>${sender}</strong>`).on('click', function (e) {
@@ -390,6 +299,7 @@
             }
             jqSpan.removeClass("oi oi-chat");
             jqSpan.addClass("spinner-border spinner-border-sm");
+            jqAnswer.prop("disabled", true);
             $.ajax({
                 url: '/Orders/SendCustomAnswer',
                 type: 'post',
@@ -405,6 +315,7 @@
                             jqSendBtn.removeClass("btn-success");
                             jqSpan.removeClass("oi-check");
                             jqSpan.addClass("oi-chat");
+                            jqAnswer.prop("disabled", false);
                             jqAnswer.val("");
                         }
                     }, 1000);
@@ -412,7 +323,7 @@
                 error: function (data) {
                     jqSpan.removeClass("spinner-border spinner-border-sm");
                     jqSpan.addClass("oi oi-x");
-                    jqSendBtn.attr("disabled", "");
+                    jqSendBtn.prop("disabled", true);
                     jqSendBtn.removeClass("btn-primary");
                     jqSendBtn.addClass("btn-danger");
                     console.log(`ERROR! Can't send variables!\n${data.responseText}`);

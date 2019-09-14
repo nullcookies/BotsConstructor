@@ -28,11 +28,9 @@ namespace Website.Other.Filters
       
         public void OnActionExecuting(ActionExecutingContext context)
         {
-            int botId = int.MinValue;
+            int? botId = context.ActionArguments["botId"] as int?;
             
-            string requestParameter = context.HttpContext.Request.Query["botId"];
-            
-            if (!int.TryParse(requestParameter, out botId))
+            if (botId == null)
             {
                 //В запросе не был указан botId
                 _logger.Log(LogLevelMyDich.UNAUTHORIZED_ACCESS_ATTEMPT, Source.WEBSITE, "В запросе не был указан botId");
@@ -41,8 +39,7 @@ namespace Website.Other.Filters
             }
 
             var bot = _context.Bots.Find(botId);
-
-             
+			
             if (bot == null)
             {
                 //Бота с таким id не существует
@@ -52,9 +49,7 @@ namespace Website.Other.Filters
             }
 
             int ownerId = bot.OwnerId;
-
-            
-            
+			
             int accountId = int.MinValue;
 
             try

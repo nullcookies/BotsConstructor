@@ -23,7 +23,14 @@ namespace LogicalCore
             if (needBackButton) message.InsertBackButton(parent);
         }
 
-        internal override async Task<Message> SendReplyMarkup(Session session)
+		public override void SetBackLink(Node parent)
+		{
+			bool needAddBack = needBackButton && Parent == null && parent != null;
+			base.SetBackLink(parent);
+			if (needAddBack) message.InsertBackButton(parent);
+		}
+
+		internal override async Task<Message> SendReplyMarkup(Session session)
         {
             Task<Message> task = base.SendReplyMarkup(session);
             return await task.ContinueWith((prevTask) =>

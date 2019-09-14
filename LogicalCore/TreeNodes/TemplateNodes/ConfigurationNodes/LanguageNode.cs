@@ -20,7 +20,7 @@
 				)
 			)
 		{
-			tailNode.SetParent(headNode);
+			TailNode.SetParent(HeadNode);
 		}
 	}
 }

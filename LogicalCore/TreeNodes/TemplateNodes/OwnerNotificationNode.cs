@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading.Tasks;
+using Telegram.Bot.Types;
 
 namespace LogicalCore
 {
@@ -36,5 +38,7 @@ namespace LogicalCore
 			params (Type varType, string varName)[] variables)
 			: this(name, description == null ? null : new MetaInlineMessage(description), disableNotification,
 				  writeUser, separator, keyboardCreator, variables) { }
+
+		protected override Task<Message> SendMarkupIfNoChildren(Session session) => session.MegaTree.root.SendReplyMarkup(session);
 	}
 }

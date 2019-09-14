@@ -5,15 +5,15 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace LogicalCore
 {
-    public abstract class MetaReplyMarkup<ButtonType> : IMetaReplyMarkup where ButtonType : IKeyboardButton
+    public abstract class MetaKeyboardMarkup<ButtonType> : IMetaReplyMarkup where ButtonType : IKeyboardButton
     {
         protected readonly List<List<(ButtonType button, List<Predicate<Session>> rules)>> buttons;
 
         public abstract bool HaveReplyKeyboard { get; }
-
+		
         public abstract bool HaveInlineKeyboard { get; }
 
-        public MetaReplyMarkup(List<List<(ButtonType button, List<Predicate<Session>> rules)>> buttons)
+        public MetaKeyboardMarkup(List<List<(ButtonType button, List<Predicate<Session>> rules)>> buttons)
         {
             this.buttons = buttons ?? new List<List<(ButtonType button, List<Predicate<Session>> rules)>>();
 			for(int i = 0; i < buttons.Count; i++)
@@ -27,7 +27,7 @@ namespace LogicalCore
 			}
         }
 
-        public MetaReplyMarkup(int rowsCount)
+        public MetaKeyboardMarkup(int rowsCount)
         {
             buttons = new List<List<(ButtonType button, List<Predicate<Session>> rules)>>();
             for(int i = 0; i < rowsCount; i++)
@@ -39,6 +39,10 @@ namespace LogicalCore
         public void SetButtonsLocation(ElementsLocation locationType) => LocationManager.SetElementsLocation(locationType, buttons);
 
         public abstract IReplyMarkup Translate(Session session);
+
+		public abstract MetaKeyboardMarkup<ButtonType> Clone();
+
+		IMetaReplyMarkup IMetaReplyMarkup.Clone() => Clone();
 
         public abstract void AddSpecialButton(string name, params Predicate<Session>[] rules);
 

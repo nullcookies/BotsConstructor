@@ -1,0 +1,194 @@
+﻿#page-content-wrapper {
+    display: flex;
+    flex-direction: column;
+}
+
+#nodes-menu {
+    height: 100%;
+    width: 15rem;
+}
+
+#main-container {
+    position: relative;
+    overflow: scroll;
+    display: flex;
+    flex: 1;
+}
+
+#main {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    min-height: 100%;
+    margin: 15px;
+}
+
+.template {
+    margin: 15px auto;
+}
+
+.node {
+    height: 125px;
+    width: 200px;
+    border: 2px solid black;
+    border-radius: 10px 10px;
+    clear: both;
+    background-color: gray;
+    padding: 5px;
+}
+
+.nodeHolder {
+    height: 25px;
+    width: 200px;
+    border: 2px dashed navy;
+    background-color: lavender;
+    border-radius: 10px;
+    float: left;
+}
+
+.appenderDiv {
+    width: 400px;
+    height: 25px;
+}
+
+.arrows {
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    float: left;
+}
+
+.baseArrow {
+    display: flex;
+    border: 2px solid black;
+    margin-left: 100px;
+}
+
+.verticalAdderArrow {
+    height: 10.5px;
+    width: 0;
+}
+
+.verticalNodeArrow {
+    height: 85.5px;
+    width: 0;
+}
+
+.horizontalAdderArrow {
+    height: 0;
+    width: 100px;
+}
+
+.verticalFillArrow {
+    flex: 1;
+    width: 0;
+}
+
+.wrapperContainer {
+    display: flex;
+}
+
+.childContainer {
+    float: left;
+}
+
+.nodeName {
+    margin: auto;
+    float: left;
+    width: 70%;
+    max-height: 100%;
+    color: azure;
+    font-size: x-large;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-word;
+    -moz-user-select: -moz-none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+}
+
+.buttonsDiv {
+    float: right;
+    width: 25%;
+    height: 100%;
+    margin-left: 5%;
+    background-color: whitesmoke;
+    border-radius: 5px;
+    padding: 2.5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.nodeButton {
+    margin: 2.5px auto;
+    padding: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    line-height: 40px;
+    border-width: 1px;
+    border-style: solid;
+}
+
+.ui-droppable-hover {
+    border-color: lightsteelblue;
+    background-color: aliceblue;
+    visibility: visible;
+}
+
+.hoveredArrow {
+    border-color: lightsteelblue;
+}
+
+.transparent50 {
+    opacity: 0.5;
+    filter: alpha(opacity=50);
+}
+
+.fileHolder > .spinner-border, .centered {
+    position: relative;
+    width: 25%;
+    height: auto;
+    font-size: 2rem;
+    margin: auto;
+}
+
+.fileHolder > .spinner-border:after, .centered:after {
+    content: "";
+    display: block;
+    padding-bottom: 100%;
+}
+
+.fileHolder > img {
+    object-fit: contain;
+}
+
+.bg1 {
+    background-color: firebrick;
+}
+
+.bg2 {
+    background-color: royalblue;
+}
+
+.bg3 {
+    background-color: orangered;
+}
+
+.bg4 {
+    background-color: forestgreen;
+}
+
+.bg5 {
+    background-color: darkslateblue;
+}
+
+.bg6 {
+    background-color: darkorchid;
+}

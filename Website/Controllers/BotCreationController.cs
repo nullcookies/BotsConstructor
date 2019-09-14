@@ -73,7 +73,7 @@ namespace Website.Controllers
 
                 int botId = bot.Id;
 
-                return RedirectToAction("BotForSales", "BotForSalesEditing", new { botId });
+                return RedirectToAction("SalesTreeEditor", "BotForSalesEditing", new { botId });
 
             }
             catch (Exception ee)

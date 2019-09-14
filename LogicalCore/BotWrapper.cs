@@ -33,8 +33,8 @@ namespace LogicalCore
             ) : base(botId, link, token)
         {
 
-            StatisticsContainer = botStatistics == null?new BotStatisticsForest():botStatistics ;
-            StupidBotAntispam = antispam == null ? new StupidBotAntispam() : antispam;
+            StatisticsContainer = botStatistics ?? new BotStatisticsForest();
+            StupidBotAntispam = antispam ?? new StupidBotAntispam();
             sessionsDictionary = new ConcurrentDictionary<int, Session>();
             tmm = textManager ?? new BaseTextMessagesManager();
             //MegaTree = tree ?? throw new ArgumentNullException(nameof(tree));

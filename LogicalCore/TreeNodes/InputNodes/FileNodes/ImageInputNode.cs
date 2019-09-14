@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Linq;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
 namespace LogicalCore
 {
-	public abstract class ImageInputNode : FileInputNode
+	public class ImageInputNode : FileInputNode
     {
 		public readonly bool useStickers;
 
@@ -32,14 +33,7 @@ namespace LogicalCore
 							return false;
 						case MessageType.Photo:
 							variable.PreviewId = message.Photo[0].FileId;
-							if (message.Photo.Length > 1) // Если размер маленький, то превью и файл - один и тот же
-							{
-								variable.FileId = message.Photo[1].FileId;
-							}
-							else
-							{
-								variable.FileId = message.Photo[0].FileId;
-							}
+							variable.FileId = message.Photo.LastOrDefault().FileId;
 							break;
 						case MessageType.Document:
 							if(message.Document.MimeType.StartsWith("image"))

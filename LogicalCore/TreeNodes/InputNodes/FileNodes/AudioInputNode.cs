@@ -4,7 +4,7 @@ using Telegram.Bot.Types.Enums;
 
 namespace LogicalCore
 {
-	public abstract class AudioInputNode : FileInputNode
+	public class AudioInputNode : FileInputNode
     {
         public AudioInputNode(string name, string varName, TryConvert<(string FileId, string PreviewId, string Description)> converter,
             IMetaMessage metaMessage = null, bool required = true, bool needBack = true)

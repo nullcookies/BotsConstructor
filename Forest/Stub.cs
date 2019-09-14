@@ -18,27 +18,18 @@ namespace DeleteMeWebhook
 		
 		static Stub()
 		{
-            //Sushi = new Dictionary<int, MetaValued<int>>
-            //{
-            //	{ 0, new MetaValued<int>(new MetaText("Sushi", " (id0)"), random.Next(2, 5), "Hryvnia") },
-            //	{ 1, new MetaValued<int>(new MetaText("Sushi", " (id1)"), random.Next(2, 5), "Hryvnia") },
-            //	{ 2, new MetaValued<int>(new MetaText("Sushi", " (id2)"), random.Next(2, 5), "Hryvnia") },
-            //	{ 3, new MetaValued<int>(new MetaText("Sushi", " (id3)"), random.Next(2, 5), "Hryvnia") },
-            //	{ 4, new MetaValued<int>(new MetaText("Sushi", " (id4)"), random.Next(2, 5), "Hryvnia") },
-            //	{ 5, new MetaValued<int>(new MetaText("Sushi", " (id5)"), random.Next(2, 5), "Hryvnia") },
-            //};
+			Sushi = new Dictionary<int, MetaValued<int>>
+			{
+				{ 0, new MetaValued<int>(new MetaText("Sushi", " (id0)"), random.Next(2, 5), "Dollar") },
+				{ 1, new MetaValued<int>(new MetaText("Sushi", " (id1)"), random.Next(2, 5), "Dollar") },
+				{ 2, new MetaValued<int>(new MetaText("Sushi", " (id2)"), random.Next(2, 5), "Dollar") },
+				{ 3, new MetaValued<int>(new MetaText("Sushi", " (id3)"), random.Next(2, 5), "Dollar") },
+				{ 4, new MetaValued<int>(new MetaText("Sushi", " (id4)"), random.Next(2, 5), "Dollar") },
+				{ 5, new MetaValued<int>(new MetaText("Sushi", " (id5)"), random.Next(2, 5), "Dollar") },
+				{ 6, new MetaValued<int>(new MetaText("Sushi", " (id6)"), random.Next(2, 5), "Dollar") }
+			};
 
-            Sushi = new Dictionary<int, MetaValued<int>>
-            {
-                { 0, new MetaValued<int>(new MetaText(GetSushiName(0)/*, " (id0)"*/), 265, "Hryvnia") },
-                { 1, new MetaValued<int>(new MetaText(GetSushiName(1)/*, " (id1)"*/), 359, "Hryvnia") },
-                { 2, new MetaValued<int>(new MetaText(GetSushiName(2)/*, " (id2)"*/), 99, "Hryvnia") },
-                { 3, new MetaValued<int>(new MetaText(GetSushiName(3)/*, " (id3)"*/), 107, "Hryvnia") },
-                { 4, new MetaValued<int>(new MetaText(GetSushiName(4)/*, " (id4)"*/), 109, "Hryvnia") },
-                { 5, new MetaValued<int>(new MetaText(GetSushiName(5)/*, " (id5)"*/), 99, "Hryvnia") },
-            };
-
-            int pizzaTypesCount = 8, pizzaDiametersCount = pizzaDiameters.Length, pizzaBortsCount = pizzaBorts.Length;
+			int pizzaTypesCount = 8, pizzaDiametersCount = pizzaDiameters.Length, pizzaBortsCount = pizzaBorts.Length;
 			int pizzaSubtypesCount = pizzaDiametersCount * pizzaBortsCount;
 			Pizza = new Dictionary<int, MetaValued<int>>(pizzaTypesCount * pizzaSubtypesCount);
 			
@@ -49,29 +40,13 @@ namespace DeleteMeWebhook
 					for(int k = 0; k < pizzaBortsCount; k++)
 					{
 						int number = k + j * pizzaBortsCount + i * pizzaSubtypesCount;
-						Pizza.Add(number,
-                            new MetaValued<int>(
-                                new MetaText(
-                                    //"Pizza", 
-                                    GetPizzaName(i), 
-                                " ", 
-                                pizzaDiameters[j], 
-                                " ", 
-                                pizzaBorts[k], 
-                                " (id", number.ToString(), ")")
-                                , random.Next(2, 10),
-                                "Hryvnia"));
+						Pizza.Add(number, new MetaValued<int>(new MetaText("Pizza", " ", pizzaDiameters[j], " ", pizzaBorts[k], " (id", number.ToString(), ")"), random.Next(2, 10), "Dollar"));
 					}
 				}
 			}
 		}
 
-      
-
-
-
-
-        private static MegaTree GetHardcodedMegaTree(BotWrapper botWrapper)
+		private static MegaTree GetHardcodedMegaTree(BotWrapper botWrapper)
         {
             #region Хардкод мегадерева
             #region  Чтение разметки
@@ -197,17 +172,15 @@ namespace DeleteMeWebhook
             megaTree.AddEdge(nodeOrder, nodeDrinks);
 
 
-            MetaValuedContainerInputNode<int> pizzaConstructor = new MetaValuedContainerInputNode<int>(
-                "PizzaConstructor", 
-                "ConstructedPizza",
+            MetaValuedContainerInputNode<int> pizzaConstructor = new MetaValuedContainerInputNode<int>("PizzaConstructor", "ConstructedPizza",
                 new List<MetaValued<int>>(6)
                 {
-                    new MetaValued<int>("Meat", 3, "Hryvnia"),
-                    new MetaValued<int>("Tomato", 1, "Hryvnia"),
-                    new MetaValued<int>("Mushrooms", 2, "Hryvnia"),
-                    new MetaValued<int>("Corn", 1, "Hryvnia"),
-                    new MetaValued<int>("Pepper", 1, "Hryvnia"),
-                    new MetaValued<int>("Broccoli", 2, "Hryvnia")
+                    new MetaValued<int>("Meat", 3, "Dollar"),
+                    new MetaValued<int>("Tomato", 1, "Dollar"),
+                    new MetaValued<int>("Mushrooms", 2, "Dollar"),
+                    new MetaValued<int>("Corn", 1, "Dollar"),
+                    new MetaValued<int>("Pepper", 1, "Dollar"),
+                    new MetaValued<int>("Broccoli", 2, "Dollar")
                 },
                 "MakeYourOwnPizza",
                 (session, container) =>
@@ -225,7 +198,7 @@ namespace DeleteMeWebhook
                         price += ingredient.Value * ingredientCount;
                     }
                     pizzaDesc.Append("=");
-                    MetaValued<int> constructedPizza = new MetaValued<int>(pizzaDesc, price, "Hryvnia", false);
+                    MetaValued<int> constructedPizza = new MetaValued<int>(pizzaDesc, price, "Dollar", false);
                     session.vars.GetVar<MetaValuedContainer<int>>("ShoppingCart").Add(constructedPizza, 1);
                     container.Clear();
                     session.BotClient.SendTextMessageAsync(session.telegramId, session.vars.GetVar<MetaValuedContainer<int>>("ShoppingCart").ToString(session));
@@ -239,10 +212,9 @@ namespace DeleteMeWebhook
 
             megaTree.AddEdge(endPizzaConstruction, nodePizza);
 
-            //MetaText inline = new MetaText("*", "Pizza", "*");
+            MetaText inline = new MetaText("*", "Pizza", "*");
             for (int i = 0; i < 8; i++)
             {
-                MetaText inline = new MetaText("*", GetPizzaName(i), "*");
                 MetaDoubleKeyboardedMessage metaDouble =
                     new MetaDoubleKeyboardedMessage(
                         metaReplyText: "ChoosePizzaSize",
@@ -257,24 +229,11 @@ namespace DeleteMeWebhook
                         parsing: ParseMode.Markdown,
                         replyMsgFirst: false);
 
-				//SimpleNode pizzaType = new SimpleNode("Pizza", metaDouble);
-				SimpleNode pizzaType = new SimpleNode(GetPizzaName(i), metaDouble);
+				SimpleNode pizzaType = new SimpleNode("Pizza", metaDouble);
 
                 megaTree.AddEdge(nodePizza, pizzaType);
 
-                LightNode desc = new LightNode("Description", 
-                    new MetaInlineMessage(
-                        new MetaText(
-                            "*",
-                            //"Pizza", 
-                            GetPizzaName(i), 
-                            //i, 
-                            "*\n",
-                            //"TestDescPizza"
-                            GetPizzaDescription(i)
-                            ), parsing: ParseMode.Markdown));
-
-
+                LightNode desc = new LightNode("Description", new MetaInlineMessage(new MetaText("*", "Pizza", i, "*\n", "TestDescPizza"), parsing: ParseMode.Markdown));
                 metaDouble.DownButtonsLocation = false;
                 megaTree.AddEdge(pizzaType, desc);
                 metaDouble.DownButtonsLocation = true;
@@ -305,11 +264,10 @@ namespace DeleteMeWebhook
 			}
 
             
-            for (int i = 0; i < 6; i++)
+            for (int i = 0; i < 7; i++)
             {
 				MetaText text = Sushi[i].ToMetaText();
-				//text.Append("\n", "TestDescSushi");
-				text.Append("\n", GetSushiDescription(i));
+				text.Append("\n", "TestDescSushi");
                 MetaInlineMessage msg = new MetaInlineMessage(
 					text,
                     MessageType.Photo,
@@ -321,8 +279,7 @@ namespace DeleteMeWebhook
                                 FileShare.Read)));
 
                 var thisSushi = new LightNode("Sushi", msg);
-
-
+                
                 megaTree.AddEdge(nodeSushi, thisSushi);
 
 				MetaText addedText = Sushi[i].ToMetaText();
@@ -376,8 +333,7 @@ namespace DeleteMeWebhook
 			};
 			botWrapper.globalVars.SetVar("Sushi", Sushi);
 			botWrapper.globalVars.SetVar("Pizza", Pizza);
-            //344399241 Рома
-            botWrapper.SetOwner(344399241); //389063743 440090552
+			botWrapper.SetOwner(389063743); //389063743 440090552
 			return botWrapper;
 		}
 
@@ -471,7 +427,6 @@ namespace DeleteMeWebhook
                         {"SpecifyTime", "✍️🕐" },
                         {"TimeRequest", "🙏 👉 🚚 🕰 👯 👯 📁.\n 📊: 1⃣5⃣:3⃣0⃣" },
                         {"Dollar", "💵" },
-                        {"Hryvnia", "₴" },
                         {"Cost", "💰: " },
                         {"Plus", "➕" },
                         {"Minus", "➖" },
@@ -487,43 +442,6 @@ namespace DeleteMeWebhook
                         {"Tomato", "🍅" },
                         {"Mushrooms", "🍄" },
                         {"Corn", "🌽" },
-                          {"Margarita", "Маргарита" },
-                        {"Hawaiian", "Гавайская" },
-                        {"Carbonara", "Карбонара" },
-                        {"Five_Cheeses", "Пять Сыров" },
-                        {"Bavarian", "Баварская" },
-                        {"Calzone", "Кальцоне" },
-                        {"Regina", "Регина" },
-                        {"Pepperoni", "Пепперони" },
-
-                            {"MargaritaDesc", "Маргарита" },
-                        {"HawaiianDesc", "Гавайская" },
-                        {"CarbonaraDesc", "Карбонара" },
-                        {"Five_CheesesDesc", "Пять Сыров" },
-                        {"BavarianDesc", "Баварская" },
-                        {"CalzoneDesc", "Кальцоне" },
-                        {"ReginaDesc", "Регина" },
-
-
-                        {"Сет_Маки", "Сет Маки" },
-                        {"Сет_Патриот", "Сет Патриот" },
-                        {"Запеченная_мидия-бекон", "Запеченная мидия-бекон" },
-                        {"Маки_снежный_краб", "Маки снежный краб" },
-                        {"Филадельфия_классическая", "Филадельфия классическая" },
-                        {"Калифорния_с_креветкой", "Калифорния с креветкой" },
-
-
-                          {"Сет_МакиDesc", "С111111111" },
-                        {"Сет_ПатриотDesc", "2222222222222222т" },
-                        {"Запеченная_мидия-беконDesc", "За3333333333333екон" },
-                        {"Маки_снежный_крабDesc", "Ма44444444444444аб" },
-                        {"Филадельфия_классическаяDesc", "Фила55555555555555" },
-                        {"Калифорния_с_креветкойDesc", "Ка66666666666666666ой" },
-
-
-
-
-                        {"PepperoniDesc", "Пепперони" },
                         {"Pepper", "🌶️" },
                         {"Broccoli", "🥦" }
                     }
@@ -606,7 +524,6 @@ namespace DeleteMeWebhook
                         {"SpecifyTime", "Указать время ✍️🕐" },
                         {"TimeRequest", "Будьте добры указать время доставки 🙏 🕐 ❓.\nФормат ХХ:ХХ Например: 15:30, 9:50, 1:45" },
                         {"Dollar", "$" },
-                        {"Hryvnia", "₴" },
                         {"Cost", "Стоимость: " },
                         {"Plus", "➕" },
                         {"Minus", "➖" },
@@ -622,48 +539,6 @@ namespace DeleteMeWebhook
                         {"Tomato", "Помидоры" },
                         {"Mushrooms", "Грибы" },
                         {"Corn", "Кукуруза" },
-
-                        {"Margarita", "Маргарита" },
-                        {"Hawaiian", "Гавайская" },
-                        {"Carbonara", "Карбонара" },
-                        {"Five_Cheeses", "Пять Сыров" },
-                        {"Bavarian", "Баварская" },
-                        {"Calzone", "Кальцоне" },
-                        {"Regina", "Регина" },
-                        {"Pepperoni", "Пепперони" },
-
-                        {"MargaritaDesc", "11111111Моцарелла, фирменный соус" },
-                        {"HawaiianDesc", "2222222222222Гавайская" },
-                        {"CarbonaraDesc", "33333333333Карбонара" },
-                        {"Five_CheesesDesc", "444444444Пять Сыров" },
-                        {"BavarianDesc", "Колбаски баварские, Пармезан, Моцарелла, Соус барбекю" },
-                        {"CalzoneDesc", "666666666Кальцоне" },
-                        {"ReginaDesc", "77777777Регина" },
-                        {"PepperoniDesc", "Бекон, Ветчина, Грибы, Лук, Огурцы маринованные, Моцарелла, Соус чесночный" },
-
-
-                        {"Сет_Маки", "Сет Маки" },
-                        {"Сет_Патриот", "Сет Патриот" },
-                        {"Запеченная_мидия-бекон", "Запеченная мидия-бекон" },
-                        {"Маки_снежный_краб", "Маки снежный краб" },
-                        {"Филадельфия_классическая", "Филадельфия классическая" },
-                        {"Калифорния_с_креветкой", "Калифорния с креветкой" },
-
-
-                          {"Сет_МакиDesc", @"36 шт., 600 г
-Маки чука, Маки мидия, Маки огурец, Маки лосось, Маки угорь, Маки тунец, имбирь, васаби" },
-                        {"Сет_ПатриотDesc", @"38 шт., 950 г
-Запеченная мидия-бекон, Запеченный краб-лосось, Запеченный краб, Маки огурец, имбирь, васаби" },
-                        {"Запеченная_мидия-беконDesc", @"8 шт., 210 г
-Рис, нори, мидия, бекон, сыр филадельфия, огурец, кунжут, яки соус имбирь, васаби" },
-                        {"Маки_снежный_крабDesc", @"6 шт., 100 г
-Рис, нори, снежный краб, имбирь, васаби" },
-                        {"Филадельфия_классическаяDesc", @"8 шт., 200 г
-Рис, нори, лосось, сыр филадельфия, огурец, имбирь, васаби" },
-                        {"Калифорния_с_креветкойDesc", @"8 шт., 200 г
-Рис, нори, креветка, лист салата, огурец, икра масаго, спайс соус, мбирь, васаби" },
-
-
                         {"Pepper", "Перец" },
                         {"Broccoli", "Брокколи" }
                     }
@@ -730,151 +605,5 @@ namespace DeleteMeWebhook
             throw new Exception();
             #endregion
         }
-
-        private static string GetPizzaName(int index)
-        {
-            string answer = null;
-
-            switch (index)
-            {
-                case (0):
-                    answer = "Margarita";
-                    break;
-                case (1):
-                    answer = "Hawaiian";
-                    break;
-                case (2):
-                    answer = "Carbonara";
-                    break;
-                case (3):
-                    answer = "Five_Cheeses";
-                    break;
-                case (4):
-                    answer = "Bavarian";
-                    break;
-                case (5):
-                    answer = "Calzone";
-                    break;
-                case (6):
-                    answer = "Regina";
-                    break;
-                case (7):
-                    answer = "Pepperoni";
-                    break;
-                default:
-                    throw new Exception("Навернулось 6416846146514");
-            }
-
-            return answer;
-        }
-
-        private static string GetPizzaDescription(int index)
-        {
-            string answer = null;
-
-            switch (index)
-            {
-                case (0):
-                    answer = "MargaritaDesc";
-                    break;
-                case (1):
-                    answer = "HawaiianDesc";
-                    break;
-                case (2):
-                    answer = "CarbonaraDesc";
-                    break;
-                case (3):
-                    answer = "Five_CheesesDesc";
-                    break;
-                case (4):
-                    answer = "BavarianDesc";
-                    break;
-                case (5):
-                    answer = "CalzoneDesc";
-                    break;
-                case (6):
-                    answer = "ReginaDesc";
-                    break;
-                case (7):
-                    answer = "PepperoniDesc";
-                    break;
-                default:
-                    throw new Exception("Навернулось 6416846146514");
-            }
-
-            return answer;
-        }
-
-
-        
-        
-
-
-
-
-
-        private static string GetSushiName(int index)
-        {
-            string answer = null;
-
-            switch (index)
-            {
-                case (0):
-                    answer = "Сет_Маки";
-                    break;
-                case (1):
-                    answer = "Сет_Патриот";
-                    break;
-                case (2):
-                    answer = "Запеченная_мидия-бекон";
-                    break;
-                case (3):
-                    answer = "Маки_снежный_краб";
-                    break;
-                case (4):
-                    answer = "Филадельфия_классическая";
-                    break;
-                case (5):
-                    answer = "Калифорния_с_креветкой";
-                    break;
-                default:
-                    throw new Exception("Навернулось 641342344534564767746514");
-            }
-
-            return answer;
-        }
-
-        private static string GetSushiDescription(int index)
-        {
-            string answer = null;
-
-            switch (index)
-            {
-                case (0):
-                    answer = "Сет_МакиDesc";
-                    break;
-                case (1):
-                    answer = "Сет_ПатриотDesc";
-                    break;
-                case (2):
-                    answer = "Запеченная_мидия-беконDesc";
-                    break;
-                case (3):
-                    answer = "Маки_снежный_крабDesc";
-                    break;
-                case (4):
-                    answer = "Филадельфия_классическаяDesc";
-                    break;
-                case (5):
-                    answer = "Калифорния_с_креветкойDesc";
-                    break;
-                default:
-                    throw new Exception("Навернулось 641342344534564767746514");
-            }
-
-            return answer;
-        }
-
-
     }
 }

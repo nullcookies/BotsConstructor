@@ -424,7 +424,7 @@ namespace Website.Controllers
                 }
                 else
                 {
-                    ModelState.AddModelError("", $"Пожелуйста, заполните оба поля.");
+                    ModelState.AddModelError("", $"Пожалуйста, заполните оба поля.");
                 }
             }
             else

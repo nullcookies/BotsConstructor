@@ -21,11 +21,6 @@ namespace LogicalCore
             ConsoleWriter.WriteLine($"К общему списку узлов добавлен корень с именем {root.name}", ConsoleColor.DarkGray);
         }
 
-		public MegaTree(string treeData)
-		{
-			throw new NotImplementedException();
-		}
-
 		public void AddEdge(Node parent, Node child)
         {
             if (parent != child)
@@ -68,6 +63,11 @@ namespace LogicalCore
 
 		private void AddChildrenIfNeed(Node node)
 		{
+			if(node is ICombined combined)
+			{
+				node = combined.HeadNode;
+			}
+
 			if (!nodeIdDict.TryAdd(node.id, node))
 			{
 				ConsoleWriter.WriteLine($"Узел {node.name} с ID {node.id} встречается в дереве несколько раз. Возможная причина - порталы.", ConsoleColor.Yellow);
