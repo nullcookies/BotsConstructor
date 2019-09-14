@@ -19,6 +19,7 @@ namespace DataLayer.Models
 		public DbSet<InventoryItem> InventoryItems { get; set; }
 		public DbSet<Inventory> Inventories { get; set; }
 		public DbSet<SessionText> SessionTexts { get; set; }
+
 		public DbSet<SessionFile> SessionFiles { get; set; }
 		public DbSet<ImageMy> Images { get; set; }
         public DbSet<UnconfirmedEmail> UnconfirmedEmails { get; set; }
@@ -29,6 +30,7 @@ namespace DataLayer.Models
         public DbSet<Moderator> Moderators { get; set; }
         public DbSet<BotForSalesPrice> BotForSalesPrices { get; set; }
         public DbSet<BotLaunchRecord> BotLaunchRecords { get; set; }
+
         public DbSet<WithdrawalLog> WithdrawalLog { get; set; }
         public DbSet<Record_BotUsername_UserTelegramId> BotUsers { get; set; }
         public DbSet<BannedUser> BannedUsers { get; set; }

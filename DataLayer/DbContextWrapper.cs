@@ -8,11 +8,11 @@ using System.Text;
 
 namespace DataLayer
 {
-    public class DbContextWrapper
+    public class DbContextFactory
     {
         private readonly string _connectionString;       
 
-        public DbContextWrapper(IConfiguration configuration)
+        public DbContextFactory(IConfiguration configuration)
         {
 
             bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
@@ -23,7 +23,7 @@ namespace DataLayer
                 _connectionString = configuration.GetConnectionString("PostgresConnectionLinux");
             
         }
-        public DbContextWrapper(string connectionString)
+        public DbContextFactory(string connectionString)
         {
             if (connectionString != null)
             {

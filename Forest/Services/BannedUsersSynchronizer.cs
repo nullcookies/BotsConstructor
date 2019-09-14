@@ -13,12 +13,12 @@ namespace Forest.Services
 {
     public class BannedUsersSynchronizer
     {
-        private DbContextWrapper _dbContextWrapper;
+        private DbContextFactory _dbContextWrapper;
         private StupidLogger _logger;
 
         public BannedUsersSynchronizer(IConfiguration configuration, StupidLogger logger)
         {
-            _dbContextWrapper = new DbContextWrapper(configuration);
+            _dbContextWrapper = new DbContextFactory(configuration);
             _logger = logger;
 
             _logger.Log(LogLevelMyDich.INFO,

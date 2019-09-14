@@ -13,7 +13,7 @@ namespace DataLayer.Services
     public class StupidLogger
     {      
 
-        DbContextWrapper _dbContextWrapper;
+        DbContextFactory _dbContextWrapper;
         ConcurrentQueue<LogMessage> logMessages;
         ConcurrentQueue<SpyRecord> spyMessages;
 
@@ -21,7 +21,7 @@ namespace DataLayer.Services
         {
             logMessages = new ConcurrentQueue<LogMessage>();
             spyMessages = new ConcurrentQueue<SpyRecord>();
-            _dbContextWrapper = new DbContextWrapper(configuration);
+            _dbContextWrapper = new DbContextFactory(configuration);
 
 #pragma warning disable CS4014 // Так как этот вызов не ожидается, выполнение существующего метода продолжается до завершения вызова
             PeriodicFooAsync(TimeSpan.FromSeconds(1), CancellationToken.None);

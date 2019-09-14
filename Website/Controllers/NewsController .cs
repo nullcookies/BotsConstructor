@@ -16,7 +16,6 @@ namespace Website.Controllers
     public class NewsController : Controller
     {
         ApplicationContext context;
-        //private readonly IStringLocalizer<MainController> _localizer;
 
         public NewsController(ApplicationContext context, IStringLocalizer<MainController> localizer)
         {

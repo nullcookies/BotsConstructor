@@ -15,7 +15,6 @@ using Website.Services;
 using Website.ViewModels;
 
 
-/*Разбить эту хрень на пару хреней поменьше*/
 namespace Website.Controllers
 {
     public class AccountController : Controller

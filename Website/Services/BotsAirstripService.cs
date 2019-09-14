@@ -18,17 +18,16 @@ using Website.Services;
 //using Website.Services.Bookkeeper;
 namespace Website.Services
 {
-    //Как сюда пробросить локализацию?
-    //Или это нужно делать не здесь?
+  
     public class BotsAirstripService
     {
         StupidLogger _logger;
-        private DbContextWrapper _dbContextWrapper;
+        private DbContextFactory _dbContextWrapper;
 
         public BotsAirstripService(StupidLogger logger, IConfiguration configuration)
         {
             _logger = logger;
-            _dbContextWrapper = new DbContextWrapper(configuration);
+            _dbContextWrapper = new DbContextFactory(configuration);
         }
 
         /// <summary>

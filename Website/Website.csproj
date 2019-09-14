@@ -37,6 +37,11 @@
   </ItemGroup>
 
 
+  <ItemGroup>
+    <Folder Include="Controllers\SignInUp\" />
+  </ItemGroup>
+
+
   <ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JSONSchema="" /></VisualStudio></ProjectExtensions>
 
 </Project>

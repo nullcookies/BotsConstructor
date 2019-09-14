@@ -23,7 +23,7 @@ namespace StupidTests
         [TestMethod]
         public void InitDb()
         {
-            DbContextWrapper dbContextWrapper = new DbContextWrapper(connectionString);
+            DbContextFactory dbContextWrapper = new DbContextFactory(connectionString);
 
             ApplicationContext contextDb = dbContextWrapper.GetNewDbContext();
             contextDb.LogMessages.RemoveRange(contextDb.LogMessages);
@@ -33,7 +33,7 @@ namespace StupidTests
         [TestMethod]
         public void DbStressTesting()
         {
-            DbContextWrapper dbContextWrapper = new DbContextWrapper(connectionString);
+            DbContextFactory dbContextWrapper = new DbContextFactory(connectionString);
 
             ApplicationContext contextDb = dbContextWrapper.GetNewDbContext();
             for (int i = 0; i < countOfRecord; i++)
@@ -57,7 +57,7 @@ namespace StupidTests
         [TestMethod]
         public async Task DbStressTestingTasks()
         {
-            DbContextWrapper dbContextWrapper = new DbContextWrapper(connectionString);
+            DbContextFactory dbContextWrapper = new DbContextFactory(connectionString);
 
             List<Task> tasks = new List<Task>();
 
@@ -75,7 +75,7 @@ namespace StupidTests
 
         }
 
-        public async Task WritetoDb(DbContextWrapper dbContextWrapper)
+        public async Task WritetoDb(DbContextFactory dbContextWrapper)
         {
             ApplicationContext contextDb = dbContextWrapper.GetNewDbContext();
             await contextDb.LogMessages.AddAsync(

@@ -32,13 +32,13 @@ namespace Website.Services
                 return _dbContextWrapper.GetNewDbContext();
             }
         }
-        DbContextWrapper _dbContextWrapper;
+        DbContextFactory _dbContextWrapper;
 
         public OrdersCountNotificationService(IConfiguration configuration, StupidLogger _logger)
         {
             this._logger = _logger;
 
-            _dbContextWrapper = new DbContextWrapper(configuration);
+            _dbContextWrapper = new DbContextFactory(configuration);
           
             PeriodicFooAsync(TimeSpan.FromSeconds(5), CancellationToken.None);
         }

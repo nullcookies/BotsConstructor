@@ -146,6 +146,8 @@ namespace Website
             
             app.UseWebSockets(wsOptions);
 
+          
+
             app.Use((context, next) =>
             {
 
@@ -181,6 +183,8 @@ namespace Website
                  totalLog.Log(context);
                 await next.Invoke();
             });
+
+
 
             app.UseMvc(routes =>
             {
