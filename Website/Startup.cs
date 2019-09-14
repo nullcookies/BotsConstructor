@@ -19,7 +19,7 @@ using DataLayer.Models;
 using Website.Services;
 using DataLayer.Services;
 using Website.Other.Middlewares;
-using Website.Services.Bookkeeper;
+//using Website.Services.Bookkeeper;
 
 namespace Website
 {
@@ -77,7 +77,7 @@ namespace Website
             services.AddLocalization(options => options.ResourcesPath = "Resources");
 
             services.AddTransient<EmailMessageSender>();
-            services.AddTransient<StupidBotForSalesBookkeeper>();
+            //services.AddTransient<StupidBotForSalesBookkeeper>();
 
             services.AddSingleton<StupidLogger>();
             services.AddSingleton<OrdersCountNotificationService>();
@@ -85,7 +85,7 @@ namespace Website
             services.AddSingleton<TotalLog>();
             services.AddSingleton<BotsAirstripService>();
 
-            services.AddTransient<MoneyCollectorService>();
+            //services.AddTransient<MoneyCollectorService>();
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
               .AddCookie(options =>
@@ -100,7 +100,7 @@ namespace Website
             IHostingEnvironment env, 
             ApplicationContext _contextDb, 
             TotalLog totalLog,
-            MoneyCollectorService moneyCollectorService,
+            //MoneyCollectorService moneyCollectorService,
             StupidLogger logger)
         {
 

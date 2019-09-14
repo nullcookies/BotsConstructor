@@ -7,10 +7,9 @@
 
 <div class="container p-2 ">
 
-    <button onclick="giveMeMoney()" style="width:100px;height:100px;"> +++++</button>
-    <button onclick="takeItAway()" style="width:100px;height:100px;"> ------</button>
+    @*<button onclick="giveMeMoney()" style="width:100px;height:100px;"> +++++</button>
+    <button onclick="takeItAway()" style="width:100px;height:100px;"> ------</button>*@
 
-    <hr />
     @* Пополнение счета*@
     <div class="container border border-info  rounded  " style="margin-bottom:1.5rem; padding-right:0;padding-left:0;">
 
@@ -33,8 +32,8 @@
                                 Баланс
                             </div>
                         </div>
-                        <div class="row">
-                            Каждый бот еженедельно списывает с этого счёта деньги
+                        <div class="row h1" style="color:darkred;">
+                            Сюда нужно придумать какой-то текст.
                         </div>
                     </div>
                     <div class="col">
@@ -61,7 +60,7 @@
                         </div>
                     </div>
                     <div class="col">
-                        <a class="btn btn-info btn-lg btn-block" style="color: #fff;" asp-controller="TopUp" asp-action="Index">Пополнить счёт</a>
+                        <button class="btn btn-info btn-lg btn-block" style="color: #fff;" asp-controller="TopUp" asp-action="Index" disabled>Пополнить счёт</button>
                     </div>
                 </div>
             </div>

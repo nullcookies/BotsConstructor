@@ -25,52 +25,52 @@ namespace Website.Controllers
             contextDb = applicationContext;
             this.logger = logger;
         }
-        [HttpGet]
-        public IActionResult GiveMeMoney()
-        {
-            int accId = 0;
-            try{
-                accId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("Аккаунт с таким id  не найден.");
-            }catch{
-                return Forbid();
-            }
+        //[HttpGet]
+        //public IActionResult GiveMeMoney()
+        //{
+        //    int accId = 0;
+        //    try{
+        //        accId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("Аккаунт с таким id  не найден.");
+        //    }catch{
+        //        return Forbid();
+        //    }
 
-            Account user = contextDb.Accounts.Find(accId);
+        //    Account user = contextDb.Accounts.Find(accId);
 
-            user.Money += (decimal) 546.1518434168;
-            contextDb.SaveChanges();
+        //    user.Money += (decimal) 546.1518434168;
+        //    contextDb.SaveChanges();
 
-            return Ok();
+        //    return Ok();
 
-        }
-
-
-
-
-        [HttpGet]
-        public IActionResult TakeItAway()
-        {
-
-            int accId = 0;
-            try{
-                accId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("Аккаунт с таким id  не найден.");
-            }catch{
-                return Forbid();
-            }
-
-            Account user = contextDb.Accounts.Find(accId);
-
-            if (user.Money > 0)
-            {
-                user.Money -= (decimal)660.19156871163;
-                contextDb.SaveChanges();
-            }
-
-            return Ok();
+        //}
 
 
 
-        }
+
+        //[HttpGet]
+        //public IActionResult TakeItAway()
+        //{
+
+        //    int accId = 0;
+        //    try{
+        //        accId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("Аккаунт с таким id  не найден.");
+        //    }catch{
+        //        return Forbid();
+        //    }
+
+        //    Account user = contextDb.Accounts.Find(accId);
+
+        //    if (user.Money > 0)
+        //    {
+        //        user.Money -= (decimal)660.19156871163;
+        //        contextDb.SaveChanges();
+        //    }
+
+        //    return Ok();
+
+
+
+        //}
 
         public IActionResult Index()
         {
