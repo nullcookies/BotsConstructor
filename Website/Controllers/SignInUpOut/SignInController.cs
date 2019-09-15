@@ -30,7 +30,6 @@ namespace Website.Controllers
         }
 
         
-        #region Логин
         [HttpGet]
         public IActionResult Login()
         {
@@ -38,18 +37,23 @@ namespace Website.Controllers
         }
 
 
-        //Для теста
-        //https://localhost:5001/SignIn/LoginWithTelegram?id=440090552&first_name=Ruslan&last_name=Starovoitov&username=shhar&photo_url=https%3A%2F%2Ft.me%2Fi%2Fuserpic%2F320%2Fshhar.jpg&auth_date=1564422079&hash=36b9be200d4866588e1b771f0587f45570fa3d834c9901ac92255105c2a94b7a
-        //https://botsconstructor.com/SignIn/LoginWithTelegram?id=440090552&first_name=Ruslan&last_name=Starovoitov&username=shhar&photo_url=https%3A%2F%2Ft.me%2Fi%2Fuserpic%2F320%2Fshhar.jpg&auth_date=1564422079&hash=36b9be200d4866588e1b771f0587f45570fa3d834c9901ac92255105c2a94b7a
-        [HttpGet]
-        public IActionResult LoginWithTelegram(string id, string first_name, string last_name, string username, string photo_url, string auth_date, string hash)
+       [HttpGet]
+        public IActionResult LoginWithTelegram(string id, 
+           string first_name, 
+           string last_name, 
+           string username, 
+           string photo_url,
+           string auth_date, 
+           string hash)
         {
-
+            //@bots_constructor_bot
             string botToken = "913688656:AAGIJK2GQLFZTDGWjUX8jV5aPujLoHSiSus";
 
-            List<string> myList = new List<string> {
+            List<string> myList = new List<string>
+            {
                 $"id={id}",
-                $"auth_date={auth_date}" };
+                $"auth_date={auth_date}"
+            };
 
             //Эти поля могут быть пустыми
             if (first_name != null){
@@ -71,9 +75,8 @@ namespace Website.Controllers
 
             string data_check_string = string.Join("\n", myArr);
 
-            Console.WriteLine(data_check_string);
+            //Console.WriteLine(data_check_string);
             bool authorizationIsValid = false;
-
 
             using (SHA256 mySHA256 = SHA256.Create())
             {
@@ -88,8 +91,9 @@ namespace Website.Controllers
                     byte[] myValueByteArr = hmac.ComputeHash(allUSerData);
 
                     string calculatedHashString = BitConverter.ToString(myValueByteArr).Replace("-", string.Empty);
-                    Console.WriteLine("Правильный ответ = " + hash);
-                    Console.WriteLine("Мой ответ        = "+ calculatedHashString);
+
+                    //Console.WriteLine("Правильный ответ = " + hash);
+                    //Console.WriteLine("Мой ответ        = "+ calculatedHashString);
 
                     if(hash == calculatedHashString.ToLower())
                     {
@@ -148,9 +152,7 @@ namespace Website.Controllers
             }
             return View(model);
         }
-        #endregion
-
-        
+      
         private void Authenticate(Account user)
         {
             string userRoleName = _context.AuthRoles.Where(role => role.Id == user.RoleTypeId).First().Name;

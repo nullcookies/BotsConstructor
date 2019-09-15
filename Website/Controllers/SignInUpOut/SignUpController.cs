@@ -110,26 +110,30 @@ namespace Website.Controllers.SignInUp
         }
 
 
-        //TODO вынести в отдельный контроллер
+        
         [HttpGet]
         public IActionResult EmailCheckSuccess(Guid guid, [FromQuery(Name = "accountId")] int accountId)
         {
             //Ну кто так называет переменные?
-            var ue = _context.UnconfirmedEmails.Where(_ue => _ue.AccountId == accountId).SingleOrDefault();
-            if (ue != null)
+            UnconfirmedEmail unconfirmedEmail = _context.UnconfirmedEmails
+                .Where(_ue => _ue.AccountId == accountId)
+                .SingleOrDefault();
+
+
+            if (unconfirmedEmail != null)
             {
-                Guid guidFromDb = ue.GuidPasswordSentToEmail;
+                Guid guidFromDb = unconfirmedEmail.GuidPasswordSentToEmail;
                 if (guidFromDb != null && guidFromDb == guid)
                 {
                     Account acc = _context.Accounts.Find(accountId);
                     if (acc != null)
                     {
-                        if (!string.IsNullOrEmpty(ue.Email))
+                        if (!string.IsNullOrEmpty(unconfirmedEmail.Email))
                         {
                             //Присвоить почту аккаунту
-                            acc.Email = ue.Email;
+                            acc.Email = unconfirmedEmail.Email;
                             //убрать запись из таблицы неподтверждённых email
-                            _context.UnconfirmedEmails.Remove(ue);
+                            _context.UnconfirmedEmails.Remove(unconfirmedEmail);
                             _context.SaveChanges();
 
                         }
@@ -145,16 +149,12 @@ namespace Website.Controllers.SignInUp
                 }
                 else
                 {
-                    //Вы пытаетесь мне навредить. Мне это очень не нравится.
-                    //ModelState.AddModelError("", "👆 🔄 🤕 👤. 👤 🚫 💖 👉 📶 💗.");
                     ModelState.AddModelError("", $"Мне не нравится guid accountId={accountId},guid={guid}");
-
                 }
 
             }
             else
             {
-                //Вы пытаетесь мне навредить. Мне это очень не нравится.
                 ModelState.AddModelError("", $"В базе нет запроса на подтверждение accountId={accountId},guid={guid}");
             }
 

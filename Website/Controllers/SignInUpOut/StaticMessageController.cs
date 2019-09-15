@@ -17,6 +17,5 @@ namespace Website.Controllers.SignInUp
             return View();
 
         }
-
     }
 }
