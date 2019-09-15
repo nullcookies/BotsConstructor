@@ -123,6 +123,9 @@
   <data name="Home" xml:space="preserve">
     <value>Личный кабинет</value>
   </data>
+  <data name="Login" xml:space="preserve">
+    <value>Войти</value>
+  </data>
   <data name="News" xml:space="preserve">
     <value>Новости</value>
   </data>

@@ -13,15 +13,15 @@ namespace StupidTests
     public class MoneyCollectorServiceTests
     {
      
-        [TestMethod]
-        public void GetTodayDateTest()
-        {
-            var date = MoneyCollectorService.GetTodayDate();
+        //[TestMethod]
+        //public void GetTodayDateTest()
+        //{
+        //    //var date = MoneyCollectorService.GetTodayDate();
 
-            Assert.IsTrue(date.Hour   ==  0);
-            Assert.IsTrue(date.Minute ==  0);
-            Assert.IsTrue(date.Second ==  0);
+        //    Assert.IsTrue(date.Hour   ==  0);
+        //    Assert.IsTrue(date.Minute ==  0);
+        //    Assert.IsTrue(date.Second ==  0);
             
-        }
+        //}
     }
 }

@@ -26,14 +26,10 @@
             <h5 class="my-0 mr-md-auto font-weight-normal"> <a class="text-reset" asp-controller="Main" asp-action="Index">@Localizer["Bots constructor"]</a></h5>
             <nav class="my-2 my-md-0 mr-md-3">
                 <a class="p-2 text-dark" asp-area="" asp-controller="Home" asp-action="Index">@Localizer["Home"]</a>
-                @*<a class="p-2 text-dark" asp-area="" asp-controller="Main" asp-action="Privacy">@Localizer["Privacy"]</a>*@
                 <a class="p-2 text-dark" asp-area="" asp-controller="News" asp-action="Index">@Localizer["News"]</a>
-                @*<a class="p-2 text-dark" href="#">@Localizer["Support"]</a>*@
-                <a class="p-2 text-dark" asp-area="" asp-controller="Test" asp-action="Index">Test</a>
-                <a class="p-2 text-dark" asp-area="" asp-controller="Test2" asp-action="Index">Test2</a>
-                <a class="p-2 text-dark" asp-area="" asp-controller="Test3" asp-action="Index" @*asp-route-imageId="asdfas6465sd4f654df"*@ >Test3</a>
             </nav>
-            <a class="btn btn-outline-primary" asp-controller="Registration" asp-action="Register">@Localizer["SignUp"]</a>
+            <a class="btn btn-outline-primary m-1" asp-controller="Account" asp-action="Login">@Localizer["Login"]</a>
+            <a class="btn   btn-primary m-1" asp-controller="Registration" asp-action="Register">@Localizer["SignUp"]</a>
         </div>
     </header>
     <div class="container">
