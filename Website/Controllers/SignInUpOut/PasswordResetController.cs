@@ -6,11 +6,13 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using DataLayer.Models;
+using DataLayer.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Website.Models;
+using Website.Other;
 using Website.Services;
 using Website.ViewModels;
 
@@ -22,12 +24,15 @@ namespace Website.Controllers.SignInUp
 
         private ApplicationContext _context;
         private EmailMessageSender _emailSender;
+        private StupidLogger _logger;
 
-        public PasswordResetController(ApplicationContext context, EmailMessageSender emailSender)
+        public PasswordResetController(ApplicationContext context, 
+            EmailMessageSender emailSender,
+            StupidLogger logger)
         {
             _context = context;
             _emailSender = emailSender;
-
+            _logger = logger;
         }
 
         [HttpGet]
@@ -99,7 +104,9 @@ namespace Website.Controllers.SignInUp
         [HttpGet]
         public IActionResult PasswordResetOnlyNewPass(Guid guid, int accountId)
         {
-            var tmpRecord = _context.AccountsToResetPassword.Where(_acc => _acc.AccountId == accountId).SingleOrDefault();
+            var tmpRecord = _context.AccountsToResetPassword
+                .Where(_acc => _acc.AccountId == accountId).SingleOrDefault();
+
             if (tmpRecord != null)
             {
                 if (guid != null)
@@ -110,6 +117,7 @@ namespace Website.Controllers.SignInUp
                         ViewData["showPasswordEntryForm"] = true;
                         Account acc = _context.Accounts.Find(accountId);
                         ViewData["accountId"] = accountId;
+                        ViewData["guid"] = guid;
                     }
                     else
                     {
@@ -129,28 +137,50 @@ namespace Website.Controllers.SignInUp
             return View();
         }
 
-        //TODO
-        //Какого хера тут не проверяется guid?
-        //Если человек запросил смену пароля, то пока он вводит новый и кто-то может его обогнать
         [HttpPost]
-        public IActionResult PasswordResetOnlyNewPass(ResetPasswordOnlyNewPassModel passModel, int accountId)
+        public IActionResult PasswordResetOnlyNewPass(ResetPasswordOnlyNewPassModel passModel, [FromQuery(Name = "targetAccountId")] int targetAccountId, Guid guid)
         {
+            //Проверка guid-a
+            var accountToResetPass = _context.AccountsToResetPassword
+               .Where(_acc => _acc.AccountId == targetAccountId)
+               .SingleOrDefault();
+
+
+            if (guid == null || accountToResetPass == null || guid != accountToResetPass.GuidPasswordSentToEmail)
+            {
+                int accountId = 0;
+                try{
+                    accountId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("Аккаунт с таким id  не найден.");
+                }catch{
+                    return StatusCode(403);
+                }
+
+                _logger.Log(LogLevelMyDich.UNAUTHORIZED_ACCESS_ATTEMPT,
+                    Source.PASSWORD_RESET,
+                    $"Аккаунт {targetAccountId} запросил смену пароля. В это время пришёл post запрос " +
+                    $"с новым паролем, но guid был неверным. guid={guid}, accountId из cookie = {accountId}");
+
+                return Forbid();
+            }
+
+
+            //guid проверен. Всё ок. Можно менять пароль.
+
             if (passModel != null)
             {
                 if (!string.IsNullOrEmpty(passModel.NewPassword))
                 {
                     if (passModel.NewPassword == passModel.ConfirmNewPassword)
                     {
-                        //проверка наличия запроса на замену пароля
-                        AccountToResetPassword accToResDb = _context.AccountsToResetPassword.Where(accRes => accRes.AccountId == accountId).SingleOrDefault();
-                        if (accToResDb != null)
+                        
+                        if (accountToResetPass != null)
                         {
-                            Account acc = _context.Accounts.Find(accountId);
+                            Account acc = _context.Accounts.Find(targetAccountId);
 
                             if (acc != null)
                             {
                                 //удаление запроса на смену пароля
-                                _context.AccountsToResetPassword.Remove(accToResDb);
+                                _context.AccountsToResetPassword.Remove(accountToResetPass);
                                 //смена пароля
                                 acc.Password = passModel.NewPassword;
 
@@ -160,12 +190,12 @@ namespace Website.Controllers.SignInUp
                             }
                             else
                             {
-                                ModelState.AddModelError("", $"Критическая ошибка логики сервера. Не найден аккаунт для котогоро была запрошена процедура смены пароля. accountId={accountId} ");
+                                ModelState.AddModelError("", $"Критическая ошибка логики сервера. Не найден аккаунт для котогоро была запрошена процедура смены пароля. accountId={targetAccountId} ");
                             }
                         }
                         else
                         {
-                            ModelState.AddModelError("", $"Критическая ошибка логики сервера. В бд не найдена запись (id, accid, guid) для сброса пароля. Если вы видите это сообщение,значит разработчик полный идиот. Напишите в тех. поддержку. Кто-то точно будет уволен. Хм, если это не я конечноже. accountId={accountId} ");
+                            ModelState.AddModelError("", $"Критическая ошибка логики сервера. В бд не найдена запись (id, accid, guid) для сброса пароля. Если вы видите это сообщение,значит разработчик полный идиот. Напишите в тех. поддержку. Кто-то точно будет уволен. Хм, если это не я конечноже. accountId={targetAccountId} ");
                         }
                         //заменить пароль в базе на этот
                     }
