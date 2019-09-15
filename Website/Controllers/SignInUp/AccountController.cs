@@ -36,6 +36,8 @@ namespace Website.Controllers
         {
             return View();
         }
+
+
         //Для теста
         //https://localhost:5001/Account/LoginWithTelegram?id=440090552&first_name=Ruslan&last_name=Starovoitov&username=shhar&photo_url=https%3A%2F%2Ft.me%2Fi%2Fuserpic%2F320%2Fshhar.jpg&auth_date=1564422079&hash=36b9be200d4866588e1b771f0587f45570fa3d834c9901ac92255105c2a94b7a
         //https://botsconstructor.com/Account/LoginWithTelegram?id=440090552&first_name=Ruslan&last_name=Starovoitov&username=shhar&photo_url=https%3A%2F%2Ft.me%2Fi%2Fuserpic%2F320%2Fshhar.jpg&auth_date=1564422079&hash=36b9be200d4866588e1b771f0587f45570fa3d834c9901ac92255105c2a94b7a
@@ -191,59 +193,7 @@ namespace Website.Controllers
         }
         #endregion
 
-        //TODO вынести в отдельный контроллер
-        [HttpGet]        
-        public IActionResult EmailCheckSuccess(Guid guid, [FromQuery(Name = "accountId")] int accountId)
-        {
-            //Ну кто так называет переменные?
-            var ue   =  _context.UnconfirmedEmails.Where(_ue => _ue.AccountId == accountId).SingleOrDefault();
-            if (ue != null)
-            {
-                Guid guidFromDb = ue.GuidPasswordSentToEmail;
-                if (guidFromDb != null && guidFromDb == guid)
-                {
-                    Account acc = _context.Accounts.Find(accountId);
-                    if (acc != null)
-                    {
-                        if (!string.IsNullOrEmpty(ue.Email))
-                        {
-                            //Присвоить почту аккаунту
-                            acc.Email = ue.Email;
-                            //убрать запись из таблицы неподтверждённых email
-                            _context.UnconfirmedEmails.Remove(ue);
-                            _context.SaveChanges();
-
-                        }
-                        else
-                        {
-                            ModelState.AddModelError("", "Ошибка логики сервера. В базе данных не найден email, который нужно подтвердить.");
-                        }
-                    }
-                    else
-                    {
-                        ModelState.AddModelError("", "Ошибка логики сервера. В базе данных не найден аккаунт, к которому нужно привязать email.");
-                    }
-                }
-                else
-                {
-                    //Вы пытаетесь мне навредить. Мне это очень не нравится.
-                    //ModelState.AddModelError("", "👆 🔄 🤕 👤. 👤 🚫 💖 👉 📶 💗.");
-                    ModelState.AddModelError("", $"Мне не нравится guid accountId={accountId},guid={guid}");
-
-                }
-
-            }
-            else
-            {
-                //Вы пытаетесь мне навредить. Мне это очень не нравится.
-                ModelState.AddModelError("", $"В базе нет запроса на подтверждение accountId={accountId},guid={guid}");
-            }
-
-
-
-            string message = "Поздравляем, ваш email подтверждён";
-            return RedirectToAction("SuccessfulSend", new { message });
-        }
+       
 
      
     }

@@ -84,7 +84,7 @@ namespace Website.Controllers.SignInUp
                 _context.SaveChanges();
 
                 string message = "На вашу почту отправлено письмо. Для того, чтобы сбросить пароль следуйте инструкциям в письме. ";
-                return RedirectToAction("SuccessfulSend", new { message });
+                return RedirectToAction("Success","StaticMessage", new { message });
 
             }
             else
@@ -188,14 +188,6 @@ namespace Website.Controllers.SignInUp
             return View();
         }
 
-        //TODO вынести в отдельный контроллер
-        [HttpGet]
-        [AllowAnonymous]
-        public IActionResult SuccessfulSend(string message)
-        {
-            ViewData["message"] = message;
-            return View();
-
-        }
+       
     }
 }

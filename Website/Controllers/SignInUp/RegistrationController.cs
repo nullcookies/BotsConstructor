@@ -20,16 +20,15 @@ namespace Website.Controllers.SignInUp
         {
             _context = context;
             _emailSender = emailSender;
-
-
         }
+
+
         [HttpGet]
         public IActionResult Register()
         {
             return View();
         }
-
-
+        
 
         [HttpPost]
         public IActionResult Register(RegisterModel model)
@@ -73,7 +72,7 @@ namespace Website.Controllers.SignInUp
 
                             Guid guid = Guid.NewGuid();
                             string domain = HttpContext.Request.Host.Value;
-                            string link = $"https://{domain}/Account/EmailCheckSuccess?guid={guid.ToString()}&accountId={account.Id}";
+                            string link = $"https://{domain}/Registration/EmailCheckSuccess?guid={guid.ToString()}&accountId={account.Id}";
 
                             var unconfirmedEmail = new UnconfirmedEmail() { AccountId = account.Id, Email = model.Email, GuidPasswordSentToEmail = guid };
 
@@ -109,5 +108,61 @@ namespace Website.Controllers.SignInUp
             }
             return View(model);
         }
+
+
+        //TODO вынести в отдельный контроллер
+        [HttpGet]
+        public IActionResult EmailCheckSuccess(Guid guid, [FromQuery(Name = "accountId")] int accountId)
+        {
+            //Ну кто так называет переменные?
+            var ue = _context.UnconfirmedEmails.Where(_ue => _ue.AccountId == accountId).SingleOrDefault();
+            if (ue != null)
+            {
+                Guid guidFromDb = ue.GuidPasswordSentToEmail;
+                if (guidFromDb != null && guidFromDb == guid)
+                {
+                    Account acc = _context.Accounts.Find(accountId);
+                    if (acc != null)
+                    {
+                        if (!string.IsNullOrEmpty(ue.Email))
+                        {
+                            //Присвоить почту аккаунту
+                            acc.Email = ue.Email;
+                            //убрать запись из таблицы неподтверждённых email
+                            _context.UnconfirmedEmails.Remove(ue);
+                            _context.SaveChanges();
+
+                        }
+                        else
+                        {
+                            ModelState.AddModelError("", "Ошибка логики сервера. В базе данных не найден email, который нужно подтвердить.");
+                        }
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("", "Ошибка логики сервера. В базе данных не найден аккаунт, к которому нужно привязать email.");
+                    }
+                }
+                else
+                {
+                    //Вы пытаетесь мне навредить. Мне это очень не нравится.
+                    //ModelState.AddModelError("", "👆 🔄 🤕 👤. 👤 🚫 💖 👉 📶 💗.");
+                    ModelState.AddModelError("", $"Мне не нравится guid accountId={accountId},guid={guid}");
+
+                }
+
+            }
+            else
+            {
+                //Вы пытаетесь мне навредить. Мне это очень не нравится.
+                ModelState.AddModelError("", $"В базе нет запроса на подтверждение accountId={accountId},guid={guid}");
+            }
+
+
+
+            string message = "Поздравляем, ваш email подтверждён";
+            return RedirectToAction("Success", "StaticMessage", new { message });
+        }
+
     }
 }

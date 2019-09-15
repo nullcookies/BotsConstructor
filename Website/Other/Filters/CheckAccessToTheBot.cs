@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using DataLayer.Models;
 using DataLayer.Services;
 
+//15 09 2019 15 44 это выглядит очень плохо
+
 namespace Website.Other.Filters
 {
     /// <summary>
@@ -48,10 +50,7 @@ namespace Website.Other.Filters
                 return;
             }
 
-            int ownerId = bot.OwnerId;
-			
             int accountId = int.MinValue;
-
             try
             {
                 accountId = Stub.GetAccountIdFromCookies(context.HttpContext) ?? throw new Exception("Из cookies не удалось извлечь accountId");
@@ -63,6 +62,9 @@ namespace Website.Other.Filters
                 return;
             }
 
+
+
+            int ownerId = bot.OwnerId;
             if (ownerId != accountId)
             {
                 //Бот не принадлежит этому пользователю

@@ -44,14 +44,14 @@ namespace Website.Controllers
         [TypeFilter(typeof(CheckAccessToTheBot))]
         public IActionResult TokenChange(int botId)
         {
-
-
             string currentToken = context.Bots.Find(botId).Token;
             ViewData["botId"] = botId;
             ViewData["currentToken"] = currentToken;
             return View();
         }
         
+
+
         [HttpPost]
         [TypeFilter(typeof(CheckAccessToTheBot))]
         public IActionResult TokenChange(int botId, string token)
