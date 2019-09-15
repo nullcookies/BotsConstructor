@@ -9,13 +9,13 @@ using Website.ViewModels;
 
 namespace Website.Controllers.SignInUp
 {
-    public class RegistrationController : Controller
+    public class SignUpController : Controller
     {
 
         private ApplicationContext _context;
         private EmailMessageSender _emailSender;
 
-        public RegistrationController(ApplicationContext context, 
+        public SignUpController(ApplicationContext context, 
             EmailMessageSender emailSender)
         {
             _context = context;
@@ -72,7 +72,7 @@ namespace Website.Controllers.SignInUp
 
                             Guid guid = Guid.NewGuid();
                             string domain = HttpContext.Request.Host.Value;
-                            string link = $"https://{domain}/Registration/EmailCheckSuccess?guid={guid.ToString()}&accountId={account.Id}";
+                            string link = $"https://{domain}/SignUp/EmailCheckSuccess?guid={guid.ToString()}&accountId={account.Id}";
 
                             var unconfirmedEmail = new UnconfirmedEmail() { AccountId = account.Id, Email = model.Email, GuidPasswordSentToEmail = guid };
 

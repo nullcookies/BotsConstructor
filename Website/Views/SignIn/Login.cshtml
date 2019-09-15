@@ -100,7 +100,7 @@
 
 <body>
     <div class="login-form">
-        <form asp-action="Login" asp-controller="Account" asp-anti-forgery="true">
+        <form asp-action="Login" asp-controller="SignIn" asp-anti-forgery="true">
             <h2 class="text-center">@Localizer["SignIn"]</h2>
             <div class="text-center social-btn" style="display:none;">
                 <a href="#" class="btn btn-primary btn-block"><i class="fa fa-facebook"></i> Sign in with <b>Facebook</b></a>
@@ -109,7 +109,7 @@
             </div>
 
 
-            <script async src="https://telegram.org/js/telegram-widget.js?6" data-telegram-login="bots_constructor_bot" data-size="large" data-auth-url="https://botsconstructor.com/Account/LoginWithTelegram" data-request-access="write"></script>
+            <script async src="https://telegram.org/js/telegram-widget.js?6" data-telegram-login="bots_constructor_bot" data-size="large" data-auth-url="https://botsconstructor.com/SignIn/LoginWithTelegram" data-request-access="write"></script>
 
             <div class="or-seperator" ><i>or</i></div>
 
@@ -146,7 +146,7 @@
 
         </form>
 
-        <div class="hint-text small"> @Localizer["Don't have an account?"]  <a asp-action="Register" asp-controller="Registration" class="text-success">@Localizer["Registration"] </a></div>
+        <div class="hint-text small"> @Localizer["Don't have an account?"]  <a asp-action="Register" asp-controller="SignUp" class="text-success">@Localizer["Registration"] </a></div>
 
     </div>
 

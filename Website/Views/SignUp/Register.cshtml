@@ -80,13 +80,13 @@
                 <p>
                     @*<a href="" class="btn btn-block btn-twitter"> <i class="fab fa-twitter"></i> &nbsp; Login via Twitter</a>
         <a href="" class="btn btn-block btn-facebook"> <i class="fab fa-facebook-f"></i> &nbsp; Login via facebook</a>*@
-                    <script async src="https://telegram.org/js/telegram-widget.js?6" data-telegram-login="bots_constructor_bot" data-size="large" data-auth-url="https://botsconstructor.com/Account/LoginWithTelegram" data-request-access="write"></script>
+                    <script async src="https://telegram.org/js/telegram-widget.js?6" data-telegram-login="bots_constructor_bot" data-size="large" data-auth-url="https://botsconstructor.com/SignIn/LoginWithTelegram" data-request-access="write"></script>
                 </p>
                     <p class="divider-text">
                         <span class="bg-light">OR</span>
                     </p>
 
-                <form asp-action="Register" asp-controller="Account" asp-anti-forgery="true">
+                <form asp-action="Register" asp-controller="SignUp" asp-anti-forgery="true">
 
                     @*
                         
@@ -161,7 +161,7 @@
                     </div> <!-- form-group// -->
 
 
-                    <p class="text-center">@Localizer["Have an account?"] <a asp-controller="Account" asp-action="Login">@Localizer["Log In"]</a> </p>
+                    <p class="text-center">@Localizer["Have an account?"] <a asp-controller="SignIn" asp-action="Login">@Localizer["Log In"]</a> </p>
 
 
                 </form>

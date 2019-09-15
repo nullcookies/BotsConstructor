@@ -17,12 +17,12 @@ using Website.ViewModels;
 
 namespace Website.Controllers
 {
-    public class AccountController : Controller
+    public class SignInController : Controller
     {
         private ApplicationContext _context;
         private EmailMessageSender _emailSender;
 
-        public AccountController(ApplicationContext context, EmailMessageSender emailSender)
+        public SignInController(ApplicationContext context, EmailMessageSender emailSender)
         {
             _context = context;
             _emailSender = emailSender;
@@ -39,10 +39,8 @@ namespace Website.Controllers
 
 
         //Для теста
-        //https://localhost:5001/Account/LoginWithTelegram?id=440090552&first_name=Ruslan&last_name=Starovoitov&username=shhar&photo_url=https%3A%2F%2Ft.me%2Fi%2Fuserpic%2F320%2Fshhar.jpg&auth_date=1564422079&hash=36b9be200d4866588e1b771f0587f45570fa3d834c9901ac92255105c2a94b7a
-        //https://botsconstructor.com/Account/LoginWithTelegram?id=440090552&first_name=Ruslan&last_name=Starovoitov&username=shhar&photo_url=https%3A%2F%2Ft.me%2Fi%2Fuserpic%2F320%2Fshhar.jpg&auth_date=1564422079&hash=36b9be200d4866588e1b771f0587f45570fa3d834c9901ac92255105c2a94b7a
-
-        //TODO Нужно протестировать
+        //https://localhost:5001/SignIn/LoginWithTelegram?id=440090552&first_name=Ruslan&last_name=Starovoitov&username=shhar&photo_url=https%3A%2F%2Ft.me%2Fi%2Fuserpic%2F320%2Fshhar.jpg&auth_date=1564422079&hash=36b9be200d4866588e1b771f0587f45570fa3d834c9901ac92255105c2a94b7a
+        //https://botsconstructor.com/SignIn/LoginWithTelegram?id=440090552&first_name=Ruslan&last_name=Starovoitov&username=shhar&photo_url=https%3A%2F%2Ft.me%2Fi%2Fuserpic%2F320%2Fshhar.jpg&auth_date=1564422079&hash=36b9be200d4866588e1b771f0587f45570fa3d834c9901ac92255105c2a94b7a
         [HttpGet]
         public IActionResult LoginWithTelegram(string id, string first_name, string last_name, string username, string photo_url, string auth_date, string hash)
         {
@@ -124,18 +122,10 @@ namespace Website.Controllers
             }
 
             ModelState.AddModelError("", "Ошибка авторизации");
-            return RedirectToAction("Login", "Account");
+            return RedirectToAction("Login", "SignIn");
         }
 
-
-
-        [HttpGet]
-        [ValidateAntiForgeryToken]
-        public IActionResult PasswordRecovery()
-        {
-            return View();
-        }
-
+        
 
 
         [HttpPost]
@@ -160,7 +150,7 @@ namespace Website.Controllers
         }
         #endregion
 
-        #region Установка аутентификационных куки
+        
         private void Authenticate(Account user)
         {
             string userRoleName = _context.AuthRoles.Where(role => role.Id == user.RoleTypeId).First().Name;
@@ -183,19 +173,8 @@ namespace Website.Controllers
             HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id));
             
         }
-        #endregion
-
-        #region Logout
-        public async Task<IActionResult> Logout()
-        {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return RedirectToAction("Login", "Account");
-        }
-        #endregion
-
        
 
-     
     }
 }
 
