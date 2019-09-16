@@ -1,106 +1,71 @@
 ﻿@{
-    Layout = "_LayoutHome";
+Layout = "_LayoutHome";
 }
 
-    @model Website.ViewModels.TokenChange
-    <style>
-        .imgCenter {
-            text-align: center;
-            display: block;
-        }
-        .myText {
-            font-size: 1.25rem;
-            line-height: 1.5;
-            font-weight: 400;
-            max-width: 100%;
-            overflow:hidden;
-        }
-    </style>
-    <div class="container">
+@model Website.ViewModels.TokenChange
+<style>
+    .myText {
+        font-size: 1.25rem;
+        line-height: 1.5;
+        font-weight: 400;
+        max-width: 100%;
+        overflow:hidden;
+        text-align: justify;
+    }
+</style>
 
+<h2 style="text-align:center;" class="my-4">Почти готово!</h2>
 
+<form asp-controller="BotCreation" asp-action="CreateNewBotForSales" asp-anti-forgery="true">
+    <div class="container mw-100">
         <div class="row">
-            <div class="h2">
-                Почти готово!
-            </div>
-
-            <div class="myText">
-                <div>
-
-                    Остался один шаг до создания бота. Вы должны получить токен (уникальный ключ для управление ботом) у <kbd><a href="https://telegram.me/botfather">@@BotFather</a></kbd><br />
+            <div class="myText col-md-7">
+                <p>
+                    Остался один шаг до создания бота. Вы должны получить токен (уникальный ключ для управления ботом) у <kbd><a href="https://telegram.me/botfather">@@BotFather</a></kbd><br />
                     Используйте команду /newbot  для создания нового бота.<br />
-                    BotFather запросит у вас название и имя пользователя, а затем сгенерирует токен авторизации для вашего нового бота. Имя пользователя — это короткое название, которое будет использоваться в упоминаниях и ссылках для telegram.me. Оно должно заканчиваться на «бот», например Sales_bot или SalesBot.<br /><br />
-                    BotFather выдаст вам строку с API, которая выглядит примерно так:<br />
+                    BotFather запросит у вас название и имя бота, а затем сгенерирует токен авторизации для него. Имя пользователя — это короткое название, которое будет использоваться в упоминаниях и ссылках для telegram.me. Оно должно заканчиваться на «bot», например: Sales_bot или SalesBot.<br /><br />
+                    BotFather выдаст вам строку с токеном, который выглядит примерно так:<br />
                     827524495:AAHpX89DtCNgIgTgz7k5WKmX_E6BRU-d5Hk<br />
+                </p>
 
-                </div>
-            </div>
-        </div>
-
-        <div style="height:40px;"></div>
-
-
-        @*<div class="row">
-
-            <div class="col-12 col-sm-12 col-md-4 col-lg-2 col-xl-2">
-                <img src="https://thecode.media/wp-content/uploads/2019/06/cat1.jpg">
-            </div>
-        </div>*@
-
-            <div class="imgCenter ">
-                <img src="@Url.Content("~/images/creation of a new bot.png")">
-            </div>
-
-            <div style="height:100px;"></div>
-
-            <div class="h4 text">
-                Введите скопированный токен:
-            </div>
-
-            <form asp-controller="BotCreation" asp-action="CreateNewBotForSales" asp-anti-forgery="true">
-                <div class="form-row justify-content-md-center">
-                    <div class="col-9 ">
-                        <label class="sr-only" for="Token">Token</label>
-                        <input asp-for="Token" type="text" class="form-control" placeholder="Token">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="tokenSpan">Токен</span>
                     </div>
-
-                    <div class="col-3 ">
+                    <input asp-for="Token" type="text" class="form-control" aria-label="Токен" aria-describedby="tokenSpan" placeholder="Token">
+                    <div class="input-group-append">
                         <button type="submit" class="btn btn-primary">Submit</button>
                     </div>
                 </div>
-            </form>
 
-            <div class="validation" asp-validation-summary="ModelOnly"></div>
-
-            <div style="height:200px;"></div>
-
-            @section scripts{
-
-                <environment names="Development">
-                    <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
-                    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
-                </environment>
-                <environment names="Staging,Production">
-                    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.14.0/jquery.validate.min.js"
-                            asp-fallback-src="~/lib/jquery-validation/dist/jquery.validate.min.js"
-                            asp-fallback-test="window.jQuery && window.jQuery.validator">
-                    </script>
-                    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validation.unobtrusive/3.2.6/jquery.validate.unobtrusive.min.js"
-                            asp-fallback-src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"
-                            asp-fallback-test="window.jQuery && window.jQuery.validator && window.jQuery.validator.unobtrusive">
-                    </script>
-                </environment>
-            }
-
-
+                <div class="validation" asp-validation-summary="ModelOnly"></div>
+            </div>
+            <div class="col-md-5 text-center">
+                <img src="@Url.Content("~/images/creation of a new bot.png")" style="object-fit: scale-down; max-width: 100%;">
+            </div>
         </div>
 
+        <div style="height:200px;"></div>
+
+        @section scripts{
+
+            <environment names="Development">
+                <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+                <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
+            </environment>
+            <environment names="Staging,Production">
+                <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.14.0/jquery.validate.min.js"
+                        asp-fallback-src="~/lib/jquery-validation/dist/jquery.validate.min.js"
+                        asp-fallback-test="window.jQuery && window.jQuery.validator">
+                </script>
+                <script src="https://ajax.aspnetcdn.com/ajax/jquery.validation.unobtrusive/3.2.6/jquery.validate.unobtrusive.min.js"
+                        asp-fallback-src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"
+                        asp-fallback-test="window.jQuery && window.jQuery.validator && window.jQuery.validator.unobtrusive">
+                </script>
+            </environment>
+        }
 
 
-
-        <style type="text/css">
-            img {
-                max-width: 100%;
-            }
-        </style>
+    </div>
+</form>
 

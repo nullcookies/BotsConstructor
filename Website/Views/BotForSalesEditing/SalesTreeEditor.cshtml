@@ -60,7 +60,7 @@
     }
     let root = templates[nodeTypes.root];
     const jsonMarkup = @Json.Serialize(ViewData["json"]);
-    if (jsonMarkup.length > 0) {
+    if (jsonMarkup != null && jsonMarkup.length > 0) {
         loadFromJSON(jsonMarkup);
     }
     else {
