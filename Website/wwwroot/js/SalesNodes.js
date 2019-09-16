@@ -467,7 +467,7 @@ const templates = Object.freeze([
     new RootNode("Корень", "Добро пожаловать в начало!", null),
     new TreeNode(new NodeParams(nodeTypes.info, "Инфо-узел", "Просто узел с каким-то сообщением.", null).makeTemplate()),
     new TreeNode(new SectionParams("Раздел", "Тут можно выбрать подраздел.", collectionTypes.block, null).makeTemplate()),
-    new TreeNode(new ProductParams("Товар", "Добавьте этот прекрасный товар себе в корзину.", displayTypes.simple, [
+    new ZeroChildNode(new ProductParams("Товар", "Добавьте этот прекрасный товар себе в корзину.", displayTypes.simple, [
         new ProductProperty("Характеристика 1", ["Подтип 1", "Подтип 2", "Подтип 3"], null, null),
         new ProductProperty("Характеристика 2", ["Подвид 1", "Подвид 2", "Подвид 3"], null, null)
     ], null).makeTemplate()),

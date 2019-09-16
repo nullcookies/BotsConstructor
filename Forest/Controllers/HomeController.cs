@@ -264,7 +264,7 @@ namespace DeleteMeWebhook.Controllers
 								{
 									case DisplayType.Simple:
 										List<MetaReplyMessage> foldersMsgs = nodeParams["properties"].Select((section) => GetReplyMsgFromParams(section)).ToList();
-										node = new ProductSimpleNode<decimal>(nodeName, elements, "Products", IDs, foldersMsgs, "ShoppingCart", "Добавлено: ", "Добавить", GetDoubleMsgFromParams(nodeParams));
+										node = new ProductSimpleNode<decimal>(nodeName, elements, "Products", IDs, foldersMsgs, "ShoppingCart", "Добавлено: ", "Добавить", GetInlineMsgFromParams(nodeParams));
 										Node parentNode = treeNodes[(int)allNodes[i]["parentId"]];
 										if (parentNode is BlockNode)
 										{

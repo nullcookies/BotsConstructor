@@ -813,6 +813,35 @@ class OneChildNode extends TreeNode {
     }
 }
 
+/** Базовый класс для узлов, которые не могут иметь детей. */
+class ZeroChildNode extends TreeNode {
+    /**
+     * Создаёт основу для узла без детей.
+     * @param {NodeParams} parameters Параметры узла.
+     */
+    constructor(parameters) {
+        super(parameters);
+    }
+
+    cloneNode() {
+        const parameters = deepClone(this.parameters);
+        delete parameters.isTemplate;
+        return new ZeroChildNode(parameters);
+    }
+
+    checkAddPermission() {
+        return false;
+    }
+
+    canBeMiddle() {
+        return false;
+    }
+
+    canBeGroup() {
+        return false;
+    }
+}
+
 /**Обёртка для узлов.*/
 class NodeWrapper {
     /**
