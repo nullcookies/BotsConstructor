@@ -275,7 +275,8 @@ namespace DeleteMeWebhook.Controllers
 										}
 										break;
 									case DisplayType.Multi:
-										node = new ProductMultiNode<decimal>(nodeName, elements, "Products", IDs, "ShoppingCart", "Добавлено: ", "Добавить", GetDoubleMsgFromParams(nodeParams));
+										List<MetaText> foldersNames = nodeParams["properties"].Select((section) => new MetaText(section["name"])).ToList();
+										node = new ProductMultiNode<decimal>(nodeName, elements, "Products", IDs, foldersNames, "ShoppingCart", "Добавлено: ", "Добавить", GetDoubleMsgFromParams(nodeParams));
 										break;
 									default:
 										return StatusCode(403, "Incorrect product node's display type.");

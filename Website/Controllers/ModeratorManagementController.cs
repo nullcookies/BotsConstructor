@@ -34,6 +34,17 @@ namespace Website.Controllers
         [TypeFilter(typeof(CheckAccessToTheBot))]
         public IActionResult InviteANewModerator( int botId,  string email)
         {
+			if(email == null)
+			{
+				JObject jObject = new JObject()
+				{
+					{ "success", false },
+					{ "failMessage", "Для добавления модератора нужно ввести почту." }
+				};
+
+				return Json(jObject);
+			}
+
             Account searchedAccount = _contextDb.Accounts.Where(_acc => _acc.Email == email.Trim()).SingleOrDefault();
 
             //себя нельзя сделать модератором своего бота

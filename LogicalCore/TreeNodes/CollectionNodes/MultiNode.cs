@@ -11,6 +11,7 @@ namespace LogicalCore
 	{
 		private readonly Dictionary<string, int> elemToSection;
 		private readonly (int Size, int Increment, int Count)[] sections;
+		private readonly List<MetaText> sectionsNames;
 		//(sections.Length - 1) / pageSize + 1 - количество страниц для флиппера
 		//Children.Count - количество разных состояний (равно произведению всех длин секций)
 		//MaxPage - максимально возможное состояние страницы, учитывающее комбинации предыдущих (-1, потому что Max, а не Count)
@@ -18,13 +19,15 @@ namespace LogicalCore
 		protected override bool OnePage => pageSize >= sections.Length;
 
 		public MultiNode(string name, List<List<string>> elements, IMetaMessage<MetaInlineKeyboardMarkup> metaMessage = null,
-			byte pageSize = 6, bool needBack = true, FlipperArrowsType flipperArrows = FlipperArrowsType.Double, bool useGlobalCallbacks = false) :
+			byte pageSize = 6, bool needBack = true, FlipperArrowsType flipperArrows = FlipperArrowsType.Double, bool useGlobalCallbacks = false, List<MetaText> foldersNames = null) :
 			base(name, elements.SelectMany(_list => _list).ToList(), null, (elem) => DefaultStrings.DONOTHING, metaMessage,
 				pageSize, needBack, flipperArrows, useGlobalCallbacks)
 		{
 			if(elements == null) throw new ArgumentNullException(nameof(elements));
 			elemToSection = new Dictionary<string, int>();
 			sections = new (int Size, int Increment, int Count)[elements.Count];
+			sectionsNames = foldersNames;
+			if(sectionsNames != null && sectionsNames.Count != elements.Count) throw new ArgumentException("Количество названий секций не совпадает с количеством секций.");
 			int sectionSize = 1;
 			int sectionIncrement = 1;
 			for(int i = elements.Count - 1; i >= 0; i--)
@@ -128,11 +131,19 @@ namespace LogicalCore
 			MetaText metaText = new MetaText();
 
 			int sectionPrefix = 0;
-			foreach (var (Size, Increment, Count) in sections)
+			for (int i = 0; i < sections.Length; i++)
 			{
+				var (Size, Increment, Count) = sections[i];
 				int sectionNumber = page / Increment;
 				int index = sectionPrefix + sectionNumber;
-				metaText.Append(collection[index], " ");
+				if (sectionsNames != null)
+				{
+					metaText.Append(sectionsNames[i], ": ", collection[index], "\n");
+				}
+				else
+				{
+					metaText.Append(collection[index], " ");
+				}
 				page = page - sectionNumber * Increment;
 				sectionPrefix += Count;
 			}
