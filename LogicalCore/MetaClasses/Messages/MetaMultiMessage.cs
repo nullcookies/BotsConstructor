@@ -48,7 +48,7 @@ namespace LogicalCore
             CheckKeyboards();
         }
 
-        public MetaMultiMessage(params MetaMessage[] metaMessages)
+        public MetaMultiMessage(params IMetaMessage[] metaMessages)
         {
             Count = metaMessages.Length;
 

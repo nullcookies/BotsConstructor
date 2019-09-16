@@ -63,17 +63,30 @@ namespace Website.Controllers
                 _contextDb.Bots.Add(bot);
 
                 //Создание статистики для бота
-                BotForSalesStatistics botForSalesStatistics = new BotForSalesStatistics()
-                {
-                    BotId = bot.Id
-                };
+                BotForSalesStatistics botForSalesStatistics = new BotForSalesStatistics() { Bot = bot, NumberOfOrders = 0, NumberOfUniqueMessages = 0, NumberOfUniqueUsers = 0 };
 
                 _contextDb.BotForSalesStatistics.Add(botForSalesStatistics);
+
+				var statusGroup = new OrderStatusGroup()
+				{
+					Name = "Стандартный набор статусов",
+					OwnerId = accountId,
+					OrderStatuses = new List<OrderStatus>()
+					{
+						new OrderStatus() {Name = "В обработке", Message = "Ваш заказ находится в обработке."},
+						new OrderStatus() {Name = "В пути", Message = "Ваш заказ в пути."},
+						new OrderStatus() {Name = "Принят", Message = "Ваш заказ был принят."},
+						new OrderStatus() {Name = "Отменён", Message = "Ваш заказ был отменён."}
+					}
+				};
+
+				_contextDb.OrderStatusGroups.Add(statusGroup);
+
                 _contextDb.SaveChanges();
 
-                int botId = bot.Id;
+				int botId = bot.Id;
 
-                return RedirectToAction("SalesTreeEditor", "BotForSalesEditing", new { botId });
+				return RedirectToAction("SalesTreeEditor", "BotForSalesEditing", new { botId });
 
             }
             catch (Exception ee)

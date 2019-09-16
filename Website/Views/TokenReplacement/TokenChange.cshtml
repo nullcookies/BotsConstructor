@@ -13,7 +13,7 @@
         При введении нового токена бот будет остановлен.
     </div>
 
-    <form asp-action="TokenChange" asp-controller="TokenReplacement" asp-route-botId="@ViewData["botId"]" asp-route-oldToken="@ViewData["currentToken"]" asp-anti-forgery="true" class="form-inline">
+    <form asp-action="TokenChange" asp-controller="TokenReplacement" asp-route-botId="@ViewData["botId"]" asp-route-oldToken="@ViewData["currentToken"]" asp-antiforgery="true" class="form-inline">
 
         <div class="container align-items-center">
 

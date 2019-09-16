@@ -265,7 +265,7 @@ namespace DeleteMeWebhook.Controllers
 								{
 									case DisplayType.Simple:
 										List<MetaReplyMessage> foldersMsgs = nodeParams["properties"].Select((section) => GetReplyMsgFromParams(section)).ToList();
-										node = new ProductSimpleNode<decimal>(nodeName, elements, "Products", IDs, foldersMsgs, "ShoppingCart", "Добавлено: ", "Добавить", GetDoubleMsgFromParams(nodeParams));
+										node = new ProductSimpleNode<decimal>(nodeName, elements, "Products", IDs, foldersMsgs, "ShoppingCart", "Добавлено: ", "Добавить", GetInlineMsgFromParams(nodeParams));
 										Node parentNode = treeNodes[(int)allNodes[i]["parentId"]];
 										if (parentNode is BlockNode)
 										{
@@ -276,7 +276,8 @@ namespace DeleteMeWebhook.Controllers
 										}
 										break;
 									case DisplayType.Multi:
-										node = new ProductMultiNode<decimal>(nodeName, elements, "Products", IDs, "ShoppingCart", "Добавлено: ", "Добавить", GetDoubleMsgFromParams(nodeParams));
+										List<MetaText> foldersNames = nodeParams["properties"].Select((section) => new MetaText(section["name"])).ToList();
+										node = new ProductMultiNode<decimal>(nodeName, elements, "Products", IDs, foldersNames, "ShoppingCart", "Добавлено: ", "Добавить", GetDoubleMsgFromParams(nodeParams));
 										break;
 									default:
 										return StatusCode(403, "Incorrect product node's display type.");

@@ -174,17 +174,17 @@ namespace DataLayer.Models
 
 			var statusGroups = new List<object>()
 			{
-				new {Id = 1, Name = "Стандартный набор статусов", OwnerId = 1_000_001}
+				new {Id = 1_000_001, Name = "Стандартный набор статусов", OwnerId = 1_000_001}
 			};
 
 			modelBuilder.Entity<OrderStatusGroup>().HasData(statusGroups);
 
 			var statuses = new List<object>()
 			{
-				new {Id = 1, GroupId = 1, Name = "В обработке", Message = "Ваш заказ находится в обработке."},
-				new {Id = 2, GroupId = 1, Name = "В пути", Message = "Ваш заказ в пути."},
-				new {Id = 3, GroupId = 1, Name = "Принят", Message = "Ваш заказ был принят."},
-				new {Id = 4, GroupId = 1, Name = "Отменён", Message = "Ваш заказ был отменён."}
+				new {Id = 1_000_001, GroupId = 1_000_001, Name = "В обработке", Message = "Ваш заказ находится в обработке."},
+				new {Id = 1_000_002, GroupId = 1_000_001, Name = "В пути", Message = "Ваш заказ в пути."},
+				new {Id = 1_000_003, GroupId = 1_000_001, Name = "Принят", Message = "Ваш заказ был принят."},
+				new {Id = 1_000_004, GroupId = 1_000_001, Name = "Отменён", Message = "Ваш заказ был отменён."}
 			};
 
 			modelBuilder.Entity<OrderStatus>().HasData(statuses);
@@ -193,9 +193,9 @@ namespace DataLayer.Models
 			modelBuilder.Entity<Order>().HasData(new List<object>
 			{
 				new {Id = 101, SenderId = 440090552, SenderNickname = "Ivan Ivanov",
-                    BotId = 1_000_000, ContainerId = 101, OrderStatusGroupId = 1,                    DateTime = DateTime.UtcNow},
+                    BotId = 1_000_000, ContainerId = 101, OrderStatusGroupId = 1_000_001,                    DateTime = DateTime.UtcNow},
                 new {Id = 102, SenderId = 460805780, SenderNickname = "Petro Ivanov",
-                    BotId = 1_000_000, ContainerId = 102, OrderStatusGroupId = 1,                    DateTime = DateTime.UtcNow.AddMinutes(-1)}
+                    BotId = 1_000_000, ContainerId = 102, OrderStatusGroupId = 1_000_001,                    DateTime = DateTime.UtcNow.AddMinutes(-1)}
                 //,
 				//new {Id = 102, SenderId = 440090552, SenderNickname = "Ruslan Starovoitov",
     //                BotId = 1_000_000, ContainerId = 102, OrderStatusGroupId = 1, OrderStatusId = 1, DateTime = DateTime.UtcNow},
@@ -397,6 +397,8 @@ namespace DataLayer.Models
 		[Required]
 		[ForeignKey("OwnerId")]
 		public virtual Account Owner { get; set; }
+
+		public virtual ICollection<OrderStatus> OrderStatuses { get; set; }
 	}
 
 	

@@ -7,9 +7,9 @@ namespace LogicalCore
 	{
 		public ProductSimpleNode(string name, List<List<string>> elements, string itemsContainer, List<int> productsIds, List<MetaReplyMessage> foldersMsgs,
 			string sessionContainer, string addedPrefix = DefaultStrings.PLUS, string addBtnName = DefaultStrings.ADD,
-			IMetaMessage<MetaInlineKeyboardMarkup> metaMessage = null, bool needBack = true) :
+			MetaInlineMessage metaMessage = null, bool needBack = true) :
 			base(
-				new SimpleNode(name, foldersMsgs[0]),
+				CreateHead(name, foldersMsgs[0], metaMessage),
 				CreateItemNodes(name, itemsContainer, elements, productsIds,
 					sessionContainer, addedPrefix)
 				)
@@ -36,9 +36,22 @@ namespace LogicalCore
 				{
 					for (int i = 0; i < elements[index].Count; i++)
 					{
-						TailNodes[itemNumber++].SetParent(parent);
+						TailNodes[itemNumber].SetParent(parent);
+						TailNodes[itemNumber++].SetBackLink(HeadNode);
 					}
 				}
+			}
+		}
+
+		private static Node CreateHead(string name, MetaReplyMessage folderMsg, MetaInlineMessage previewMsg)
+		{
+			if(previewMsg != null && (previewMsg.Text.ToString() != name || previewMsg.File != null))
+			{
+				return new SimpleNode(name, new MetaMultiMessage(previewMsg, folderMsg) { DefaultMessageIndex = 1 });
+			}
+			else
+			{
+				return new SimpleNode(name, folderMsg);
 			}
 		}
 	}
