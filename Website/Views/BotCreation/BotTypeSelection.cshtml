@@ -9,9 +9,10 @@
             <div class="card-body">
                 <h5 class="card-title">Бот для продаж</h5>
                 <a class="btn btn-success btn-lg btn-block" asp-controller="BotCreation" asp-action="BotForSalesTokenEntry">Создать</a>
-                <a class="btn btn-outline-success btn-lg btn-block" asp-controller="" asp-action="">Смотреть примеры</a>
+                <a class="btn btn-outline-success btn-lg btn-block disabled" asp-controller="" asp-action="">Смотреть примеры</a>
                 <hr />
-                <p class="card-text"> С помощью такого можно создать небольшой каталог с товарами. Пользователь может добавить товары в корзину, а после ввести свои данные и отправить заказ. Заказ тут же станет виден во вкладке "Заказы" (неожиданно)</p>
+                <p class="card-text" style="text-align: justify;">С помощью такого бота можно создать небольшой каталог с товарами. Пользователь может добавить товары в корзину, а после ввести свои данные и отправить заказ.
+                Заказ тут же станет виден во вкладке <a asp-controller="Orders" asp-action="Orders2"><b>"Заказы"</b></a>, где на него можно будет ответить.</p>
             </div>
 
         </div>
