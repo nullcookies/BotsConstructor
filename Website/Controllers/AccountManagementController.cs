@@ -17,8 +17,8 @@ namespace Website.Controllers
     [Authorize]
     public class AccountManagementController : Controller
     {
-        ApplicationContext _contextDb;
-        StupidLogger _logger;
+        readonly ApplicationContext _contextDb;
+        readonly StupidLogger _logger;
 
         public AccountManagementController(ApplicationContext applicationContext, StupidLogger logger)
         {

@@ -47,8 +47,6 @@ namespace DataLayer.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-    
-
             modelBuilder.Entity<RoleType>().HasIndex(role => new { role.Name }).IsUnique();
 
             //Нельзя добавить модератора дважды к аккаунту
