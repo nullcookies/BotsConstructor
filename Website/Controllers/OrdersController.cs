@@ -70,7 +70,7 @@ namespace Website.Controllers
             try{
                 accountId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("В cookies не найден accountId");
             }catch{
-                return RedirectToAction("Account", "Login");
+                return RedirectToAction("Login", "SignIn");
             }
 
             ViewData["currentPage"] = page;
@@ -105,7 +105,7 @@ namespace Website.Controllers
 			}
 			catch
 			{
-				return RedirectToAction("Account", "Login");
+				return RedirectToAction("Login", "SignIn");
 			}
 
             List<int> idsOfModeratedBots = _contextDb.Moderators.Where(_mo => _mo.AccountId == accountId).Select(_mo => _mo.BotId).ToList();
@@ -140,7 +140,7 @@ namespace Website.Controllers
 			}
 			catch
 			{
-				return RedirectToAction("Account", "Login");
+				return RedirectToAction("Login", "SignIn");
 			}
 
             List<int> idsOfModeratedBots = _contextDb.Moderators.Where(_mo => _mo.AccountId == accountId).Select(_mo => _mo.BotId).ToList();
@@ -202,7 +202,7 @@ namespace Website.Controllers
 			try{
                 accountId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("В cookies не найден accountId");
 			}catch{
-				return RedirectToAction("Account", "Login");
+				return RedirectToAction("Login", "SignIn");
 			}
 
             List<int> idsOfModeratedBots = _contextDb.Moderators.Where(_mo => _mo.AccountId == accountId).Select(_mo => _mo.BotId).ToList();
@@ -223,7 +223,7 @@ namespace Website.Controllers
 			try{
                 accountId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("В cookies не найден accountId");
 			}catch{
-				return RedirectToAction("Account", "Login");
+				return RedirectToAction("Login", "SignIn");
 			}
 
 
@@ -297,7 +297,7 @@ namespace Website.Controllers
 			}
 			catch
 			{
-				return RedirectToAction("Account", "Login");
+				return RedirectToAction("Login", "SignIn");
 			}
 
 
@@ -368,7 +368,7 @@ namespace Website.Controllers
             try{
                 accountId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("В cookies не найден accountId.");
             }catch{
-                return RedirectToAction("Account", "Login");
+                return RedirectToAction("Login", "SignIn");
             }
 
             List<int> idsOfModeratedBots = _contextDb.Moderators.Where(_mo => _mo.AccountId == accountId).Select(_mo => _mo.BotId).ToList();

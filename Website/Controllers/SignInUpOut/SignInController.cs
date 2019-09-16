@@ -19,14 +19,11 @@ namespace Website.Controllers
 {
     public class SignInController : Controller
     {
-        private ApplicationContext _context;
-        private EmailMessageSender _emailSender;
-
-        public SignInController(ApplicationContext context, EmailMessageSender emailSender)
+        private readonly ApplicationContext _context;
+        
+        public SignInController(ApplicationContext context)
         {
             _context = context;
-            _emailSender = emailSender;
-
         }
 
         

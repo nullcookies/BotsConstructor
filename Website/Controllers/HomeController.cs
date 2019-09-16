@@ -81,11 +81,11 @@ namespace Website.Controllers
 
         
 
-		[HttpGet]
-        public IActionResult BotCreation()
-        {
-            return View();
-        }
+		//[HttpGet]
+  //      public IActionResult BotCreation()
+  //      {
+  //          return View();
+  //      }
 
         //Автоматически вызывается при ошибке 
         [AllowAnonymous]

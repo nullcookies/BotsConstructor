@@ -1,16 +1,16 @@
-﻿using LogicalCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using LogicalCore;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
 
-namespace DeleteMeWebhook
+namespace Forest
 {
-	public class Stub
+	public static class Stub
     {
-		private static Random random = new Random();
+		private static readonly Random random = new Random();
 		private static Dictionary<int, MetaValued<int>> Sushi { get; }
 		private static Dictionary<int, MetaValued<int>> Pizza { get; }
 		private static readonly string[] pizzaDiameters = new string[3] { "25 cm", "30 cm", "40 cm" };

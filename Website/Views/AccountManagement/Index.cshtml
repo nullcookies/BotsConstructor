@@ -60,7 +60,7 @@
                         </div>
                     </div>
                     <div class="col">
-                        <button class="btn btn-info btn-lg btn-block" style="color: #fff;" asp-controller="TopUp" asp-action="Index" disabled>Пополнить счёт</button>
+                        <button class="btn btn-info btn-lg btn-block" style="color: #fff;" @*asp-controller="TopUp" asp-action="Index"*@ disabled>Пополнить счёт</button>
                     </div>
                 </div>
             </div>
@@ -242,20 +242,19 @@
 <script>
     function giveMeMoney() {
 
-        var url = `/AccountManagement/GiveMeMoney`
+        const url = `/AccountManagement/GiveMeMoney`;
 
         $.ajax({
             cache: false,
             type: "GET",
             url: url,
             contentType: 'application/json',
-            success: function (data) {
+            success: function () {
                 location.reload();
             },
             error: function (xhr) {
              
-                console.log("Error occurred . "
-                    + xhr.responseText);
+                console.log(`Error occurred . ${xhr.responseText}`);
              
 
             }
@@ -264,20 +263,19 @@
 
     function takeItAway() {
 
-        var url = `/AccountManagement/TakeItAway`
+        const url = `/AccountManagement/TakeItAway`;
 
         $.ajax({
             cache: false,
             type: "GET",
             url: url,
             contentType: 'application/json',
-            success: function (data) {
+            success: function () {
                 location.reload();
             },
             error: function (xhr) {
 
-                console.log("Error occurred . "
-                    + xhr.responseText);
+                console.log(`Error occurred . ${xhr.responseText}`);
 
 
             }

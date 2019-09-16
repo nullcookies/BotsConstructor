@@ -46,7 +46,7 @@ namespace Website.Controllers
             try{
                 accountId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("Не удалось извлечь accountId из cookies");
             }catch{
-                return RedirectToAction("Account", "Login");
+                return RedirectToAction("Login", "SignIn");
             }
 
 

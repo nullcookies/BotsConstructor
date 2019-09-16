@@ -1,21 +1,18 @@
-﻿using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Hosting;
-using System;
+﻿using System;
 using System.Configuration;
 using System.Net;
 using System.Runtime.InteropServices;
-using Telegram.Bot;
+using DeleteMeWebhook;
 using LogicalCore;
+using Microsoft.AspNetCore;
+using Microsoft.AspNetCore.Hosting;
+using Telegram.Bot;
 
-
-
-
-
-namespace DeleteMeWebhook
+namespace Forest
 {
-    public class Program
+    public static class Program
     {
-        public static bool WebhookIsEnabledInDebugMode = false;
+        private static readonly bool WebhookIsEnabledInDebugMode = false;
         public static string Url;
 
         public static void Main(string[] args)

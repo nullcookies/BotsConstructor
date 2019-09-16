@@ -33,7 +33,7 @@
     animation: blink5 2s linear infinite;
 }
 
-@@-webkit-keyframes blink5 {
+@-webkit-keyframes blink5 {
     0% {
         color: rgb(128, 0, 0);
     }
@@ -47,7 +47,7 @@
     }
 }
 
-@@keyframes blink5 {
+@keyframes blink5 {
     0% {
         color: rgb(128, 0, 0);
     }

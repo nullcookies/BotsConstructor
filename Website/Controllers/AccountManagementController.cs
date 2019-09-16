@@ -17,13 +17,13 @@ namespace Website.Controllers
     [Authorize]
     public class AccountManagementController : Controller
     {
-        ApplicationContext contextDb;
-        StupidLogger logger;
+        ApplicationContext _contextDb;
+        StupidLogger _logger;
 
         public AccountManagementController(ApplicationContext applicationContext, StupidLogger logger)
         {
-            contextDb = applicationContext;
-            this.logger = logger;
+            _contextDb = applicationContext;
+            this._logger = logger;
         }
         //[HttpGet]
         //public IActionResult GiveMeMoney()
@@ -35,10 +35,10 @@ namespace Website.Controllers
         //        return Forbid();
         //    }
 
-        //    Account user = contextDb.Accounts.Find(accId);
+        //    Account user = _contextDb.Accounts.Find(accId);
 
         //    user.Money += (decimal) 546.1518434168;
-        //    contextDb.SaveChanges();
+        //    _contextDb.SaveChanges();
 
         //    return Ok();
 
@@ -58,12 +58,12 @@ namespace Website.Controllers
         //        return Forbid();
         //    }
 
-        //    Account user = contextDb.Accounts.Find(accId);
+        //    Account user = _contextDb.Accounts.Find(accId);
 
         //    if (user.Money > 0)
         //    {
         //        user.Money -= (decimal)660.19156871163;
-        //        contextDb.SaveChanges();
+        //        _contextDb.SaveChanges();
         //    }
 
         //    return Ok();
@@ -78,10 +78,10 @@ namespace Website.Controllers
             try{
                 accId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("Аккаунт с таким id  не найден.");
             }catch{
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Login", "SignIn");
             }
 
-            Account user = contextDb.Accounts.Find(accId);
+            Account user = _contextDb.Accounts.Find(accId);
             decimal money = user.Money;
 
             //Показ двух знаков после запятой
@@ -100,10 +100,10 @@ namespace Website.Controllers
             try{
                 accId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("Аккаунт с таким id  не найден.");
             }catch{
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Login", "SignIn");
             }
 
-            Account user = contextDb.Accounts.Find(accId);
+            Account user = _contextDb.Accounts.Find(accId);
             if (user.Password == null)
             {
                 //TODO Заглушка. Если пользователь логинится через телеграм, то пароля у него может и не быть
@@ -124,24 +124,24 @@ namespace Website.Controllers
             try{
                 accId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("Аккаунт с таким id  не найден.");
             }catch{
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Login", "SignIn");
             }
 
 
-            Account acc = contextDb.Accounts.Find(accId);
+            Account acc = _contextDb.Accounts.Find(accId);
 
             if (acc == null)
             {
                 //Критическая ошибка безопасности
                 //Почему в БД нет такого аккаунта?
                 //Ведь пользователь авторизован
-                logger.Log(
+                _logger.Log(
                     LogLevelMyDich.CRITICAL_SECURITY_ERROR, 
                     Source.WEBSITE, 
                     "Почему в БД нет такого аккаунта? Ведь пользователь авторизован", 
                     accountId:accId);
 
-                return RedirectToAction("Logout", "Account");
+                return RedirectToAction("Logout", "SignOut");
             }
 
             if (acc.Password != passModel.OldPassword)
@@ -161,7 +161,7 @@ namespace Website.Controllers
                 //Все данные введены правильно
                 //Заменить пароль
                 acc.Password = passModel.NewPassword;
-                contextDb.SaveChanges();
+                _contextDb.SaveChanges();
                 return RedirectToAction("Index", "AccountManagement");
             }
 

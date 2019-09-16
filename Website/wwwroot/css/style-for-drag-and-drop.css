@@ -133,7 +133,7 @@ body {
     animation: appear-from-inside .25s ease-in-out;
 }
 
-@@-webkit-keyframes appear-from-inside {
+@-webkit-keyframes appear-from-inside {
     from {
         -webkit-transform: translateY( -50% ) scale( 0 );
     }
@@ -147,7 +147,7 @@ body {
     }
 }
 
-@@keyframes appear-from-inside {
+@keyframes appear-from-inside {
     from {
         transform: translateY( -50% ) scale( 0 );
     }
