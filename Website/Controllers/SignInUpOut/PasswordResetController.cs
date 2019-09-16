@@ -1,30 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 using DataLayer.Models;
 using DataLayer.Services;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Website.Models;
 using Website.Other;
 using Website.Services;
 using Website.ViewModels;
 
-
-namespace Website.Controllers.SignInUp
+namespace Website.Controllers.SignInUpOut
 {
     public class PasswordResetController : Controller
     {
 
-        private ApplicationContext _context;
-        private EmailMessageSender _emailSender;
-        private StupidLogger _logger;
+        private readonly ApplicationContext _context;
+        private readonly EmailMessageSender _emailSender;
+        private readonly StupidLogger _logger;
 
         public PasswordResetController(ApplicationContext context, 
             EmailMessageSender emailSender,
@@ -50,18 +41,23 @@ namespace Website.Controllers.SignInUp
                 return View();
             }
             email = email.Trim();
-            Account acc = _context.Accounts.Where(_acc => _acc.Email == email).SingleOrDefault();
+            Account acc = _context.Accounts
+                .SingleOrDefault(_acc => _acc.Email == email);
 
             if (acc != null)
             {
                 //Отправка сообщения
+
                 Guid guid = Guid.NewGuid();
 
                 AccountToResetPassword tmpRecordDb = new AccountToResetPassword() { AccountId = acc.Id, GuidPasswordSentToEmail = guid };
 
                 //TODO Перезаписывать запрос на смену пароля если уже он уже есть
-                List<AccountToResetPassword> recordsWithTheSameAccountId = _context.AccountsToResetPassword.Where(_tmpRecord => _tmpRecord.AccountId == acc.Id).ToList();
-                if (recordsWithTheSameAccountId.Count() == 0)
+                List<AccountToResetPassword> recordsWithTheSameAccountId = _context.AccountsToResetPassword
+                    .Where(_tmpRecord => _tmpRecord.AccountId == acc.Id)
+                    .ToList();
+
+                if (!recordsWithTheSameAccountId.Any())
                 {
                     _context.AccountsToResetPassword.Add(tmpRecordDb);
                 }
@@ -78,10 +74,10 @@ namespace Website.Controllers.SignInUp
                 var link = $"https://{domain}/PasswordReset/PasswordResetOnlyNewPass?guid={guid.ToString()}&accountId={acc.Id}";
 
 
-                bool SendIsOk = _emailSender.SendPasswordReset(email, acc.Name, link);
+                bool sendIsOk = _emailSender.SendPasswordReset(email, acc.Name, link);
 
 
-                if (!SendIsOk)
+                if (!sendIsOk)
                 {
                     //если email не отправился, то удалить из БД запись о возможности сброса пароля
                     _context.AccountsToResetPassword.Remove(tmpRecordDb);
@@ -105,28 +101,20 @@ namespace Website.Controllers.SignInUp
         public IActionResult PasswordResetOnlyNewPass(Guid guid, int accountId)
         {
             var tmpRecord = _context.AccountsToResetPassword
-                .Where(_acc => _acc.AccountId == accountId).SingleOrDefault();
+                .SingleOrDefault(_acc => _acc.AccountId == accountId);
 
             if (tmpRecord != null)
             {
-                if (guid != null)
+                if (guid == tmpRecord.GuidPasswordSentToEmail)
                 {
-                    if (guid == tmpRecord.GuidPasswordSentToEmail)
-                    {
-                        //запросить сброс пароля
-                        ViewData["showPasswordEntryForm"] = true;
-                        Account acc = _context.Accounts.Find(accountId);
-                        ViewData["accountId"] = accountId;
-                        ViewData["guid"] = guid;
-                    }
-                    else
-                    {
-                        ModelState.AddModelError("", "Guid мне очень не нравится");
-                    }
+                    //запросить сброс пароля
+                    ViewData["showPasswordEntryForm"] = true;
+                    ViewData["accountId"] = accountId;
+                    ViewData["guid"] = guid;
                 }
                 else
                 {
-                    ModelState.AddModelError("", "Guid  мне не нравится");
+                    ModelState.AddModelError("", "Guid мне очень не нравится");
                 }
             }
             else
@@ -142,13 +130,12 @@ namespace Website.Controllers.SignInUp
         {
             //Проверка guid-a
             var accountToResetPass = _context.AccountsToResetPassword
-               .Where(_acc => _acc.AccountId == targetAccountId)
-               .SingleOrDefault();
+               .SingleOrDefault(_acc => _acc.AccountId == targetAccountId);
 
 
-            if (guid == null || accountToResetPass == null || guid != accountToResetPass.GuidPasswordSentToEmail)
+            if (accountToResetPass == null || guid != accountToResetPass.GuidPasswordSentToEmail)
             {
-                int accountId = 0;
+                int accountId;
                 try{
                     accountId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("Аккаунт с таким id  не найден.");
                 }catch{
@@ -172,8 +159,6 @@ namespace Website.Controllers.SignInUp
                 {
                     if (passModel.NewPassword == passModel.ConfirmNewPassword)
                     {
-                        
-                        if (accountToResetPass != null)
                         {
                             Account acc = _context.Accounts.Find(targetAccountId);
 
@@ -192,10 +177,6 @@ namespace Website.Controllers.SignInUp
                             {
                                 ModelState.AddModelError("", $"Критическая ошибка логики сервера. Не найден аккаунт для котогоро была запрошена процедура смены пароля. accountId={targetAccountId} ");
                             }
-                        }
-                        else
-                        {
-                            ModelState.AddModelError("", $"Критическая ошибка логики сервера. В бд не найдена запись (id, accid, guid) для сброса пароля. Если вы видите это сообщение,значит разработчик полный идиот. Напишите в тех. поддержку. Кто-то точно будет уволен. Хм, если это не я конечноже. accountId={targetAccountId} ");
                         }
                         //заменить пароль в базе на этот
                     }

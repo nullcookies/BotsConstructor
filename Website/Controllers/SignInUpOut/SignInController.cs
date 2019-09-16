@@ -4,18 +4,13 @@ using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 using DataLayer.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Website.Models;
-using Website.Services;
 using Website.ViewModels;
 
-
-namespace Website.Controllers
+namespace Website.Controllers.SignInUpOut
 {
     public class SignInController : Controller
     {
@@ -35,13 +30,13 @@ namespace Website.Controllers
 
 
        [HttpGet]
-        public IActionResult LoginWithTelegram(string id, 
-           string first_name, 
-           string last_name, 
-           string username, 
-           string photo_url,
-           string auth_date, 
-           string hash)
+        public IActionResult LoginWithTelegram(string id,
+            [FromQuery(Name = "first_name")] string firstName,
+            [FromQuery(Name = "last_name")]   string lastName,
+            [FromQuery(Name = "username")]string username,
+            [FromQuery(Name = "photo_url")]string photoUrl,
+            [FromQuery(Name = "auth_date")]string authDate,
+            [FromQuery(Name = "hash")]string hash)
         {
             //@bots_constructor_bot
             string botToken = "913688656:AAGIJK2GQLFZTDGWjUX8jV5aPujLoHSiSus";
@@ -49,21 +44,21 @@ namespace Website.Controllers
             List<string> myList = new List<string>
             {
                 $"id={id}",
-                $"auth_date={auth_date}"
+                $"auth_date={authDate}"
             };
 
             //Эти поля могут быть пустыми
-            if (first_name != null){
-                myList.Add($"first_name={first_name}");
+            if (firstName != null){
+                myList.Add($"first_name={firstName}");
             }
-            if (last_name != null){
-                myList.Add($"last_name={last_name}");
+            if (lastName != null){
+                myList.Add($"last_name={lastName}");
             }
             if (username != null){
                 myList.Add($"username={username}");
             }
-            if (photo_url != null){
-                myList.Add($"photo_url={photo_url}");
+            if (photoUrl != null){
+                myList.Add($"photo_url={photoUrl}");
             }
 
             string[] myArr = myList.ToArray();
@@ -108,7 +103,7 @@ namespace Website.Controllers
                     user = new Account()
                     {
                         //TODO имя при логине через телеграм можно обновлять
-                        Name = first_name + " " + last_name,
+                        Name = firstName + " " + lastName,
                         TelegramId = telegramId,
                         RoleTypeId = 1
                     };

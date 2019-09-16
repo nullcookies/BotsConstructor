@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using DataLayer.Models;
 using Microsoft.AspNetCore.Mvc;
 using Website.Services;
 using Website.ViewModels;
 
-namespace Website.Controllers.SignInUp
+namespace Website.Controllers.SignInUpOut
 {
     public class SignUpController : Controller
     {
