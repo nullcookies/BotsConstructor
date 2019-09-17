@@ -147,7 +147,7 @@ namespace Website
             app.UseWebSockets(wsOptions);
 
           
-
+            //сохранение в удобном виде для настроек локализации
             app.Use((context, next) =>
             {
 
@@ -176,6 +176,22 @@ namespace Website
                 // Call the next delegate/middleware in the pipeline
                 return next();
             });
+
+
+            //запись accountId если удалось найти в куки
+            app.Use((context, next) =>
+            {
+                string idStr = context.User.FindFirst(x => x.Type == "userId")?.Value;
+
+                if (int.TryParse(idStr, out int id))
+                {
+                    context.Items["accountId"] = id;
+                }
+ 
+                return next();
+            });
+
+
 
             //как это засунуть в Middleware?
             app.Use(async (context, next) =>

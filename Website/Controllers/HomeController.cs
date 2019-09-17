@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Net;
-using DataLayer.Models;
+﻿using DataLayer.Models;
 using DataLayer.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using Website.Models;
 using Website.Other;
 
@@ -15,8 +14,9 @@ namespace Website.Controllers
     [Authorize]
     public class HomeController : Controller
     {
-        ApplicationContext _contextDb;
-        StupidLogger _logger;
+        readonly ApplicationContext _contextDb;
+        readonly StupidLogger _logger;
+
         public HomeController(ApplicationContext context, StupidLogger logger)
         {
             this._contextDb = context ?? throw new ArgumentNullException(nameof(context));
@@ -31,13 +31,10 @@ namespace Website.Controllers
 
         public IActionResult MyBots()
         {
-            int accountId = 0;
-            try{
-                accountId =  Stub.GetAccountIdFromCookies(HttpContext)  ?? throw new Exception("Аккаунт с таким id  не найден.");
-            }catch{
-                return StatusCode(403);
-            }
-            
+            int accountId = (int) HttpContext.Items["accountId"];
+
+            //int accountId = Stub.GetAccountIdFromCookies(HttpContext) ??throw new Exception("Аккаунт с таким id  не найден.");
+
             var bots = _contextDb.Bots.Where(_bot => _bot.OwnerId == accountId);
             var rrs = _contextDb.RouteRecords.ToList();
             List<BotOnHomePage> modelBots = new List<BotOnHomePage>();
