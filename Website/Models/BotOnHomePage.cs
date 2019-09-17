@@ -7,7 +7,6 @@ namespace Website.Models
 {
     public class BotOnHomePage
     {
-        public int Number{ get; set; }
         public string Name { get; set; }
         public string Status { get; set; }
         public int BotId { get; set; }

@@ -34,16 +34,5 @@ namespace Website.Controllers
         }
 
 
-        //public IActionResult EditBot(int botId)
-        //{
-        //    string botType = context.Bots.Find(botId)?.BotType;
-        //    switch (botType)
-        //    {
-        //        case "BotForSales":
-        //            return RedirectToAction("BotForSales", "BotForSalesEditing", new { botId });
-        //        default:
-        //            throw new Exception("Неизвестный тип бота");
-        //    }
-        //}
     }
 }

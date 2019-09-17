@@ -42,20 +42,12 @@ namespace Website.Controllers
         public IActionResult CreateNewBotForSales(TokenChange tokenModel)
         {
 
-            int accountId = 0;
-            try{
-                accountId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("Не удалось извлечь accountId из cookies");
-            }catch{
-                return RedirectToAction("Login", "SignIn");
-            }
+            int accountId = (int)HttpContext.Items["accountId"];
 
-
-            string token = tokenModel?.Token;
-            string botUsername = null;
-            
             try
             {
-                botUsername = new TelegramBotClient(token).GetMeAsync().Result.Username;
+                string token = tokenModel?.Token;
+                string botUsername = new TelegramBotClient(token).GetMeAsync().Result.Username;
 
                 //Создание нового бота для продаж с пустой разметкой
                 BotDB bot = new BotDB() { OwnerId = accountId, BotType = "BotForSales", Token = token, BotName = botUsername };
@@ -83,17 +75,12 @@ namespace Website.Controllers
 				_contextDb.OrderStatusGroups.Add(statusGroup);
 
                 _contextDb.SaveChanges();
-
-				int botId = bot.Id;
-
-				return RedirectToAction("SalesTreeEditor", "BotForSalesEditing", new { botId });
+                
+				return RedirectToAction("SalesTreeEditor", "BotForSalesEditing", new { bot.Id });
 
             }
             catch (Exception ee)
             {
-                Console.WriteLine("\n\n\n\n\n\n\n");
-                Console.WriteLine(ee.Message);
-                Console.WriteLine("\n\n\n\n\n\n\n");
                 _logger.Log(LogLevelMyDich.USER_ERROR, Source.WEBSITE, $"Сайт. Создание нового бота. При " +
                     $"запросе botUsername было выброшено исключение (возможно, введённый" +
                     $"токен был специально испорчен)"+ee.Message, accountId:accountId);
@@ -101,9 +88,6 @@ namespace Website.Controllers
                 ModelState.AddModelError("", "Ошибка обработки токена.");
             }
            
-
-
-            
 
             return View("BotForSalesTokenEntry");
         }

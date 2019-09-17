@@ -12,11 +12,12 @@
         </tr>
     </thead>
     <tbody>
-        @{
+    @{
+        int botNumber = 1;
             foreach (var bot in ViewData["bots"] as List<BotOnHomePage>)
             {
                 <tr>
-                    <th scope="row">@bot.Number</th>
+                    <th scope="row">@(botNumber++)</th>
 
 
 

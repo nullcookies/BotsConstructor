@@ -13,9 +13,9 @@ namespace Website.Controllers.SignInUpOut
     public class PasswordResetController : Controller
     {
 
+        private readonly StupidLogger _logger;
         private readonly ApplicationContext _context;
         private readonly EmailMessageSender _emailSender;
-        private readonly StupidLogger _logger;
 
         public PasswordResetController(ApplicationContext context, 
             EmailMessageSender emailSender,

@@ -1,40 +1,37 @@
 ﻿using DataLayer.Models;
 using DataLayer.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Linq;
 using System.Net.WebSockets;
 using System.Threading.Tasks;
 using Website.Other;
 using Website.Other.Filters;
 using Website.Services;
-//using Website.Services.Bookkeeper;
+
+//Дичь
 
 namespace Website.Controllers
 {
+    [Authorize]
     public class BotForSalesSettingsController : Controller
     {
-
-        StupidLogger _logger;
-        ApplicationContext _contextDb;
+        readonly StupidLogger _logger;
         IHostingEnvironment _appEnvironment;
-        //StupidBotForSalesBookkeeper _bookkeper;
-        BotsAirstripService _botsAirstripService;
-        BotForSalesStatisticsService _botForSalesStatisticsService;
+        readonly ApplicationContext _contextDb;
+        readonly BotsAirstripService _botsAirstripService;
+        readonly BotForSalesStatisticsService _botForSalesStatisticsService;
 
         public BotForSalesSettingsController(ApplicationContext context, 
                 IHostingEnvironment appEnvironment, 
                 StupidLogger logger, 
                 BotForSalesStatisticsService botForSalesStatisticsService,
-                //StupidBotForSalesBookkeeper bookkeper,
                 BotsAirstripService botsAirstripService)
         {
             _logger = logger;
-            //_bookkeper = bookkeper;
             _appEnvironment = appEnvironment;
             _botsAirstripService = botsAirstripService;
             _botForSalesStatisticsService = botForSalesStatisticsService;
@@ -48,8 +45,6 @@ namespace Website.Controllers
         {
             BotDB bot = _contextDb.Bots.Find(botId);
 
-            //StupidPriceInfo _pi = _bookkeper.GetPriceInfo(botId, DateTime.UtcNow);
-            //ViewData["sum"] = Round(_pi.SumToday);
             ViewData["sum"] = 0;
 
             ViewData["botId"] = botId;
@@ -137,12 +132,7 @@ namespace Website.Controllers
         {           
             _logger.Log(LogLevelMyDich.INFO, Source.WEBSITE, "Остановка бота");
 
-            int accountId = 0;
-            try{
-                accountId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("Из cookies не удалось извлечь accountId");
-            }catch{
-                return StatusCode(403);
-            }
+            int accountId = (int)HttpContext.Items["accountId"];
 
             JObject answer = _botsAirstripService.StopBot(botId, accountId);
 
@@ -229,31 +219,5 @@ namespace Website.Controllers
             }
         }
 
-        //[HttpGet]
-        //public IActionResult PriceDetails(int botId)
-        //{
-        //    //StupidPriceInfo _pi = _bookkeper.GetPriceInfo(botId, DateTime.UtcNow);
-
-        //    ViewData["sum"] = Round(_pi.SumToday);
-        //    ViewData["dailyPrice"] = Round(_pi.DailyConst) ;
-        //    ViewData["orderPrice"] = Round(_pi.OneAnswerPrice) ;
-        //    ViewData["countOfOrders"] = Round(_pi.AnswersCountToday) ;
-        //    ViewData["number_of_orders_over_the_past_week"] = Round(_pi.Number_of_orders_over_the_past_week) ;
-
-        //    DateTime tomorrow_00_05_00 = DateTime.UtcNow
-        //        .AddDays(1)
-        //        .AddHours(-DateTime.UtcNow.Hour)
-        //        .AddMinutes(-DateTime.UtcNow.Minute + 5)
-        //        .AddSeconds(-DateTime.UtcNow.Second);
-
-        //    TimeSpan interval = tomorrow_00_05_00 - DateTime.UtcNow;
-        //    ViewData["time before withdrawing money"] = interval.ToString(@"hh\:mm");
-
-        //    return View();
-        //}
-        //private decimal Round(decimal number)
-        //{            
-        //    return  Math.Floor(number * 100) / 100;
-        //}
     }
 }

@@ -25,68 +25,14 @@ namespace Website.Controllers
             _contextDb = applicationContext;
             this._logger = logger;
         }
-        //[HttpGet]
-        //public IActionResult GiveMeMoney()
-        //{
-        //    int accId = 0;
-        //    try{
-        //        accId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("Аккаунт с таким id  не найден.");
-        //    }catch{
-        //        return Forbid();
-        //    }
-
-        //    Account user = _contextDb.Accounts.Find(accId);
-
-        //    user.Money += (decimal) 546.1518434168;
-        //    _contextDb.SaveChanges();
-
-        //    return Ok();
-
-        //}
-
-
-
-
-        //[HttpGet]
-        //public IActionResult TakeItAway()
-        //{
-
-        //    int accId = 0;
-        //    try{
-        //        accId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("Аккаунт с таким id  не найден.");
-        //    }catch{
-        //        return Forbid();
-        //    }
-
-        //    Account user = _contextDb.Accounts.Find(accId);
-
-        //    if (user.Money > 0)
-        //    {
-        //        user.Money -= (decimal)660.19156871163;
-        //        _contextDb.SaveChanges();
-        //    }
-
-        //    return Ok();
-
-
-
-        //}
-
+       
         public IActionResult Index()
         {
-            int accId = 0;
-            try{
-                accId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("Аккаунт с таким id  не найден.");
-            }catch{
-                return RedirectToAction("Login", "SignIn");
-            }
-
-            Account user = _contextDb.Accounts.Find(accId);
-            decimal money = user.Money;
+            int accountId = (int)HttpContext.Items["accountId"];
+            Account user = _contextDb.Accounts.Find(accountId);
 
             //Показ двух знаков после запятой
-            decimal rounded = Math.Floor(money * 100) / 100;
-           
+            decimal rounded = Math.Floor(user.Money * 100) / 100;
 
             ViewData["money"] = rounded;
             return View();
@@ -96,17 +42,13 @@ namespace Website.Controllers
         
         public IActionResult ResetPassword()
         {
-            int accId = 0;
-            try{
-                accId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("Аккаунт с таким id  не найден.");
-            }catch{
-                return RedirectToAction("Login", "SignIn");
-            }
+            int accountId = (int)HttpContext.Items["accountId"];
+            Account user = _contextDb.Accounts.Find(accountId);
 
-            Account user = _contextDb.Accounts.Find(accId);
             if (user.Password == null)
             {
                 //TODO Заглушка. Если пользователь логинится через телеграм, то пароля у него может и не быть
+                //TODO Нужно редиректить на страницу с пояснением
                 return RedirectToAction("Index", "AccountManagement");
             }
 
@@ -120,31 +62,10 @@ namespace Website.Controllers
         public IActionResult ResetPassword(ResetPasswordModel passModel)
         {
 
-            int accId = 0;
-            try{
-                accId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("Аккаунт с таким id  не найден.");
-            }catch{
-                return RedirectToAction("Login", "SignIn");
-            }
+            int accountId = (int) HttpContext.Items["accountId"];
+            Account account = _contextDb.Accounts.Find(accountId);
 
-
-            Account acc = _contextDb.Accounts.Find(accId);
-
-            if (acc == null)
-            {
-                //Критическая ошибка безопасности
-                //Почему в БД нет такого аккаунта?
-                //Ведь пользователь авторизован
-                _logger.Log(
-                    LogLevelMyDich.CRITICAL_SECURITY_ERROR, 
-                    Source.WEBSITE, 
-                    "Почему в БД нет такого аккаунта? Ведь пользователь авторизован", 
-                    accountId:accId);
-
-                return RedirectToAction("Logout", "SignOut");
-            }
-
-            if (acc.Password != passModel.OldPassword)
+            if (account.Password != passModel.OldPassword)
             {
                 ModelState.AddModelError("", "Текущий пароль введён неверно");
             }
@@ -152,20 +73,20 @@ namespace Website.Controllers
             {
                 ModelState.AddModelError("", "Заполните поля для нового пароля");
             }
-            else if(passModel.NewPassword!=passModel.ConfirmNewPassword)
+            else if(passModel.NewPassword != passModel.ConfirmNewPassword)
             {
-                ModelState.AddModelError("", "Поля для нового пароля не совпадают");
+                ModelState.AddModelError("", "Значения в полях для нового пароля не совпадают");
             }
             else
             {
                 //Все данные введены правильно
                 //Заменить пароль
-                acc.Password = passModel.NewPassword;
+                //TODO проверка пароля
+                account.Password = passModel.NewPassword;
                 _contextDb.SaveChanges();
                 return RedirectToAction("Index", "AccountManagement");
             }
 
-            
 
             return View(passModel);
 

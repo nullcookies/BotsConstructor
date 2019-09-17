@@ -12,9 +12,9 @@ namespace Website.Controllers
 {
     public class TokenReplacementController : Controller
     {
-        ApplicationContext context;
+        readonly StupidLogger _logger;
+        readonly ApplicationContext context;
         IHostingEnvironment _appEnvironment;
-        StupidLogger _logger;
 
         public TokenReplacementController(ApplicationContext context, IHostingEnvironment appEnvironment, StupidLogger  logger)
         {

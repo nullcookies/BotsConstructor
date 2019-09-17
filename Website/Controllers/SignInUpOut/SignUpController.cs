@@ -10,8 +10,8 @@ namespace Website.Controllers.SignInUpOut
     public class SignUpController : Controller
     {
 
-        private ApplicationContext _context;
-        private EmailMessageSender _emailSender;
+        private readonly ApplicationContext _context;
+        private readonly EmailMessageSender _emailSender;
 
         public SignUpController(ApplicationContext context, 
             EmailMessageSender emailSender)

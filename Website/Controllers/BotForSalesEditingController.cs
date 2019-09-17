@@ -3,10 +3,13 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
+using Microsoft.AspNetCore.Authorization;
 using Website.Other.Filters;
 
+//TODO  проверка права доступа
 namespace Website.Controllers
 {
+    [Authorize]
 	public class BotForSalesEditingController : Controller
     {
         ApplicationContext context;

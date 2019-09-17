@@ -15,11 +15,9 @@ namespace Website.Controllers
     [Authorize]
     public class NewsController : Controller
     {
-        ApplicationContext context;
 
         public NewsController(ApplicationContext context, IStringLocalizer<MainController> localizer)
         {
-            this.context = context ?? throw new ArgumentNullException(nameof(context));
             
         }
 
