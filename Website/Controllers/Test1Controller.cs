@@ -1,18 +1,20 @@
-﻿using DataLayer.Models;
-using Microsoft.AspNetCore.Authorization;
+﻿using System;
+using DataLayer.Models;
+using DataLayer.Services;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Razor.Language.Extensions;
 
 namespace Website.Controllers
 {
     public class Test1Controller : Controller
     {
         private readonly IHostingEnvironment _hostingEnvironment;
+        private StupidLogger _logger;
 
-        public Test1Controller(IHostingEnvironment hostingEnvironment)
+        public Test1Controller(IHostingEnvironment hostingEnvironment, StupidLogger logger)
         {
             _hostingEnvironment = hostingEnvironment;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -22,6 +24,8 @@ namespace Website.Controllers
             {
                 return StatusCode(404);
             }
+
+            //int accountId = (int)HttpContext.Items["accountId"];
 
             return View();
         }
