@@ -11,7 +11,8 @@ namespace Website
         public static void Main(string[] args)
         {
             try
-            {
+            { 
+
                 CreateWebHostBuilder(args).Build().Run();
             }
             catch (Exception e)
