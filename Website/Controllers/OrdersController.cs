@@ -19,8 +19,8 @@ namespace Website.Controllers
 	[Authorize]
     public class OrdersController : Controller
     {
-        ApplicationContext _contextDb;
-        OrdersCountNotificationService _ordersCounter;
+        readonly ApplicationContext _contextDb;
+        readonly OrdersCountNotificationService _ordersCounter;
 
         public OrdersController(ApplicationContext _contextDb, OrdersCountNotificationService _ordersCounter)
         {

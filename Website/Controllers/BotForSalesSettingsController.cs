@@ -20,7 +20,7 @@ namespace Website.Controllers
     public class BotForSalesSettingsController : Controller
     {
         readonly StupidLogger _logger;
-        IHostingEnvironment _appEnvironment;
+        readonly IHostingEnvironment _appEnvironment;
         readonly ApplicationContext _contextDb;
         readonly BotsAirstripService _botsAirstripService;
         readonly BotForSalesStatisticsService _botForSalesStatisticsService;

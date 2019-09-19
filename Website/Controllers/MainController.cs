@@ -15,7 +15,7 @@ namespace Website.Controllers
     [Authorize]
     public class MainController : Controller
     {
-        ApplicationContext _context;
+        readonly ApplicationContext _context;
         private readonly IStringLocalizer<MainController> _localizer;
 
         public MainController(ApplicationContext context, IStringLocalizer<MainController> localizer)

@@ -10,7 +10,6 @@ using Website.Services;
 using Website.ViewModels;
 using DataLayer.Services;
  
-/*какого два класса для аккаунта*/
 namespace Website.Controllers
 {
     

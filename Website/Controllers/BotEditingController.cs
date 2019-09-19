@@ -24,12 +24,12 @@ namespace Website.Controllers
     [Authorize]
     public class BotEditingController : Controller
     {
-        ApplicationContext context;
+        ApplicationContext _context;
         IHostingEnvironment _appEnvironment;
 
         public BotEditingController(ApplicationContext context, IHostingEnvironment appEnvironment)
         {
-            this.context = context ?? throw new ArgumentNullException(nameof(context));
+            this._context = context ?? throw new ArgumentNullException(nameof(context));
             _appEnvironment = appEnvironment;
         }
 

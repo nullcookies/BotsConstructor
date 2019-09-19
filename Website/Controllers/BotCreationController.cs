@@ -16,9 +16,8 @@ namespace Website.Controllers
 {
     public class BotCreationController : Controller
     {
-
-        ApplicationContext _contextDb;
-        StupidLogger _logger;
+        readonly StupidLogger _logger;
+        readonly ApplicationContext _contextDb;
 
         public BotCreationController(ApplicationContext contextDb, StupidLogger logger)
         {
