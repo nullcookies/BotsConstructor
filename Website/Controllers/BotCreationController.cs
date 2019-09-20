@@ -75,7 +75,7 @@ namespace Website.Controllers
 
                 _contextDb.SaveChanges();
                 
-				return RedirectToAction("SalesTreeEditor", "BotForSalesEditing", new { bot.Id });
+				return RedirectToAction("SalesTreeEditor", "BotForSalesEditing", new {botId= bot.Id });
 
             }
             catch (Exception ee)
