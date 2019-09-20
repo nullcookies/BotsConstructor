@@ -59,9 +59,15 @@ namespace Website
                 connection = Configuration.GetConnectionString("PostgresConnectionLinux");
             }
 
+            if (connection == null)
+            {
+                throw  new Exception("Не удалось открыть конфиг файл");
+            }
 
 
-            services.AddEntityFrameworkNpgsql().AddDbContext<ApplicationContext>(opt => opt.UseNpgsql(connection)).BuildServiceProvider();
+            services.AddEntityFrameworkNpgsql()
+                .AddDbContext<ApplicationContext>(opt => opt.UseNpgsql(connection))
+                .BuildServiceProvider();
 
 
             //my
