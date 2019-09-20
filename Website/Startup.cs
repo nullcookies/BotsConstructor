@@ -64,6 +64,7 @@ namespace Website
                 throw  new Exception("Не удалось открыть конфиг файл");
             }
 
+            Console.WriteLine("строка="+connection);
 
             services.AddEntityFrameworkNpgsql()
                 .AddDbContext<ApplicationContext>(opt => opt.UseNpgsql(connection))

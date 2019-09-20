@@ -7,7 +7,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DataLayer.Models
 {
-	public class ApplicationContext: DbContext
+	public sealed class ApplicationContext: DbContext
     {
         public DbSet<Account> Accounts { get; set; }
         public DbSet<RoleType> AuthRoles { get; set; }
