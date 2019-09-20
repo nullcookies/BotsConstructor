@@ -18,7 +18,7 @@ namespace Forest.Controllers
     {
 		private readonly TryConvert<(string FileId, string PreviewId, string Description)> noFileCheck = (string text, out (string FileId, string PreviewId, string Description) variable) =>
 		{
-			variable = default((string FileId, string PreviewId, string Description));
+			variable = default;
 			return true;
 		};
 
@@ -50,7 +50,6 @@ namespace Forest.Controllers
         [Route("{telegramBotUsername}")]
         public IActionResult Index([FromBody]Update update)
         {
-
             string botUsername = RouteData.Values["telegramBotUsername"].ToString();
             
             if (BotsContainer.BotsDictionary.TryGetValue(botUsername, out BotWrapper botWrapper))
@@ -63,7 +62,6 @@ namespace Forest.Controllers
                     LogLevelMyDich.WARNING, 
                     Source.FOREST, 
                     $"Пришло обновление для бота, которого нет в списке онлайн ботов. botUsername={botUsername}");
-
             }
 
             return Ok();
@@ -264,7 +262,7 @@ namespace Forest.Controllers
 								switch ((DisplayType)(int)nodeParams["displayType"])
 								{
 									case DisplayType.Simple:
-										List<MetaReplyMessage> foldersMsgs = nodeParams["properties"].Select((section) => GetReplyMsgFromParams(section)).ToList();
+										List<MetaReplyMessage> foldersMsgs = nodeParams["properties"].Select(GetReplyMsgFromParams).ToList();
 										node = new ProductSimpleNode<decimal>(nodeName, elements, "Products", IDs, foldersMsgs, "ShoppingCart", "Добавлено: ", "Добавить", GetInlineMsgFromParams(nodeParams));
 										Node parentNode = treeNodes[(int)allNodes[i]["parentId"]];
 										if (parentNode is BlockNode)
