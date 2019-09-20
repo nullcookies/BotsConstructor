@@ -31,10 +31,7 @@ namespace Website.Other.Filters
       
         public void OnActionExecuting(ActionExecutingContext context)
         {
-            string botIdStr = context.HttpContext.Request.Query["botId"].ToString();
-            bool success = int.TryParse(botIdStr,out int botId) ;
-            
-            if (!success)
+            if (!(context.ActionArguments["botId"] is int botId))
             {
                 _logger.Log(LogLevelMyDich.UNAUTHORIZED_ACCESS_ATTEMPT, Source.WEBSITE, "В запросе не был указан botId");
                 context.Result = new StatusCodeResult(404);
