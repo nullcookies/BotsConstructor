@@ -6,7 +6,7 @@ using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Website.Other.Filters;
 
-//TODO  проверка права доступа
+//TODO  проверка прав доступа
 namespace Website.Controllers
 {
     [Authorize]

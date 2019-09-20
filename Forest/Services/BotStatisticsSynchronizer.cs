@@ -1,6 +1,5 @@
 ﻿using DataLayer;
 using DataLayer.Models;
-using DataLayer.Services;
 using DeleteMeWebhook;
 using LogicalCore;
 using Microsoft.Extensions.Configuration;
@@ -22,7 +21,7 @@ namespace Forest.Services
             _logger = logger;
 
             _logger.Log(LogLevelMyDich.INFO,
-                Source.BOT_STATISTICS_SYNCHRONIZER,
+                Source.FOREST_BOT_STATISTICS_SYNCHRONIZER,
                 "Конструктор синхронизатора бд");
 
             (new Thread(
@@ -35,7 +34,7 @@ namespace Forest.Services
                 //catch (Exception ee)
                 //{
                 //    _logger.Log(LogLevelMyDich.ERROR,
-                //        Source.BOT_STATISTICS_SYNCHRONIZER,
+                //        Source.FOREST_BOT_STATISTICS_SYNCHRONIZER,
                 //        "Упал сервис синхронизации статистики ботов", ex: ee);
                 //}
               }
@@ -60,7 +59,7 @@ namespace Forest.Services
         private void SyncBotData()
         {
             _logger.Log(LogLevelMyDich.INFO,
-                Source.BOT_STATISTICS_SYNCHRONIZER,
+                Source.FOREST_BOT_STATISTICS_SYNCHRONIZER,
                 "Старт обновления статистики ботов");
 
                          
@@ -88,7 +87,7 @@ namespace Forest.Services
                 {
                     _logger.Log(
                         LogLevelMyDich.WARNING,
-                        Source.BOT_STATISTICS_SYNCHRONIZER,
+                        Source.FOREST_BOT_STATISTICS_SYNCHRONIZER,
                         $"При обновлении статистики не удалось получить достпук к " +
                         $"боту botUsername={botUsername} в статическом контейнере");
                     continue;
@@ -104,7 +103,7 @@ namespace Forest.Services
                 if (statisticsDb == null)
                 {
                     _logger.Log(LogLevelMyDich.ERROR,
-                        Source.BOT_STATISTICS_SYNCHRONIZER,
+                        Source.FOREST_BOT_STATISTICS_SYNCHRONIZER,
                         $"В бд нет статистики для бота, который запущен в лесу." +
                         $"botUsername={botUsername}, botWrapper.BotID{botWrapper.BotID}");
                     continue;
@@ -116,7 +115,7 @@ namespace Forest.Services
                 if (actualNumberOfMessages < statisticsDb.NumberOfUniqueMessages)
                 {
                     _logger.Log(LogLevelMyDich.ERROR,
-                        Source.BOT_STATISTICS_SYNCHRONIZER,
+                        Source.FOREST_BOT_STATISTICS_SYNCHRONIZER,
                         $"Обновление статистики бота в бд. Количество сообщений у бота в памяти " +
                         $"меньше старого значения кол-ва сообщений у бота в БД." +
                         $"actualNumberOfMessages{actualNumberOfMessages}, " +
@@ -156,7 +155,7 @@ namespace Forest.Services
                 catch(Exception ee)
                 {
                     _logger.Log(LogLevelMyDich.ERROR,
-                        Source.BOT_STATISTICS_SYNCHRONIZER,
+                        Source.FOREST_BOT_STATISTICS_SYNCHRONIZER,
                         "При обновлении списка пользователей произошла ошибка", ex:ee);
                 }
 
@@ -175,7 +174,7 @@ namespace Forest.Services
                         }catch(Exception eee)
                         {
                             _logger.Log(LogLevelMyDich.ERROR,
-                                Source.BOT_STATISTICS_SYNCHRONIZER,
+                                Source.FOREST_BOT_STATISTICS_SYNCHRONIZER,
                                 "При повторной попытке синхронизировать кол-во пользователей было брошено исключение",
                                 ex: eee);
                             continue;
@@ -184,7 +183,7 @@ namespace Forest.Services
                     else
                     {
                         _logger.Log(LogLevelMyDich.ERROR,
-                            Source.BOT_STATISTICS_SYNCHRONIZER,
+                            Source.FOREST_BOT_STATISTICS_SYNCHRONIZER,
                             "Попытка добавить недостающих пользователей не увенчалась успехом.");
                         continue;
                     }
@@ -197,7 +196,7 @@ namespace Forest.Services
                 if (dbBotUsers.Count > actualNumberOfUsers)
                 {
                     _logger.Log(LogLevelMyDich.WARNING,
-                        Source.BOT_STATISTICS_SYNCHRONIZER,
+                        Source.FOREST_BOT_STATISTICS_SYNCHRONIZER,
                         $"Обновление статистики бота. У бота " +
                         $"botUsername {botUsername} botWrapper.BotID={botWrapper.BotID}" +
                         $"старое количество пользователей в БД больше актуального кол-ва " +
@@ -227,7 +226,7 @@ namespace Forest.Services
                 context.BotUsers.AddRange(newUsersRecords);
 
                 _logger.Log(LogLevelMyDich.INFO,
-                    Source.BOT_STATISTICS_SYNCHRONIZER,
+                    Source.FOREST_BOT_STATISTICS_SYNCHRONIZER,
                     $"При обновлении статистики к списку пользователей добавлено " +
                     $"list.Count={newUsersRecords.Count} новых пользователей");
 
@@ -241,7 +240,7 @@ namespace Forest.Services
 
 
             _logger.Log(LogLevelMyDich.INFO,
-                Source.BOT_STATISTICS_SYNCHRONIZER,
+                Source.FOREST_BOT_STATISTICS_SYNCHRONIZER,
                 "Окончание обновления статистики ботов");
 
         }

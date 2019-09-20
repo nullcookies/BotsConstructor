@@ -15,9 +15,9 @@ using System.Runtime.InteropServices;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using DataLayer;
 using DataLayer.Models;
 using Website.Services;
-using DataLayer.Services;
 using Website.Other.Middlewares;
 
 namespace Website

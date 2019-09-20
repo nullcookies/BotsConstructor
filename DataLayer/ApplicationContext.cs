@@ -1,5 +1,4 @@
-﻿using DataLayer.Services;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -477,7 +476,8 @@ namespace DataLayer.Models
         I_AM_AN_IDIOT,
         WARNING,
         SPYING,
-        IMPORTANT_INFO
+        IMPORTANT_INFO,
+        EMAIL_SEND_FAILURE
     }
 
     [Table("RouteRecords")]

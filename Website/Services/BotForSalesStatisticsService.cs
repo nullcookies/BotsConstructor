@@ -1,6 +1,5 @@
 ﻿using DataLayer;
 using DataLayer.Models;
-using DataLayer.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
@@ -30,7 +29,7 @@ namespace Website.Services
 
 
         //Периодический запуск
-        public async Task<bool> PeriodicFooAsync(TimeSpan interval, CancellationToken cancellationToken)
+        private async Task<bool> PeriodicFooAsync(TimeSpan interval, CancellationToken cancellationToken)
         {
             while (true)
             {
@@ -49,9 +48,9 @@ namespace Website.Services
             List<RouteRecord> rrs = _contextDb.RouteRecords.ToList();
             List<int> workingBotIds= new List<int>();
 
-            for (int i = 0; i < rrs.Count; i++)
+            foreach (var routeRecord in rrs)
             {
-                workingBotIds.Add(rrs[i].BotId);
+                workingBotIds.Add(routeRecord.BotId);
             }
 
         
@@ -148,10 +147,8 @@ namespace Website.Services
         }
 
 
-
-
-        DbContextFactory _dbContextWrapper;
-        StupidLogger _logger;
+        readonly DbContextFactory _dbContextWrapper;
+        readonly StupidLogger _logger;
         ApplicationContext _contextDb
         {
             get

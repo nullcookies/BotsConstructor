@@ -1,24 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
-using DeleteMeWebhook.Models;
+using DataLayer;
+using DataLayer.Models;
 using DeleteMeWebhook.Services;
 using LogicalCore;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using DataLayer.Models;
-using DataLayer.Services;
-using System.Threading;
-using Forest;
 
-namespace DeleteMeWebhook.Controllers
+namespace Forest.Controllers
 {
     public class HomeController : Controller
     {
@@ -40,6 +34,12 @@ namespace DeleteMeWebhook.Controllers
             _contextDb = context;
 			connector = dBConnector;
             _logger = logger;
+        }
+
+        [HttpGet]
+        public IActionResult IsAlive()
+        {
+            return Content("I am alive");
         }
 
         /// <summary>
