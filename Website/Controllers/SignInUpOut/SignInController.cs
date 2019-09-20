@@ -24,7 +24,14 @@ namespace Website.Controllers.SignInUpOut
         [HttpGet]
         public IActionResult Login()
         {
-            return View();
+            if (HttpContext.User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("MyBots", "Home");
+            }
+            else
+            {
+                return View();
+            }
         }
 
 

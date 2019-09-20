@@ -39,7 +39,10 @@
             
 
             <a class="btn btn-outline-primary m-1" asp-controller="SignIn" asp-action="Login">@Localizer["Login"]</a>
-            <a class="btn   btn-primary m-1" asp-controller="SignUp" asp-action="Register">@Localizer["SignUp"]</a>
+            @if (!Context.User.Identity.IsAuthenticated)
+            {
+                <a class="btn   btn-primary m-1" asp-controller="SignUp" asp-action="Register">@Localizer["SignUp"]</a>
+            }
         </div>
     </header>
     <div class="container">

@@ -24,6 +24,7 @@ namespace Website.Controllers
         [AllowAnonymous]
         public IActionResult Index()
         {
+            
             return View();
         }
 
