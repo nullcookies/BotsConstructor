@@ -46,25 +46,15 @@ namespace Website
                 .AddViewLocalization();
 
 
-            string connection;
-
             bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
-            if (isWindows)
-            {
-                connection = Configuration.GetConnectionString("PostgresConnectionDevelopment");
-            }
-            else
-            {
-                connection = Configuration.GetConnectionString("PostgresConnectionLinux");
-            }
+            var connection = Configuration.GetConnectionString(isWindows ? "PostgresConnectionDevelopment" : "PostgresConnectionLinux");
 
             if (connection == null)
             {
-                throw  new Exception("Не удалось открыть конфиг файл");
+                throw new Exception("Не удалось открыть конфиг файл");
             }
 
-            Console.WriteLine("строка="+connection);
 
             services.AddEntityFrameworkNpgsql()
                 .AddDbContext<ApplicationContext>(opt => opt.UseNpgsql(connection))
