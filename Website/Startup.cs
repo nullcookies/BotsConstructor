@@ -1,24 +1,20 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using DataLayer;
+using DataLayer.Models;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Globalization;
 using System.Linq;
-using System.Net.WebSockets;
 using System.Runtime.InteropServices;
 using System.Security.Claims;
 using System.Threading;
-using System.Threading.Tasks;
-using DataLayer;
-using DataLayer.Models;
-using Website.Services;
 using Website.Other.Middlewares;
+using Website.Services;
 
 namespace Website
 {
@@ -48,7 +44,7 @@ namespace Website
 
             bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
-            var connection = Configuration.GetConnectionString(isWindows ? "PostgresConnectionDevelopment" : "PostgresConnectionLinux");
+            var connection = Configuration.GetConnectionString(isWindows ? "PostgresConnectionWindows" : "PostgresConnectionLinux");
 
             if (connection == null)
             {

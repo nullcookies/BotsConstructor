@@ -28,7 +28,7 @@ namespace DeleteMeWebhook.Services
 
             if (isWindows)
             {
-                connection = configuration.GetConnectionString("PostgresConnectionDevelopment");
+                connection = configuration.GetConnectionString("PostgresConnectionWindows");
             }
             else
             {

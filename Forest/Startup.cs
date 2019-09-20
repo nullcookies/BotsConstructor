@@ -1,18 +1,16 @@
-﻿using DeleteMeWebhook.Models;
+﻿using System.Runtime.InteropServices;
+using DataLayer;
+using DataLayer.Models;
 using DeleteMeWebhook.Services;
+using Forest.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using DataLayer.Models;
-using System.Runtime.InteropServices;
-using DataLayer;
-using Forest.Services;
 
-namespace DeleteMeWebhook
+namespace Forest
 {
     public class Startup
     {
@@ -21,7 +19,7 @@ namespace DeleteMeWebhook
             Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
+        private IConfiguration Configuration { get; }
 
         
         public void ConfigureServices(IServiceCollection services)
@@ -29,20 +27,14 @@ namespace DeleteMeWebhook
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
-            string connection;
 
             bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
-            if (isWindows)
-            {
-                connection = Configuration.GetConnectionString("PostgresConnectionDevelopment");
-            }
-            else
-            {
-                connection = Configuration.GetConnectionString("PostgresConnectionLinux");
-            }
+            var connection = Configuration.GetConnectionString(isWindows ? "PostgresConnectionWindows" : "PostgresConnectionLinux");
 
-            services.AddEntityFrameworkNpgsql().AddDbContext<ApplicationContext>(opt => opt.UseNpgsql(connection)).BuildServiceProvider();
+            services.AddEntityFrameworkNpgsql()
+                .AddDbContext<ApplicationContext>(opt => opt.UseNpgsql(connection))
+                .BuildServiceProvider();
 
 			services.AddSingleton<DBConnector>();
             services.AddSingleton<StupidLogger>();
