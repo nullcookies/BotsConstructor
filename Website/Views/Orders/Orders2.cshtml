@@ -76,7 +76,7 @@
             <div id="collapsed_msg_" class="collapse" aria-labelledby="heading_msg_" data-parent="#div_order_">
                 <div id="body_msg_" class="card-body"></div>
 
-                <form role="form" method="post" action="/Orders/SendCustomAnswer">
+                <form role="form" method="post" asp-controller="Orders" asp-action="SendCustomAnswer">
                     <div class="form-group">
                         <textarea id="answer_" name="text" class="form-control" rows="3" placeholder="Custom Answer" style="min-height: 100px;"></textarea>
                     </div>
