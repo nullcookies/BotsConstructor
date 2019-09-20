@@ -1,0 +1,62 @@
+﻿.section-heading {
+    font-size: 36px;
+    font-weight: 700;
+    margin-top: 60px;
+}
+.caption {
+    font-size: 14px;
+    font-style: italic;
+    display: block;
+    margin: 0;
+    padding: 10px;
+    text-align: center;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
+p a {
+    text-decoration: underline;
+}
+a {
+    color: #212529;
+    transition: all .2s;
+}
+header.masthead {
+    margin-bottom: 50px;
+    background: no-repeat center center;
+    background-color: #868e96;
+    background-attachment: scroll;
+    position: relative;
+    background-size: cover;
+}
+header.masthead .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background-color: #212529;
+    opacity: .5;
+}
+@media (min-width: 1200px)
+    .container {
+        max-width: 1140px;
+        
+    }
+.container {
+    width: 100%;
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
+}
+header.masthead .page-heading, header.masthead .post-heading, header.masthead .site-heading {
+    padding: 200px 0 150px;
+    color: #fff;
+}
+header.masthead .post-heading .meta a {
+    color: #fff;
+}
+@media only screen and (min-width: 768px)
+    header.masthead .post-heading .subheading {
+              font-size: 30px;
+          }

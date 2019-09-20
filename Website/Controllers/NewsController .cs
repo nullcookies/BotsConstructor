@@ -15,21 +15,24 @@ namespace Website.Controllers
     [Authorize]
     public class NewsController : Controller
     {
-
-        public NewsController(ApplicationContext context, IStringLocalizer<MainController> localizer)
+        private ApplicationContext _contextDb;
+        public NewsController(ApplicationContext context, IStringLocalizer<MainController> localizer, ApplicationContext contextDb)
         {
-            
+            _contextDb = contextDb;
         }
 
         [AllowAnonymous]
         public IActionResult Index()
         {
-            
             return View();
         }
 
 
-
+        [AllowAnonymous]
+        public IActionResult News(int num)
+        {
+            return View();
+        }
 
 
     }
