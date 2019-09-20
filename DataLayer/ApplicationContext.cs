@@ -432,6 +432,10 @@ namespace DataLayer.Models
         public int Id { get; set; }
         [Required]
         public int AccountId { get; set; }
+
+        [ForeignKey("AccountId")]
+        public Account Account{get;set;}
+        
         [Required]
         public Guid GuidPasswordSentToEmail { get; set; }
 

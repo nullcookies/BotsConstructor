@@ -12,5 +12,13 @@ namespace Website.Controllers.SignInUpOut
             return View();
 
         }
+
+        [HttpGet]
+        public IActionResult Failure(string message)
+        {
+            ViewData["message"] = message;
+            return View();
+
+        }
     }
 }
