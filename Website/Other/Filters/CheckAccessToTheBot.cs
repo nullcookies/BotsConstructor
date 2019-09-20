@@ -9,6 +9,7 @@ using DataLayer.Models;
 using DataLayer.Services;
 
 //15 09 2019 15 44 это выглядит очень плохо
+//22 09 2019 13 06 ага
 
 namespace Website.Other.Filters
 {
@@ -18,8 +19,8 @@ namespace Website.Other.Filters
     /// </summary>
     public class CheckAccessToTheBot : Attribute, IActionFilter
     {
-        ApplicationContext _context;
-        StupidLogger _logger;
+        readonly ApplicationContext _context;
+        readonly StupidLogger _logger;
 
         public CheckAccessToTheBot(ApplicationContext context, StupidLogger logger)
         {
@@ -30,11 +31,11 @@ namespace Website.Other.Filters
       
         public void OnActionExecuting(ActionExecutingContext context)
         {
-            int? botId = context.ActionArguments["botId"] as int?;
+            string botIdStr = context.HttpContext.Request.Query["botId"].ToString();
+            bool success = int.TryParse(botIdStr,out int botId) ;
             
-            if (botId == null)
+            if (!success)
             {
-                //В запросе не был указан botId
                 _logger.Log(LogLevelMyDich.UNAUTHORIZED_ACCESS_ATTEMPT, Source.WEBSITE, "В запросе не был указан botId");
                 context.Result = new StatusCodeResult(404);
                 return;
@@ -44,13 +45,12 @@ namespace Website.Other.Filters
 			
             if (bot == null)
             {
-                //Бота с таким id не существует
                 _logger.Log(LogLevelMyDich.UNAUTHORIZED_ACCESS_ATTEMPT, Source.WEBSITE, $"Бота с таким id не существует botId={botId}");
                 context.Result = new StatusCodeResult(404);
                 return;
             }
 
-            int accountId = int.MinValue;
+            int accountId;
             try
             {
                 accountId = Stub.GetAccountIdFromCookies(context.HttpContext) ?? throw new Exception("Из cookies не удалось извлечь accountId");
@@ -74,8 +74,8 @@ namespace Website.Other.Filters
                 return;
             }
 
-           //Ок
-           //Этот пользователь имеет право доступа к боту
+            //Ок
+            //Этот пользователь имеет право доступа к боту
 
         }
 
