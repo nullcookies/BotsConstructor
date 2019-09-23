@@ -13,6 +13,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Claims;
 using System.Threading;
+using Website.Areas.Monitor.Services;
 using Website.Other.Middlewares;
 using Website.Services;
 
@@ -76,6 +77,7 @@ namespace Website
             services.AddSingleton<BotForSalesStatisticsService>();
             services.AddSingleton<TotalLog>();
             services.AddSingleton<BotsAirstripService>();
+            services.AddSingleton<TestTelegramApi>();
 
             //services.AddTransient<MoneyCollectorService>();
 
@@ -199,6 +201,12 @@ namespace Website
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Main}/{action=Index}/{id?}");
+
+                routes.MapRoute(
+                    name: "areas",
+                    template: "{area:exists}/{controller=Home}/{action=Index}/{id?}"
+                );
+
             });
 
         }
