@@ -136,7 +136,9 @@ namespace DataLayer.Models
    //                 Token = "825321671:AAFoJoGk7VIMU19wvOmiwZHKRwyGptvAqJ4"
    //             }
 			//});
-              // Для тестирования
+
+            modelBuilder.Entity<BotDB>().HasIndex(_bot => _bot.Token).IsUnique();
+
             modelBuilder.Entity<BotDB>().HasData(new List<object>
 			{
 				new {

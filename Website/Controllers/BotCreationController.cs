@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using DataLayer;
 using Microsoft.AspNetCore.Authorization;
@@ -73,9 +74,26 @@ namespace Website.Controllers
 
 				_contextDb.OrderStatusGroups.Add(statusGroup);
 
-                _contextDb.SaveChanges();
+
+                try
+                {
+                    _contextDb.SaveChanges();
+                }
+                catch(Exception exception)
+                {
+                    throw new TokenMatchException("Возможно в базе уже есть этот бот",exception);
+                }
                 
 				return RedirectToAction("SalesTreeEditor", "BotForSalesEditing", new {botId= bot.Id });
+
+            }
+            catch (TokenMatchException ex)
+            {
+                _logger.Log(LogLevelMyDich.USER_ERROR, Source.WEBSITE, $"Сайт. Создание нового бота. При " +
+                                                                       $"запросе botUsername было выброшено исключение (возможно, введённый" +
+                                                                       $"токен был специально испорчен)" + ex.Message, accountId: accountId);
+
+                ModelState.AddModelError("", "Этот бот уже зарегистрирован.");
 
             }
             catch (Exception ee)
@@ -89,6 +107,35 @@ namespace Website.Controllers
            
 
             return View("BotForSalesTokenEntry");
+        }
+    }
+
+    
+    public class TokenMatchException : Exception
+    {
+        //
+        // For guidelines regarding the creation of new exception types, see
+        //    http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpgenref/html/cpconerrorraisinghandlingguidelines.asp
+        // and
+        //    http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dncscol/html/csharp07192001.asp
+        //
+
+        public TokenMatchException()
+        {
+        }
+
+        public TokenMatchException(string message) : base(message)
+        {
+        }
+
+        public TokenMatchException(string message, Exception inner) : base(message, inner)
+        {
+        }
+
+        protected TokenMatchException(
+            SerializationInfo info,
+            StreamingContext context) : base(info, context)
+        {
         }
     }
 }
