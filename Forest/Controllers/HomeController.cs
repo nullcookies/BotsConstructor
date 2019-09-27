@@ -321,9 +321,9 @@ namespace Forest.Controllers
 							break;
 						case NodeType.SendOrder:
 							//TODO: группы статусов
-							node = new OwnerNotificationNode(nodeName, GetInlineMsgFromParams(nodeParams), connector, 1,
+							node = new OwnerNotificationNode(nodeName, GetInlineMsgFromParams(nodeParams), connector, (int)nodeParams["statusGroupId"],
 									UniversalOrderContainer.generateContainerCreator(variablesInfo),
-									variables: variablesInfo.ToArray());
+									variablesInfo.ToArray());
 							break;
 						default:
 							return StatusCode(403, "Incorrect node type.");

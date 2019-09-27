@@ -42,7 +42,7 @@ const sectionModal = baseModal.clone(true).find(".modal-body > form").append($("
         ])
     ]))).end();
 
-CloneInputDiv(sectionModal.find("legend:contains(Collection type) ~ div.form-check"), collectionTypes.flipper, "Flipper node");
+CloneInputDiv(sectionModal.find("legend:contains(Collection) ~ div.form-check"), collectionTypes.flipper, "Flipper node");
 
 /** Параметры для узла-секции. */
 class SectionParams extends NodeParams {
@@ -124,7 +124,7 @@ const productModal = baseModal.clone(true).find(".modal-body > form").append([
     $("<div>").addClass("table-responsive").append($("<table>").addClass("table table-sm param-table"))
 ]).end();
 
-CloneInputDiv(productModal.find("legend:contains(Display type) ~ div.form-check"), displayTypes.multinode, "Multinode");
+CloneInputDiv(productModal.find("legend:contains(Display) ~ div.form-check"), displayTypes.multinode, "Multinode");
 
 const defaultParamName = "New parameter";
 const defaultPropName = "New property";
@@ -419,7 +419,7 @@ const inputModal = baseModal.clone(true).find(".modal-body > form").append($("<f
         ])
     ]))).end();
 
-const cloneableInputModalInputDiv = inputModal.find("legend:contains(Input type) ~ div.col-auto > div.form-check");
+const cloneableInputModalInputDiv = inputModal.find("legend:contains(Input) ~ div.col-auto > div.form-check");
 
 CloneInputDiv(cloneableInputModalInputDiv, inputTypes.time, "Time");
 CloneInputDiv(cloneableInputModalInputDiv, inputTypes.image, "Image");
@@ -458,6 +458,42 @@ class InputParams extends NodeParams {
     }
 }
 
+const orderModal = baseModal.clone(true).find(".modal-body > form").append($("<div>").addClass("form-group row my-2").append([
+    $("<label>").addClass("col-form-label ml-3").text("Группа статусов для ответов:"),
+    $("<div>").addClass("col-sm").append($("<select>").addClass("form-control status-group"))
+    ])).end();
+
+/** Параметры для order-узла. */
+class OrderParams extends NodeParams {
+    /**
+     * Создаёт параметры для order-узла.
+     * @param {string} name Название узла.
+     * @param {string} message Сообщение узла.
+     * @param {number} statusGroupId ID группы статусов для ответов.
+     * @param {string} fileId ID файла (если есть), прикреплённого к сообщению.
+     */
+    constructor(name, message, statusGroupId, fileId) {
+        super(nodeTypes.sendOrder, name, message, fileId);
+        /** ID группы статусов для ответов. */
+        this.statusGroupId = statusGroupId;
+    }
+
+    get modal() {
+        return orderModal;
+    }
+
+    openModal() {
+        const self = this;
+        const modal = super.openModal();
+        modal.find("select.status-group option").prop("selected", false).filter("[value=" + this.statusGroupId + "]").prop("selected", true);
+        modal.one("hide.bs.modal", function () {
+            self.statusGroupId = modal.find("select.status-group option:selected").val();
+        });
+
+        return modal;
+    }
+}
+
 /**
  * Шаблонные узлы.
  * @type {ReadonlyArray.<TreeNode>}
@@ -472,5 +508,18 @@ const templates = Object.freeze([
         new ProductProperty("Характеристика 2", ["Подвид 1", "Подвид 2", "Подвид 3"], null, null)
     ], null).makeTemplate()),
     new OneChildNode(new InputParams("Ввод данных", "Введите данные нужного типа.", inputTypes.text, null).makeTemplate()),
-    new OneChildNode(new NodeParams(nodeTypes.sendOrder, "Отправить заказ", "Ваш заказ был отправлен.", null).makeTemplate())
+    new ZeroChildNode(new OrderParams("Отправить заказ", "Ваш заказ был отправлен.", 0, null).makeTemplate())
 ]);
+
+/**
+ * Устанавливает группы статусов.
+ * @param {Object<number, string>} statusGroups Группы статусов.
+ */
+function SetStatusGroups(statusGroups) {
+    const groupOptions = [];
+    for (const prop in statusGroups) {
+        groupOptions.push($("<option>").attr("value", prop).text(statusGroups[prop]));
+    }
+    orderModal.find("select.status-group").append(groupOptions);
+    templates[nodeTypes.sendOrder].parameters.statusGroupId = Object.keys(statusGroups)[0];
+}
