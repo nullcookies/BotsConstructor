@@ -191,6 +191,7 @@ namespace DataLayer.Models
 			modelBuilder.Entity<OrderStatus>().HasData(statuses);
 
 			// Для тестирования
+            /*
 			modelBuilder.Entity<Order>().HasData(new List<object>
 			{
 				new {Id = 101, SenderId = 440090552, SenderNickname = "Ivan Ivanov",
@@ -220,7 +221,6 @@ namespace DataLayer.Models
 				new {Id = id++, Text = "Стоимость:  371 ₴",				InventoryId = 101},
 				new {Id = id++, Text = "221B Baker Street",				InventoryId = 101},
 				new {Id = id++, Text = "Доставьте пиццу холодной, пожалуйста.",				InventoryId = 101}
-
                 ,
 
                 new {Id = id++, Text = "Карбонара 30 см Хот-дог борт (id22) 2 ₴: 1",              InventoryId = 102},
@@ -228,16 +228,11 @@ namespace DataLayer.Models
                 new {Id = id++, Text = "Калифорния с креветкой 99 ₴: 1",             InventoryId = 102},
                 new {Id = id++, Text = "Стоимость: 107 ₴",             InventoryId = 102},
                 new {Id = id++, Text = "221B Baker Street",             InventoryId = 102},
-
                 new {Id = id++, Text = "Доставьте пиццу гарячей, пожалуйста.",             InventoryId = 102}
-             
-
-
-
             });
 
 			//modelBuilder.Entity<ImageMy>().HasIndex(i => new { i.BotId, i.ProductId}).IsUnique();
-
+            */
             
 
         }
@@ -320,10 +315,11 @@ namespace DataLayer.Models
         public string BotName { get; set; }
 
 		[Required]
-		public int OwnerId { get; set; }
+        [ForeignKey("OwnerId")]
+        public int OwnerId { get; set; }
 
         [ForeignKey("OwnerId")]
-        public Account Owner { get; set; }
+        public virtual Account Owner { get; set; }
 
         public string Markup { get; set; }
 
@@ -393,7 +389,7 @@ namespace DataLayer.Models
 
 		[Required]
 		[ForeignKey("AccountId")]
-		public virtual int OwnerId { get; set; }
+		public int OwnerId { get; set; }
 
 		[Required]
 		[ForeignKey("OwnerId")]

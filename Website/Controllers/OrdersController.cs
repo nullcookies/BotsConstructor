@@ -316,12 +316,13 @@ namespace Website.Controllers
 					Files = _cont.Files.Select(_file => new { _file.FileId, _file.PreviewId, _file.Description }).ToArray()
 				}).ToList();
 
-			foreach (var container in containers)
+            for (var index = 0; index < containers.Count; index++)
             {
+                var container = containers[index];
                 AddContainers(container.Id);
             }
 
-			return Json(new { orders, containers });
+            return Json(new { orders, containers });
 
 			void AddContainers(int parentId)
 			{
