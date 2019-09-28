@@ -22,7 +22,7 @@ namespace Website.Services
         public BotForSalesStatisticsService(StupidLogger logger, IConfiguration configuration)
         {
             _logger = logger;
-            _dbContextWrapper = new DbContextFactory(configuration);
+            _dbContextWrapper = new DbContextFactory();
 
             PeriodicFooAsync(TimeSpan.FromSeconds(10), CancellationToken.None);
         }

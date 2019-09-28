@@ -6,7 +6,6 @@ using System.Linq;
 using Website.Services;
 using Website.ViewModels;
 
-//20 09 2019 TODO вынинуть всё нахрен
 
 namespace Website.Controllers.SignInUpOut
 {
@@ -39,7 +38,6 @@ namespace Website.Controllers.SignInUpOut
 
             if (ModelState.IsValid)
             {
-
 
                 bool thereIsNoSuchEmailYet = _context.Accounts.FirstOrDefault(a => a.Email == model.Email) == null;
 
@@ -161,7 +159,7 @@ namespace Website.Controllers.SignInUpOut
             catch (Exception exception)
             {
                 _logger.Log(LogLevelMyDich.WARNING, Source.WEBSITE, 
-                    "При переходе на страцицу с гуидом для завершения регистрации произошла ошибка.", accountId:accountId,exception);
+                    "При переходе на страцицу с гуидом для завершения регистрации произошла ошибка.", accountId,exception);
 
                 string errorMessage = "Что-то пошло не так";
                 return RedirectToAction("Failure", "StaticMessage", new { message = errorMessage });
