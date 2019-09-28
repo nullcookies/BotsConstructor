@@ -1,5 +1,4 @@
 ﻿using DataLayer.Models;
-using DataLayer.Services;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -7,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DataLayer;
 using Website.Other;
 using Website.Other.Filters;
 
@@ -14,8 +14,8 @@ namespace Website.Controllers
 {
     public class ModeratorManagementController : Controller
     {
-        ApplicationContext _contextDb;
-        StupidLogger _logger;
+        readonly ApplicationContext _contextDb;
+        readonly StupidLogger _logger;
 
         public ModeratorManagementController(ApplicationContext contextDb, StupidLogger logger)
         {
@@ -45,7 +45,7 @@ namespace Website.Controllers
 				return Json(jObject);
 			}
 
-            Account searchedAccount = _contextDb.Accounts.Where(_acc => _acc.Email == email.Trim()).SingleOrDefault();
+            Account searchedAccount = _contextDb.Accounts.SingleOrDefault(_acc => _acc.Email == email.Trim());
 
             //себя нельзя сделать модератором своего бота
             //просто получится самоспам
@@ -65,9 +65,9 @@ namespace Website.Controllers
             {
                 //TODO отправить запрос стать модератором на почту
 
-                bool accountIsModeratingThisBot = _contextDb.Moderators.Where(_mo => _mo.AccountId == searchedAccount.Id && _mo.BotId == botId).Any();
+                bool accountIsModeratingThisBot = _contextDb.Moderators.Any(_mo => _mo.AccountId == searchedAccount.Id && _mo.BotId == botId);
 
-                JObject jObject = null;
+                JObject jObject;
 
                 if (accountIsModeratingThisBot)
                 {
@@ -119,9 +119,8 @@ namespace Website.Controllers
 
             JArray jArray = new JArray();
 
-            for (int i = 0; i < accountsInfo.Count; i++)
+            foreach (var account in accountsInfo)
             {
-                var account = accountsInfo[i];
                 JObject accountJson = (JObject) JsonConvert.DeserializeObject(  JsonConvert.SerializeObject(account));
                 jArray.Add(accountJson);
             }
@@ -140,7 +139,7 @@ namespace Website.Controllers
         public IActionResult RemoveModerator(int botId, int accountId)
         {
             //поиск по таблице модераторов
-            Moderator moderator = _contextDb.Moderators.Where(_mo => _mo.AccountId == accountId).SingleOrDefault();
+            Moderator moderator = _contextDb.Moderators.SingleOrDefault(_mo => _mo.AccountId == accountId);
             JObject answer = null;
 
             if (moderator != null)

@@ -16,13 +16,7 @@ namespace Website.Controllers
     [Authorize]
     public class SupportController : Controller
     {
-        ApplicationContext context;
-        
-        public SupportController(ApplicationContext context, IHostingEnvironment _appEnvironment)
-        {
-            this.context = context ?? throw new ArgumentNullException(nameof(context));
-        
-        }
+     
 
         public IActionResult Index()
         {

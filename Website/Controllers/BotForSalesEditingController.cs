@@ -3,18 +3,21 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
+using Microsoft.AspNetCore.Authorization;
 using Website.Other.Filters;
 
+//TODO  проверка прав доступа
 namespace Website.Controllers
 {
+    [Authorize]
 	public class BotForSalesEditingController : Controller
     {
-        ApplicationContext context;
+        readonly ApplicationContext _context;
         IHostingEnvironment _appEnvironment;
 
         public BotForSalesEditingController(ApplicationContext context, IHostingEnvironment appEnvironment)
         {
-            this.context = context ?? throw new ArgumentNullException(nameof(context));
+            this._context = context ?? throw new ArgumentNullException(nameof(context));
             _appEnvironment = appEnvironment;
         }
 
@@ -22,7 +25,7 @@ namespace Website.Controllers
 		[TypeFilter(typeof(CheckAccessToTheBot))]
 		public IActionResult SalesTreeEditor(int botId)
 		{
-			var info = context.Bots.Where((_bot) => _bot.Id == botId).Select((_bot) => new { _bot.Owner.TelegramId, _bot.Token, _bot.Markup }).SingleOrDefault();
+			var info = _context.Bots.Where((_bot) => _bot.Id == botId).Select((_bot) => new { _bot.Owner.TelegramId, _bot.Token, _bot.Markup }).SingleOrDefault();
 			ViewData["userId"] = info.TelegramId;
 			ViewData["token"] = info.Token;
 			ViewData["json"] = info.Markup;
@@ -34,8 +37,8 @@ namespace Website.Controllers
 		public IActionResult SaveTree(int botId, string tree)
 		{
 			//TODO: Возможно, стоит проверять адекватность содержимого
-			context.Bots.Find(botId).Markup = tree;
-			context.SaveChanges();
+			_context.Bots.Find(botId).Markup = tree;
+			_context.SaveChanges();
 			return Ok();
 		}
     }

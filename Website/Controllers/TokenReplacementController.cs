@@ -1,8 +1,8 @@
 ﻿using DataLayer.Models;
-using DataLayer.Services;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using DataLayer;
 using Telegram.Bot;
 using Website.Other;
 using Website.Other.Filters;
@@ -12,9 +12,9 @@ namespace Website.Controllers
 {
     public class TokenReplacementController : Controller
     {
-        ApplicationContext context;
+        readonly StupidLogger _logger;
+        readonly ApplicationContext context;
         IHostingEnvironment _appEnvironment;
-        StupidLogger _logger;
 
         public TokenReplacementController(ApplicationContext context, IHostingEnvironment appEnvironment, StupidLogger  logger)
         {

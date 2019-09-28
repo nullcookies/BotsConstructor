@@ -1,6 +1,5 @@
 ﻿using DataLayer;
 using DataLayer.Models;
-using DataLayer.Services;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -52,7 +51,7 @@ namespace Website.Services
             if (!account_can_run_a_bot)
             {
                 _logger.Log(LogLevelMyDich.WARNING,
-                      Source.BOTS_AIRSTRIP_SERVICE,
+                      Source.WEBSITE_BOTS_AIRSTRIP_SERVICE,
                       "Попытка запуска бота аккаунтом, который не имеет к нему доступа.",
                       accountId: accountId);
 
@@ -71,7 +70,7 @@ namespace Website.Services
             if (botOwner.Money < 0)
             {
                 _logger.Log(LogLevelMyDich.WARNING,
-                     Source.BOTS_AIRSTRIP_SERVICE,
+                     Source.WEBSITE_BOTS_AIRSTRIP_SERVICE,
                      "Попытка запуска бота с маленьким количеством средств на счету.",
                      accountId: accountId);
 
@@ -233,7 +232,7 @@ namespace Website.Services
 
                             if (rr == null)
                             {
-                                _logger.Log(LogLevelMyDich.INFO, Source.BOTS_AIRSTRIP_SERVICE, $"Бот {bot.Id} был нормально остановлен.");
+                                _logger.Log(LogLevelMyDich.INFO, Source.WEBSITE_BOTS_AIRSTRIP_SERVICE, $"Бот {bot.Id} был нормально остановлен.");
                                 jObject = new JObject()
                                 {
                                     { "success", true}
@@ -287,7 +286,7 @@ namespace Website.Services
                 else
                 {
                     _logger.Log(LogLevelMyDich.WARNING,
-                        Source.BOTS_AIRSTRIP_SERVICE,
+                        Source.WEBSITE_BOTS_AIRSTRIP_SERVICE,
                         "Попытка остановки бота аккаунтом, который не имеет к нему доступа.",
                         accountId:accountId);
 

@@ -1,26 +1,25 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
-using System.Runtime.InteropServices;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using DataLayer.Models;
-using System.Collections.Generic;
+using Microsoft.Extensions.Configuration;
 
-namespace DataLayer.Services
+//TODO уничтожить это нахрен
+
+namespace DataLayer
 {
     public class StupidLogger
-    {      
-
-        DbContextFactory _dbContextWrapper;
-        ConcurrentQueue<LogMessage> logMessages;
-        ConcurrentQueue<SpyRecord> spyMessages;
+    {
+        readonly DbContextFactory _dbContextWrapper;
+        readonly ConcurrentQueue<LogMessage> _logMessages;
+        readonly ConcurrentQueue<SpyRecord> _spyMessages;
 
         public StupidLogger(IConfiguration configuration)
         {
-            logMessages = new ConcurrentQueue<LogMessage>();
-            spyMessages = new ConcurrentQueue<SpyRecord>();
+            _logMessages = new ConcurrentQueue<LogMessage>();
+            _spyMessages = new ConcurrentQueue<SpyRecord>();
             _dbContextWrapper = new DbContextFactory(configuration);
 
 #pragma warning disable CS4014 // Так как этот вызов не ожидается, выполнение существующего метода продолжается до завершения вызова
@@ -42,7 +41,7 @@ namespace DataLayer.Services
             };
 
 
-            spyMessages.Enqueue(spyRecord);
+            _spyMessages.Enqueue(spyRecord);
         }
 
         private async Task PeriodicFooAsync(TimeSpan interval, CancellationToken cancellationToken)
@@ -56,42 +55,41 @@ namespace DataLayer.Services
 
         private void SaveLogsToDb()
         {
-            ApplicationContext _contextDb = _dbContextWrapper.GetNewDbContext();
+            ApplicationContext contextDb = _dbContextWrapper.GetNewDbContext();
 
-            if (!logMessages.IsEmpty)
+            if (!_logMessages.IsEmpty)
             {
-                int numberOfMessages = logMessages.Count;
-                List<LogMessage> _logMessages = new List<LogMessage>();
+                int numberOfMessages = this._logMessages.Count;
+                List<LogMessage> logMessages = new List<LogMessage>();
 
                 for (int i = 0; i < numberOfMessages; i++)
                 {                    
-                    bool successfully = logMessages.TryDequeue(out LogMessage mes);
+                    bool successfully = this._logMessages.TryDequeue(out LogMessage mes);
 
                     if (successfully)
                     {
-                        _logMessages.Add(mes);
+                        logMessages.Add(mes);
                     }
                     
                 }
-                _contextDb.LogMessages.AddRange(_logMessages);
+                contextDb.LogMessages.AddRange(logMessages);
 
-                int numberOfSpyMessages = spyMessages.Count;
-                List<SpyRecord> _spyMessages = new List<SpyRecord>();
+                int numberOfSpyMessages = this._spyMessages.Count;
+                List<SpyRecord> spyMessages = new List<SpyRecord>();
 
                 for (int i = 0; i < numberOfSpyMessages; i++)
                 {
-                    bool successfully = spyMessages.TryDequeue(out SpyRecord mes);
+                    bool successfully = this._spyMessages.TryDequeue(out SpyRecord mes);
 
                     if (successfully)
                     {
-                        _spyMessages.Add(mes);
+                        spyMessages.Add(mes);
                     }
 
                 }
 
-                _contextDb.SpyRecords.AddRange(_spyMessages);
-
-                _contextDb.SaveChanges();
+                contextDb.SpyRecords.AddRange(spyMessages);
+                contextDb.SaveChanges();
             }
         }
 
@@ -115,7 +113,7 @@ namespace DataLayer.Services
                 AccountId = accountId
             };
 
-            logMessages.Enqueue(logRecord);
+            _logMessages.Enqueue(logRecord);
 
             Console.WriteLine();
             Console.WriteLine(logLevel.ToString() + "   " + errorSource.ToString() + "   " + comment + " date=" + dt);
@@ -131,9 +129,9 @@ namespace DataLayer.Services
         MONITOR,
         OTHER,
         MONEY_COLLECTOR_SERVICE,
-        BOTS_AIRSTRIP_SERVICE,
-        BANNED_USERS_SYNCHRONIZER,
-        BOT_STATISTICS_SYNCHRONIZER,
+        WEBSITE_BOTS_AIRSTRIP_SERVICE,
+        FOREST_BANNED_USERS_SYNCHRONIZER,
+        FOREST_BOT_STATISTICS_SYNCHRONIZER,
         PASSWORD_RESET
     }
 

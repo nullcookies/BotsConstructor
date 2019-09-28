@@ -15,12 +15,10 @@ namespace Website.Controllers
     [Authorize]
     public class NewsController : Controller
     {
-        ApplicationContext context;
-
-        public NewsController(ApplicationContext context, IStringLocalizer<MainController> localizer)
+        private ApplicationContext _contextDb;
+        public NewsController(ApplicationContext context, IStringLocalizer<MainController> localizer, ApplicationContext contextDb)
         {
-            this.context = context ?? throw new ArgumentNullException(nameof(context));
-            
+            _contextDb = contextDb;
         }
 
         [AllowAnonymous]
@@ -31,7 +29,11 @@ namespace Website.Controllers
         }
 
 
-
+        [AllowAnonymous]
+        public IActionResult News(int num)
+        {
+            return View();
+        }
 
 
     }

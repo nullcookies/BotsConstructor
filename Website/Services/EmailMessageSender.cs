@@ -1,29 +1,33 @@
-﻿
+﻿using DataLayer.Models;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Configuration;
-using System.Linq;
 using System.Net.Mail;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using Website.Other;
+using DataLayer;
+
+//20 09 2019 14:09 дублирование кода
 
 namespace Website.Services
 {
     public class EmailMessageSender
     {
         
-        private static string _email  = ConfigurationManager.AppSettings["CombatEmail"];
-        private static string _emailPassword  = ConfigurationManager.AppSettings["CombatEmailPassword"];
+        private static readonly string Email  = ConfigurationManager.AppSettings["CombatEmail"];
+        private static readonly string EmailPassword  = ConfigurationManager.AppSettings["CombatEmailPassword"];
+        private readonly StupidLogger _logger;
+
+        public EmailMessageSender(StupidLogger logger)
+        {
+            _logger = logger;
+        }
 
         public static bool EmailIsValid(string email)
         {
             if (email == null) { return false; }
             email = email.Trim();
-
             string pattern = "[.\\-_a-z0-9]+@([a-z0-9][\\-a-z0-9]+\\.)+[a-z]{2,6}";
             Match isMatch = Regex.Match(email.ToLower(), pattern, RegexOptions.IgnoreCase);
+
             return isMatch.Success;
         }
 
@@ -40,29 +44,24 @@ namespace Website.Services
                 }
 
                 MailMessage mail = new MailMessage();
-                SmtpClient SmtpServer = new SmtpClient("smtp.gmail.com");
+                SmtpClient smtpServer = new SmtpClient("smtp.gmail.com");
 
-                //mail.From = new MailAddress("test7684534578945@gmail.com");
-
-                mail.From = new MailAddress(_email, "Bots constructor");
-                
+                mail.From = new MailAddress(Email, "Bots constructor");
                 mail.To.Add(email);
                 mail.Subject = "Уведомление о регистрации";
                 mail.Body =  $"Поздравляем с регистрацией на платформе Interactive bots 🤗👍🏻\nДля подтверждения своего email перейдите по ссылке {link} .";
-                
 
-                SmtpServer.Port = 587;
-                SmtpServer.Credentials = new System.Net.NetworkCredential(_email, _emailPassword);
-                SmtpServer.EnableSsl = true;
-
-                SmtpServer.Send(mail);
+                smtpServer.Port = 587;
+                smtpServer.Credentials = new System.Net.NetworkCredential(Email, EmailPassword);
+                smtpServer.EnableSsl = true;
+                smtpServer.Send(mail);
            
                 return true;
+
             }catch (Exception ex)
             {
-                //Запись в лог ошибок
-                Console.WriteLine("Письмо не отправлено");
-                Console.WriteLine(ex.Message);
+                _logger.Log(LogLevelMyDich.EMAIL_SEND_FAILURE,Source.WEBSITE, 
+                    $"Не удалось отправить email с данными для окончания регистрации. email={email}, name={name}, link={link}",ex:ex );
                 
                 return false;
             }
@@ -72,34 +71,28 @@ namespace Website.Services
             try
             {
                 MailMessage mail = new MailMessage();
-                SmtpClient SmtpServer = new SmtpClient("smtp.gmail.com");
+                SmtpClient smtpServer = new SmtpClient("smtp.gmail.com");
 
-                mail.From = new MailAddress(_email, "Bots constructor");
+                mail.From = new MailAddress(Email, "Bots constructor");
                 mail.To.Add(email);
-                
                 mail.Subject = "Сброс пароля";
-
                 mail.Body = $"Для сброса пароля на платформе Interactive bots перейдите по ссылке {link} . Если не вы пытаетесь сбросить пароль, то кто-то имеет доступ к вашему аккаунту. Для предотвращения урона нажмите на кнопку \"Завершить все сессии\" во вкладке\"Аккаунт\"";
 
-                SmtpServer.Port = 587;
-                SmtpServer.Credentials = new System.Net.NetworkCredential(_email, _emailPassword);
-                SmtpServer.EnableSsl = true;
-
-                SmtpServer.Send(mail);
-
+                smtpServer.Port = 587;
+                smtpServer.Credentials = new System.Net.NetworkCredential(Email, EmailPassword);
+                smtpServer.EnableSsl = true;
+                smtpServer.Send(mail);
 
                 return true;
+
             }catch (Exception ex)
             {
-                //Запись в лог ошибок
-                Console.WriteLine("Письмо не отправлено");
-                Console.WriteLine(ex.Message);
+                _logger.Log(LogLevelMyDich.EMAIL_SEND_FAILURE, Source.WEBSITE,
+                    "Не удалось отправить email для сброса пароля", ex: ex);
                 return false;
             }
         }
-
-
-      
+     
 
 
     }

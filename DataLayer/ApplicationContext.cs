@@ -1,5 +1,4 @@
-﻿using DataLayer.Services;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -7,7 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DataLayer.Models
 {
-	public class ApplicationContext: DbContext
+	public sealed class ApplicationContext: DbContext
     {
         public DbSet<Account> Accounts { get; set; }
         public DbSet<RoleType> AuthRoles { get; set; }
@@ -137,7 +136,9 @@ namespace DataLayer.Models
    //                 Token = "825321671:AAFoJoGk7VIMU19wvOmiwZHKRwyGptvAqJ4"
    //             }
 			//});
-              // Для тестирования
+
+            modelBuilder.Entity<BotDB>().HasIndex(_bot => _bot.Token).IsUnique();
+
             modelBuilder.Entity<BotDB>().HasData(new List<object>
 			{
 				new {
@@ -433,6 +434,10 @@ namespace DataLayer.Models
         public int Id { get; set; }
         [Required]
         public int AccountId { get; set; }
+
+        [ForeignKey("AccountId")]
+        public Account Account{get;set;}
+        
         [Required]
         public Guid GuidPasswordSentToEmail { get; set; }
 
@@ -477,7 +482,8 @@ namespace DataLayer.Models
         I_AM_AN_IDIOT,
         WARNING,
         SPYING,
-        IMPORTANT_INFO
+        IMPORTANT_INFO,
+        EMAIL_SEND_FAILURE
     }
 
     [Table("RouteRecords")]

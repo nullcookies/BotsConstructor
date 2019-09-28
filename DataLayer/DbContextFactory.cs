@@ -14,14 +14,8 @@ namespace DataLayer
 
         public DbContextFactory(IConfiguration configuration)
         {
-
             bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-
-            if (isWindows)
-                _connectionString = configuration.GetConnectionString("PostgresConnectionDevelopment");
-            else
-                _connectionString = configuration.GetConnectionString("PostgresConnectionLinux");
-            
+            _connectionString = configuration.GetConnectionString(isWindows ? "PostgresConnectionWindows" : "PostgresConnectionLinux");
         }
         public DbContextFactory(string connectionString)
         {

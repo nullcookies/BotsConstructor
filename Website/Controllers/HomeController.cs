@@ -1,27 +1,25 @@
-﻿using DataLayer.Models;
-using DataLayer.Services;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using DataLayer;
+using DataLayer.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using Website.Models;
-using Website.Other;
 
 namespace Website.Controllers
 {
     [Authorize]
     public class HomeController : Controller
     {
-        readonly ApplicationContext _contextDb;
-        readonly StupidLogger _logger;
+        private readonly ApplicationContext _contextDb;
+        private readonly StupidLogger _logger;
 
         public HomeController(ApplicationContext context, StupidLogger logger)
         {
-            this._contextDb = context ?? throw new ArgumentNullException(nameof(context));
+            _contextDb = context ?? throw new ArgumentNullException(nameof(context));
             _logger = logger;
-
         }
 
         public IActionResult Index()
@@ -33,63 +31,44 @@ namespace Website.Controllers
         {
             int accountId = (int) HttpContext.Items["accountId"];
 
-            //int accountId = Stub.GetAccountIdFromCookies(HttpContext) ??throw new Exception("Аккаунт с таким id  не найден.");
+            var accountBots = _contextDb.Bots.Where(_bot => _bot.OwnerId == accountId);
+            var rrs = _contextDb.RouteRecords
+                .Include(_rr => _rr.Bot)
+                .Where(_rr => _rr.Bot.OwnerId == accountId);
 
-            var bots = _contextDb.Bots.Where(_bot => _bot.OwnerId == accountId);
-            var rrs = _contextDb.RouteRecords.ToList();
-            List<BotOnHomePage> modelBots = new List<BotOnHomePage>();
-			int i = 1;
-			foreach (var bot in bots)
-			{
-                
-                string name = "";
-                if (bot.BotName == null)
-                {
-                    name = "Бот ещё не запускался";
-                }
-                else
-                {
-                    name = bot.BotName;
-                }
-
-                string status = "";
-                int countOfRouteRecords = rrs.Where(_rr => _rr.BotId == bot.Id).Count();
-                switch (countOfRouteRecords)
-                {
-                    case 0:
-                        status = "⛔️Остановлен⛔️";
-                        break;
-                    case 1:
-                        status = "✅Работает✅";
-                        break;
-                    default:
-                        _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, Source.WEBSITE, $"Сайт. При " +
-                            $"запросе всех RouteRecord из бд их количество для бота {bot.Id} " +
-                            $"оказалоссь больше одной");
-                        return StatusCode(500);
-                }
-                modelBots.Add(new BotOnHomePage() { Number = i++, Name = name, BotId = bot.Id, Status = status });
-			}
+            List<BotOnHomePage> modelBots = GetBotsModelView(accountBots, rrs);
             ViewData["bots"] = modelBots;
-            
-            
+
             return View();
         }
 
-        
 
-		//[HttpGet]
-  //      public IActionResult BotCreation()
-  //      {
-  //          return View();
-  //      }
-
-        //Автоматически вызывается при ошибке 
-        [AllowAnonymous]
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
+        private List<BotOnHomePage> GetBotsModelView(IQueryable<BotDB> bots, IQueryable<RouteRecord> rrs)
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            List<BotOnHomePage> modelBots = new List<BotOnHomePage>();
+
+            foreach (var bot in bots)
+            {
+                int countOfRouteRecords = rrs.Count(_rr => _rr.BotId == bot.Id);
+                string status = GetBotStatusByCountOfRouteRecords(countOfRouteRecords);
+                modelBots.Add(new BotOnHomePage {Name = bot.BotName, BotId = bot.Id, Status = status});
+            }
+
+            return modelBots;
+        }
+
+        private string GetBotStatusByCountOfRouteRecords(int countOfRouteRecords)
+        {
+            switch (countOfRouteRecords)
+            {
+                case 0:
+                    return "⛔️Остановлен⛔️";
+                case 1:
+                    return "✅Работает✅";
+                default:
+                    throw new Exception("Сайт. При " + "запросе всех RouteRecord из бд их количество для бота  " +
+                                        "оказалоссь больше одной");
+            }
         }
     }
 }

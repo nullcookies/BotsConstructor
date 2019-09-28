@@ -1,31 +1,36 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using DataLayer.Models;
+using System.Reflection;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Website.Services;
 
 namespace Website
 {
-    public class Program
+    public static class Program
     {
         public static void Main(string[] args)
         {
-            CreateWebHostBuilder(args).Build().Run();
+            try
+            { 
+
+                CreateWebHostBuilder(args).Build().Run();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                string writePath = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
+                writePath = Path.Combine(writePath, "mydich.txt");
+
+                using (StreamWriter sw = new StreamWriter(writePath, false, System.Text.Encoding.Default))
+                {
+                    sw.WriteLine(e.Message);
+                }
+            }
         }
 
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
+        private static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>();
 
-
-      
     }
 }

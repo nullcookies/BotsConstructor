@@ -19,8 +19,8 @@ namespace Website.Controllers
 	[Authorize]
     public class OrdersController : Controller
     {
-        ApplicationContext _contextDb;
-        OrdersCountNotificationService _ordersCounter;
+        readonly ApplicationContext _contextDb;
+        readonly OrdersCountNotificationService _ordersCounter;
 
         public OrdersController(ApplicationContext _contextDb, OrdersCountNotificationService _ordersCounter)
         {
@@ -35,14 +35,9 @@ namespace Website.Controllers
         public async Task SetWebsocketOrdersCount()
         {
 
-            int accountId = 0;
+            int accountId = (int)HttpContext.Items["accountId"];
 
-            try{
-                accountId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("В cookies не найден accountId");
-            }catch{
-                return;
-            }
-            
+
             var isSocketRequest = HttpContext.WebSockets.IsWebSocketRequest;
             
 
@@ -79,9 +74,7 @@ namespace Website.Controllers
 
             //Общее кол-во записей
             //Собственник или модератор
-            int count = _contextDb.Orders.Where(_order => 
-                    _order.Bot.OwnerId == accountId || idsOfModeratedBots.Contains(_order.Bot.Id)
-                ).Count();
+            int count = _contextDb.Orders.Count(_order => _order.Bot.OwnerId == accountId || idsOfModeratedBots.Contains(_order.Bot.Id));
 
 			//ViewData["pageSize"] = pageSize;
 			ViewData["pagesCount"] = (count - 1) / pageSize + 1;
@@ -112,10 +105,8 @@ namespace Website.Controllers
 
 
             //Собственник или модератор
-            Order order = _contextDb.Orders.Where(_order => 
-            _order.Id == orderId &&
-			        (_order.Bot.OwnerId == accountId || idsOfModeratedBots.Contains(_order.Bot.Id))
-                ).SingleOrDefault();
+            Order order = _contextDb.Orders.SingleOrDefault(_order => _order.Id == orderId &&
+                                                                      (_order.Bot.OwnerId == accountId || idsOfModeratedBots.Contains(_order.Bot.Id)));
 
 			if (order != null)
 			{
@@ -147,10 +138,8 @@ namespace Website.Controllers
 
 
             //Собственник или модератор
-            Order order = _contextDb.Orders.Where(_order => 
-                    _order.Id == orderId &&
-			        (_order.Bot.OwnerId == accountId || idsOfModeratedBots.Contains(_order.Bot.Id))
-                ).SingleOrDefault();
+            Order order = _contextDb.Orders.SingleOrDefault(_order => _order.Id == orderId &&
+                                                                      (_order.Bot.OwnerId == accountId || idsOfModeratedBots.Contains(_order.Bot.Id)));
 
 			if (order != null)
 			{
@@ -161,9 +150,8 @@ namespace Website.Controllers
                     bool moderator = idsOfModeratedBots.Contains(order.BotId);
 
 
-                    OrderStatus status = _contextDb.OrderStatuses.Where(_status => 
-                        _status.Id == statusId &&
-					    (_status.Group.OwnerId == accountId || moderator)).SingleOrDefault();
+                    OrderStatus status = _contextDb.OrderStatuses.SingleOrDefault(_status => _status.Id == statusId &&
+                                                                                             (_status.Group.OwnerId == accountId || moderator));
 					correct = status != null;
 				}
 				else
@@ -208,10 +196,8 @@ namespace Website.Controllers
             List<int> idsOfModeratedBots = _contextDb.Moderators.Where(_mo => _mo.AccountId == accountId).Select(_mo => _mo.BotId).ToList();
 
 
-            int ordersCount = _contextDb.Orders.Where( _order => 
-                (_order.Bot.OwnerId == accountId || idsOfModeratedBots.Contains(_order.Bot.Id)   ) 
-                && _order.OrderStatusId == null
-            ).Count();
+            int ordersCount = _contextDb.Orders.Count(_order => (_order.Bot.OwnerId == accountId || idsOfModeratedBots.Contains(_order.Bot.Id)   ) 
+                                                                && _order.OrderStatusId == null);
 
 			return Content(ordersCount.ToString());
 		}
@@ -330,10 +316,10 @@ namespace Website.Controllers
 					Files = _cont.Files.Select(_file => new { _file.FileId, _file.PreviewId, _file.Description }).ToArray()
 				}).ToList();
 
-			for (int i = 0; i < containers.Count; i++)
-			{
-				AddContainers(containers[i].Id);
-			}
+			foreach (var container in containers)
+            {
+                AddContainers(container.Id);
+            }
 
 			return Json(new { orders, containers });
 

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using DataLayer;
 using DataLayer.Models;
-using DataLayer.Services;
 using Microsoft.AspNetCore.Mvc;
 using Website.Other;
 using Website.Services;
@@ -13,9 +13,9 @@ namespace Website.Controllers.SignInUpOut
     public class PasswordResetController : Controller
     {
 
+        private readonly StupidLogger _logger;
         private readonly ApplicationContext _context;
         private readonly EmailMessageSender _emailSender;
-        private readonly StupidLogger _logger;
 
         public PasswordResetController(ApplicationContext context, 
             EmailMessageSender emailSender,

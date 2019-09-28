@@ -1,6 +1,5 @@
 ﻿using DataLayer;
 using DataLayer.Models;
-using DataLayer.Services;
 using DeleteMeWebhook;
 using LogicalCore;
 using Microsoft.Extensions.Configuration;
@@ -22,7 +21,7 @@ namespace Forest.Services
             _logger = logger;
 
             _logger.Log(LogLevelMyDich.INFO,
-                Source.BANNED_USERS_SYNCHRONIZER,
+                Source.FOREST_BANNED_USERS_SYNCHRONIZER,
                 "Конструктор синхронизатора бд");
 
             (new Thread(
@@ -35,7 +34,7 @@ namespace Forest.Services
                   //catch (Exception ee)
                   //{
                   //    _logger.Log(LogLevelMyDich.ERROR,
-                  //        Source.BANNED_USERS_SYNCHRONIZER,
+                  //        Source.FOREST_BANNED_USERS_SYNCHRONIZER,
                   //        "Упал сервис синхронизации статистики ботов", ex: ee);
                   //}
               }
@@ -59,7 +58,7 @@ namespace Forest.Services
         private void SyncBotData()
         {
             _logger.Log(LogLevelMyDich.INFO,
-                Source.BANNED_USERS_SYNCHRONIZER,
+                Source.FOREST_BANNED_USERS_SYNCHRONIZER,
                 "Старт синхронизации забаненных пользователей ");
 
 
@@ -73,7 +72,7 @@ namespace Forest.Services
                 if (!success)
                 {
                     _logger.Log(LogLevelMyDich.ERROR,
-                        Source.BANNED_USERS_SYNCHRONIZER,
+                        Source.FOREST_BANNED_USERS_SYNCHRONIZER,
                         "При синхронизации списка забаненных пользователей не удалось извлечь " +
                         "объект бота из статического словаря");
                     continue;
@@ -82,7 +81,7 @@ namespace Forest.Services
                 if (botWrapper == null)
                 {
                     _logger.Log(LogLevelMyDich.ERROR,
-                        Source.BANNED_USERS_SYNCHRONIZER,
+                        Source.FOREST_BANNED_USERS_SYNCHRONIZER,
                         "При синхронизаци спсика забаненных пользователей из котейнера был извлечён" +
                         "бот = null");
                 }
@@ -100,7 +99,7 @@ namespace Forest.Services
 
 
             _logger.Log(LogLevelMyDich.INFO,
-                Source.BANNED_USERS_SYNCHRONIZER,
+                Source.FOREST_BANNED_USERS_SYNCHRONIZER,
                 "Окончание синхронизации забаненных пользователей ");
 
         }

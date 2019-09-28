@@ -24,26 +24,15 @@ namespace Website.Controllers
     [Authorize]
     public class BotEditingController : Controller
     {
-        ApplicationContext context;
+        ApplicationContext _context;
         IHostingEnvironment _appEnvironment;
 
         public BotEditingController(ApplicationContext context, IHostingEnvironment appEnvironment)
         {
-            this.context = context ?? throw new ArgumentNullException(nameof(context));
+            this._context = context ?? throw new ArgumentNullException(nameof(context));
             _appEnvironment = appEnvironment;
         }
 
 
-        //public IActionResult EditBot(int botId)
-        //{
-        //    string botType = context.Bots.Find(botId)?.BotType;
-        //    switch (botType)
-        //    {
-        //        case "BotForSales":
-        //            return RedirectToAction("BotForSales", "BotForSalesEditing", new { botId });
-        //        default:
-        //            throw new Exception("Неизвестный тип бота");
-        //    }
-        //}
     }
 }

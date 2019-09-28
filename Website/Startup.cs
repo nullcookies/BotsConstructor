@@ -1,25 +1,21 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using DataLayer;
+using DataLayer.Models;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Globalization;
 using System.Linq;
-using System.Net.WebSockets;
 using System.Runtime.InteropServices;
 using System.Security.Claims;
 using System.Threading;
-using System.Threading.Tasks;
-using DataLayer.Models;
-using Website.Services;
-using DataLayer.Services;
+using Website.Areas.Monitor.Services;
 using Website.Other.Middlewares;
-//using Website.Services.Bookkeeper;
+using Website.Services;
 
 namespace Website
 {
@@ -30,7 +26,7 @@ namespace Website
             Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
+        private IConfiguration Configuration { get; }
 
         public void ConfigureServices(IServiceCollection services)
         {
@@ -47,23 +43,20 @@ namespace Website
                 .AddViewLocalization();
 
 
-            string connection;
+            bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
-            bool isWindows =RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+            var connection = Configuration.GetConnectionString(isWindows ? "PostgresConnectionWindows" : "PostgresConnectionLinux");
 
-            if (isWindows)
+            if (connection == null)
             {
-                connection = Configuration.GetConnectionString("PostgresConnectionDevelopment");
-            }
-            else
-            {
-                connection = Configuration.GetConnectionString("PostgresConnectionLinux");
+                throw new Exception("Не удалось открыть конфиг файл");
             }
 
-                                               
-                             
-            services.AddEntityFrameworkNpgsql().AddDbContext<ApplicationContext>(opt=>opt.UseNpgsql(connection) ).BuildServiceProvider(); 
-            
+
+            services.AddEntityFrameworkNpgsql()
+                .AddDbContext<ApplicationContext>(opt => opt.UseNpgsql(connection))
+                .BuildServiceProvider();
+
 
             //my
             services.AddAuthorization(opts =>
@@ -84,6 +77,7 @@ namespace Website
             services.AddSingleton<BotForSalesStatisticsService>();
             services.AddSingleton<TotalLog>();
             services.AddSingleton<BotsAirstripService>();
+            services.AddSingleton<TestTelegramApi>();
 
             //services.AddTransient<MoneyCollectorService>();
 
@@ -94,11 +88,11 @@ namespace Website
                   options.AccessDeniedPath = new Microsoft.AspNetCore.Http.PathString("/SignIn/Login");
               });
         }
-        
 
-        public void Configure(IApplicationBuilder app, 
-            IHostingEnvironment env, 
-            ApplicationContext _contextDb, 
+
+        public void Configure(IApplicationBuilder app,
+            IHostingEnvironment env,
+            ApplicationContext _contextDb,
             TotalLog totalLog,
             //MoneyCollectorService moneyCollectorService,
             StupidLogger logger)
@@ -109,7 +103,7 @@ namespace Website
                 "Запуск сервера сайта");
             //оно не хочет очищать таблицу
             //_contextDb.Database.ExecuteSqlCommand("TRUNCATE TABLE [RouteRecords]");
-         
+
             _contextDb.RouteRecords.RemoveRange(_contextDb.RouteRecords);
             _contextDb.SaveChanges();
 
@@ -119,7 +113,7 @@ namespace Website
             }
             else
             {
-                app.UseExceptionHandler("/Home/Error");
+                app.UseExceptionHandler("/Error/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
             }
 
@@ -141,12 +135,12 @@ namespace Website
             {
                 KeepAliveInterval = TimeSpan.FromSeconds(1),
                 ReceiveBufferSize = 4 * 1024
-                
+
             };
-            
+
             app.UseWebSockets(wsOptions);
 
-          
+
             //сохранение в удобном виде для настроек локализации
             app.Use((context, next) =>
             {
@@ -163,8 +157,8 @@ namespace Website
                 {
                     lang = "en";
                 }
-                
-              
+
+
                 //switch culture
                 Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo(lang);
                 Thread.CurrentThread.CurrentUICulture = Thread.CurrentThread.CurrentCulture;
@@ -187,7 +181,7 @@ namespace Website
                 {
                     context.Items["accountId"] = id;
                 }
- 
+
                 return next();
             });
 
@@ -196,7 +190,7 @@ namespace Website
             //как это засунуть в Middleware?
             app.Use(async (context, next) =>
             {
-                 totalLog.Log(context);
+                totalLog.Log(context);
                 await next.Invoke();
             });
 
@@ -207,8 +201,14 @@ namespace Website
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Main}/{action=Index}/{id?}");
+
+                routes.MapRoute(
+                    name: "areas",
+                    template: "{area:exists}/{controller=Home}/{action=Index}/{id?}"
+                );
+
             });
-          
+
         }
     }
 }
@@ -220,3 +220,5 @@ namespace Website
 //{
 //    return Content("Проверка пройдена");
 //}
+
+

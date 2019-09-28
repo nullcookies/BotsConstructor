@@ -1,5 +1,8 @@
-﻿@using Microsoft.AspNetCore.Mvc.Localization
+﻿@using Microsoft.AspNetCore.Hosting
+@using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
+@inject IHostingEnvironment HostingEnvironment
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -28,8 +31,18 @@
                 <a class="p-2 text-dark" asp-area="" asp-controller="Home" asp-action="Index">@Localizer["Home"]</a>
                 <a class="p-2 text-dark" asp-area="" asp-controller="News" asp-action="Index">@Localizer["News"]</a>
             </nav>
+            
+            @if (HostingEnvironment.IsDevelopment())
+            {
+                <a class="p-2 text-dark" asp-area="" asp-controller="Test1" asp-action="Index">Тест</a>
+            }
+            
+
             <a class="btn btn-outline-primary m-1" asp-controller="SignIn" asp-action="Login">@Localizer["Login"]</a>
-            <a class="btn   btn-primary m-1" asp-controller="SignUp" asp-action="Register">@Localizer["SignUp"]</a>
+            @if (!Context.User.Identity.IsAuthenticated)
+            {
+                <a class="btn   btn-primary m-1" asp-controller="SignUp" asp-action="Register">@Localizer["SignUp"]</a>
+            }
         </div>
     </header>
     <div class="container">

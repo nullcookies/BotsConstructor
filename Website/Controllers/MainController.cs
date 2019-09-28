@@ -15,12 +15,12 @@ namespace Website.Controllers
     [Authorize]
     public class MainController : Controller
     {
-        ApplicationContext context;
+        readonly ApplicationContext _context;
         private readonly IStringLocalizer<MainController> _localizer;
 
         public MainController(ApplicationContext context, IStringLocalizer<MainController> localizer)
         {
-            this.context = context ?? throw new ArgumentNullException(nameof(context));
+            this._context = context ?? throw new ArgumentNullException(nameof(context));
             _localizer = localizer;
         }
 
