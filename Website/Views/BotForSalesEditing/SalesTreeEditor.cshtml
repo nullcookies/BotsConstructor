@@ -31,6 +31,7 @@
     let botId = 0;
     let userId = @ViewData["userId"];
     let botToken = "@ViewData["token"]";
+    SetStatusGroups(@Json.Serialize(ViewData["statusGroups"]));
     const urlParams = window.location.search.substring(1).split("&");
     for (let i = 0; i < urlParams.length; i++) {
         var nameAndVal = urlParams[i].split('=');
