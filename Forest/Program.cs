@@ -12,13 +12,36 @@ namespace Forest
 {
     public static class Program
     {
-        private static readonly bool WebhookIsEnabledInDebugMode = false;
-        public static string Url;
 
         public static void Main(string[] args)
         {
             CreateWebHostBuilder(args).Build().Run();
         }
+        
+        private static IWebHostBuilder CreateWebHostBuilder(string[] args)
+        {
+            return WebHost
+                .CreateDefaultBuilder(args)
+                .UseKestrel(options =>
+                {
+                    options.Listen(IPAddress.Loopback, 8080);
+                    options.Limits.MaxConcurrentConnections = 500;
+                })
+                .UseStartup<Startup>();
+        }
+
+        
+        
+        
+        
+        
+        
+        
+        
+        
+//        private static readonly bool WebhookIsEnabledInDebugMode = false;
+//        public static string Url;
+
 
 //        private static void RunHardcodeBot()
 //        {
@@ -115,17 +138,7 @@ namespace Forest
 //            return webhookIsOn;
 //        }
 
-        private static IWebHostBuilder CreateWebHostBuilder(string[] args)
-        {
-            return WebHost
-                .CreateDefaultBuilder(args)
-                .UseKestrel(options =>
-                    {
-                        options.Listen(IPAddress.Loopback, 8080);
-                        options.Limits.MaxConcurrentConnections = 500;
-                    })
-                .UseStartup<Startup>();
-        }
+      
     }
 }
 
