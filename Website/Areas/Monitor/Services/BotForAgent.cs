@@ -36,12 +36,8 @@ namespace Website.Areas.Monitor.Services
         {
             _logger = simpleLogger;
             _testTelegramApi = testTelegramApi;
+            
 
-            bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-            var connectionString =
-                configuration.GetConnectionString(isWindows ? "PostgresConnectionWindows" : "PostgresConnectionLinux");
-
-            this._dbContextFactory = new DbContextFactory(connectionString);
 
 
             _telegramBotClient = new TelegramBotClient(TELEGRAM_BOT_TOKEN);

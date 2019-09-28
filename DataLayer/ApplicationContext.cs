@@ -465,6 +465,20 @@ namespace DataLayer.Models
         public Source Source { get; set; }
 
     }
+    
+    public enum Source
+    {
+	    WEBSITE,
+	    FOREST,
+	    MONITOR,
+	    OTHER,
+	    MONEY_COLLECTOR_SERVICE,
+	    WEBSITE_BOTS_AIRSTRIP_SERVICE,
+	    FOREST_BANNED_USERS_SYNCHRONIZER,
+	    FOREST_BOT_STATISTICS_SYNCHRONIZER,
+	    PASSWORD_RESET
+    }
+    
     public enum LogLevelMyDich
     {
         INFO,

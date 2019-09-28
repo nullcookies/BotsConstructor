@@ -1,36 +1,47 @@
 ﻿using DataLayer.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using System.Text;
+using Microsoft.AspNetCore.Hosting;
 
 namespace DataLayer
 {
     public class DbContextFactory
     {
-        private readonly string _connectionString;       
 
-        public DbContextFactory(IConfiguration configuration)
+        private  static string ReleaseConnectionString =
+@"User ID = postgres;
+Password=3t0ssszheM3G4MMM0Ch~n`yparollb_wubfubrkmdbwiyro38;
+Server=127.0.0.1;
+Port=5432;
+Database=CombatVersion0006;
+Integrated Security=true;
+Pooling=true;";
+
+        private static string DevelopmentConnectionString = @"
+User ID = postgres;
+Password=v3rRh4rdp455lidzomObCl4vui49ri4;
+Server=194.9.71.76;
+Port=5432;
+Database=Dev05;
+Integrated Security=true;
+Pooling=true;";
+
+
+        public static string GetConnectionString(IHostingEnvironment env)
         {
-            bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-            _connectionString = configuration.GetConnectionString(isWindows ? "PostgresConnectionWindows" : "PostgresConnectionLinux");
+            if (env.IsDevelopment())
+                return DevelopmentConnectionString;
+            
+            return ReleaseConnectionString;
         }
-        public DbContextFactory(string connectionString)
-        {
-            if (connectionString != null)
-            {
-                _connectionString = connectionString;
-            }
-        }
+ 
 
-
-        public ApplicationContext GetNewDbContext()
+        public  ApplicationContext GetNewDbContext()
         {
+            string connectionString = DevelopmentConnectionString;
+            
             return new ApplicationContext(
                 new DbContextOptionsBuilder<ApplicationContext>()
-                    .UseNpgsql(_connectionString)
+                    .UseNpgsql(connectionString)
                     .Options);
         }
     }

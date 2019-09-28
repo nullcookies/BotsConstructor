@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DataLayer;
 using DataLayer.Models;
-using DeleteMeWebhook.Services;
+using Forest.Services;
 using LogicalCore;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -16,7 +16,9 @@ namespace Forest.Controllers
 {
     public class HomeController : Controller
     {
-		private readonly TryConvert<(string FileId, string PreviewId, string Description)> noFileCheck = (string text, out (string FileId, string PreviewId, string Description) variable) =>
+	    //Шо это?
+		private readonly TryConvert<(string FileId, string PreviewId, string Description)> noFileCheck = 
+			(string text, out (string FileId, string PreviewId, string Description) variable) =>
 		{
 			variable = default;
 			return true;
@@ -26,21 +28,16 @@ namespace Forest.Controllers
 
 
 		private readonly ApplicationContext _contextDb;
-		private readonly DBConnector connector;
+		private readonly DbConnector connector;
         private readonly StupidLogger _logger;
 
-		public HomeController(ApplicationContext context, DBConnector dBConnector, StupidLogger logger)
+		public HomeController(ApplicationContext context, DbConnector dBConnector, StupidLogger logger)
         {
             _contextDb = context;
 			connector = dBConnector;
             _logger = logger;
         }
-
-        [HttpGet]
-        public IActionResult IsAlive()
-        {
-            return Content("I am alive");
-        }
+		
 
         /// <summary>
         /// Принимает сообщения для ботов из Telegram
@@ -461,7 +458,7 @@ namespace Forest.Controllers
 					return Json(answer);
 				}
 
-				Stub.RunAndRegisterBot(botWrapper);
+				BotsContainer.RunAndRegisterBot(botWrapper);
 
 				answer = new JObject()
 				{

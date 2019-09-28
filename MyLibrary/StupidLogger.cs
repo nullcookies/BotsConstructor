@@ -20,11 +20,9 @@ namespace DataLayer
         {
             _logMessages = new ConcurrentQueue<LogMessage>();
             _spyMessages = new ConcurrentQueue<SpyRecord>();
-            _dbContextWrapper = new DbContextFactory(configuration);
+            _dbContextWrapper = new DbContextFactory();
 
-#pragma warning disable CS4014 // Так как этот вызов не ожидается, выполнение существующего метода продолжается до завершения вызова
             PeriodicFooAsync(TimeSpan.FromSeconds(1), CancellationToken.None);
-#pragma warning restore CS4014 // Так как этот вызов не ожидается, выполнение существующего метода продолжается до завершения вызова
         }
 
         public void LogSpyRecord(string pathCurrent, string pathFrom, int accountId)
@@ -122,17 +120,6 @@ namespace DataLayer
         }
     }
 
-    public enum Source
-    {
-        WEBSITE,
-        FOREST,
-        MONITOR,
-        OTHER,
-        MONEY_COLLECTOR_SERVICE,
-        WEBSITE_BOTS_AIRSTRIP_SERVICE,
-        FOREST_BANNED_USERS_SYNCHRONIZER,
-        FOREST_BOT_STATISTICS_SYNCHRONIZER,
-        PASSWORD_RESET
-    }
+  
 
 }

@@ -21,9 +21,11 @@ namespace Website
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        private readonly IHostingEnvironment _environment;
+        public Startup(IConfiguration configuration, IHostingEnvironment environment)
         {
             Configuration = configuration;
+            _environment = environment;
         }
 
         private IConfiguration Configuration { get; }
@@ -36,6 +38,7 @@ namespace Website
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+            
 
             services
                 .AddMvc()
@@ -43,18 +46,9 @@ namespace Website
                 .AddViewLocalization();
 
 
-            bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-
-            var connection = Configuration.GetConnectionString(isWindows ? "PostgresConnectionWindows" : "PostgresConnectionLinux");
-
-            if (connection == null)
-            {
-                throw new Exception("Не удалось открыть конфиг файл");
-            }
-
 
             services.AddEntityFrameworkNpgsql()
-                .AddDbContext<ApplicationContext>(opt => opt.UseNpgsql(connection))
+                .AddDbContext<ApplicationContext>(opt => opt.UseNpgsql(DbContextFactory.GetConnectionString(_environment)))
                 .BuildServiceProvider();
 
 
@@ -70,7 +64,6 @@ namespace Website
             services.AddLocalization(options => options.ResourcesPath = "Resources");
 
             services.AddTransient<EmailMessageSender>();
-            //services.AddTransient<StupidBotForSalesBookkeeper>();
 
             services.AddSingleton<StupidLogger>();
             services.AddSingleton<OrdersCountNotificationService>();
@@ -79,7 +72,6 @@ namespace Website
             services.AddSingleton<BotsAirstripService>();
             services.AddSingleton<TestTelegramApi>();
 
-            //services.AddTransient<MoneyCollectorService>();
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
               .AddCookie(options =>
@@ -101,8 +93,7 @@ namespace Website
             logger.Log(LogLevelMyDich.IMPORTANT_INFO,
                 Source.WEBSITE,
                 "Запуск сервера сайта");
-            //оно не хочет очищать таблицу
-            //_contextDb.Database.ExecuteSqlCommand("TRUNCATE TABLE [RouteRecords]");
+            
 
             _contextDb.RouteRecords.RemoveRange(_contextDb.RouteRecords);
             _contextDb.SaveChanges();
@@ -114,7 +105,6 @@ namespace Website
             else
             {
                 app.UseExceptionHandler("/Error/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
             }
 
             bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);

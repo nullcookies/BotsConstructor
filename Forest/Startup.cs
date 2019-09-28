@@ -1,7 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using DataLayer;
 using DataLayer.Models;
-using DeleteMeWebhook.Services;
 using Forest.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -14,9 +13,11 @@ namespace Forest
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        private IHostingEnvironment _environment;
+        public Startup(IConfiguration configuration, IHostingEnvironment environment)
         {
             Configuration = configuration;
+            _environment = environment;
         }
 
         private IConfiguration Configuration { get; }
@@ -27,19 +28,13 @@ namespace Forest
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
-
-            bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-
-            var connection = Configuration.GetConnectionString(isWindows ? "PostgresConnectionWindows" : "PostgresConnectionLinux");
-
             services.AddEntityFrameworkNpgsql()
-                .AddDbContext<ApplicationContext>(opt => opt.UseNpgsql(connection))
+                .AddDbContext<ApplicationContext>(opt => opt.UseNpgsql(DbContextFactory.GetConnectionString(_environment)))
                 .BuildServiceProvider();
 
-			services.AddSingleton<DBConnector>();
+			services.AddSingleton<DbConnector>();
             services.AddSingleton<StupidLogger>();
             services.AddSingleton<BotStatisticsSynchronizer>();
-            services.AddSingleton<BannedUsersSynchronizer>();
 
 
 
@@ -48,8 +43,7 @@ namespace Forest
         public void Configure(IApplicationBuilder app, 
             IHostingEnvironment env, 
             BotStatisticsSynchronizer botStatisticsSynchronizer,
-            StupidLogger logger,
-            BannedUsersSynchronizer bannedUsersSynchronizer)
+            StupidLogger logger)
         {
 
             logger.Log(LogLevelMyDich.IMPORTANT_INFO,
@@ -59,7 +53,6 @@ namespace Forest
 
             app.UseDeveloperExceptionPage();
 
-            //app.UseHttpsRedirection();
 
             app.UseMvc(routes =>
             {

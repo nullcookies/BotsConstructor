@@ -12,12 +12,12 @@ namespace Forest.Services
 {
     public class BotStatisticsSynchronizer
     {
-        private DbContextFactory _dbContextWrapper;
-        private StupidLogger _logger;
+        private readonly DbContextFactory _dbContextWrapper;
+        private readonly StupidLogger _logger;
 
         public BotStatisticsSynchronizer(IConfiguration configuration, StupidLogger logger)
         {
-            _dbContextWrapper = new DbContextFactory(configuration);
+            _dbContextWrapper = new DbContextFactory();
             _logger = logger;
 
             _logger.Log(LogLevelMyDich.INFO,
@@ -96,8 +96,7 @@ namespace Forest.Services
                 #region Обновление кол-ва сообщений в бд 
                 //запись статистики бота из бд
                 BotForSalesStatistics statisticsDb = allStatistics
-                    .Where(_stat => _stat.BotId == botWrapper.BotID)
-                    .SingleOrDefault();
+                    .SingleOrDefault(_stat => _stat.BotId == botWrapper.BotID);
                  
 
                 if (statisticsDb == null)

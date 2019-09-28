@@ -37,7 +37,7 @@ namespace Website.Services
         {
             this._logger = _logger;
 
-            _dbContextWrapper = new DbContextFactory(configuration);
+            _dbContextWrapper = new DbContextFactory();
           
             PeriodicFooAsync(TimeSpan.FromSeconds(5), CancellationToken.None);
         }
