@@ -60,9 +60,9 @@
         nodesMenu.append(templates[i].container);
     }
     let root = templates[nodeTypes.root];
-    const jsonMarkup = @Json.Serialize(ViewData["json"]);
+    jsonMarkup = @Json.Serialize(ViewData["json"]);
     if (jsonMarkup != null && jsonMarkup.length > 0) {
-        loadFromJSON(jsonMarkup);
+        loadFromJSON();
     }
     else {
         $(root.container).attr("id", "main").appendTo($("#main-container"));
