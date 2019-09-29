@@ -16,7 +16,9 @@ namespace Website.Controllers
     public class NewsController : Controller
     {
         private ApplicationContext _contextDb;
-        public NewsController(ApplicationContext context, IStringLocalizer<MainController> localizer, ApplicationContext contextDb)
+        public NewsController(ApplicationContext context,
+            IStringLocalizer<MainController> localizer,
+            ApplicationContext contextDb)
         {
             _contextDb = contextDb;
         }
@@ -24,7 +26,6 @@ namespace Website.Controllers
         [AllowAnonymous]
         public IActionResult Index()
         {
-            
             return View();
         }
 
@@ -32,7 +33,13 @@ namespace Website.Controllers
         [AllowAnonymous]
         public IActionResult News(int num)
         {
-            return View();
+            Random random = new Random();
+            int number = random.Next();
+            if (number % 2 == 0)
+            {
+                return View();
+            }
+            return View("NewsSimple");
         }
 
 
