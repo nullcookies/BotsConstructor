@@ -24,11 +24,30 @@ namespace Website.Controllers
         }
 
         [AllowAnonymous]
-        public IActionResult Index()
+        public IActionResult All(int pageNumber)
         {
+            
+            var newsDb = _contextDb.PrimitiveNews.TakeLast(7);
+            var newsModel = new List<NewsPreviewModel>();
+            foreach (var news in newsDb)
+            {
+                NewsPreviewModel model = new NewsPreviewModel()
+                {
+                    Date = news.DateTime.ToShortDateString(),
+                    Title = news.Title,
+                    BeginningOfText = GetFirstParagraph(news.HtmlText)
+                };
+                newsModel.Add(model);
+            }
+            ViewData["news"] = newsModel;
+            
             return View();
         }
 
+        private static string GetFirstParagraph(string htmlText)
+        {
+            return htmlText.Substring(0, Math.Min(htmlText.Length, 100));
+        }
 
         [AllowAnonymous]
         public IActionResult News(int num)

@@ -15,7 +15,7 @@ namespace Monitor
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<TelegramAgent.MyTelegramAgent>();
+            services.AddSingleton<MyTelegramAgent>();
             services.AddSingleton<TelegramAgentHelperBot>();
             
             
@@ -28,20 +28,15 @@ namespace Monitor
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, TelegramAgentHelperBot bot)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
+            if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
 
             
-                
+            
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
                     name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
-
-                
+                    template: "{controller=NewsCreator}/{action=Index}/{id?}");
             });
             
             

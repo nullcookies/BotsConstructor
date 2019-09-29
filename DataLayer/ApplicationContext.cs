@@ -35,7 +35,10 @@ namespace DataLayer.Models
         public DbSet<BannedUser> BannedUsers { get; set; }
         public DbSet<BotWorkLog> BotWorkLogs { get; set; }
         public DbSet<SpyRecord> SpyRecords { get; set; }
+        
+        public DbSet<PrimitiveNews> PrimitiveNews { get; set; }
 
+        
 
         public ApplicationContext(DbContextOptions<ApplicationContext> options)
            : base(options)
@@ -867,13 +870,19 @@ namespace DataLayer.Models
         public int AccountId { get; set; }
     }
 
-    public class NewsPart
+    public class PrimitiveNews
     {
-	    public int Id {get; set; }
+	    [Key]
+	    public  int Id { get; set; }
 	    
-	    public string Text{get; set; }
+	    [Required]
+	    public string Title { get; set; }
 	    
+	    [Required]
+	    public  string HtmlText { get; set; }
+	    
+	    [Required]
+	    public DateTime DateTime { get; set; }
     }
-
 
 }
