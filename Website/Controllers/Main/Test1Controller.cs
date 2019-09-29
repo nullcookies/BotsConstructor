@@ -1,10 +1,8 @@
-﻿using System;
-using DataLayer;
-using DataLayer.Models;
+﻿using DataLayer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Website.Controllers
+namespace Website.Controllers.Main
 {
     public class Test1Controller : Controller
     {

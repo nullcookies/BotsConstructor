@@ -37,7 +37,7 @@
 @*     } *@
 @* } *@
 
-@foreach (var news in (ViewData["news"] as IQueryable<NewsPreviewModel>))
+@foreach (var news in (List<NewsPreviewModel>) ViewData["news"])
 {
     <div class="card mb-3 shadow" style="max-width: 960px; max-height: 200px; margin: auto;"> 
                    <div class="row no-gutters"> 
