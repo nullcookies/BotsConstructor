@@ -47,14 +47,6 @@
   </ItemGroup>
 
 
-  <ItemGroup>
-    <Folder Include="Areas\Monitor\Controllers\" />
-    <Folder Include="Areas\Monitor\Data\" />
-    <Folder Include="Areas\Monitor\Models\" />
-    <Folder Include="Areas\Monitor\Views\" />
-  </ItemGroup>
-
-
   <ProjectExtensions><VisualStudio><UserProperties properties_4launchsettings_1json__JsonSchema="" appsettings_1json__JSONSchema="" /></VisualStudio></ProjectExtensions>
 
 </Project>

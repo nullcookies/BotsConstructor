@@ -13,7 +13,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Claims;
 using System.Threading;
-using Website.Areas.Monitor.Services;
 using Website.Other.Middlewares;
 using Website.Services;
 
@@ -70,8 +69,7 @@ namespace Website
             services.AddSingleton<BotForSalesStatisticsService>();
             services.AddSingleton<TotalLog>();
             services.AddSingleton<BotsAirstripService>();
-            services.AddSingleton<TestTelegramApi>();
-
+            
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
               .AddCookie(options =>
