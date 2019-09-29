@@ -2,6 +2,7 @@
 using DataLayer.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Website.Services;
 using Website.ViewModels;
@@ -53,6 +54,20 @@ namespace Website.Controllers.SignInUpOut
                         RoleTypeId = 1
                     };
 
+                    var statusGroup = new OrderStatusGroup()
+                    {
+                        Name = "Стандартный набор статусов",
+                        Owner = account,
+                        OrderStatuses = new List<OrderStatus>()
+                        {
+                            new OrderStatus() {Name = "В обработке", Message = "Ваш заказ находится в обработке."},
+                            new OrderStatus() {Name = "В пути", Message = "Ваш заказ в пути."},
+                            new OrderStatus() {Name = "Принят", Message = "Ваш заказ был принят."},
+                            new OrderStatus() {Name = "Отменён", Message = "Ваш заказ был отменён."}
+                        }
+                    };
+
+                    _context.OrderStatusGroups.Add(statusGroup);
                     _context.Accounts.Add(account);
                     _context.SaveChanges();
 

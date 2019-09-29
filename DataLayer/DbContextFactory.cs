@@ -8,22 +8,22 @@ namespace DataLayer
     {
 
         private  static string ReleaseConnectionString =
-@"User ID = postgres;
-Password=3t0ssszheM3G4MMM0Ch~n`yparollb_wubfubrkmdbwiyro38;
-Server=127.0.0.1;
-Port=5432;
-Database=CombatVersion0006;
-Integrated Security=true;
-Pooling=true;";
+            @"User ID = postgres;
+            Password=3t0ssszheM3G4MMM0Ch~n`yparollb_wubfubrkmdbwiyro38;
+            Server=127.0.0.1;
+            Port=5432;
+            Database=CombatVersion0006;
+            Integrated Security=true;
+            Pooling=true;";
 
-        private static string DevelopmentConnectionString = @"
-User ID = postgres;
-Password=v3rRh4rdp455lidzomObCl4vui49ri4;
-Server=194.9.71.76;
-Port=5432;
-Database=Dev05;
-Integrated Security=true;
-Pooling=true;";
+        private static string DevelopmentConnectionString =
+            @"User ID = postgres;
+            Password=3t0ssszheM3G4MMM0Ch~n`yparollb_wubfubrkmdbwiyro38;
+            Server=54.89.247.235;
+            Port=5432;
+            Database=Dev0001;
+            Integrated Security=true;
+            Pooling=true;";
 
 
         public static string GetConnectionString(IHostingEnvironment env)
