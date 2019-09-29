@@ -26,10 +26,14 @@ function deepClone(src) {
     return clone;
 }
 
-/** Отправляет дерево на сервер. */
-function sendToServer() {
-    const jqSelf = $(this).prop("disabled", true).switchClass("btn-success btn-danger", "btn-warning");
-    const jqSaveSpinner = jqSelf.find("span").removeClass("oi oi-cloud-upload oi-circle-x").addClass("spinner-border spinner-border-sm");
+/**
+ * JSON разметки.
+ * @type {string}
+ */
+let jsonMarkup = null;
+
+/** Возвращает текущую разметку в виде JSON. */
+function getCurrentMarkup() {
     root.id = 0;
     const allNodes = [root];
     const rootChildren = root.children;
@@ -50,13 +54,37 @@ function sendToServer() {
         }
     }
 
+    return JSON.stringify(allNodes);
+}
+
+window.onbeforeunload = function (evt) {
+    if (jsonMarkup === getCurrentMarkup()) return null;
+
+    const message = "Данные не были сохранены. Вы уверены, что хотите выполнить это действие?";
+    if (typeof evt == "undefined") {
+        evt = window.event;
+    }
+    if (evt) {
+        evt.returnValue = message;
+    }
+    return message;
+}
+
+/** Отправляет дерево на сервер. */
+function sendToServer() {
+    const jqSelf = $(this).prop("disabled", true).switchClass("btn-success btn-danger", "btn-warning");
+    const jqSaveSpinner = jqSelf.find("span").removeClass("oi oi-cloud-upload oi-circle-x").addClass("spinner-border spinner-border-sm");
+
+    const sentMarkup = getCurrentMarkup();
+
     $.ajax({
         url: '/BotForSalesEditing/SaveTree',
         type: 'post',
-        data: { botId: botId, tree: JSON.stringify(allNodes) },
+        data: { botId: botId, tree: sentMarkup },
         success: function () {
             jqSaveSpinner.removeClass("spinner-border spinner-border-sm").addClass("oi oi-cloud-upload");
             jqSelf.switchClass("btn-warning", "btn-success").prop("disabled", false);
+            jsonMarkup = sentMarkup;
         },
         error: function (data) {
             jqSaveSpinner.removeClass("spinner-border spinner-border-sm").addClass("oi oi-circle-x");
@@ -69,14 +97,13 @@ function sendToServer() {
 
 /**
  * Восстанавливает дерево из JSON.
- * @param {string} json Дерево в формате JSON.
  */
-function loadFromJSON(json) {
+function loadFromJSON() {
     const jqMainCont = $("#main-container");
     jqMainCont.children().remove();
     const jqSpinnerDiv = $("<div>").addClass("spinner-border text-primary m-auto centered").attr("role", "status").css("font-size", "5rem").appendTo(jqMainCont);
     try {
-        const array = JSON.parse(json);
+        const array = JSON.parse(jsonMarkup);
         const firstNodeParams = array[0].parameters;
         if (firstNodeParams.type != 1) throw new Error("Первый узел не является корнем!");
         root = new RootNode(firstNodeParams.name, firstNodeParams.message, firstNodeParams.fileId);
