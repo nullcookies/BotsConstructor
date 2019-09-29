@@ -320,7 +320,6 @@ namespace Forest.Controllers
 							}
 							break;
 						case NodeType.SendOrder:
-							//TODO: группы статусов
 							node = new OwnerNotificationNode(nodeName, GetInlineMsgFromParams(nodeParams), connector, (int)nodeParams["statusGroupId"],
 									UniversalOrderContainer.generateContainerCreator(variablesInfo),
 									variablesInfo.ToArray());
