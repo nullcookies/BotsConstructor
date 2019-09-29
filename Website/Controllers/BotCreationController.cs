@@ -59,22 +59,6 @@ namespace Website.Controllers
 
                 _contextDb.BotForSalesStatistics.Add(botForSalesStatistics);
 
-				var statusGroup = new OrderStatusGroup()
-				{
-					Name = "Стандартный набор статусов",
-					OwnerId = accountId,
-					OrderStatuses = new List<OrderStatus>()
-					{
-						new OrderStatus() {Name = "В обработке", Message = "Ваш заказ находится в обработке."},
-						new OrderStatus() {Name = "В пути", Message = "Ваш заказ в пути."},
-						new OrderStatus() {Name = "Принят", Message = "Ваш заказ был принят."},
-						new OrderStatus() {Name = "Отменён", Message = "Ваш заказ был отменён."}
-					}
-				};
-
-				_contextDb.OrderStatusGroups.Add(statusGroup);
-
-
                 try
                 {
                     _contextDb.SaveChanges();
