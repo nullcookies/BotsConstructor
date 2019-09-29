@@ -28,8 +28,8 @@
         <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm container">
             <h5 class="my-0 mr-md-auto font-weight-normal"> <a class="text-reset" asp-controller="Main" asp-action="Index">@Localizer["Bots constructor"]</a></h5>
             <nav class="my-2 my-md-0 mr-md-3">
-                <a class="p-2 text-dark" asp-area="" asp-controller="Home" asp-action="Index">@Localizer["Home"]</a>
-                <a class="p-2 text-dark" asp-area="" asp-controller="News" asp-action="Index">@Localizer["News"]</a>
+                @* <a class="p-2 text-dark" asp-area="" asp-controller="Home" asp-action="Index">@Localizer["Home"]</a> *@
+                @* <a class="p-2 text-dark" asp-area="" asp-controller="News" asp-action="Index">@Localizer["News"]</a> *@
             </nav>
             
             @if (HostingEnvironment.IsDevelopment())
@@ -41,7 +41,7 @@
             <a class="btn btn-outline-primary m-1" asp-controller="SignIn" asp-action="Login">@Localizer["Login"]</a>
             @if (!Context.User.Identity.IsAuthenticated)
             {
-                <a class="btn   btn-primary m-1" asp-controller="SignUp" asp-action="Register">@Localizer["SignUp"]</a>
+                <a class="btn  btn-primary m-1" asp-controller="SignUp" asp-action="Register">@Localizer["SignUp"]</a>
             }
         </div>
     </header>
@@ -54,7 +54,7 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            @*&copy; 2019 - bots -*@ <a asp-area="" asp-controller="Main" asp-action="Privacy">@Localizer["Privacy"]</a>
+            @*&copy; 2019 - bots -<a asp-area="" asp-controller="Main" asp-action="Privacy">@Localizer["Privacy"]</a>*@ 
             @*<a class="p-2 text-dark" href="#">@Localizer["Support"]</a>*@
 
         </div>

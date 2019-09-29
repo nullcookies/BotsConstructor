@@ -70,11 +70,11 @@
 
             <script>
             (function () {
-                var getWebSocketMessages = function (onMessageReceived) {
-                    var url = `wss://${location.host}/Orders/SetWebsocketOrdersCount`
+                const getWebSocketMessages = function (onMessageReceived) {
+                    const url = `wss://${location.host}/Orders/SetWebsocketOrdersCount`;
                     console.log('url is: ' + url);
 
-                    var webSocket = new WebSocket(url);
+                    const webSocket = new WebSocket(url);
                     webSocket.onmessage = onMessageReceived;
                     webSocket.onerror = onError;
                 };
@@ -90,7 +90,7 @@
 
                 getWebSocketMessages(function (message) {
                     //console.log("Пришло уведомление");
-                    var jsonObj = JSON.parse(message.data);
+                    const jsonObj = JSON.parse(message.data);
                     //console.log(jsonObj);
 
                     SetNewOrdersCount(jsonObj.ordersCount);

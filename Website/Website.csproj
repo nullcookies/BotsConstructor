@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -26,11 +27,13 @@
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="2.2.4" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.5.0" />
     <PackageReference Include="Telegram.Bot" Version="14.12.0" />
+    <PackageReference Include="TLSharp" Version="0.1.0.176" />
   </ItemGroup>
 
 
   <ItemGroup>
     <ProjectReference Include="..\DataLayer\DataLayer.csproj" />
+    <ProjectReference Include="..\MyLibrary\MyLibrary.csproj" />
   </ItemGroup>
 
 
@@ -41,6 +44,14 @@
     <EmbeddedResource Update="Resources\Controllers.MainController.ru-ru.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
     </EmbeddedResource>
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Folder Include="Areas\Monitor\Controllers\" />
+    <Folder Include="Areas\Monitor\Data\" />
+    <Folder Include="Areas\Monitor\Models\" />
+    <Folder Include="Areas\Monitor\Views\" />
   </ItemGroup>
 
 

@@ -14,19 +14,20 @@ using System.Threading.Tasks;
 using Website.Other;
 using Website.Other.Filters;
 using Website.Services;
-//using Website.Services.Bookkeeper;
+
+
 namespace Website.Services
 {
   
     public class BotsAirstripService
     {
-        StupidLogger _logger;
-        private DbContextFactory _dbContextWrapper;
+        readonly StupidLogger _logger;
+        private readonly DbContextFactory _dbContextWrapper;
 
         public BotsAirstripService(StupidLogger logger, IConfiguration configuration)
         {
             _logger = logger;
-            _dbContextWrapper = new DbContextFactory(configuration);
+            _dbContextWrapper = new DbContextFactory();
         }
 
         /// <summary>
@@ -37,12 +38,12 @@ namespace Website.Services
         /// <returns> JObject со статусом запроса.</returns>
         public JObject StartBot(int botId, int accountId)
         {
-            ApplicationContext _contextDb = _dbContextWrapper.GetNewDbContext();
-            BotDB bot = _contextDb.Bots.Find(botId);
+            ApplicationContext contextDb = _dbContextWrapper.GetNewDbContext();
+            BotDB bot = contextDb.Bots.Find(botId);
             JObject jObject = null;
 
             //Аккаунт, по запросу которого бот запускается
-            Account account = _contextDb.Accounts.Find(accountId);
+            Account account = contextDb.Accounts.Find(accountId);
 
             //TODO вынести в другой сервис
             bool account_can_run_a_bot = bot.OwnerId == accountId;
@@ -64,7 +65,7 @@ namespace Website.Services
 
             }
 
-            Account botOwner = _contextDb.Accounts.Find(bot.OwnerId);
+            Account botOwner = contextDb.Accounts.Find(bot.OwnerId);
 
             //У собственника бота есть деньги?
             if (botOwner.Money < 0)
@@ -107,7 +108,7 @@ namespace Website.Services
             }
 
             //Если бот уже запущен, вернуть ошибку
-            RouteRecord existingRecord = _contextDb.RouteRecords.Find(botId);
+            RouteRecord existingRecord = contextDb.RouteRecords.Find(botId);
             if (existingRecord != null)
             {
                 _logger.Log(LogLevelMyDich.USER_INTERFACE_ERROR_OR_HACKING_ATTEMPT, Source.WEBSITE, $"Попытка запутить запущенного бота.");
@@ -136,7 +137,7 @@ namespace Website.Services
                 if (successfulStart)
                 {
                     //Лес нормально сделал запись о запуске?
-                    RouteRecord rr = _contextDb.RouteRecords.Find(botId);
+                    RouteRecord rr = contextDb.RouteRecords.Find(botId);
                     if (rr != null)
                     {
                         jObject = new JObject()

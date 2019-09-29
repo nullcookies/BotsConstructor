@@ -13,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Forest", "Forest\Forest.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StupidTests", "StupidTests\StupidTests.csproj", "{BE328F02-56D4-4332-B854-9D79DD9A50BA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Monitor", "Monitor\Monitor.csproj", "{29621C46-8085-4F8B-9252-35D49F157533}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyLibrary", "MyLibrary\MyLibrary.csproj", "{2444026B-F1F4-4CCF-BF90-8FB8CD99038C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,10 +41,10 @@ Global
 		{BE328F02-56D4-4332-B854-9D79DD9A50BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BE328F02-56D4-4332-B854-9D79DD9A50BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BE328F02-56D4-4332-B854-9D79DD9A50BA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{29621C46-8085-4F8B-9252-35D49F157533}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{29621C46-8085-4F8B-9252-35D49F157533}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{29621C46-8085-4F8B-9252-35D49F157533}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{29621C46-8085-4F8B-9252-35D49F157533}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2444026B-F1F4-4CCF-BF90-8FB8CD99038C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2444026B-F1F4-4CCF-BF90-8FB8CD99038C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2444026B-F1F4-4CCF-BF90-8FB8CD99038C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2444026B-F1F4-4CCF-BF90-8FB8CD99038C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
