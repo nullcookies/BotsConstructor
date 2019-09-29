@@ -867,6 +867,13 @@ namespace DataLayer.Models
         public int AccountId { get; set; }
     }
 
+    public class NewsPart
+    {
+	    public int Id {get; set; }
+	    
+	    public string Text{get; set; }
+	    
+    }
 
 
 }
