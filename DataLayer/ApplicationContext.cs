@@ -883,6 +883,9 @@ namespace DataLayer.Models
 	    
 	    [Required]
 	    public DateTime DateTime { get; set; }
+	    
+	    [Required]
+	    public bool IsShown  { get; set; }
     }
 
 }

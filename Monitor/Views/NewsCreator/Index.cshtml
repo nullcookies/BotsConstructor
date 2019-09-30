@@ -1,0 +1,24 @@
+﻿@model Monitor.ViewModels.NewsModel
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html lang="ru">
+<head>
+    <title>title</title>
+</head>
+<body>
+<div>
+    <form asp-action="Index" asp-controller="NewsCreator">
+        Title:<input asp-for="Title" required="required"/>
+        <hr/>
+        Html text: <input asp-for="HtmlText"  required="required"/>
+        <hr/>
+        <button type="submit"> Создать новость</button>
+    </form>
+</div>
+</body>
+</html>

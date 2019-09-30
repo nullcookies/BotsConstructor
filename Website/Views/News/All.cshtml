@@ -3,63 +3,65 @@
     ViewData["Title"] = "Index";
 }
 
-
-
-
 <div class="container ">
 
-@* *@
-@* @{ *@
-@*     for (int i = 0; i < 7; i++) *@
-@*     { *@
-@*         <div class="card mb-3 shadow" style="max-width: 960px; max-height: 200px; margin: auto;"> *@
-@*             <div class="row no-gutters"> *@
-@*                 <div class="col"> *@
-@*                     <div class="card-body"> *@
-@*                         <div class="row"> *@
-@*                             <div class="col"> *@
-@*                                 <h5 class="card-title">Сообщение о плановом перезапуске</h5> *@
-@*                             </div> *@
-@*                             <div class="col-4 "style="text-align: right;"> *@
-@*                                 <p class="card-text  "><small class="text-muted">24.06.2019</small></p> *@
-@*                             </div> *@
-@*                         </div> *@
-@*                          *@
-@*                         <p class="card-text text-truncate "><a class=" text-muted" href="/News/News"> *@
-@*                             В связи с обновлением функций системы. Завтра все боты будут перезагружены в период с 17:30 до 17:35 (MSK).   *@
-@*                         </a></p> *@
-@*                         *@
-@*                         $1$<p class="card-text  "><small class="text-muted">24.06.2019</small></p>#1# *@
-@*                     </div> *@
-@*                 </div> *@
-@*             </div> *@
-@*         </div> *@
-@*     } *@
+@* @foreach (var news in (List<NewsPreviewModel>) ViewData["news"]) *@
+@* { *@
+@*     <div class="card mb-3 shadow" style="max-width: 960px; max-height: 200px; margin: auto;">  *@
+@*        <div class="row no-gutters">  *@
+@*            <div class="col">  *@
+@*                <div class="card-body">  *@
+@*                    <div class="row">  *@
+@*                        <div class="col">  *@
+@*                            <h5 class="card-title">@news.Title</h5>  *@
+@*                        </div> *@
+@*                        <div class="col-4 "style="text-align: right;">  *@
+@*                            <p class="card-text  "><small class="text-muted">@news.Date</small></p>  *@
+@*                        </div>  *@
+@*                    </div>  *@
+@*                     *@
+@*                    <p class="card-text text-truncate "><a class=" text-muted" asp-action="News" asp-controller="News" asp-route-id="@news.Id">  *@
+@*                        @news.BeginningOfText *@
+@*                    </a></p>  *@
+@*                     *@
+@*                </div>  *@
+@*            </div>  *@
+@*        </div>  *@
+@*     </div>  *@
 @* } *@
 
-@foreach (var news in (List<NewsPreviewModel>) ViewData["news"])
+<style>
+    .myClass{
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    }
+</style>
+@for (int i = 0; i < 5; i++)
 {
-    <div class="card mb-3 shadow" style="max-width: 960px; max-height: 200px; margin: auto;"> 
-                   <div class="row no-gutters"> 
-                       <div class="col"> 
-                           <div class="card-body"> 
-                               <div class="row"> 
-                                   <div class="col"> 
-                                       <h5 class="card-title">@news.Title</h5> 
-                                   </div>
-                                   <div class="col-4 "style="text-align: right;"> 
-                                       <p class="card-text  "><small class="text-muted">@news.Date</small></p> 
-                                   </div> 
-                               </div> 
-                               
-                               <p class="card-text text-truncate "><a class=" text-muted" href="/News/News"> 
-                                   @news.BeginningOfText
-                               </a></p> 
-                               
-                               <p class="card-text  "><small class="text-muted">24.06.2019</small></p>
+        
+     <div class="card mb-3 shadow" style="max-width: 960px; max-height: 200px; margin: auto;"> 
+           <div class="row no-gutters" style="overflow: hidden; display: inline-block;"> 
+               <div class="col"> 
+                   <div class="card-body"  > 
+                       <div class="row"> 
+                           <div class="col"> 
+                               <h2 class="card-title">🎉✨Старт работы сервиса🎉✨</h2> 
+                           </div>
+                           <div class="col-4 "style="text-align: right;"> 
+                               <p class="card-text  "><small class="text-muted">30.09.2019</small></p> 
                            </div> 
                        </div> 
+                       
+                        
+                       <p class="card-text myClass  ">
+                           Добрый день. С радостью сообщаем, что наш сервис входит в стадию альфа тестирования.🎉✨ 
+                       </p> 
+                     
+                 
+                       
                    </div> 
                </div> 
+           </div> 
+    </div> 
 }
+
 </div>
