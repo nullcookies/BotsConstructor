@@ -264,7 +264,7 @@
         });
         jqNewNode.find("div#body_msg_").attr("id", "body_msg_" + orderId).append(mainMsgElem);
 
-        jqNewNode.find("button#btn_").attr("id", "btn_" + orderId).attr("title", statusGroups[statusGroupId].item1).text(statuses[statusId].item1);
+        var jqBtn = jqNewNode.find("button#btn_").attr("id", "btn_" + orderId).attr("title", statusGroups[statusGroupId].item1).text(statuses[statusId].item1);
         var dropdown = jqNewNode.find("div#dropdown_").attr("id", "dropdown_" + orderId)[0];
         var protoBtn = jqNewNode.find("button#proto_status_btn").removeAttr("id")[0];
         var thisGroupStatusesIds = statusGroups[statusGroupId].item2;
@@ -273,13 +273,19 @@
                 ChangeOrderStatus(orderId, newStatusId);
             };
         }
-        for (var i = 0; i < thisGroupStatusesIds.length; i++) {
-            var btnStatusId = thisGroupStatusesIds[i];
-            var statusBtn = protoBtn.cloneNode(true);
-            statusBtn.addEventListener("click", constructChangingStatus(btnStatusId));
-            statusBtn.setAttribute("title", statuses[btnStatusId].item2);
-            statusBtn.textContent = statuses[btnStatusId].item1;
-            dropdown.insertBefore(statusBtn, protoBtn);
+        if (!statusGroups[statusGroupId].item3) {
+            for (var i = 0; i < thisGroupStatusesIds.length; i++) {
+                var btnStatusId = thisGroupStatusesIds[i];
+                if (!statuses[btnStatusId].item3) {
+                    var statusBtn = protoBtn.cloneNode(true);
+                    statusBtn.addEventListener("click", constructChangingStatus(btnStatusId));
+                    statusBtn.setAttribute("title", statuses[btnStatusId].item2);
+                    statusBtn.textContent = statuses[btnStatusId].item1;
+                    dropdown.insertBefore(statusBtn, protoBtn);
+                }
+            }
+        } else {
+            jqBtn.prop("disabled", true);
         }
         dropdown.removeChild(protoBtn);
         jqNewNode.find("button#proto_unset").removeAttr("id").on("click", constructChangingStatus(null));
@@ -346,7 +352,7 @@
                 //console.log(bots);
                 //console.log(statusGroups);
                 //console.log(statuses);
-                statuses[null] = { item1: "NEW", item2: "Sends nothing." };
+                statuses[null] = { item1: "NEW", item2: "Sends nothing.", item3: false };
             },
             error: function (data) {
                 console.log(`ERROR! Can't refresh variables!\n${data.responseText}`);
