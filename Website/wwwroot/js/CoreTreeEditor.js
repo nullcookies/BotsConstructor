@@ -70,7 +70,7 @@ window.onbeforeunload = function (evt) {
     return message;
 }
 
-/** Отправляет дерево на сервер. */
+/** Отправляет данные на сервер. */
 function sendToServer() {
     const jqSelf = $(this).prop("disabled", true).switchClass("btn-success btn-danger", "btn-warning");
     const jqSaveSpinner = jqSelf.find("span").removeClass("oi oi-cloud-upload oi-circle-x").addClass("spinner-border spinner-border-sm");
@@ -96,7 +96,7 @@ function sendToServer() {
 }
 
 /**
- * Восстанавливает дерево из JSON.
+ * Восстанавливает данные из JSON.
  */
 function loadFromJSON() {
     const jqMainCont = $("#main-container");
