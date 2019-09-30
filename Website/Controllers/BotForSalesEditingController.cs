@@ -2,9 +2,13 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Website.Other.Filters;
+using Website.TelegramAgent;
 
 //TODO  проверка прав доступа
 namespace Website.Controllers
@@ -14,6 +18,13 @@ namespace Website.Controllers
     {
         readonly ApplicationContext _context;
         IHostingEnvironment _appEnvironment;
+        
+        private readonly MyTelegramAgent _telegramAgent;
+
+        public BotForSalesEditingController(MyTelegramAgent telegramAgent)
+        {
+	        _telegramAgent = telegramAgent;
+        }
 
         public BotForSalesEditingController(ApplicationContext context, IHostingEnvironment appEnvironment)
         {
@@ -43,6 +54,27 @@ namespace Website.Controllers
 			_context.Bots.Find(botId).Markup = tree;
 			_context.SaveChanges();
 			return Ok();
+		}
+		
+		
+		
+		[HttpGet]
+		[TypeFilter(typeof(CheckAccessToTheBot))]
+		public async Task<IActionResult> GetFileId(IFormFile uploadedFile)
+		{
+			
+			try
+			{
+				Stream stream = uploadedFile.OpenReadStream();
+				await _telegramAgent.MySendPhoto(stream);
+			}
+			catch (Exception eee)
+			{
+				return Content("не работает. "+eee.Message);
+			}
+
+			return Content("работает");
+			
 		}
     }
 }

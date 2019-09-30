@@ -1,0 +1,31 @@
+﻿@model Monitor.ViewModels.TelegtamAgentActivationCode
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>title</title>
+</head>
+<body>
+<div>
+    
+    <a asp-action="SendCode">Запросить код</a>
+    <hr>
+    <form asp-controller="TelegramAgentSettings" asp-action="Index" method="post">
+        <input asp-for="Code" required="required"/>
+        <button type="submit"> Отправить </button>
+    </form>
+        <hr>
+
+    <form asp-action="AddFile" asp-controller="TelegramAgentSettings" method="post" enctype="multipart/form-data">
+        <input type="file" name="uploadedFile" /><br>
+        <input type="submit" value="Загрузить" />
+    </form>
+     
+</div>
+</body>
+</html>

@@ -18,4 +18,9 @@
       <ProjectReference Include="..\DataLayer\DataLayer.csproj" />
     </ItemGroup>
 
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="Views\TelegramAgentSettings\Index.cshtml" />
+    </ItemGroup>
+
 </Project>
