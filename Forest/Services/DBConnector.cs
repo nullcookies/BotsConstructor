@@ -18,7 +18,7 @@ namespace Forest.Services
 		{
             _contextDb = new ApplicationContext(
 				new DbContextOptionsBuilder<ApplicationContext>()
-				.UseNpgsql(DbContextFactory.GetConnectionString(environment))
+				.UseNpgsql(DbContextFactory.GetConnectionString())
 				.Options
 			);
 		}

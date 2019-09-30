@@ -123,7 +123,7 @@ namespace Website.Other
         {
            
                 //string monitorUrl = Stub.GetMyNgrokLink();
-                string monitorUrl = "https://localhost:31416" + "/Monitor/StatisticsCollection/UnregisterSiteServer";
+                string monitorUrl = "https://localhost:31416" + "/MonitorDeleteMe/StatisticsCollection/UnregisterSiteServer";
 
                 string data = "siteServerUrl=5001";
 
@@ -140,7 +140,7 @@ namespace Website.Other
         {
             
                 //string monitorUrl = Stub.GetMyNgrokLink();
-                string monitorUrl = "https://localhost:31416" + "/Monitor/StatisticsCollection/RegisterSiteServer";
+                string monitorUrl = "https://localhost:31416" + "/MonitorDeleteMe/StatisticsCollection/RegisterSiteServer";
 
                 string data = "siteServerUrl=5001";
 

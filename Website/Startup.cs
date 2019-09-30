@@ -47,7 +47,7 @@ namespace Website
 
 
             services.AddEntityFrameworkNpgsql()
-                .AddDbContext<ApplicationContext>(opt => opt.UseNpgsql(DbContextFactory.GetConnectionString(_environment)))
+                .AddDbContext<ApplicationContext>(opt => opt.UseNpgsql(DbContextFactory.GetConnectionString()))
                 .BuildServiceProvider();
 
 
