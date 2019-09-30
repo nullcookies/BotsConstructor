@@ -1,6 +1,7 @@
 ﻿using System;
 using Telegram.Bot;
 using Telegram.Bot.Args;
+using Website.TelegramAgent;
 
 namespace Monitor.TelegramAgent
 {
@@ -13,16 +14,16 @@ namespace Monitor.TelegramAgent
         const string TELEGRAM_BOT_TOKEN = "968163861:AAGFdJs30-4EZv-2EtoivZClksYGoomQcBM";
         
         readonly TelegramBotClient _telegramBotClient;
-        private readonly Monitor.TelegramAgent.MyTelegramAgent _myTelegramAgent;
+        private readonly MyTelegramAgent _myTelegramAgent;
         
-        public TelegramAgentHelperBot(Monitor.TelegramAgent.MyTelegramAgent myTelegramAgent)
+        public TelegramAgentHelperBot(MyTelegramAgent myTelegramAgent)
         {
             _myTelegramAgent = myTelegramAgent;
 
             _telegramBotClient = new TelegramBotClient(TELEGRAM_BOT_TOKEN);
             _telegramBotClient.OnMessage += _HandleMessage;
             _telegramBotClient.StartReceiving(
-                new Telegram.Bot.Types.Enums.UpdateType[]
+                new[]
                 {
                     Telegram.Bot.Types.Enums.UpdateType.Message
                 });
@@ -48,32 +49,23 @@ namespace Monitor.TelegramAgent
 
 
             string messageText = message.Text;
-
-            switch (messageText)
+            try
             {
-                case ("/requestCode"):
-
-                    try
-                    {
+                switch (messageText)
+                {
+                    case ("/requestCode"):
                         _myTelegramAgent.SendCodeAsync().Wait();
                         _telegramBotClient.SendTextMessageAsync(senderId, "Телеграм агент запускается." +
-                                                                          " Отправьте мне код для его запуска");
-                    }catch(Exception exception)
-                    {
-                        _telegramBotClient.SendTextMessageAsync(senderId, $"Что-то пошло не так. Ошибка:{exception.Message}");
-                    }
-              
-                    break;
-                default:
-                    try
-                    {
+                                                                              " Отправьте мне код для его запуска");
+                        break;
+                    default:
                         _myTelegramAgent.MakeAuth(messageText);
-                    }
-                    catch (Exception exception)
-                    {
-                        _telegramBotClient.SendTextMessageAsync(senderId, $"Что-то пошло не так. Ошибка:{exception.Message}");
-                    }
-                    break;
+                      break;
+                }
+            }catch(Exception exception)
+            {
+                _telegramBotClient.SendTextMessageAsync(senderId, 
+                    $"Что-то пошло не так. Ошибка:{exception.Message}");
             }
             
 

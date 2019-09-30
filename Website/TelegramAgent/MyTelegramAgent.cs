@@ -1,8 +1,12 @@
 ﻿using System;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+using TeleSharp.TL;
 using TLSharp.Core;
+using TLSharp.Core.Utils;
 
-namespace Monitor.TelegramAgent
+namespace Website.TelegramAgent
 {
     public class MyTelegramAgent
     {
@@ -15,7 +19,7 @@ namespace Monitor.TelegramAgent
         private string _phoneHash;
         private bool _isWorking;
         
-
+ 
         public async Task SendCodeAsync()
         {
             Console.WriteLine("SendCodeAsync Start");
@@ -56,7 +60,38 @@ namespace Monitor.TelegramAgent
             
             Console.WriteLine("MakeAuthAsync Finish");
         }
-        
+
+        public async Task MySendPhoto(Stream stream)
+        {
+            var fileResult = await _client.UploadFile("myFile.jpg", new StreamReader(stream));
+            
+
+            TeleSharp.TL.Contacts.TLFound found = await _client.SearchUserAsync("sea_battle_robot");
+
+            //Что это за говно?
+            var accessHash = ((TLUser) found.Users.ToList()[0]).AccessHash;
+            
+            if (accessHash != null)
+            {
+                long hash = accessHash.Value;
+                int id = ((TLUser) found.Users.ToList()[0]).Id;
+
+                TLInputPeerUser peer = new TLInputPeerUser()
+                {
+                    UserId = id,
+                    AccessHash = hash
+                };
+
+//                await _client.SendMessageAsync(peer, "Добридень");
+
+                await _client.SendUploadedPhoto(peer, fileResult,"guid");
+                
+            }
+            else
+            {
+                throw new Exception("accessHash == null");
+            }
+        }
         
 
     }
