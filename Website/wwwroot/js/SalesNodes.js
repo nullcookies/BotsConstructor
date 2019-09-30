@@ -518,7 +518,9 @@ const templates = Object.freeze([
 function SetStatusGroups(statusGroups) {
     const groupOptions = [];
     for (const prop in statusGroups) {
-        groupOptions.push($("<option>").attr("value", prop).text(statusGroups[prop]));
+        const option = $("<option>").attr("value", prop).text(statusGroups[prop].name);
+        if (statusGroups[prop].isOld) option.prop("disabled", true);
+        groupOptions.push(option);
     }
     orderModal.find("select.status-group").append(groupOptions);
     templates[nodeTypes.sendOrder].parameters.statusGroupId = Object.keys(statusGroups)[0];

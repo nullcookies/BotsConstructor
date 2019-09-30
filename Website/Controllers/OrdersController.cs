@@ -150,7 +150,7 @@ namespace Website.Controllers
                     bool moderator = idsOfModeratedBots.Contains(order.BotId);
 
 
-                    OrderStatus status = _contextDb.OrderStatuses.SingleOrDefault(_status => _status.Id == statusId &&
+                    OrderStatus status = _contextDb.OrderStatuses.SingleOrDefault(_status => _status.Id == statusId && !_status.IsOld &&
                                                                                              (_status.Group.OwnerId == accountId || moderator));
 					correct = status != null;
 				}
@@ -213,8 +213,8 @@ namespace Website.Controllers
 			}
 
 
-			var allStatuses = new Dictionary<int, (string name, string message)>();
-			var groups = new Dictionary<int, (string name, List<int> statuses)>();
+			var allStatuses = new Dictionary<int, (string name, string message, bool isOld)>();
+			var groups = new Dictionary<int, (string name, List<int> statuses, bool isOld)>();
 
             //Добавить в список дичи дичь из всех аккаунтов собственников модерируемых ботов
             //List<int> identifier_of_all_accounts_bots_that_I_moderate =
@@ -238,12 +238,12 @@ namespace Website.Controllers
 			foreach (var statusGroup in statusGroups) // группы статусов меняются редко, может, нужно их сохранять?
 			{
 				int groupId = statusGroup.Id;
-				groups.Add(groupId, (statusGroup.Name, new List<int>()));
+				groups.Add(groupId, (statusGroup.Name, new List<int>(), statusGroup.IsOld));
 				var statuses = _contextDb.OrderStatuses.Where(_status => _status.GroupId == groupId);
 				foreach (var status in statuses)
 				{
 					groups[groupId].statuses.Add(status.Id);
-					allStatuses.Add(status.Id, (status.Name, status.Message));
+					allStatuses.Add(status.Id, (status.Name, status.Message, status.IsOld));
 				}
 			}
 

@@ -1,8 +1,207 @@
 ﻿@{
-    Layout = "_LayoutHome";   
+    Layout = "_LayoutHome";
 }
 
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" />
+<link href="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.5.0/css/bootstrap4-toggle.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.5.0/js/bootstrap4-toggle.min.js"></script>
+<link href="@Url.Content("~/lib/open-iconic/font/css/open-iconic-bootstrap.css")" rel="stylesheet" />
+
+<h4>Группы статусов предназначены для удобного разделения состояний заказов и быстрых ответов с помощью коротких сообщений.</h4>
+
+<div id="accordion"></div>
+
+<div class="text-center mt-2">
+    <button id="addCardBtn" class="btn btn-outline-primary rounded-circle" style="height: 3rem; width: 3rem;"><span class="oi oi-plus"></span></button>
+</div>
 
 
+<script>
+    $("#menu-toggle").after($("<button>").addClass("btn btn-success ml-2").attr("type", "button").text("Save").
+        on("click", sendToServer).append($("<span>").addClass("oi oi-cloud-upload")));
+    const accordion = $("#accordion");
 
+    const statusGroups = @Json.Serialize(ViewData["statusGroups"]);
+    let jsonGroups = JSON.stringify(statusGroups);
+
+    let groupNumber = 1;
+    let statusNumber = 1;
+
+    for (let i = 0; i < statusGroups.length; i++) {
+        createCard(statusGroups[i]).appendTo(accordion);
+    }
+
+    $("#addCardBtn").on("click", function () {
+        const newStatus = {
+            id: null,
+            name: "Viewed",
+            message: "",
+            isOld: false
+        };
+        const newGroup = {
+            id: null,
+            name: "New status group",
+            isOld: false,
+            statuses: [newStatus]
+        };
+        createCard(newGroup).appendTo(accordion).find("input[data-toggle='toggle']").bootstrapToggle();
+    });
+
+    function createRow(status) {
+        const idPart = statusNumber++;
+        return $("<div>").addClass("input-group mb-2").attr("id", `status-div-${idPart}`).data("id", status.id).append([
+            $("<div>").addClass("input-group-prepend")
+            .append($("<span>").addClass("input-group-text").text("Status and message")),
+            $("<input>").addClass("form-control").attr({
+                id: `status-${idPart}`,
+                type: "text",
+                placeholder: "Status name",
+                "aria-label": "Status name"
+            }).val(status.name),
+            $("<input>").addClass("form-control").attr({
+                id: `message-${idPart}`,
+                type: "text",
+                placeholder: "Status message",
+                "aria-label": "Status message"
+            }).val(status.message),
+            $("<input>").attr({
+                id: `status-old-${idPart}`,
+                type: "checkbox",
+                "data-toggle": "toggle",
+                "data-height": 38
+            }).prop("checked", !status.isOld)
+        ]);
+    }
+
+    function createRows(statuses) {
+        const statArr = [];
+        for (let i = 0; i < statuses.length; i++) {
+            statArr.push(createRow(statuses[i]));
+        }
+
+        return statArr;
+    }
+
+    function createCard(statusGroup) {
+        const idPart = groupNumber++;
+        const header = `Group №${idPart}: ${statusGroup.name}`;
+        const isOld = statusGroup.isOld;
+        return $("<div>").addClass("card").attr("id", `group-div-${idPart}`).data("id", statusGroup.id).append([
+            $("<div>").addClass("card-header").attr("id", `heading-${idPart}`).append([
+                $("<span>").append($("<button>").addClass("btn btn-link collapsed").attr({
+                    id: `linked-btn-${idPart}`,
+                    "data-toggle": "collapse",
+                    "data-target": `#collapse-${idPart}`,
+                    "aria-expanded": false,
+                    "aria-controls": `collapse-${idPart}`
+                }).text(header)),
+                $("<span>").addClass("pull-right").append($("<input>").attr({
+                    id: `group-old-${idPart}`,
+                    type: "checkbox",
+                    "data-toggle": "toggle"
+                }).prop("checked", !isOld))
+            ]),
+            $("<div>").addClass("collapse text-center").attr({
+                id: `collapse-${idPart}`,
+                "aria-labelledby": `heading-${idPart}`,
+                "data-parent": "#accordion"
+            }).append($("<div>").addClass("card-body").append($("<div>").addClass("input-group mb-3").append([
+                $("<div>").addClass("input-group-prepend").append($("<span>").addClass("input-group-text").text("Group name")),
+                $("<input>").addClass("form-control").attr({
+                    id: `name-${idPart}`,
+                    type: "text",
+                    placeholder: "Group name",
+                    "aria-label": "Group name"
+                }).on("change", function () {
+                    const jqThis = $(this);
+                    $(`#linked-btn-${idPart}`).text(`Group №${idPart}: ${jqThis.val()}`);
+                }).val(statusGroup.name)
+            ])).append(createRows(statusGroup.statuses)).append($("<button>").addClass("btn btn-outline-primary rounded-circle").css(
+                {
+                    width: "2.75rem",
+                    height: "2.75rem"
+                }).append($("<span>").addClass("oi oi-plus")).on("click", function() {
+                    const newStatus = {
+                        id: null,
+                        name: "New status",
+                        message: "",
+                        isOld: false
+                    };
+
+                    createRow(newStatus).insertBefore(this).find("input[data-toggle='toggle']").bootstrapToggle();
+            })))
+        ]);
+    }
+
+    function getStatusGroups() {
+        const groups = [];
+
+        $("div[id^='group-div']").each(function () {
+            const jqThis = $(this);
+            const statuses = [];
+
+            jqThis.find("div[id^='status-div']").each(function() {
+                const jqStatus = $(this);
+
+                const status = {
+                    id: jqStatus.data("id"),
+                    name: jqStatus.find("input[id^='status']").val(),
+                    message: jqStatus.find("input[id^='message']").val(),
+                    isOld: !jqStatus.find("input[id^='status-old']").prop("checked")
+                };
+
+                statuses.push(status);
+            });
+
+            const group = {
+                id: jqThis.data("id"),
+                name: jqThis.find("input[id^='name']").val(),
+                isOld: !jqThis.find("input[id^='group-old']").prop("checked"),
+                statuses: statuses
+            };
+
+            groups.push(group);
+        });
+
+        return groups;
+    }
+
+    function sendToServer() {
+        const jqSelf = $(this).prop("disabled", true).removeClass("btn-success btn-danger").addClass("btn-warning");
+        const jqSaveSpinner = jqSelf.find("span").removeClass("oi oi-cloud-upload oi-circle-x").addClass("spinner-border spinner-border-sm");
+
+        const sentGroups = JSON.stringify(getStatusGroups());
+
+        $.ajax({
+            url: '/StatusGroups/SaveStatusGroups',
+            type: 'post',
+            data: {json: sentGroups},
+            success: function () {
+                jqSaveSpinner.removeClass("spinner-border spinner-border-sm").addClass("oi oi-cloud-upload");
+                jqSelf.removeClass("btn-warning").addClass("btn-success").prop("disabled", false);
+                jsonGroups = sentGroups;
+            },
+            error: function (data) {
+                jqSaveSpinner.removeClass("spinner-border spinner-border-sm").addClass("oi oi-circle-x");
+                jqSelf.removeClass("btn-warning").addClass("btn-danger").prop("disabled", false);
+
+                console.log("Error: " + data.responseText);
+            }
+        });
+    }
+
+    window.onbeforeunload = function (evt) {
+        if (JSON.stringify(getStatusGroups()) === jsonGroups) return null;
+
+        const message = "Данные не были сохранены. Вы уверены, что хотите выполнить это действие?";
+        if (typeof evt == "undefined") {
+            evt = window.event;
+        }
+        if (evt) {
+            evt.returnValue = message;
+        }
+        return message;
+    }
+</script>
 

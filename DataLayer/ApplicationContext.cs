@@ -128,17 +128,21 @@ namespace DataLayer.Models
                 .Property(_botStat => _botStat.NumberOfOrders)
                 .HasDefaultValue(0);
 
-   //         // Для тестирования
-   //         modelBuilder.Entity<BotDB>().HasData(new List<object>
-			//{
-			//	new {
-   //                 Id = 1_000_000,
-   //                 BotName = "ping_uin_bot",
-   //                 OwnerId = 1_000_001,
-   //                 BotType ="BotForSales",
-   //                 Token = "825321671:AAFoJoGk7VIMU19wvOmiwZHKRwyGptvAqJ4"
-   //             }
-			//});
+            modelBuilder.Entity<OrderStatusGroup>().Property(group => group.IsOld).HasDefaultValue(false);
+
+            modelBuilder.Entity<OrderStatus>().Property(status => status.IsOld).HasDefaultValue(false);
+
+            //         // Для тестирования
+            //         modelBuilder.Entity<BotDB>().HasData(new List<object>
+            //{
+            //	new {
+            //                 Id = 1_000_000,
+            //                 BotName = "ping_uin_bot",
+            //                 OwnerId = 1_000_001,
+            //                 BotType ="BotForSales",
+            //                 Token = "825321671:AAFoJoGk7VIMU19wvOmiwZHKRwyGptvAqJ4"
+            //             }
+            //});
 
             modelBuilder.Entity<BotDB>().HasIndex(_bot => _bot.Token).IsUnique();
 
@@ -176,14 +180,14 @@ namespace DataLayer.Models
                 new BotForSalesStatistics(){BotId=1_000_000}
             });
 
-			var statusGroups = new List<object>()
+            var statusGroups = new List<object>()
 			{
 				new {Id = 1_000_001, Name = "Стандартный набор статусов", OwnerId = 1_000_001}
 			};
 
 			modelBuilder.Entity<OrderStatusGroup>().HasData(statusGroups);
 
-			var statuses = new List<object>()
+            var statuses = new List<object>()
 			{
 				new {Id = 1_000_001, GroupId = 1_000_001, Name = "В обработке", Message = "Ваш заказ находится в обработке."},
 				new {Id = 1_000_002, GroupId = 1_000_001, Name = "В пути", Message = "Ваш заказ в пути."},
@@ -373,7 +377,10 @@ namespace DataLayer.Models
 
 		[Required]
 		public string Message { get; set; }
-	}
+
+        [Required]
+        public bool IsOld { get; set; }
+    }
 
 	/// <summary>
 	/// Группа из статусов заказа определённого владельца, из которой можно выбирать статусы.
@@ -398,7 +405,10 @@ namespace DataLayer.Models
 		[ForeignKey("OwnerId")]
 		public virtual Account Owner { get; set; }
 
-		public virtual ICollection<OrderStatus> OrderStatuses { get; set; }
+        [Required]
+        public bool IsOld { get; set; }
+
+        public virtual ICollection<OrderStatus> OrderStatuses { get; set; }
 	}
 
 	
