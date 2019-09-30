@@ -7,31 +7,28 @@ namespace DataLayer
     public class DbContextFactory
     {
 
-        private  static string ReleaseConnectionString =
-            @"User ID = postgres;
-            Password=3t0ssszheM3G4MMM0Ch~n`yparollb_wubfubrkmdbwiyro38;
-            Server=127.0.0.1;
-            Port=5432;
-            Database=CombatVersion01;
-            Integrated Security=true;
-            Pooling=true;";
+//        private  static string ReleaseConnectionString =
+//            @"User ID = postgres;
+//            Password=3t0ssszheM3G4MMM0Ch~n`yparollb_wubfubrkmdbwiyro38;
+//            Server=127.0.0.1;
+//            Port=5432;
+//            Database=CombatVersion0006;
+//            Integrated Security=true;
+//            Pooling=true;";
 
         private static string DevelopmentConnectionString =
             @"User ID = postgres;
             Password=3t0ssszheM3G4MMM0Ch~n`yparollb_wubfubrkmdbwiyro38;
             Server=54.89.247.235;
             Port=5432;
-            Database=Dev01;
+            Database=Dev0165184R;
             Integrated Security=true;
             Pooling=true;";
 
 
-        public static string GetConnectionString(IHostingEnvironment env)
+        public static string GetConnectionString()
         {
-            if (env.IsDevelopment())
-                return DevelopmentConnectionString;
-            
-            return ReleaseConnectionString;
+            return DevelopmentConnectionString;
         }
  
 

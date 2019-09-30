@@ -19,13 +19,6 @@ namespace Website.Controllers
         readonly ApplicationContext _context;
         IHostingEnvironment _appEnvironment;
         
-        private readonly MyTelegramAgent _telegramAgent;
-
-        public BotForSalesEditingController(MyTelegramAgent telegramAgent)
-        {
-	        _telegramAgent = telegramAgent;
-        }
-
         public BotForSalesEditingController(ApplicationContext context, IHostingEnvironment appEnvironment)
         {
             this._context = context ?? throw new ArgumentNullException(nameof(context));
@@ -57,24 +50,6 @@ namespace Website.Controllers
 		}
 		
 		
-		
-		[HttpGet]
-		[TypeFilter(typeof(CheckAccessToTheBot))]
-		public async Task<IActionResult> GetFileId(IFormFile uploadedFile)
-		{
-			
-			try
-			{
-				Stream stream = uploadedFile.OpenReadStream();
-				await _telegramAgent.MySendPhoto(stream);
-			}
-			catch (Exception eee)
-			{
-				return Content("не работает. "+eee.Message);
-			}
-
-			return Content("работает");
-			
-		}
+	
     }
 }
