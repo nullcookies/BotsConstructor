@@ -12,7 +12,7 @@ namespace DataLayer
             Password=3t0ssszheM3G4MMM0Ch~n`yparollb_wubfubrkmdbwiyro38;
             Server=127.0.0.1;
             Port=5432;
-            Database=CombatVersion0007;
+            Database=CombatVersion01;
             Integrated Security=true;
             Pooling=true;";
 
@@ -21,7 +21,7 @@ namespace DataLayer
             Password=3t0ssszheM3G4MMM0Ch~n`yparollb_wubfubrkmdbwiyro38;
             Server=54.89.247.235;
             Port=5432;
-            Database=Dev0007;
+            Database=Dev01;
             Integrated Security=true;
             Pooling=true;";
 
