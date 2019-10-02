@@ -24,7 +24,16 @@ namespace LogicalCore
 				session.vars.RemoveVar(varType, varName);
 			};
 
-		public static Action<Session> ClearVariables(params (Type varType, string varName)[] variables) =>
+        public static Action<Session> ClearVariables(IEnumerable<(Type varType, string varName)> variables) =>
+            (Session session) =>
+            {
+                foreach (var (varType, varName) in variables)
+                {
+                    session.vars.ClearVar(varType, varName);
+                }
+            };
+
+        public static Action<Session> ClearVariables(params (Type varType, string varName)[] variables) =>
 			(Session session) =>
 			{
 				foreach (var (varType, varName) in variables)

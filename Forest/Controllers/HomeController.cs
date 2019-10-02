@@ -167,7 +167,7 @@ namespace Forest.Controllers
 				botWrapper.MegaTree = megaTree;
 				var treeNodes = new Node[allNodesCount];
 				treeNodes[0] = megaTree.root;
-				var variablesInfo = new List<(Type type, string name)>()
+				var variablesInfo = new HashSet<(Type type, string name)>()
 				{
 					(typeof(MetaValuedContainer<decimal>), "ShoppingCart")
 				};
@@ -319,7 +319,7 @@ namespace Forest.Controllers
 						case NodeType.SendOrder:
 							node = new OwnerNotificationNode(nodeName, GetInlineMsgFromParams(nodeParams), connector, (int)nodeParams["statusGroupId"],
 									UniversalOrderContainer.generateContainerCreator(variablesInfo),
-									variablesInfo.ToArray());
+									variablesInfo);
 							break;
 						default:
 							return StatusCode(403, "Incorrect node type.");

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Telegram.Bot.Types;
 
@@ -9,7 +10,16 @@ namespace LogicalCore
 	/// </summary>
 	public class OwnerNotificationNode : ActionNode
 	{
-		public OwnerNotificationNode(string name, MetaInlineMessage metaMessage = null, IOrdersSendable sendable = null,
+        public OwnerNotificationNode(string name, MetaInlineMessage metaMessage = null, IOrdersSendable sendable = null,
+            int statusGroupID = 0, Func<Session, UniversalOrderContainer> containerCreator = null,
+            IEnumerable<(Type varType, string varName)> variables = null)
+            : base(SessionActionsCreator.JoinActions(
+                SessionActionsCreator.SendOrder(sendable, statusGroupID, containerCreator),
+                SessionActionsCreator.ClearVariables(variables)
+            ), metaMessage, name)
+        { }
+
+        public OwnerNotificationNode(string name, MetaInlineMessage metaMessage = null, IOrdersSendable sendable = null,
 			int statusGroupID = 0, Func<Session, UniversalOrderContainer> containerCreator = null,
 			params (Type varType, string varName)[] variables)
 			: base(SessionActionsCreator.JoinActions(

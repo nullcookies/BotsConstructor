@@ -9,9 +9,9 @@ namespace LogicalCore
 	/// </summary>
 	public class UniversalOrderContainer
 	{
-		public static Func<List<(Type varType, string varName)>, Func<Session, UniversalOrderContainer>> generateContainerCreator =
-			(List<(Type varType, string varName)> variablesInfo) => (Session session) =>
-			{
+		public static Func<IEnumerable<(Type varType, string varName)>, Func<Session, UniversalOrderContainer>> generateContainerCreator =
+			(IEnumerable<(Type varType, string varName)> variablesInfo) => (Session session) =>
+            {
 				var items = new List<(int ID, int Count)>();
 				var texts = new List<string>();
 				var files = new List<(string FileId, string PreviewId, string Description)>();
