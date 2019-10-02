@@ -163,7 +163,7 @@ namespace Forest.Controllers
 				{
 					return StatusCode(403, "First node is not root node.");
 				}
-				MegaTree megaTree = new MegaTree(new SimpleNode((string)rootParams["name"], GetReplyMsgFromParams(rootParams), false));
+				MegaTree megaTree = new MegaTree(new SimpleNode(((string)rootParams["name"]).Trim(), GetReplyMsgFromParams(rootParams), false));
 				botWrapper.MegaTree = megaTree;
 				var treeNodes = new Node[allNodesCount];
 				treeNodes[0] = megaTree.root;
@@ -174,7 +174,7 @@ namespace Forest.Controllers
 				for (int i = 1; i < allNodesCount; i++)
 				{
 					var nodeParams = allNodes[i]["parameters"];
-					string nodeName = (string)nodeParams["name"];
+					string nodeName = ((string)nodeParams["name"]).Trim();
 					Node node = null;
 					switch ((NodeType)(int)nodeParams["type"])
 					{
@@ -271,7 +271,7 @@ namespace Forest.Controllers
 										}
 										break;
 									case DisplayType.Multi:
-										List<MetaText> foldersNames = nodeParams["properties"].Select((section) => new MetaText(section["name"])).ToList();
+										List<MetaText> foldersNames = nodeParams["properties"].Select((section) => new MetaText(((string)section["name"]).Trim())).ToList();
 										node = new ProductMultiNode<decimal>(nodeName, elements, "Products", IDs, foldersNames, "ShoppingCart", "Добавлено: ", "Добавить", GetDoubleMsgFromParams(nodeParams));
 										break;
 									default:
@@ -338,7 +338,7 @@ namespace Forest.Controllers
 					}
 					else
 					{
-						string name = (string)parameters["name"];
+						string name = ((string)parameters["name"]).Trim();
 						if (!string.IsNullOrWhiteSpace(name))
 						{
 							return new MetaText(name);
@@ -409,12 +409,12 @@ namespace Forest.Controllers
 					string fileId = (string)parameters["fileId"];
 					if (!string.IsNullOrWhiteSpace(fileId))
 					{
-						return new MetaDoubleKeyboardedMessage(metaReplyText: (string)parameters["message"], metaInlineText: (string)parameters["name"],
+						return new MetaDoubleKeyboardedMessage(metaReplyText: (string)parameters["message"], metaInlineText: ((string)parameters["name"]).Trim(),
 							useReplyMsgForFile: true, messageType: GetMessageTypeByFileId(fileId), messageFile: fileId);
 					}
 					else
 					{
-						return new MetaDoubleKeyboardedMessage(metaReplyText: (string)parameters["message"], metaInlineText: (string)parameters["name"]);
+						return new MetaDoubleKeyboardedMessage(metaReplyText: (string)parameters["message"], metaInlineText: ((string)parameters["name"]).Trim());
 					}
 				}
 
