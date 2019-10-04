@@ -35,7 +35,7 @@
     const urlParams = window.location.search.substring(1).split("&");
     for (let i = 0; i < urlParams.length; i++) {
         var nameAndVal = urlParams[i].split('=');
-        if (nameAndVal[0] == "botId") {
+        if (nameAndVal[0] === "botId") {
             botId = nameAndVal[1];
             break;
         }
