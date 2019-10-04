@@ -10,6 +10,7 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using MyLibrary;
 using Website.Models;
 using Website.Other;
 using Website.Services;
@@ -167,7 +168,7 @@ namespace Website.Controllers
 					var orderInfo = _contextDb.Orders.Where(_order => _order.Id == orderId).Select(_order => new { _order.SenderId, _order.OrderStatus.Message, _order.Bot.Token }).SingleOrDefault();
 					string url = "https://api.telegram.org/bot" + orderInfo.Token + "/sendMessage";
 					string data = "chat_id=" + orderInfo.SenderId + "&text=" + System.Web.HttpUtility.UrlEncode(orderInfo.Message);
-					var sending = Stub.SendPost(url, data);
+					var sending = Stub.SendPostAsync(url, data);
 					return sending.ContinueWith((task) => task.IsCompletedSuccessfully ? GetNewOrdersCount() : StatusCode(403, "Can't send message: " + task.Exception?.Message)).Result;
 				}
 				else
@@ -373,7 +374,7 @@ namespace Website.Controllers
 			string botToken = _contextDb.Orders.Where(_order => _order.Id == orderId).Select(_order => _order.Bot.Token).SingleOrDefault();
 			string url = "https://api.telegram.org/bot" + botToken + "/sendMessage";
 			string data = "chat_id=" + senderId + "&text=" + System.Web.HttpUtility.UrlEncode(text);
-			return Ok(Stub.SendPost(url, data).Result);
+			return Ok(Stub.SendPostAsync(url, data).Result);
 		}
 	}
 }

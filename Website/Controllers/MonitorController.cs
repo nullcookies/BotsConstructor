@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace Forest.Controllers
+namespace Website.Controllers
 {
     public class MonitorController:Controller
     {

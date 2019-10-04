@@ -11,6 +11,7 @@ using System.Configuration;
 using System.Linq;
 using System.Net.WebSockets;
 using System.Threading.Tasks;
+using MyLibrary;
 using Website.Other;
 using Website.Other.Filters;
 using Website.Services;
@@ -46,10 +47,10 @@ namespace Website.Services
             Account account = contextDb.Accounts.Find(accountId);
 
             //TODO вынести в другой сервис
-            bool account_can_run_a_bot = bot.OwnerId == accountId;
+            bool accountCanRunABot = bot.OwnerId == accountId;
 
             //Аккаунт может запускать бота?
-            if (!account_can_run_a_bot)
+            if (!accountCanRunABot)
             {
                 _logger.Log(LogLevelMyDich.WARNING,
                       Source.WEBSITE_BOTS_AIRSTRIP_SERVICE,
@@ -57,10 +58,10 @@ namespace Website.Services
                       accountId: accountId);
 
                 jObject = new JObject()
-                            {
-                                { "success", false},
-                                {"failMessage", " У вас нет доступа к этому боту." }
-                            };
+                    {
+                        { "success", false},
+                        {"failMessage", " У вас нет доступа к этому боту." }
+                    };
                 return jObject;
 
             }
@@ -86,7 +87,8 @@ namespace Website.Services
             //без токена запускаться нельзя
             if (bot.Token == null)
             {
-                _logger.Log(LogLevelMyDich.USER_INTERFACE_ERROR_OR_HACKING_ATTEMPT, Source.WEBSITE, $"Попытка запутить бота без токена. botId={botId}");
+                _logger.Log(LogLevelMyDich.USER_INTERFACE_ERROR_OR_HACKING_ATTEMPT, Source.WEBSITE, 
+                    $"Попытка запутить бота без токена. botId={botId}");
                 jObject = new JObject()
                 {
                     { "success", false},
@@ -98,7 +100,8 @@ namespace Website.Services
             //без разметки запускаться нельзя
             if (bot.Markup == null)
             {
-                _logger.Log(LogLevelMyDich.USER_INTERFACE_ERROR_OR_HACKING_ATTEMPT, Source.WEBSITE, $"Попытка запутить бота без разметки. botId={botId}");
+                _logger.Log(LogLevelMyDich.USER_INTERFACE_ERROR_OR_HACKING_ATTEMPT, Source.WEBSITE,
+                    $"Попытка запутить бота без разметки. botId={botId}");
                 jObject = new JObject()
                 {
                     { "success", false},
@@ -111,7 +114,8 @@ namespace Website.Services
             RouteRecord existingRecord = contextDb.RouteRecords.Find(botId);
             if (existingRecord != null)
             {
-                _logger.Log(LogLevelMyDich.USER_INTERFACE_ERROR_OR_HACKING_ATTEMPT, Source.WEBSITE, $"Попытка запутить запущенного бота.");
+                _logger.Log(LogLevelMyDich.USER_INTERFACE_ERROR_OR_HACKING_ATTEMPT, Source.WEBSITE, 
+                    $"Попытка запутить запущенного бота.");
                 jObject = new JObject()
                 {
                     { "success", false},
@@ -127,7 +131,7 @@ namespace Website.Services
                 string forestUrl = "http://localhost:8080/Home/RunNewBot";
 
                 string data = "botId=" + botId;
-                var result = Stub.SendPost(forestUrl, data).Result;
+                var result = Stub.SendPostAsync(forestUrl, data).Result;
 
                 JObject answer = (JObject)JsonConvert.DeserializeObject(result);
 
@@ -197,24 +201,20 @@ namespace Website.Services
         public JObject StopBot(int botId, int accountId)
         {
 
-            ApplicationContext _contextDb = _dbContextWrapper.GetNewDbContext();
+            ApplicationContext contextDb = _dbContextWrapper.GetNewDbContext();
 
             JObject jObject = null;
-            BotDB bot = _contextDb.Bots.Find(botId);
+            BotDB bot = contextDb.Bots.Find(botId);
 
             if (bot != null)
             {
-                bool account_can_stop_the_bot = false;
+                bool accountCanStopTheBot = bot.OwnerId == accountId;
 
                 //TODO вынести в другой сервис
-                if (bot.OwnerId == accountId)
-                {
-                    account_can_stop_the_bot = true;
-                }
 
-                if (account_can_stop_the_bot)
+                if (accountCanStopTheBot)
                 {
-                    RouteRecord record = _contextDb.RouteRecords.Find(bot.Id);
+                    RouteRecord record = contextDb.RouteRecords.Find(bot.Id);
 
                     if (record != null)
                     {
@@ -224,12 +224,11 @@ namespace Website.Services
 
                             string forestUrl = record.ForestLink + "/Home/StopBot";
                             string data = "botId=" + bot.Id;
-                            var result = Stub.SendPost(forestUrl, data).Result;
+                            var result = Stub.SendPostAsync(forestUrl, data).Result;
 
-                            RouteRecord rr = _contextDb
+                            RouteRecord rr = contextDb
                                 .RouteRecords
-                                .Where(_rr => _rr.BotId == botId)
-                                .SingleOrDefault();
+                                .SingleOrDefault(_rr => _rr.BotId == botId);
 
                             if (rr == null)
                             {
