@@ -26,7 +26,7 @@ namespace Monitor.Services
 //        };
 
 
-        public async Task StartCheckupAsync(int delaySec = 1, List<string> targetUrls= null)
+        public async void StartCheckupAsync(int delaySec = 1, List<string> targetUrls= null)
         {
             _isWorking = true;
             

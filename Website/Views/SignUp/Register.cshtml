@@ -51,7 +51,6 @@
             width: 2.5rem;
         }
     </style>
-    @*<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>*@
     <script src="@Url.Content("~/vendor/jquery/jquery.min.js")"></script>
 
 
@@ -76,10 +75,9 @@
             <article class="card-body mx-auto" style="max-width: 400px; ">
                 <h4 class="card-title mt-3 text-center">@Localizer["Create Account"]</h4>
 
-                @*<p class="text-center">Get started with your free account</p>*@
+                
                 <p>
-                    @*<a href="" class="btn btn-block btn-twitter"> <i class="fab fa-twitter"></i> &nbsp; Login via Twitter</a>
-        <a href="" class="btn btn-block btn-facebook"> <i class="fab fa-facebook-f"></i> &nbsp; Login via facebook</a>*@
+                
                     <script async src="https://telegram.org/js/telegram-widget.js?6" data-telegram-login="bots_constructor_bot" data-size="large" data-auth-url="https://botsconstructor.com/SignIn/LoginWithTelegram" data-request-access="write"></script>
                 </p>
                     <p class="divider-text">
@@ -88,23 +86,14 @@
 
                 <form asp-action="Register" asp-controller="SignUp" asp-antiforgery="true">
 
-                    @*
-                        
-                    <div class="form-group input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"> <i class="fa fa-user"></i> </span>
-                        </div>
-                        <input asp-for="Login" class="form-control" placeholder="@Localizer["Login"]" type="text">
-                    </div> <!-- form-group// -->
-
-                    *@
+                    
 
                     <div class="form-group input-group">
                         <div class="input-group-prepend">
                             <span class="input-group-text"> <i class="fa fa-user"></i> </span>
                         </div>
                         <input asp-for="Name" class="form-control" placeholder="@Localizer["Full name"]" type="text">
-                    </div> <!-- form-group// -->
+                    </div> 
 
 
 
@@ -113,39 +102,14 @@
                             <span class="input-group-text"> <i class="fa fa-envelope"></i> </span>
                         </div>
                         <input asp-for="Email" class="form-control" placeholder="@Localizer["Email address"]" type="email">
-                    </div> <!-- form-group// -->
-                    @*<div class="form-group input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"> <i class="fa fa-phone"></i> </span>
-                            </div>
-                            <select class="custom-select" style="max-width: 120px;">
-                                <option selected="">+971</option>
-                                <option value="1">+972</option>
-                                <option value="2">+198</option>
-                                <option value="3">+701</option>
-                            </select>
-                            <input name="" class="form-control" placeholder="Phone number" type="text">
-                        </div>*@ <!-- form-group// -->
-                    @*<div class="form-group input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"> <i class="fa fa-building"></i> </span>
-                            </div>
-                            <select class="form-control">
-                                <option selected=""> Select job type</option>
-                                <option>Designer</option>
-                                <option>Manager</option>
-                                <option>Accaunting</option>
-                            </select>
-                        </div>*@ <!-- form-group end.// -->
-
-
-
+                    </div>
+                  
                     <div class="form-group input-group">
                         <div class="input-group-prepend">
                             <span class="input-group-text"> <i class="fa fa-lock"></i> </span>
                         </div>
                         <input asp-for="Password" class="form-control" placeholder="@Localizer["Create password"]" type="password">
-                    </div> <!-- form-group// -->
+                    </div> 
 
 
                     <div class="form-group input-group">
@@ -153,23 +117,33 @@
                             <span class="input-group-text"> <i class="fa fa-lock"></i> </span>
                         </div>
                         <input asp-for="ConfirmPassword" class="form-control" placeholder="@Localizer["Repeat password"]" type="password">
-                    </div> <!-- form-group// -->
+                    </div>
 
 
                     <div class="form-group">
                         <button type="submit" class="btn btn-success btn-block">@Localizer["Create Account"]   </button>
-                    </div> <!-- form-group// -->
+                    </div>
 
 
                     <p class="text-center">@Localizer["Have an account?"] <a asp-controller="SignIn" asp-action="Login">@Localizer["Log In"]</a> </p>
 
+                     <ul style="list-style-type: none;font-size: 1.25rem;">
+                        <li><span asp-validation-for="Name"></span></li>
+                        <li><span asp-validation-for="Email"></span></li>
+                        <li><span asp-validation-for="Password"></span></li>
+                        <li><span asp-validation-for="ConfirmPassword"></span></li>
+                      </ul>
+                    
+                    
+                    
+                    
 
                 </form>
             </article>
-        </div> <!-- card.// -->
+        </div> 
         <div class="validation" asp-validation-summary="ModelOnly"></div>
     </div>
-    <!--container end.//-->
+    
 
     <br><br>
 
@@ -207,8 +181,6 @@
     </form>*@
 
 
-
-@* Эта секция нужна для отображеня ошибок в DataAnnotations *@
 @section scripts{
 
     <environment names="Development">

@@ -41,7 +41,7 @@ namespace DataLayer
             _spyMessages.Enqueue(spyRecord);
         }
 
-        private async Task PeriodicFooAsync(TimeSpan interval, CancellationToken cancellationToken)
+        private async void PeriodicFooAsync(TimeSpan interval, CancellationToken cancellationToken)
         {
             while (true)
             {

@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
+
 namespace DataLayer
 {
 	public sealed class ApplicationContext: DbContext
@@ -264,8 +265,7 @@ namespace DataLayer
         //public string Login { get; set; }
         [Required]
         public string Name { get; set; }
-
-        //логин через телеграм
+        
         public string Password { get; set; }
 
         public RoleType RoleType { get; set; }
@@ -274,6 +274,7 @@ namespace DataLayer
         [Required]
         public int RoleTypeId { get; set; }
 
+        [DataType(DataType.EmailAddress)]
         //email не обязателен, тк возможен логин через телеграм
         public string Email { get;  set; }
 

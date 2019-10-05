@@ -8,9 +8,7 @@ namespace Website.ViewModels
 {
     public class LoginModel
     {
-        //[Required(ErrorMessage = "Не указан логин")]
-        //public string Login { get;  set; }
-
+       
         [DataType(DataType.EmailAddress)]
         [Required(ErrorMessage = "Не указан логин")]
         public string Email { get;  set; }

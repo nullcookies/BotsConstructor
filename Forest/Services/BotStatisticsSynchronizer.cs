@@ -23,25 +23,11 @@ namespace Forest.Services
                 Source.FOREST_BOT_STATISTICS_SYNCHRONIZER,
                 "Конструктор синхронизатора бд");
 
-            (new Thread(
-              () =>
-              {
-                //try
-                //{
-                  RunSyncDbBots();
-                //}
-                //catch (Exception ee)
-                //{
-                //    _logger.Log(LogLevelMyDich.ERROR,
-                //        Source.FOREST_BOT_STATISTICS_SYNCHRONIZER,
-                //        "Упал сервис синхронизации статистики ботов", ex: ee);
-                //}
-              }
-              )).Start();
+            RunSyncDbBots();
 
         }
 
-        private void RunSyncDbBots()
+        private async void RunSyncDbBots()
         {
             while (true)
             {

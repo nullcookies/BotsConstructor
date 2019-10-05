@@ -26,7 +26,7 @@ namespace Monitor.Services
         };
 
 
-        public async Task StartPingAsync(int delaySec = 1, List<string> targetUrls= null)
+        public async void StartPingAsync(int delaySec = 1, List<string> targetUrls= null)
         {
             _isWorking = true;
             
