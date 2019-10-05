@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using DataLayer;
-using DataLayer.Models;
 using Forest.Services;
 using LogicalCore;
 using Microsoft.AspNetCore.Mvc;
@@ -579,6 +578,15 @@ namespace Forest.Controllers
             {
                 _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, Source.FOREST, $"Лес принял запрос на остановку бота," +
                     $" которого у него нет. botId={botId} botUsername={botUsername}");
+                
+                //попытка удалить неправильный route record
+
+                var maliciousRouteRecord = _contextDb.RouteRecords.SingleOrDefault(_rr => _rr.BotId == botId);
+                if (maliciousRouteRecord != null)
+                {
+	                _contextDb.RouteRecords.Remove(maliciousRouteRecord);
+	                _contextDb.SaveChanges();
+                }
             }
             return StatusCode(500);
         }

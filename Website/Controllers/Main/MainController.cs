@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Globalization;
-using DataLayer.Models;
+using DataLayer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;

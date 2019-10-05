@@ -1,5 +1,4 @@
-﻿using DataLayer.Models;
-using System;
+﻿using System;
 using System.Configuration;
 using System.Net.Mail;
 using System.Text.RegularExpressions;

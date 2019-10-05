@@ -1,6 +1,4 @@
-﻿using DataLayer.Models;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace DataLayer
 {
@@ -21,7 +19,7 @@ namespace DataLayer
             Password=3t0ssszheM3G4MMM0Ch~n`yparollb_wubfubrkmdbwiyro38;
             Server=54.89.247.235;
             Port=5432;
-            Database=Dev_R_04_10_2019;
+            Database=Dev_R_04_10_2019_2;
             Integrated Security=true;
             Pooling=true;";
 

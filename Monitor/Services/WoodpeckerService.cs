@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DataLayer;
-using DataLayer.Models;
 using MyLibrary;
 
 namespace Monitor.Services
@@ -27,7 +26,7 @@ namespace Monitor.Services
         };
 
 
-        public void StartPing(int delaySec = 1, List<string> targetUrls= null)
+        public async Task StartPingAsync(int delaySec = 1, List<string> targetUrls= null)
         {
             _isWorking = true;
             
@@ -61,7 +60,7 @@ namespace Monitor.Services
                     }
                 }
 
-                Task.Delay(1000 * delaySec).Wait();
+                await Task.Delay(1000 * delaySec);
 
             }
         }

@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using DataLayer.Models;
 using Microsoft.Extensions.Configuration;
 
 //TODO уничтожить это нахрен

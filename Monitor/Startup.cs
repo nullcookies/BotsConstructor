@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DataLayer;
-using DataLayer.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -12,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Monitor.Services;
 
 namespace Monitor
 {
@@ -34,7 +34,9 @@ namespace Monitor
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-
+            services.AddSingleton<StupidLogger>();
+            services.AddSingleton<WoodpeckerService>();
+            services.AddSingleton<BotsCheckup>();
           
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             
@@ -44,8 +46,13 @@ namespace Monitor
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, WoodpeckerService woodpeckerService, BotsCheckup botsCheckup)
         {
+            
+            woodpeckerService.StartPingAsync(1);
+            botsCheckup.StartCheckupAsync(1);
+            
+            
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

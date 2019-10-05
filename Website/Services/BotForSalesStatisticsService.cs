@@ -1,5 +1,4 @@
 ﻿using DataLayer;
-using DataLayer.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;

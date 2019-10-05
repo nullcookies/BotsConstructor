@@ -1,5 +1,4 @@
-﻿using DataLayer.Models;
-using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using DataLayer;

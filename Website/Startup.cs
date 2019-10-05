@@ -1,5 +1,4 @@
 ﻿using DataLayer;
-using DataLayer.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -97,9 +96,7 @@ namespace Website
                 Source.WEBSITE,
                 "Запуск сервера сайта");
             
-
-            _contextDb.RouteRecords.RemoveRange(_contextDb.RouteRecords);
-            _contextDb.SaveChanges();
+            
 
             if (env.IsDevelopment())
             {

@@ -1,5 +1,4 @@
 ﻿using DataLayer;
-using DataLayer.Models;
 using DeleteMeWebhook;
 using LogicalCore;
 using Microsoft.Extensions.Configuration;
