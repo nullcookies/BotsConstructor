@@ -19,7 +19,7 @@ namespace DataLayer
         private static string DevelopmentConnectionString =
             @"User ID = postgres;
             Password=3t0ssszheM3G4MMM0Ch~n`yparollb_wubfubrkmdbwiyro38;
-            Server=54.89.247.235;
+            Server=3.91.239.153;
             Port=5432;
             Database=Dev0165184R;
             Integrated Security=true;
