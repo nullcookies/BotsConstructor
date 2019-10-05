@@ -43,7 +43,7 @@ namespace LogicalCore
             MetaText metaInlineText = null,
             MessageType messageType = MessageType.Text,
             InputOnlineFile messageFile = null,
-            ParseMode parsing = ParseMode.Default,
+            ParseMode parsing = ParseMode.Markdown,
             bool useReplyMsgForFile = false,
             bool useReplyMsgForButtons = true,
             bool replyMsgFirst = true) :
