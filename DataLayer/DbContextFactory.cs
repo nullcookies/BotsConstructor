@@ -5,6 +5,7 @@ namespace DataLayer
     public class DbContextFactory
     {
 
+        
         private  static string ReleaseConnectionString =
             @"User ID = postgres;
             Password=3t0ssszheM3G4MMM0Ch~n`yparollb_wubfubrkmdbwiyro38;
