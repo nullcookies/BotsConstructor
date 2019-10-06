@@ -30,7 +30,7 @@ namespace Website.Controllers
 		}
 
 		//Кол-во записей на странице
-		const int pageSize = 12;
+		const int pageSize = 10;
 
         [HttpGet]
         public async Task SetWebsocketOrdersCount()

@@ -198,7 +198,9 @@
         AddContainers(mainMsgElem, mainContainer);
         if (mainContainer.children.length > 0 && totalSum > 0.0) {
             var totalElem = document.createElement("p");
-            totalElem.innerHTML = `<strong>Total: ${totalSum}</strong>`;
+            var strongElem = document.createElement("strong");
+            strongElem.innerText = `Total: ${totalSum}`;
+            totalElem.appendChild(strongElem);
             mainMsgElem.appendChild(totalElem);
         }
         function AddContainers(msgElem, container) {
@@ -208,20 +210,22 @@
                 var item = items[itemInfo.itemId];
                 var value = parseFloat(item.value) * parseInt(itemInfo.count);
                 var listElem = document.createElement("li");
-                listElem.innerHTML = `${item.name} ${itemInfo.count} X ${item.value} = ${value}`;
+                listElem.innerText = `${item.name} ${itemInfo.count} X ${item.value} = ${value}`;
                 msgElem.appendChild(listElem);
                 localSum += value;
             }
             if (localSum > 0.0) {
                 var listElem = document.createElement("li");
-                listElem.innerHTML = `<strong>Sum: ${localSum}</strong>`;
+                var strongElem = document.createElement("strong");
+                strongElem.innerText = `Sum: ${localSum}`;
+                listElem.appendChild(strongElem);
                 msgElem.appendChild(listElem);
                 totalSum += localSum;
             }
             for (var t = 0; t < container.texts.length; t++) {
                 var text = container.texts[t];
                 var listElem = document.createElement("li");
-                listElem.innerHTML = text;
+                listElem.innerText = text;
                 msgElem.appendChild(listElem);
             }
             for (var f = 0; f < container.files.length; f++) {
@@ -376,8 +380,6 @@
             type: 'post',
             data: { page: @ViewData["currentPage"] },
             success: function (data) {
-                //OK
-                console.log(data);
                 var orders = data.orders;
                 for (var c_i = 0; c_i < data.containers.length; c_i++) {
                     var container = data.containers[c_i];
