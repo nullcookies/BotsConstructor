@@ -38,13 +38,48 @@
                 <a asp-controller="Support" asp-action="Index" class="list-group-item list-group-item-action bg-light">Поддержка</a>
             </div>
             <script>
+                var notOrders = window.location.pathname !== "/Orders/Orders2";
+
+                function sendNotification(title, options, clickFunc) {
+                    if (!("Notification" in window)) {
+                        console.warn('Браузер не поддерживает HTML Notifications.');
+                    }
+                    else if (Notification.permission === "granted") {
+                        new Notification(title, options).onclick = clickFunc;
+                    }
+                    else if (Notification.permission !== 'denied') {
+                        Notification.requestPermission(function (permission) {
+                            if (permission === "granted") {
+                                new Notification(title, options).onclick = clickFunc;
+                            }
+                        });
+                    }
+                }
+
+                var firstUpdate = true;
+                var ordersCount = 0;
                 function SetNewOrdersCount (count) {
                     if (count == 0) {
                         document.getElementById("newOrdersSpan").innerHTML = "";
                     }
                     else {
                         document.getElementById("newOrdersSpan").innerHTML = count;
+                        if (!firstUpdate && ordersCount < count && notOrders) {
+                            sendNotification('Новые заказы', {
+                                body: `Новых заказов: ${count}`,
+                                icon: "@Url.Content("~/favicon.ico")",
+                                tag : "new-orders",
+                                dir: 'auto'
+                            }, function() {
+                                if (notOrders) {
+                                    window.open("@Url.Action("Orders2", "Orders")", '_blank').focus();
+                                } else {
+                                    window.focus();
+                                }
+                            });
+                        }
                     }
+                    ordersCount = count;
                 }
 
 
@@ -52,55 +87,53 @@
 
                 var update = function () {
                     console.log(   "ajax ");
-                    $.ajax({
+                    return $.ajax({
                         type: 'POST',
                         url: '/Orders/GetNewOrdersCount',
                         success: function (data) {
                             SetNewOrdersCount(data);
                             //setNewFeedbackCount(?);
-                        },
+                        }
                     });
                 };
 
-                update();
-
-
+                update().done(function () {firstUpdate = false;});
             </script>
 
 
 
             <script>
-            (function () {
-                const getWebSocketMessages = function (onMessageReceived) {
-                    const url = `wss://${location.host}/Orders/SetWebsocketOrdersCount`;
-                    console.log('url is: ' + url);
+                (function () {
+                    const getWebSocketMessages = function (onMessageReceived) {
+                        const url = `wss://${location.host}/Orders/SetWebsocketOrdersCount`;
+                        console.log('url is: ' + url);
 
-                    const webSocket = new WebSocket(url);
-                    webSocket.onmessage = onMessageReceived;
-                    webSocket.onerror = onError;
-                };
+                        const webSocket = new WebSocket(url);
+                        webSocket.onmessage = onMessageReceived;
+                        webSocket.onerror = onError;
+                    };
 
-                function onError() {
+                    function onError() {
 
-                    console.log("Не удалось установить webSocket соединение");
-                    console.log("Запуск long polling");
-                    setInterval(() => update(), 10000);
+                        console.log("Не удалось установить webSocket соединение");
+                        console.log("Запуск long polling");
+                        setInterval(() => update(), 10000);
 
-                }
+                    }
 
 
-                getWebSocketMessages(function (message) {
-                    //console.log("Пришло уведомление");
-                    const jsonObj = JSON.parse(message.data);
-                    //console.log(jsonObj);
+                    getWebSocketMessages(function (message) {
+                        //console.log("Пришло уведомление");
+                        const jsonObj = JSON.parse(message.data);
+                        //console.log(jsonObj);
 
-                    SetNewOrdersCount(jsonObj.ordersCount);
+                        SetNewOrdersCount(jsonObj.ordersCount);
                     
 
-                });
-            }());
+                    });
+                }());
 
-        </script>
+            </script>
 
 
 
