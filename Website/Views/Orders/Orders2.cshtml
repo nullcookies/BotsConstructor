@@ -6,9 +6,6 @@
 }
 
 <link href="@Url.Content("~/lib/open-iconic/font/css/open-iconic-bootstrap.css")" rel="stylesheet">
-@*<link rel="stylesheet" href="@Url.Content("~/css/orders-pagination.css")" />*@
-@* Нужно для круглых кнопок *@
-<link rel="stylesheet" href="@Url.Content("~/css/bot-for-sales.css")" />
 <script src="~/js/FileManager.js"></script>
 
 <style>
@@ -34,8 +31,8 @@
 
 <div class="d-flex justify-content-sm-between align-items-sm-center" style="margin: 15px 0 10px;">
     <div class="ml-4">
-        <button id="refresh_btn" class="btn btn-outline-secondary" onclick="Refresh()" ondblclick="RefreshVariables()">
-            <span class="oi oi-reload"></span>
+        <button id="refresh_btn" class="btn btn-outline-secondary" style="padding: 6px 10px" onclick="Refresh()" ondblclick="RefreshVariables()">
+            <span class="spinner-border spinner-border-sm"></span>
         </button>
     </div>
 
@@ -70,7 +67,7 @@
 
                 <div id="dateTime_" class="col-sm-2 h5"></div>
 
-                <div class="col-sm-1"><button id="del_btn_" class="btn btn-outline-danger btn-circle btn-circle-sm m-1"><span class="oi oi-trash"></span></button></div>
+                <div class="col-sm-1"><button id="del_btn_" class="btn btn-outline-danger rounded-circle m-1" style="padding: 6px 10px"><span class="oi oi-trash"></span></button></div>
             </div>
 
             <div id="collapsed_msg_" class="collapse" aria-labelledby="heading_msg_" data-parent="#div_order_">
@@ -345,6 +342,7 @@
     }
 
     function RefreshVariables(func) {
+        $("#refresh_btn").addClass("active");
         $.ajax({
             url: '/Orders/GetVariables',
             type: 'post',
@@ -353,15 +351,13 @@
                 statusGroups = data.statusGroups;
                 bots = data.bots;
                 items = data.items;
-                //console.log(bots);
-                //console.log(statusGroups);
-                //console.log(statuses);
                 statuses[null] = { item1: "NEW", item2: "Sends nothing.", item3: false };
             },
             error: function (data) {
                 console.log(`ERROR! Can't refresh variables!\n${data.responseText}`);
             },
             complete: function () {
+                $("#refresh_btn").removeClass("active");
                 if (func != null) {
                     func();
                 }
