@@ -30,9 +30,7 @@ namespace Website.Controllers
             Account user = _contextDb.Accounts.Find(accountId);
 
             //Показ двух знаков после запятой
-            decimal rounded = Math.Floor(user.Money * 100) / 100;
-
-            ViewData["money"] = rounded;
+            ViewData["money"] = $"{user.Money:0.00}";
             return View();
         }
 
