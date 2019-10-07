@@ -126,6 +126,12 @@
   <data name="Login" xml:space="preserve">
     <value>Войти</value>
   </data>
+  <data name="LoginAs" xml:space="preserve">
+    <value>Войти как</value>
+  </data>
+  <data name="ChangeLogin" xml:space="preserve">
+    <value>Сменить аккаунт</value>
+  </data>
   <data name="News" xml:space="preserve">
     <value>Новости</value>
   </data>

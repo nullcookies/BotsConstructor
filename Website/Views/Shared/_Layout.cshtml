@@ -31,16 +31,20 @@
             @*     $1$ <a class="p-2 text-dark" asp-area="" asp-controller="Home" asp-action="Index">@Localizer["Home"]</a> #1# *@
             @*     <a class="p-2 text-dark" asp-area="" asp-controller="News" asp-action="All">@Localizer["News"]</a> *@
             @* </nav> *@
-            
+
             @if (HostingEnvironment.IsDevelopment())
             {
                 <a class="p-2 text-dark" asp-area="" asp-controller="Test1" asp-action="Index">Тест</a>
             }
-            
 
-            <a class="btn btn-outline-primary m-1" asp-controller="SignIn" asp-action="Login">@Localizer["Login"]</a>
-            @if (!Context.User.Identity.IsAuthenticated)
+            @if (Context.User.Identity.IsAuthenticated)
             {
+                <a class="btn btn-outline-primary m-1" asp-controller="SignIn" asp-action="Login">@Localizer["ChangeLogin"]</a>
+                <a class="btn btn-outline-primary m-1" asp-controller="Home" asp-action="MyBots">@Localizer["LoginAs"] @User.Identity.Name</a>
+            }
+            else
+            {
+                <a class="btn btn-outline-primary m-1" asp-controller="SignIn" asp-action="Login">@Localizer["Login"]</a>
                 <a class="btn  btn-primary m-1" asp-controller="SignUp" asp-action="Register">@Localizer["SignUp"]</a>
             }
         </div>

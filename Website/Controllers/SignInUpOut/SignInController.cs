@@ -24,14 +24,12 @@ namespace Website.Controllers.SignInUpOut
         [HttpGet]
         public IActionResult Login()
         {
-            if (HttpContext.User.Identity.IsAuthenticated)
-            {
-                return RedirectToAction("MyBots", "Home");
-            }
-            else
-            {
-                return View();
-            }
+            //if (HttpContext.User.Identity.IsAuthenticated)
+            //{
+            //    return RedirectToAction("MyBots", "Home");
+            //}
+
+            return View();
         }
 
 
@@ -149,7 +147,8 @@ namespace Website.Controllers.SignInUpOut
 
             var claims = new List<Claim>
             {
-                new Claim("userId", user.Id.ToString())
+                new Claim("userId", user.Id.ToString()),
+                new Claim(ClaimsIdentity.DefaultNameClaimType, user.Name)
 
                 //new Claim(ClaimsIdentity.DefaultRoleClaimType, userRoleName),
                 //new Claim("testType", "testValue")
@@ -158,7 +157,7 @@ namespace Website.Controllers.SignInUpOut
             
             ClaimsIdentity id = new ClaimsIdentity(claims, "ApplicationCookie", ClaimsIdentity.DefaultNameClaimType,
                 ClaimsIdentity.DefaultRoleClaimType);
-
+            
             HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id));
         }
     }
