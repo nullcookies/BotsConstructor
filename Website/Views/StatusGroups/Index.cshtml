@@ -177,10 +177,15 @@
             url: '/StatusGroups/SaveStatusGroups',
             type: 'post',
             data: {json: sentGroups},
-            success: function () {
+            success: function (data) {
                 jqSaveSpinner.removeClass("spinner-border spinner-border-sm").addClass("oi oi-cloud-upload");
                 jqSelf.removeClass("btn-warning").addClass("btn-success").prop("disabled", false);
                 jsonGroups = sentGroups;
+                $("div[id^='group-div']").each(function(i) {
+                    $(this).data("id", data[i].id).find("div[id^='status-div']").each(function(j) {
+                        $(this).data("id", data[i].statusesIds[j]);
+                    });
+                });
             },
             error: function (data) {
                 jqSaveSpinner.removeClass("spinner-border spinner-border-sm").addClass("oi oi-circle-x");
