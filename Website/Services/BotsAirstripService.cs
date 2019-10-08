@@ -21,10 +21,10 @@ namespace Website.Services
   
     public class BotsAirstripService
     {
-        readonly StupidLogger _logger;
+        readonly SimpleLogger _logger;
         private readonly DbContextFactory _dbContextWrapper;
 
-        public BotsAirstripService(StupidLogger logger, IConfiguration configuration)
+        public BotsAirstripService(SimpleLogger logger, IConfiguration configuration)
         {
             _logger = logger;
             _dbContextWrapper = new DbContextFactory();

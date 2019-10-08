@@ -14,9 +14,9 @@ namespace Website.Controllers
     public class MyBotsController : Controller
     {
         private readonly ApplicationContext _contextDb;
-        private readonly StupidLogger _logger;
+        private readonly SimpleLogger _logger;
 
-        public MyBotsController(ApplicationContext context, StupidLogger logger)
+        public MyBotsController(ApplicationContext context, SimpleLogger logger)
         {
             _contextDb = context ?? throw new ArgumentNullException(nameof(context));
             _logger = logger;

@@ -23,7 +23,7 @@ namespace Monitor
             });
 
 
-            services.AddSingleton<StupidLogger>();
+            services.AddSingleton<SimpleLogger>();
             services.AddSingleton<WoodpeckerService>();
             services.AddSingleton<BotsCheckup>();
           
@@ -39,7 +39,7 @@ namespace Monitor
                 IHostingEnvironment env,
                 WoodpeckerService woodpeckerService,
                 BotsCheckup botsCheckup,
-                StupidLogger logger)
+                SimpleLogger logger)
         {
             
             

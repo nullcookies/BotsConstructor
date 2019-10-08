@@ -19,7 +19,7 @@ namespace Website.Services
     public class BotForSalesStatisticsService
     {
 
-        public BotForSalesStatisticsService(StupidLogger logger, IConfiguration configuration)
+        public BotForSalesStatisticsService(SimpleLogger logger, IConfiguration configuration)
         {
             _logger = logger;
             _dbContextWrapper = new DbContextFactory();
@@ -148,7 +148,7 @@ namespace Website.Services
 
 
         readonly DbContextFactory _dbContextWrapper;
-        readonly StupidLogger _logger;
+        readonly SimpleLogger _logger;
         ApplicationContext _contextDb
         {
             get

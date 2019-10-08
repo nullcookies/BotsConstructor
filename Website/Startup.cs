@@ -66,7 +66,7 @@ namespace Website
 
             services.AddTransient<EmailMessageSender>();
 
-            services.AddSingleton<StupidLogger>();
+            services.AddSingleton<SimpleLogger>();
             services.AddSingleton<OrdersCountNotificationService>();
             services.AddSingleton<BotForSalesStatisticsService>();
             services.AddSingleton<TotalLog>();
@@ -90,7 +90,7 @@ namespace Website
             ApplicationContext _contextDb,
             TotalLog totalLog,
             //MoneyCollectorService moneyCollectorService,
-            StupidLogger logger)
+            SimpleLogger logger)
         {
 
             logger.Log(LogLevel.IMPORTANT_INFO,

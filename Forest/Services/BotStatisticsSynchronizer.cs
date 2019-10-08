@@ -11,9 +11,9 @@ namespace Forest.Services
     public class BotStatisticsSynchronizer
     {
         private readonly DbContextFactory _dbContextWrapper;
-        private readonly StupidLogger _logger;
+        private readonly SimpleLogger _logger;
 
-        public BotStatisticsSynchronizer(StupidLogger logger)
+        public BotStatisticsSynchronizer(SimpleLogger logger)
         {
             _dbContextWrapper = new DbContextFactory();
             _logger = logger;

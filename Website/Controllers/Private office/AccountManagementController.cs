@@ -17,9 +17,9 @@ namespace Website.Controllers
     public class AccountManagementController : Controller
     {
         readonly ApplicationContext _contextDb;
-        readonly StupidLogger _logger;
+        readonly SimpleLogger _logger;
 
-        public AccountManagementController(ApplicationContext applicationContext, StupidLogger logger)
+        public AccountManagementController(ApplicationContext applicationContext, SimpleLogger logger)
         {
             _contextDb = applicationContext;
             this._logger = logger;

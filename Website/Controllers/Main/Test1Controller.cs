@@ -8,9 +8,9 @@ namespace Website.Controllers.Main
     public class Test1Controller : Controller
     {
         private readonly IHostingEnvironment _hostingEnvironment;
-        private StupidLogger _logger;
+        private SimpleLogger _logger;
 
-        public Test1Controller(IHostingEnvironment hostingEnvironment, StupidLogger logger)
+        public Test1Controller(IHostingEnvironment hostingEnvironment, SimpleLogger logger)
         {
             _hostingEnvironment = hostingEnvironment;
             _logger = logger;

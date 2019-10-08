@@ -29,9 +29,9 @@ namespace Forest.Controllers
 
 		private readonly ApplicationContext _contextDb;
 		private readonly DbConnector connector;
-        private readonly StupidLogger _logger;
+        private readonly SimpleLogger _logger;
 
-		public HomeController(ApplicationContext context, DbConnector dBConnector, StupidLogger logger)
+		public HomeController(ApplicationContext context, DbConnector dBConnector, SimpleLogger logger)
         {
             _contextDb = context;
 			connector = dBConnector;

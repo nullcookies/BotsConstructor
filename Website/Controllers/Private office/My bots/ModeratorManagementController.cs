@@ -15,9 +15,9 @@ namespace Website.Controllers
     public class ModeratorManagementController : Controller
     {
         readonly ApplicationContext _contextDb;
-        readonly StupidLogger _logger;
+        readonly SimpleLogger _logger;
 
-        public ModeratorManagementController(ApplicationContext contextDb, StupidLogger logger)
+        public ModeratorManagementController(ApplicationContext contextDb, SimpleLogger logger)
         {
             _contextDb = contextDb;
             _logger = logger;

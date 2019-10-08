@@ -46,13 +46,18 @@ namespace LogicalCore
 
         }
 
-        public void SetOwner(int ownerID)
+        public void SetOwner(int ownerId)
         {
-            BotOwner = new BotOwner(ownerID, this);
+            BotOwner = new BotOwner(ownerId, this);
         }
 
         public override void Stop()
         {
+            LoggerSingelton.GetLogger().Log(
+                LogLevel.IMPORTANT_INFO,
+                Source.FOREST,
+                $"Остановка бота. BotUsername={BotUsername}");
+            
             base.Stop();
         }
 

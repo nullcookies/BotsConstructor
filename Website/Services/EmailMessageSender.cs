@@ -14,9 +14,9 @@ namespace Website.Services
         
         private static readonly string Email  = ConfigurationManager.AppSettings["CombatEmail"];
         private static readonly string EmailPassword  = ConfigurationManager.AppSettings["CombatEmailPassword"];
-        private readonly StupidLogger _logger;
+        private readonly SimpleLogger _logger;
 
-        public EmailMessageSender(StupidLogger logger)
+        public EmailMessageSender(SimpleLogger logger)
         {
             _logger = logger;
         }

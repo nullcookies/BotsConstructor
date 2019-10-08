@@ -13,13 +13,13 @@ namespace Website.Controllers.SignInUpOut
     public class PasswordResetController : Controller
     {
 
-        private readonly StupidLogger _logger;
+        private readonly SimpleLogger _logger;
         private readonly ApplicationContext _context;
         private readonly EmailMessageSender _emailSender;
 
         public PasswordResetController(ApplicationContext context, 
             EmailMessageSender emailSender,
-            StupidLogger logger)
+            SimpleLogger logger)
         {
             _context = context;
             _emailSender = emailSender;

@@ -10,13 +10,13 @@ using Microsoft.Extensions.Configuration;
 
 namespace MyLibrary
 {
-    public class StupidLogger
+    public class SimpleLogger
     {
         readonly DbContextFactory _dbContextFactory;
         readonly ConcurrentQueue<LogMessage> _logMessages;
         readonly ConcurrentQueue<SpyRecord> _spyMessages;
 
-        public StupidLogger()
+        public SimpleLogger()
         {
             _logMessages = new ConcurrentQueue<LogMessage>();
             _spyMessages = new ConcurrentQueue<SpyRecord>();
@@ -130,11 +130,11 @@ namespace MyLibrary
 
     public static class LoggerSingelton
     {
-        private static StupidLogger _instance;
-        public static StupidLogger GetLogger()
+        private static SimpleLogger _instance;
+        public static SimpleLogger GetLogger()
         {
             if (_instance == null)
-                _instance = new StupidLogger();;
+                _instance = new SimpleLogger();;
             
 
             return _instance;

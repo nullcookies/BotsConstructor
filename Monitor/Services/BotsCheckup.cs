@@ -12,9 +12,9 @@ namespace Monitor.Services
     public class BotsCheckup
     {
         private bool _isWorking;
-        private readonly StupidLogger _logger;
+        private readonly SimpleLogger _logger;
 
-        public BotsCheckup(StupidLogger logger)
+        public BotsCheckup(SimpleLogger logger)
         {
             _logger = logger;
         }

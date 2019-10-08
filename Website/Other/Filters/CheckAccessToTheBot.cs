@@ -20,9 +20,9 @@ namespace Website.Other.Filters
     public class CheckAccessToTheBot : Attribute, IActionFilter
     {
         readonly ApplicationContext _context;
-        readonly StupidLogger _logger;
+        readonly SimpleLogger _logger;
 
-        public CheckAccessToTheBot(ApplicationContext context, StupidLogger logger)
+        public CheckAccessToTheBot(ApplicationContext context, SimpleLogger logger)
         {
             _context = context;
             _logger = logger;

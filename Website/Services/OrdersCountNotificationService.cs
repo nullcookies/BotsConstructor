@@ -24,7 +24,7 @@ namespace Website.Services
     /// </summary>
     public class OrdersCountNotificationService
     {
-        StupidLogger _logger;
+        SimpleLogger _logger;
         ApplicationContext _contextDb {
             get
             {
@@ -33,7 +33,7 @@ namespace Website.Services
         }
         DbContextFactory _dbContextWrapper;
 
-        public OrdersCountNotificationService(IConfiguration configuration, StupidLogger _logger)
+        public OrdersCountNotificationService(IConfiguration configuration, SimpleLogger _logger)
         {
             this._logger = _logger;
 

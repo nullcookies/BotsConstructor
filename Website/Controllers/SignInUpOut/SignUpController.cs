@@ -15,10 +15,10 @@ namespace Website.Controllers.SignInUpOut
 
         private readonly ApplicationContext _context;
         private readonly EmailMessageSender _emailSender;
-        private readonly StupidLogger _logger;
+        private readonly SimpleLogger _logger;
 
         public SignUpController(ApplicationContext context, 
-            EmailMessageSender emailSender, StupidLogger logger)
+            EmailMessageSender emailSender, SimpleLogger logger)
         {
             _context = context;
             _emailSender = emailSender;

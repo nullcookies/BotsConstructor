@@ -12,11 +12,11 @@ namespace Website.Controllers
 {
     public class TokenReplacementController : Controller
     {
-        readonly StupidLogger _logger;
+        readonly SimpleLogger _logger;
         readonly ApplicationContext context;
         IHostingEnvironment _appEnvironment;
 
-        public TokenReplacementController(ApplicationContext context, IHostingEnvironment appEnvironment, StupidLogger  logger)
+        public TokenReplacementController(ApplicationContext context, IHostingEnvironment appEnvironment, SimpleLogger  logger)
         {
             this.context = context ?? throw new ArgumentNullException(nameof(context));
             _appEnvironment = appEnvironment;

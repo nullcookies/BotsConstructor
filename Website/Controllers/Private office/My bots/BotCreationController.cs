@@ -10,10 +10,10 @@ namespace Website.Controllers
 {
     public class BotCreationController : Controller
     {
-        readonly StupidLogger _logger;
+        readonly SimpleLogger _logger;
         readonly ApplicationContext _contextDb;
 
-        public BotCreationController(ApplicationContext contextDb, StupidLogger logger)
+        public BotCreationController(ApplicationContext contextDb, SimpleLogger logger)
         {
             _contextDb = contextDb;
             _logger = logger;

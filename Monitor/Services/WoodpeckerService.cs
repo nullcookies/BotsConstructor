@@ -9,9 +9,9 @@ namespace Monitor.Services
     public class WoodpeckerService
     {
         private bool _isWorking;
-        private readonly StupidLogger _logger;
+        private readonly SimpleLogger _logger;
 
-        public WoodpeckerService(StupidLogger logger)
+        public WoodpeckerService(SimpleLogger logger)
         {
             _logger = logger;
         }

@@ -34,8 +34,9 @@ namespace Forest
                 .BuildServiceProvider();
 
 			services.AddSingleton<DbConnector>();
-            services.AddSingleton<StupidLogger>();
+            services.AddSingleton<SimpleLogger>();
             services.AddSingleton<BotStatisticsSynchronizer>();
+            services.AddSingleton<RouteRecordsSynchronizerService>();
 
 
 
@@ -43,7 +44,8 @@ namespace Forest
 
         public void Configure(IApplicationBuilder app,
             BotStatisticsSynchronizer botStatisticsSynchronizer,
-            StupidLogger logger)
+            SimpleLogger logger,
+            RouteRecordsSynchronizerService routeRecordsSynchronizerService)
         {
 
                 
@@ -53,7 +55,9 @@ namespace Forest
                 "Запуск сервера леса");
 
             botStatisticsSynchronizer.Start();
-
+            routeRecordsSynchronizerService.Start();
+            
+            
             app.UseDeveloperExceptionPage();
             
 
