@@ -66,7 +66,7 @@ namespace Website.Controllers
             }
             catch (TokenMatchException ex)
             {
-                _logger.Log(LogLevelMyDich.USER_ERROR, Source.WEBSITE, $"Сайт. Создание нового бота. При " +
+                _logger.Log(LogLevel.USER_ERROR, Source.WEBSITE, $"Сайт. Создание нового бота. При " +
                    $"запросе botUsername было выброшено исключение (возможно, введённый" +
                    $"токен был специально испорчен)" + ex.Message, accountId: accountId);
 
@@ -75,7 +75,7 @@ namespace Website.Controllers
             }
             catch (Exception ee)
             {
-                _logger.Log(LogLevelMyDich.USER_ERROR, Source.WEBSITE, $"Сайт. Создание нового бота. При " +
+                _logger.Log(LogLevel.USER_ERROR, Source.WEBSITE, $"Сайт. Создание нового бота. При " +
                     $"запросе botUsername было выброшено исключение (возможно, введённый" +
                     $"токен был специально испорчен)"+ee.Message, accountId:accountId);
 

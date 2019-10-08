@@ -173,7 +173,7 @@ namespace Website.Controllers.SignInUpOut
             }
             catch (Exception exception)
             {
-                _logger.Log(LogLevelMyDich.WARNING, Source.WEBSITE, 
+                _logger.Log(LogLevel.WARNING, Source.WEBSITE, 
                     "При переходе на страцицу с гуидом для завершения регистрации произошла ошибка.", accountId,exception);
 
                 string errorMessage = "Что-то пошло не так";

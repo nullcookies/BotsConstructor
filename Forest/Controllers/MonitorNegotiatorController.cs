@@ -6,11 +6,11 @@ using Newtonsoft.Json.Linq;
 
 namespace Forest.Controllers
 {
-    public class MonitorController:Controller
+    public class MonitorNegotiatorController:Controller
     {
         private readonly ApplicationContext _contextDb;
 
-        public MonitorController(ApplicationContext contextDb)
+        public MonitorNegotiatorController(ApplicationContext contextDb)
         {
             _contextDb = contextDb;
         }

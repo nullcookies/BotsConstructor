@@ -20,7 +20,7 @@ namespace Forest.Services
             _dbContextWrapper = new DbContextFactory();
             _logger = logger;
 
-            _logger.Log(LogLevelMyDich.INFO,
+            _logger.Log(LogLevel.INFO,
                 Source.FOREST_BOT_STATISTICS_SYNCHRONIZER,
                 "Конструктор синхронизатора бд");
 
@@ -44,7 +44,7 @@ namespace Forest.Services
         //TODO Эта хрень не потокобезопасна
         private void SyncBotData()
         {
-            _logger.Log(LogLevelMyDich.INFO,
+            _logger.Log(LogLevel.INFO,
                 Source.FOREST_BOT_STATISTICS_SYNCHRONIZER,
                 "Старт обновления статистики ботов");
 
@@ -72,7 +72,7 @@ namespace Forest.Services
                 if (botWrapper == null)
                 {
                     _logger.Log(
-                        LogLevelMyDich.WARNING,
+                        LogLevel.WARNING,
                         Source.FOREST_BOT_STATISTICS_SYNCHRONIZER,
                         $"При обновлении статистики не удалось получить достпук к " +
                         $"боту botUsername={botUsername} в статическом контейнере");
@@ -87,7 +87,7 @@ namespace Forest.Services
 
                 if (statisticsDb == null)
                 {
-                    _logger.Log(LogLevelMyDich.ERROR,
+                    _logger.Log(LogLevel.ERROR,
                         Source.FOREST_BOT_STATISTICS_SYNCHRONIZER,
                         $"В бд нет статистики для бота, который запущен в лесу." +
                         $"botUsername={botUsername}, botWrapper.BotID{botWrapper.BotID}");
@@ -99,7 +99,7 @@ namespace Forest.Services
 
                 if (actualNumberOfMessages < statisticsDb.NumberOfUniqueMessages)
                 {
-                    _logger.Log(LogLevelMyDich.ERROR,
+                    _logger.Log(LogLevel.ERROR,
                         Source.FOREST_BOT_STATISTICS_SYNCHRONIZER,
                         $"Обновление статистики бота в бд. Количество сообщений у бота в памяти " +
                         $"меньше старого значения кол-ва сообщений у бота в БД." +
@@ -139,7 +139,7 @@ namespace Forest.Services
                 }
                 catch(Exception ee)
                 {
-                    _logger.Log(LogLevelMyDich.ERROR,
+                    _logger.Log(LogLevel.ERROR,
                         Source.FOREST_BOT_STATISTICS_SYNCHRONIZER,
                         "При обновлении списка пользователей произошла ошибка", ex:ee);
                 }
@@ -158,7 +158,7 @@ namespace Forest.Services
                               .GetNewUsersTelegramIds(dbBotUsers);
                         }catch(Exception eee)
                         {
-                            _logger.Log(LogLevelMyDich.ERROR,
+                            _logger.Log(LogLevel.ERROR,
                                 Source.FOREST_BOT_STATISTICS_SYNCHRONIZER,
                                 "При повторной попытке синхронизировать кол-во пользователей было брошено исключение",
                                 ex: eee);
@@ -167,7 +167,7 @@ namespace Forest.Services
                     }
                     else
                     {
-                        _logger.Log(LogLevelMyDich.ERROR,
+                        _logger.Log(LogLevel.ERROR,
                             Source.FOREST_BOT_STATISTICS_SYNCHRONIZER,
                             "Попытка добавить недостающих пользователей не увенчалась успехом.");
                         continue;
@@ -180,7 +180,7 @@ namespace Forest.Services
 
                 if (dbBotUsers.Count > actualNumberOfUsers)
                 {
-                    _logger.Log(LogLevelMyDich.WARNING,
+                    _logger.Log(LogLevel.WARNING,
                         Source.FOREST_BOT_STATISTICS_SYNCHRONIZER,
                         $"Обновление статистики бота. У бота " +
                         $"botUsername {botUsername} botWrapper.BotID={botWrapper.BotID}" +
@@ -210,7 +210,7 @@ namespace Forest.Services
 
                 context.BotUsers.AddRange(newUsersRecords);
 
-                _logger.Log(LogLevelMyDich.INFO,
+                _logger.Log(LogLevel.INFO,
                     Source.FOREST_BOT_STATISTICS_SYNCHRONIZER,
                     $"При обновлении статистики к списку пользователей добавлено " +
                     $"list.Count={newUsersRecords.Count} новых пользователей");
@@ -224,7 +224,7 @@ namespace Forest.Services
 
 
 
-            _logger.Log(LogLevelMyDich.INFO,
+            _logger.Log(LogLevel.INFO,
                 Source.FOREST_BOT_STATISTICS_SYNCHRONIZER,
                 "Окончание обновления статистики ботов");
 

@@ -47,13 +47,14 @@ namespace Forest
         {
 
             logger.Log(
-                LogLevelMyDich.IMPORTANT_INFO,
+                LogLevel.IMPORTANT_INFO,
                 Source.WEBSITE,
                 "Запуск сервера леса");
 
 
             app.UseDeveloperExceptionPage();
 
+            app.UseHttpsRedirection();
 
             app.UseMvc(routes =>
             {

@@ -14,15 +14,15 @@ namespace Monitor.Services
         public WoodpeckerService(StupidLogger logger)
         {
             _logger = logger;
-            _logger.Log(LogLevelMyDich.INFO,Source.MONITOR,"Старт сервиса для пингования монитором");
+            _logger.Log(LogLevel.INFO,Source.MONITOR,"Старт сервиса для пингования монитором");
         }
         
         private List<string> _targetUrls = new List<string>()
         {
             //forest
-            "http://localhost:8080/Monitor/Ping",
+            "https://localhost:8081/MonitorNegotiator/Ping",
             //website
-            "https://localhost:5001/Monitor/Ping"
+            "https://localhost:5001/MonitorNegotiator/Ping"
         };
 
 
@@ -46,14 +46,14 @@ namespace Monitor.Services
                     {
                         Ping(url);
                         _logger.Log(
-                            LogLevelMyDich.INFO,
+                            LogLevel.INFO,
                             Source.MONITOR,
                             $"Успешный пинг по url={url}");
                     }
                     catch (Exception exception)
                     {
                         _logger.Log(
-                            LogLevelMyDich.ERROR,
+                            LogLevel.ERROR,
                             Source.MONITOR,
                             $"Ошибка в сервисе пинга в мониторе. Url={url}", 
                             ex:exception);

@@ -65,7 +65,7 @@ namespace Website.Controllers
         [TypeFilter(typeof(CheckAccessToTheBot))]
         public IActionResult GetBotForSalesStatistics(int botId)
         {
-            _logger.Log(LogLevelMyDich.INFO, Source.WEBSITE, "Сайт. Опрос стастистики бота через " +
+            _logger.Log(LogLevel.INFO, Source.WEBSITE, "Сайт. Опрос стастистики бота через " +
                     "ajax (на клиенте не доступен webSocket или кто-то балуется).");
             try
             {
@@ -82,7 +82,7 @@ namespace Website.Controllers
 
             }catch(Exception ee)
             {
-                _logger.Log(LogLevelMyDich.ERROR, Source.WEBSITE, "Сайт. Опрос стастистики бота через " +
+                _logger.Log(LogLevel.ERROR, Source.WEBSITE, "Сайт. Опрос стастистики бота через " +
                     "ajax (на клиенте не доступен webSocket или кто-то балуется). Не " +
                     "удаётся отправить статистику бота. Ошибка "+ee.Message);
 
@@ -130,7 +130,7 @@ namespace Website.Controllers
         [TypeFilter(typeof(CheckAccessToTheBot))]
         public IActionResult StopBot(int botId)
         {           
-            _logger.Log(LogLevelMyDich.INFO, Source.WEBSITE, "Остановка бота");
+            _logger.Log(LogLevel.INFO, Source.WEBSITE, "Остановка бота");
 
             int accountId = (int)HttpContext.Items["accountId"];
 
@@ -151,7 +151,7 @@ namespace Website.Controllers
         [TypeFilter(typeof(CheckAccessToTheBot))]
         public IActionResult RunBotForSalesFromDraft(int botId)
         {
-            _logger.Log(LogLevelMyDich.INFO, Source.WEBSITE, $"Сайт. Запуск бота. botId={botId}");
+            _logger.Log(LogLevel.INFO, Source.WEBSITE, $"Сайт. Запуск бота. botId={botId}");
 
             int accountId = 0;
             try{
@@ -183,7 +183,7 @@ namespace Website.Controllers
                     IActionResult res = StopBot(botId);
                     if (res != Ok())
                     {
-                        _logger.Log(LogLevelMyDich.I_AM_AN_IDIOT, Source.WEBSITE, $"Не удалось остановить бота botId={botId}");
+                        _logger.Log(LogLevel.I_AM_AN_IDIOT, Source.WEBSITE, $"Не удалось остановить бота botId={botId}");
                         return StatusCode(500);
                     }
                 }
@@ -214,7 +214,7 @@ namespace Website.Controllers
             }
             catch(Exception ex)
             {
-                _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, Source.WEBSITE, $"Не удаётся удалить бота botId={botId}", ex:ex);
+                _logger.Log(LogLevel.LOGICAL_DATABASE_ERROR, Source.WEBSITE, $"Не удаётся удалить бота botId={botId}", ex:ex);
                 return StatusCode(500);
             }
         }

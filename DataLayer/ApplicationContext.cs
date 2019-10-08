@@ -472,7 +472,7 @@ namespace DataLayer
         public int AccountId { get; set; }
 
         public DateTime DateTime { get; set; }
-        public LogLevelMyDich LogLevel { get; set; }
+        public LogLevel LogLevel { get; set; }
 
 
         [Required]
@@ -493,7 +493,7 @@ namespace DataLayer
 	    PASSWORD_RESET
     }
     
-    public enum LogLevelMyDich
+    public enum LogLevel
     {
         INFO,
         CRITICAL_SECURITY_ERROR,

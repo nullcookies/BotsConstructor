@@ -40,7 +40,7 @@ namespace Website.Controllers
             }
             else
             {
-				_logger.Log(LogLevelMyDich.ERROR, Source.WEBSITE, "Не удалось достать бота из базы для показа" +
+				_logger.Log(LogLevel.ERROR, Source.WEBSITE, "Не удалось достать бота из базы для показа" +
 	                                                           " страницы редактирования разметки");   
 				return StatusCode(500);
             }

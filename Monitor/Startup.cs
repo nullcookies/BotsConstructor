@@ -47,9 +47,15 @@ namespace Monitor
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, WoodpeckerService woodpeckerService, BotsCheckup botsCheckup)
+        public void Configure(
+                IApplicationBuilder app,
+                IHostingEnvironment env,
+                WoodpeckerService woodpeckerService,
+                BotsCheckup botsCheckup,
+                StupidLogger logger)
         {
             
+            logger.Log(LogLevel.IMPORTANT_INFO, Source.MONITOR,"Старт монитора");
             woodpeckerService.StartPingAsync(1);
             botsCheckup.StartCheckupAsync(1);
             

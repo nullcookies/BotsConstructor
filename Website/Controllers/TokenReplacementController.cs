@@ -52,7 +52,7 @@ namespace Website.Controllers
             {
                 int? accountId = Stub.GetAccountIdFromCookies(HttpContext);
 
-                _logger.Log(LogLevelMyDich.USER_ERROR, Source.WEBSITE, $"Сайт. Установка токена для бота " +
+                _logger.Log(LogLevel.USER_ERROR, Source.WEBSITE, $"Сайт. Установка токена для бота " +
                     $"botId={botId}, accountId= {accountId}, token = {token}. Не удалось " +
                     $"узнать username бота.  Возможно, такой токен не существует. ", ex: ee);
 

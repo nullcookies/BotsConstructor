@@ -2,7 +2,7 @@
 
 namespace Website.Controllers
 {
-    public class MonitorController:Controller
+    public class MonitorNegotiatorController:Controller
     {
         [HttpPost]
         public IActionResult Ping()

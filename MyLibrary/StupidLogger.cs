@@ -99,7 +99,7 @@ namespace MyLibrary
         /// <param name="comment"></param>
         /// <param name="accountId"></param>
         /// <param name="ex"></param>
-        public void Log(LogLevelMyDich logLevel, 
+        public void Log(LogLevel logLevel, 
             Source errorSource, 
             string comment = "", 
             int accountId = default(int), 

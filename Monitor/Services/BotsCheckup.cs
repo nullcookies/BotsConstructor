@@ -16,7 +16,7 @@ namespace Monitor.Services
         public BotsCheckup(StupidLogger logger)
         {
             _logger = logger;
-            _logger.Log(LogLevelMyDich.INFO,Source.MONITOR,"Старт сервиса для проверки работы ботов");
+            _logger.Log(LogLevel.INFO,Source.MONITOR,"Старт сервиса для проверки работы ботов");
         }
         
 //        private List<string> _targetUrls = new List<string>()
@@ -52,7 +52,7 @@ namespace Monitor.Services
                         await Checkup(link, routeRecord.BotId);
                         
                         _logger.Log(
-                            LogLevelMyDich.INFO,
+                            LogLevel.INFO,
                             Source.MONITOR,
                             $"Успешная проверка наличия бота в лесу. " +
                             $"botId={routeRecord.BotId} url={link}");
@@ -61,7 +61,7 @@ namespace Monitor.Services
                     catch (Exception exception)
                     {
                         _logger.Log(
-                            LogLevelMyDich.ERROR,
+                            LogLevel.ERROR,
                             Source.MONITOR,
                             $"Ошибка проверки наличия бота в лесу." +
                             $"botId={routeRecord.BotId} url={link}", 

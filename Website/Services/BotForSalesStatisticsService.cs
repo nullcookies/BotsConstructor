@@ -113,7 +113,7 @@ namespace Website.Services
             }
             catch (Exception ee)
             {
-                _logger.Log(LogLevelMyDich.ERROR, Source.WEBSITE, "Сайт. При отправке статистики бота по websocket произошла ошибка. " + ee.Message);
+                _logger.Log(LogLevel.ERROR, Source.WEBSITE, "Сайт. При отправке статистики бота по websocket произошла ошибка. " + ee.Message);
             }
         }
 

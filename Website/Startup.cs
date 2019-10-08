@@ -93,7 +93,7 @@ namespace Website
             StupidLogger logger)
         {
 
-            logger.Log(LogLevelMyDich.IMPORTANT_INFO,
+            logger.Log(LogLevel.IMPORTANT_INFO,
                 Source.WEBSITE,
                 "Запуск сервера сайта");
             

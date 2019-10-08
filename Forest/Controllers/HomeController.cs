@@ -58,7 +58,7 @@ namespace Forest.Controllers
 	            catch (Exception exception)
 	            {
 		            _logger.Log(
-			            LogLevelMyDich.ERROR,
+			            LogLevel.ERROR,
 			            Source.FOREST,
 			            $"При обработке сообщения ботом botUsername={botUsername}" +
 			            $" через webhook было брошено исключение",
@@ -68,7 +68,7 @@ namespace Forest.Controllers
             else
             {
                 _logger.Log(
-                    LogLevelMyDich.WARNING, 
+                    LogLevel.WARNING, 
                     Source.FOREST, 
                     $"Пришло обновление для бота, которого нет в списке онлайн ботов. botUsername={botUsername}");
             }
@@ -81,7 +81,7 @@ namespace Forest.Controllers
 		{
 			try
 			{
-				_logger.Log(LogLevelMyDich.INFO, Source.FOREST, $"Лес. Запуск бота. botId={botId}");
+				_logger.Log(LogLevel.INFO, Source.FOREST, $"Лес. Запуск бота. botId={botId}");
 
 				JObject answer = null;
 				var bot = _contextDb.Bots.Find(botId);
@@ -121,12 +121,12 @@ namespace Forest.Controllers
 					//Бот уже запущен с вебхуком
 					if (!string.IsNullOrEmpty(the_link_on_which_the_server_is_running))
 					{
-						_logger.Log(LogLevelMyDich.WARNING, Source.FOREST, "Запуск бота поверх запущенного webhook-а");
+						_logger.Log(LogLevel.WARNING, Source.FOREST, "Запуск бота поверх запущенного webhook-а");
 					}
 				}
 				catch (Exception ee)
 				{
-					_logger.Log(LogLevelMyDich.ERROR, Source.FOREST, "Не удалось узнать botUsername" +
+					_logger.Log(LogLevel.ERROR, Source.FOREST, "Не удалось узнать botUsername" +
 						" у бота с botId" + botId + ". Возможно у бота сохранён битый токен. " + ee.Message);
 
 					answer = new JObject()
@@ -145,7 +145,7 @@ namespace Forest.Controllers
 				//Если найден бот в контейнере
 				if (_botWrapper != null)
 				{
-					_logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, Source.FOREST, $"Лес. Попытка запуска бота, которые уже работает в этом лесу. botId={botId}");
+					_logger.Log(LogLevel.LOGICAL_DATABASE_ERROR, Source.FOREST, $"Лес. Попытка запуска бота, которые уже работает в этом лесу. botId={botId}");
 
 					answer = new JObject()
 						{
@@ -518,16 +518,16 @@ namespace Forest.Controllers
             if (rrDb != null)
             {
                 //В базе уже запись о том, что бот запущен
-                _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, Source.FOREST, $"Лес. Запуск бота. В БД уже существует запись о том, что бот запущен. botId={botId}");
+                _logger.Log(LogLevel.LOGICAL_DATABASE_ERROR, Source.FOREST, $"Лес. Запуск бота. В БД уже существует запись о том, что бот запущен. botId={botId}");
 
                 //перезапись значения
-                _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, Source.FOREST, $"Лес. Запуск бота. Перезапись значения. botId={botId}");
+                _logger.Log(LogLevel.LOGICAL_DATABASE_ERROR, Source.FOREST, $"Лес. Запуск бота. Перезапись значения. botId={botId}");
 
                 rrDb.ForestLink = rr.ForestLink;
             }
             else
             {
-                _logger.Log(LogLevelMyDich.INFO, Source.FOREST, $" Создание новой записи о запущеном боте" + $"{rr.BotId}  {rr.ForestLink}");
+                _logger.Log(LogLevel.INFO, Source.FOREST, $" Создание новой записи о запущеном боте" + $"{rr.BotId}  {rr.ForestLink}");
                 _contextDb.RouteRecords.Add(rr);
             }
             _contextDb.BotLaunchRecords.Add(blr);
@@ -570,7 +570,7 @@ namespace Forest.Controllers
                     }
                     else
                     {
-                        _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, Source.FOREST, "Куда успела деться RouteRecord?");
+                        _logger.Log(LogLevel.LOGICAL_DATABASE_ERROR, Source.FOREST, "Куда успела деться RouteRecord?");
                         Console.WriteLine("     ogger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, Куда успела деться RouteRecord ? )   ");
 
                         
@@ -582,14 +582,14 @@ namespace Forest.Controllers
                 }
                 else
                 {
-                    _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, Source.FOREST, $"Лес принял запрос на остановку " +
+                    _logger.Log(LogLevel.LOGICAL_DATABASE_ERROR, Source.FOREST, $"Лес принял запрос на остановку " +
                         $"бота, которого у него нет. botId={botId} botUsername={botUsername}. В словаре" +
                         $" ботов хранился botWrapper==null.");
                 }
             }
             else
             {
-                _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, Source.FOREST, $"Лес принял запрос на остановку бота," +
+                _logger.Log(LogLevel.LOGICAL_DATABASE_ERROR, Source.FOREST, $"Лес принял запрос на остановку бота," +
                     $" которого у него нет. botId={botId} botUsername={botUsername}");
                 
                 //попытка удалить неправильный route record

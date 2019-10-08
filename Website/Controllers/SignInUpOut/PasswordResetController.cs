@@ -142,7 +142,7 @@ namespace Website.Controllers.SignInUpOut
                     return StatusCode(403);
                 }
 
-                _logger.Log(LogLevelMyDich.UNAUTHORIZED_ACCESS_ATTEMPT,
+                _logger.Log(LogLevel.UNAUTHORIZED_ACCESS_ATTEMPT,
                     Source.PASSWORD_RESET,
                     $"Аккаунт {targetAccountId} запросил смену пароля. В это время пришёл post запрос " +
                     $"с новым паролем, но guid был неверным. guid={guid}, accountId из cookie = {accountId}");

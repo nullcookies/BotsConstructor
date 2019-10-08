@@ -20,7 +20,7 @@ namespace DataLayer
             Password=3t0ssszheM3G4MMM0Ch~n`yparollb_wubfubrkmdbwiyro38;
             Server=3.91.239.153;
             Port=5432;
-            Database=Dev_R_08_10_2019_1;
+            Database=Dev_R_08_10_2019_2;
             Integrated Security=true;
             Pooling=true;";
 

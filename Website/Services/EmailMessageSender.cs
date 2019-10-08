@@ -60,7 +60,7 @@ namespace Website.Services
 
             }catch (Exception ex)
             {
-                _logger.Log(LogLevelMyDich.EMAIL_SEND_FAILURE,Source.WEBSITE, 
+                _logger.Log(LogLevel.EMAIL_SEND_FAILURE,Source.WEBSITE, 
                     $"Не удалось отправить email с данными для окончания регистрации. email={email}, name={name}, link={link}",ex:ex );
                 
                 return false;
@@ -87,7 +87,7 @@ namespace Website.Services
 
             }catch (Exception ex)
             {
-                _logger.Log(LogLevelMyDich.EMAIL_SEND_FAILURE, Source.WEBSITE,
+                _logger.Log(LogLevel.EMAIL_SEND_FAILURE, Source.WEBSITE,
                     "Не удалось отправить email для сброса пароля", ex: ex);
                 return false;
             }

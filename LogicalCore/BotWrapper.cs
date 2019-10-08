@@ -85,7 +85,7 @@ namespace LogicalCore
             
             //Шпионское логгирование
             LoggerSingelton.GetLogger().Log(
-                LogLevelMyDich.INFO,
+                LogLevel.INFO,
                 Source.OTHER,
                 $"Message, BotUsername={BotUsername}, senderId={message.From.Id}, type ={message.Type}, text={message.Text}"
             );
@@ -107,7 +107,7 @@ namespace LogicalCore
             catch(Exception exception)
             {
                 LoggerSingelton.GetLogger().Log(
-                    LogLevelMyDich.ERROR,
+                    LogLevel.ERROR,
                     Source.FOREST,
                     $"При обработке сообщения для бота BotUsername= {BotUsername} через long polling было брошено исключение",
                     ex:exception
@@ -127,7 +127,7 @@ namespace LogicalCore
                    
             //Шпионское логгирование
             LoggerSingelton.GetLogger().Log(
-                LogLevelMyDich.INFO,
+                LogLevel.INFO,
                 Source.OTHER,
                 $"CallbackQuery, BotUsername={BotUsername}, senderId={callbackQuerry.Message.From.Id}, text={callbackQuerry.Data}"
             );
