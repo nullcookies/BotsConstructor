@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using MyLibrary;
 
 namespace Forest.Services
 {
@@ -63,10 +64,10 @@ namespace Forest.Services
 
             //Для всех ботов в этом лесу актуальные данные кол-ва сообщений 
             //и данные о пользователях переносит в БД
-             foreach (var botUsername in BotsContainer.BotsDictionary.Keys)
+             foreach (var botUsername in BotsStorage.BotsDictionary.Keys)
              {
                 BotWrapper botWrapper = null;
-                BotsContainer.BotsDictionary.TryGetValue(botUsername, out botWrapper);
+                BotsStorage.BotsDictionary.TryGetValue(botUsername, out botWrapper);
                 
                 if (botWrapper == null)
                 {

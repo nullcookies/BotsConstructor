@@ -3,23 +3,24 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using DataLayer;
 using Microsoft.Extensions.Configuration;
 
 //TODO уничтожить это нахрен
 
-namespace DataLayer
+namespace MyLibrary
 {
     public class StupidLogger
     {
-        readonly DbContextFactory _dbContextWrapper;
+        readonly DbContextFactory _dbContextFactory;
         readonly ConcurrentQueue<LogMessage> _logMessages;
         readonly ConcurrentQueue<SpyRecord> _spyMessages;
 
-        public StupidLogger(IConfiguration configuration)
+        public StupidLogger()
         {
             _logMessages = new ConcurrentQueue<LogMessage>();
             _spyMessages = new ConcurrentQueue<SpyRecord>();
-            _dbContextWrapper = new DbContextFactory();
+            _dbContextFactory = new DbContextFactory();
 
             PeriodicFooAsync(TimeSpan.FromSeconds(1), CancellationToken.None);
         }
@@ -52,7 +53,7 @@ namespace DataLayer
 
         private void SaveLogsToDb()
         {
-            ApplicationContext contextDb = _dbContextWrapper.GetNewDbContext();
+            ApplicationContext contextDb = _dbContextFactory.GetNewDbContext();
 
             if (!_logMessages.IsEmpty)
             {
@@ -90,6 +91,14 @@ namespace DataLayer
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="logLevel"></param>
+        /// <param name="errorSource"></param>
+        /// <param name="comment"></param>
+        /// <param name="accountId"></param>
+        /// <param name="ex"></param>
         public void Log(LogLevelMyDich logLevel, 
             Source errorSource, 
             string comment = "", 
@@ -116,6 +125,19 @@ namespace DataLayer
             Console.WriteLine(logLevel.ToString() + "   " + errorSource.ToString() + "   " + comment + " date=" + dt);
             Console.WriteLine();
 
+        }
+    }
+
+    public static class LoggerSingelton
+    {
+        private static StupidLogger _instance;
+        public static StupidLogger GetLogger()
+        {
+            if (_instance == null)
+                _instance = new StupidLogger();;
+            
+
+            return _instance;
         }
     }
 

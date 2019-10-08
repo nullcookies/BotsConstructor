@@ -3,7 +3,7 @@ using LogicalCore;
 
 namespace Forest
 {
-	public static class BotsContainer
+	public static class BotsStorage
     {
         //BotUsername + BotWrapper
         public static Dictionary<string, BotWrapper> BotsDictionary { get; private set; } = new Dictionary<string, BotWrapper>();
@@ -13,7 +13,7 @@ namespace Forest
             botWrapper.Run();
 
             string botUsername = botWrapper.BotClient.GetMeAsync().Result.Username;
-            BotsContainer.BotsDictionary.Add(botUsername, botWrapper);
+            BotsStorage.BotsDictionary.Add(botUsername, botWrapper);
         }
         
     }

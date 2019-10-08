@@ -36,7 +36,7 @@ namespace Forest.Controllers
             
             
             string botUsername = bot.BotName;
-            bool botIsHere = BotsContainer.BotsDictionary.Keys.Contains(botUsername);
+            bool botIsHere = BotsStorage.BotsDictionary.Keys.Contains(botUsername);
 
             if (botIsHere)
                 jsonAnswer = new JObject {{"success", true}};

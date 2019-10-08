@@ -3,6 +3,7 @@ using System.Configuration;
 using System.Net.Mail;
 using System.Text.RegularExpressions;
 using DataLayer;
+using MyLibrary;
 
 //20 09 2019 14:09 дублирование кода
 

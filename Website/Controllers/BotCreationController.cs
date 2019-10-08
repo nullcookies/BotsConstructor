@@ -1,14 +1,8 @@
-﻿
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System;
 using System.Runtime.Serialization;
-using System.Threading.Tasks;
 using DataLayer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Website.Other;
-using Website.Services;
+using MyLibrary;
 using Website.ViewModels;
 using Telegram.Bot;
 
@@ -73,8 +67,8 @@ namespace Website.Controllers
             catch (TokenMatchException ex)
             {
                 _logger.Log(LogLevelMyDich.USER_ERROR, Source.WEBSITE, $"Сайт. Создание нового бота. При " +
-                                                                       $"запросе botUsername было выброшено исключение (возможно, введённый" +
-                                                                       $"токен был специально испорчен)" + ex.Message, accountId: accountId);
+                   $"запросе botUsername было выброшено исключение (возможно, введённый" +
+                   $"токен был специально испорчен)" + ex.Message, accountId: accountId);
 
                 ModelState.AddModelError("", "Этот бот уже зарегистрирован.");
 

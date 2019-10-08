@@ -5,6 +5,7 @@ using DataLayer;
 using Forest.Services;
 using LogicalCore;
 using Microsoft.AspNetCore.Mvc;
+using MyLibrary;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Telegram.Bot;
@@ -48,9 +49,21 @@ namespace Forest.Controllers
         {
             string botUsername = RouteData.Values["telegramBotUsername"].ToString();
             
-            if (BotsContainer.BotsDictionary.TryGetValue(botUsername, out BotWrapper botWrapper))
+            if (BotsStorage.BotsDictionary.TryGetValue(botUsername, out BotWrapper botWrapper))
             {
-                botWrapper.AcceptUpdate(update);
+	            try
+	            {
+		            botWrapper.AcceptUpdate(update);
+	            }
+	            catch (Exception exception)
+	            {
+		            _logger.Log(
+			            LogLevelMyDich.ERROR,
+			            Source.FOREST,
+			            $"При обработке сообщения ботом botUsername={botUsername}" +
+			            $" через webhook было брошено исключение",
+			            ex:exception);
+	            }
             }
             else
             {
@@ -127,7 +140,7 @@ namespace Forest.Controllers
 
 				}
 
-				BotsContainer.BotsDictionary.TryGetValue(botUsername, out BotWrapper _botWrapper);
+				BotsStorage.BotsDictionary.TryGetValue(botUsername, out BotWrapper _botWrapper);
 
 				//Если найден бот в контейнере
 				if (_botWrapper != null)
@@ -456,7 +469,7 @@ namespace Forest.Controllers
 					return Json(answer);
 				}
 
-				BotsContainer.RunAndRegisterBot(botWrapper);
+				BotsStorage.RunAndRegisterBot(botWrapper);
 
 				answer = new JObject()
 				{
@@ -536,7 +549,7 @@ namespace Forest.Controllers
 
             string botUsername = new TelegramBotClient(botDb.Token).GetMeAsync().Result.Username;
 
-            if ( BotsContainer.BotsDictionary.TryGetValue(botUsername, out BotWrapper botWrapper))
+            if ( BotsStorage.BotsDictionary.TryGetValue(botUsername, out BotWrapper botWrapper))
             {
                 Console.WriteLine("  BotsContainer.BotsDictionary.TryGetValue(botUsername, out BotWrapper botWrappe              ");
                 if (botWrapper != null)
@@ -545,7 +558,7 @@ namespace Forest.Controllers
                     Console.WriteLine("         if (botWrapper != null)        ");
 
                     //удаление бота из памяти
-                    BotsContainer.BotsDictionary.Remove(botUsername);
+                    BotsStorage.BotsDictionary.Remove(botUsername);
                     Console.WriteLine("         BotsContainer.BotsDictionary.Remove(bot       ");
 
                     //очистка БД

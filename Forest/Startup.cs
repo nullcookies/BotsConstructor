@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MyLibrary;
 
 namespace Forest
 {
@@ -45,7 +46,8 @@ namespace Forest
             StupidLogger logger)
         {
 
-            logger.Log(LogLevelMyDich.IMPORTANT_INFO,
+            logger.Log(
+                LogLevelMyDich.IMPORTANT_INFO,
                 Source.WEBSITE,
                 "Запуск сервера леса");
 
