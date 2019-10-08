@@ -18,22 +18,11 @@ namespace Monitor.Services
             _logger = logger;
             _logger.Log(LogLevel.INFO,Source.MONITOR,"Старт сервиса для проверки работы ботов");
         }
-        
-//        private List<string> _targetUrls = new List<string>()
-//        {
-//            //forest
-//            "http://localhost:8080/Monitor/BotIsHere"
-//        };
 
 
         public async void StartCheckupAsync(int delaySec = 1, List<string> targetUrls= null)
         {
             _isWorking = true;
-            
-//            if (targetUrls != null && targetUrls.Count>0)
-//            {
-//                _targetUrls = targetUrls;
-//            }
             
             while (true)
             {

@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 using DataLayer;
 using Forest.Services;
 using Microsoft.AspNetCore.Builder;
@@ -40,21 +41,21 @@ namespace Forest
 
         }
 
-        public void Configure(IApplicationBuilder app, 
-            IHostingEnvironment env, 
+        public void Configure(IApplicationBuilder app,
             BotStatisticsSynchronizer botStatisticsSynchronizer,
             StupidLogger logger)
         {
 
+                
             logger.Log(
                 LogLevel.IMPORTANT_INFO,
                 Source.WEBSITE,
                 "Запуск сервера леса");
 
+            botStatisticsSynchronizer.Start();
 
             app.UseDeveloperExceptionPage();
-
-            app.UseHttpsRedirection();
+            
 
             app.UseMvc(routes =>
             {
@@ -63,6 +64,10 @@ namespace Forest
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
 
+            logger.Log(
+                LogLevel.IMPORTANT_INFO,
+                Source.WEBSITE,
+                "Запуск сервера леса закончен");
         }
     }
 }

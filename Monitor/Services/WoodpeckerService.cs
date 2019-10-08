@@ -20,7 +20,7 @@ namespace Monitor.Services
         private List<string> _targetUrls = new List<string>()
         {
             //forest
-            "https://localhost:8081/MonitorNegotiator/Ping",
+            "http://localhost:8080/MonitorNegotiator/Ping",
             //website
             "https://localhost:5001/MonitorNegotiator/Ping"
         };

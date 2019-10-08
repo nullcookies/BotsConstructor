@@ -1,11 +1,9 @@
 ﻿using DataLayer;
-using DeleteMeWebhook;
 using LogicalCore;
-using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
+using System.Threading.Tasks;
 using MyLibrary;
 
 namespace Forest.Services
@@ -15,33 +13,30 @@ namespace Forest.Services
         private readonly DbContextFactory _dbContextWrapper;
         private readonly StupidLogger _logger;
 
-        public BotStatisticsSynchronizer(IConfiguration configuration, StupidLogger logger)
+        public BotStatisticsSynchronizer(StupidLogger logger)
         {
             _dbContextWrapper = new DbContextFactory();
             _logger = logger;
 
             _logger.Log(LogLevel.INFO,
                 Source.FOREST_BOT_STATISTICS_SYNCHRONIZER,
-                "Конструктор синхронизатора бд");
+                "Конструктор синхронизатора статистики ботов");
 
-            RunSyncDbBots();
 
         }
 
-        private async void RunSyncDbBots()
+        private async void RunSyncDbBotsAsync()
         {
             while (true)
             {
                 SyncBotData();
 
-                //int five_minutes = 5 * 60*1000;
                 int five_seconds = 5 *1000;
-                //await Task.Delay(1000 );
-                Thread.Sleep(five_seconds);
+                await Task.Delay(five_seconds );
             }
         }
-
-        //TODO Эта хрень не потокобезопасна
+        
+        
         private void SyncBotData()
         {
             _logger.Log(LogLevel.INFO,
@@ -230,5 +225,10 @@ namespace Forest.Services
 
         }
 
+        public void Start()
+        {
+            //TODO убрать отсюда создание нового потока
+            (new System.Threading.Thread(RunSyncDbBotsAsync)).Start();
+        }
     }
 }
