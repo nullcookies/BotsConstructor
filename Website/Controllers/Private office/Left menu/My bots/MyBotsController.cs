@@ -11,20 +11,15 @@ using Website.Models;
 namespace Website.Controllers
 {
     [Authorize]
-    public class HomeController : Controller
+    public class MyBotsController : Controller
     {
         private readonly ApplicationContext _contextDb;
         private readonly StupidLogger _logger;
 
-        public HomeController(ApplicationContext context, StupidLogger logger)
+        public MyBotsController(ApplicationContext context, StupidLogger logger)
         {
             _contextDb = context ?? throw new ArgumentNullException(nameof(context));
             _logger = logger;
-        }
-
-        public IActionResult Index()
-        {
-            return RedirectToAction("MyBots");
         }
 
         public IActionResult MyBots()

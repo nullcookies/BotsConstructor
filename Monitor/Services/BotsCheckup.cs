@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using DataLayer;
 using MyLibrary;
@@ -16,12 +17,13 @@ namespace Monitor.Services
         public BotsCheckup(StupidLogger logger)
         {
             _logger = logger;
-            _logger.Log(LogLevel.INFO,Source.MONITOR,"Старт сервиса для проверки работы ботов");
         }
 
 
         public async void StartCheckupAsync(int delaySec = 1, List<string> targetUrls= null)
         {
+            _logger.Log(LogLevel.INFO,Source.MONITOR,"Старт сервиса для проверки работы ботов");
+
             _isWorking = true;
             
             while (true)
@@ -29,13 +31,21 @@ namespace Monitor.Services
                 if(!_isWorking)
                     break;
 
+                await Task.Delay(1000 * delaySec);
+                
                 var contextDb = new DbContextFactory().GetNewDbContext();
                 
-                var routeRecords = contextDb.RouteRecords;
+                var routeRecords = contextDb.RouteRecords.ToArray();
+
+                if (routeRecords.Length == 0)
+                {
+                    _logger.Log(LogLevel.INFO,Source.MONITOR,"При проверке работоспособности ботов в лесах монитором в таблице ботов не было найдено ни одного");
+                    continue;
+                }
                 
                 foreach (var routeRecord in routeRecords)
                 {
-                    string link = routeRecord.ForestLink + "/Monitor/BotIsHere";
+                    string link = routeRecord.ForestLink + "/MonitorNegotiator/BotIsHere";
                     try
                     {
                         await Checkup(link, routeRecord.BotId);
@@ -62,7 +72,6 @@ namespace Monitor.Services
                     }
                 }
 
-                await Task.Delay(1000 * delaySec);
 
             }
         }

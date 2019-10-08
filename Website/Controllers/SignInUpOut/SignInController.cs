@@ -26,7 +26,7 @@ namespace Website.Controllers.SignInUpOut
         {
             if (HttpContext.User.Identity.IsAuthenticated)
             {
-                return RedirectToAction("MyBots", "Home");
+                return RedirectToAction("MyBots", "MyBots");
             }
             else
             {
@@ -111,7 +111,7 @@ namespace Website.Controllers.SignInUpOut
 
                 Authenticate(user);
 
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("MyBots", "MyBots");
                 //TODO Отправить сообщение о авторизации пользователю (приветствие)
             }
 
@@ -133,7 +133,7 @@ namespace Website.Controllers.SignInUpOut
                 {
                     Authenticate(account);
 
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("MyBots", "MyBots");
                 }
 
                 ModelState.AddModelError("", "Некорректные логин и(или) пароль ");

@@ -103,7 +103,7 @@ namespace Website.Controllers.SignInUpOut
                     _context.SaveChanges();
 
                   
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("MyBots", "MyBots");
                 }
                 else
                 {

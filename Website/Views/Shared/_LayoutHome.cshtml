@@ -31,7 +31,7 @@
         <div class="bg-light border-right" id="sidebar-wrapper">
             <div class="sidebar-heading "><a class="text-decoration-none text-reset" asp-controller="Main" asp-action="Index">@Localizer["Bots constructor"] </a></div>
             <div class="list-group list-group-flush">
-                <a asp-controller="Home" asp-action="MyBots" class="list-group-item list-group-item-action bg-light">Мои боты</a>
+                <a asp-controller="MyBots" asp-action="MyBots" class="list-group-item list-group-item-action bg-light">Мои боты</a>
                 <a asp-controller="StatusGroups" asp-action="Index" class="list-group-item list-group-item-action bg-light">Группы статусов</a>
                 <a asp-controller="Orders" asp-action="Orders2" class="list-group-item list-group-item-action bg-light">Заказы <span class="badge badge-danger" id="newOrdersSpan"></span></a>
                 <a asp-controller="AccountManagement" asp-action="Index" class="list-group-item list-group-item-action bg-light">Аккаунт</a>
@@ -178,7 +178,7 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
                         <li class="nav-item active">
-                            <a class="nav-link" asp-controller="Home" asp-action="Index">Bots</a>
+                            <a class="nav-link" asp-controller="MyBots" asp-action="MyBots">Bots</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Orders" asp-action="Orders2">Orders</a>

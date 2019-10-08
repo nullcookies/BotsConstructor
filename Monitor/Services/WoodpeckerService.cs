@@ -14,10 +14,9 @@ namespace Monitor.Services
         public WoodpeckerService(StupidLogger logger)
         {
             _logger = logger;
-            _logger.Log(LogLevel.INFO,Source.MONITOR,"Старт сервиса для пингования монитором");
         }
         
-        private List<string> _targetUrls = new List<string>()
+        private List<string> _targetUrls = new List<string>
         {
             //forest
             "http://localhost:8080/MonitorNegotiator/Ping",
@@ -28,18 +27,17 @@ namespace Monitor.Services
 
         public async void StartPingAsync(int delaySec = 1, List<string> targetUrls= null)
         {
+            _logger.Log(LogLevel.INFO,Source.MONITOR,"Старт сервиса для пингования монитором");
+
             _isWorking = true;
             
-            if (targetUrls != null && targetUrls.Count>0)
-            {
-                _targetUrls = targetUrls;
-            }
-            
+            if (targetUrls != null && targetUrls.Count>0) _targetUrls = targetUrls;
+
             while (true)
             {
                 if(!_isWorking)
                     break;
-
+                
                 foreach (var url in _targetUrls)
                 {
                     try

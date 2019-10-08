@@ -1,5 +1,3 @@
-using System;
-
 namespace Monitor.Models
 {
     public class ErrorViewModel
