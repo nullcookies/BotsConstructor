@@ -30,7 +30,7 @@ namespace Website.Controllers
 		}
 
 		//Кол-во записей на странице
-		const int pageSize = 12;
+		const int pageSize = 10;
 
         [HttpGet]
         public async Task SetWebsocketOrdersCount()
@@ -165,8 +165,9 @@ namespace Website.Controllers
 					order.OrderStatusId = statusId;
 					_contextDb.Update(order);
 					_contextDb.SaveChanges();
-					var orderInfo = _contextDb.Orders.Where(_order => _order.Id == orderId).Select(_order => new { _order.SenderId, _order.OrderStatus.Message, _order.Bot.Token }).SingleOrDefault();
-					string url = "https://api.telegram.org/bot" + orderInfo.Token + "/sendMessage";
+                    var orderInfo = _contextDb.Orders.Where(_order => _order.Id == orderId).Select(_order => new { _order.SenderId, _order.OrderStatus.Message, _order.Bot.Token }).SingleOrDefault();
+                    if (string.IsNullOrWhiteSpace(orderInfo?.Message)) return GetNewOrdersCount();
+                    string url = "https://api.telegram.org/bot" + orderInfo.Token + "/sendMessage";
 					string data = "chat_id=" + orderInfo.SenderId + "&text=" + System.Web.HttpUtility.UrlEncode(orderInfo.Message);
 					var sending = Stub.SendPostAsync(url, data);
 					return sending.ContinueWith((task) => task.IsCompletedSuccessfully ? GetNewOrdersCount() : StatusCode(403, "Can't send message: " + task.Exception?.Message)).Result;

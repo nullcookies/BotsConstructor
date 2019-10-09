@@ -57,6 +57,7 @@ namespace Website.Controllers
             }
 
             var jArrGroups = JsonConvert.DeserializeObject<JArray>(json);
+            var groupList = new List<OrderStatusGroup>(jArrGroups.Count);
 
             foreach (var jGroup in jArrGroups)
             {
@@ -66,6 +67,7 @@ namespace Website.Controllers
                     Name = (string)jGroup["name"],
                     IsOld = (bool)jGroup["isOld"]
                 };
+                groupList.Add(group);
 
                 var jArrStatuses = (JArray)jGroup["statuses"];
                 var statuses = new OrderStatus[jArrStatuses.Count];
@@ -112,7 +114,14 @@ namespace Website.Controllers
 
             _context.SaveChanges();
 
-            return Ok();
+            var statusGroupsIds = groupList
+                .Select(group => new
+                {
+                    group.Id,
+                    StatusesIds = group.OrderStatuses.Select(status => status.Id).ToArray()
+                });
+
+            return Json(statusGroupsIds);
         }
 
     }
