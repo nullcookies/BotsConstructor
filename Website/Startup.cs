@@ -25,11 +25,8 @@ namespace Website
         private readonly IHostingEnvironment _environment;
         public Startup(IConfiguration configuration, IHostingEnvironment environment)
         {
-            Configuration = configuration;
             _environment = environment;
         }
-
-        private IConfiguration Configuration { get; }
 
         public void ConfigureServices(IServiceCollection services)
         {
@@ -79,8 +76,8 @@ namespace Website
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
               .AddCookie(options =>
               {
-                  options.LoginPath = new Microsoft.AspNetCore.Http.PathString("/SignIn/Login");
-                  options.AccessDeniedPath = new Microsoft.AspNetCore.Http.PathString("/SignIn/Login");
+                  options.LoginPath = new PathString("/SignIn/Login");
+                  options.AccessDeniedPath = new PathString("/SignIn/Login");
               });
         }
 
@@ -89,7 +86,6 @@ namespace Website
             IHostingEnvironment env,
             ApplicationContext _contextDb,
             TotalLog totalLog,
-            //MoneyCollectorService moneyCollectorService,
             SimpleLogger logger)
         {
 
@@ -136,18 +132,14 @@ namespace Website
             app.Use((context, next) =>
             {
 
-                var userLangs = context.Request.Headers["Accept-Language"].ToString();
-                var firstLang = userLangs.Split(',').FirstOrDefault();
+                var userLanguages = context.Request.Headers["Accept-Language"].ToString();
+                var firstLang = userLanguages.Split(',').FirstOrDefault();
 
                 string lang = "";
-                if (firstLang.ToLower().Contains("ru"))
-                {
+                if (firstLang != null && firstLang.ToLower().Contains("ru"))
                     lang = "ru";
-                }
                 else
-                {
                     lang = "en";
-                }
 
 
                 //switch culture
@@ -177,8 +169,7 @@ namespace Website
             });
 
 
-
-            //как это засунуть в Middleware?
+            
             app.Use(async (context, next) =>
             {
                 totalLog.Log(context);
@@ -192,24 +183,9 @@ namespace Website
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Main}/{action=Index}/{id?}");
-
-                routes.MapRoute(
-                    name: "areas",
-                    template: "{area:exists}/{controller=Home}/{action=Index}/{id?}"
-                );
-
             });
 
         }
     }
 }
-
-
-////Политика настраивается в Startup
-//[Authorize(Policy = "OnlyForAdmins")]
-//public IActionResult IndexAdmin()
-//{
-//    return Content("Проверка пройдена");
-//}
-
 

@@ -16,15 +16,7 @@ namespace DataLayer
             Database=CombatVersion0008_guid=02u2h2-f2f2f2-frvebrtc;
             Integrated Security=true;
             Pooling=true;";
-
-//        private static string DevelopmentConnectionString =
-//            @"User ID = postgres;
-//            Password=3t0ssszheM3G4MMM0Ch~n`yparollb_wubfubrkmdbwiyro38;
-//            Server=54.89.247.235;
-//            Port=5432;
-//            Database=Dev_R_04_10_2019_2;
-//            Integrated Security=true;
-//            Pooling=true;";
+        
 
         private static readonly string ConnectionString;
 
@@ -35,7 +27,7 @@ namespace DataLayer
                 {"User ID", "postgres"},
                 {"Password", "3t0ssszheM3G4MMM0Ch~n`yparollb_wubfubrkmdbwiyro38" },
                 { "Port", 5432 },
-                { "Database", "MainDB001" },
+                { "Database", "Ruslan_09_10_2019_number1" },
                 { "Integrated Security", true },
                 { "Pooling", true }
             };

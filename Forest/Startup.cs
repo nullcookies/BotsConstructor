@@ -51,7 +51,7 @@ namespace Forest
                 
             logger.Log(
                 LogLevel.IMPORTANT_INFO,
-                Source.WEBSITE,
+                Source.FOREST,
                 "Запуск сервера леса");
 
             botStatisticsSynchronizer.Start();
@@ -70,7 +70,7 @@ namespace Forest
 
             logger.Log(
                 LogLevel.IMPORTANT_INFO,
-                Source.WEBSITE,
+                Source.FOREST,
                 "Запуск сервера леса закончен");
         }
     }

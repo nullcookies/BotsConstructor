@@ -45,7 +45,7 @@ namespace Website.Controllers.SignInUpOut
             [FromQuery(Name = "hash")]       string hash)
         {
             //@bots_constructor_bot
-            string botToken = "913688656:AAGIJK2GQLFZTDGWjUX8jV5aPujLoHSiSus";
+            string botToken = "913688656:AAH5l-ZAOmpI5MDqcq3ye1M1CF8ESF-Bms8";
 
             List<string> myList = new List<string>
             {
