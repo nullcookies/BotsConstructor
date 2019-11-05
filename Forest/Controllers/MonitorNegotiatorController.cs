@@ -20,27 +20,27 @@ namespace Forest.Controllers
             return Ok();
         }
 
-//        [HttpPost]
-//        public IActionResult BotIsHere(int botId)
-//        {
-//            JObject jsonAnswer;
-//            
-//            var bot = _contextDb.Bots.Find(botId);
-//            if (bot == null)
-//            {
-//                jsonAnswer = new JObject {{"success", false}, {"failMessage", "В базе данных нет бота с таким id"}};
-//                return Json(jsonAnswer);
-//            }
-//            
-//            string botUsername = bot.BotName;
-//            bool botIsHere = BotsStorage.BotsDictionary.Keys.Contains(botUsername);
-//
-//            if (botIsHere)
-//                jsonAnswer = new JObject {{"success", true}};
-//            else
-//                jsonAnswer = new JObject {{"success", false}, {"failMessage", "Такого бота нет в этом лесу"}};
-//
-//            return Json(jsonAnswer);
-//        }
+        [HttpPost]
+        public IActionResult BotIsHere(int botId)
+        {
+            JObject jsonAnswer;
+            
+            var bot = _contextDb.Bots.Find(botId);
+            if (bot == null)
+            {
+                jsonAnswer = new JObject {{"success", false}, {"failMessage", "В базе данных нет бота с таким id"}};
+                return Json(jsonAnswer);
+            }
+            
+            string botUsername = bot.BotName;
+            bool botIsHere = BotsStorage.BotsDictionary.Keys.Contains(botUsername);
+
+            if (botIsHere)
+                jsonAnswer = new JObject {{"success", true}};
+            else
+                jsonAnswer = new JObject {{"success", false}, {"failMessage", "Такого бота нет в этом лесу"}};
+
+            return Json(jsonAnswer);
+        }
     }
 }

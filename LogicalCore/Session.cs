@@ -59,7 +59,7 @@ namespace LogicalCore
 			vars.SetVar("Me", $"[{User.FirstName} {User.LastName}](tg://user?id={User.Id})\n");
         }
 
-        public Session(int id, BotWrapper botWrapper) : this(botWrapper.MegaTree.root, id, botWrapper) { }
+       // public Session(int id, BotWrapper botWrapper) : this(botWrapper.MegaTree.root, id, botWrapper) { }
 
         public void TakeControl(Message message)
         {

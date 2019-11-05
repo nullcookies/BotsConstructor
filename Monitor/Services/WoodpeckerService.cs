@@ -6,6 +6,9 @@ using MyLibrary;
 
 namespace Monitor.Services
 {
+    /// <summary>
+    /// Проверяет наличие серверов другого типа путём отправки им http запросов
+    /// </summary>
     public class WoodpeckerService
     {
         private bool _isWorking;
@@ -25,19 +28,16 @@ namespace Monitor.Services
         };
 
 
-        public async void StartPingAsync(int delaySec = 1, List<string> targetUrls= null)
+        public async void StartPingAsync(int delaySec = 10, List<string> targetUrls= null)
         {
             _logger.Log(LogLevel.INFO,Source.MONITOR,"Старт сервиса для пингования монитором");
-
             _isWorking = true;
-            
             if (targetUrls != null && targetUrls.Count>0) _targetUrls = targetUrls;
-
+            
             while (true)
             {
                 if(!_isWorking)
                     break;
-                
                 foreach (var url in _targetUrls)
                 {
                     try
@@ -57,9 +57,7 @@ namespace Monitor.Services
                             ex:exception);
                     }
                 }
-
                 await Task.Delay(1000 * delaySec);
-
             }
         }
 

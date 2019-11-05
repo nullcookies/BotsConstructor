@@ -1,0 +1,151 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="FullSignature">
+  <Class Name="LogicalCore.BaseTextMessagesManager" Collapsed="true">
+    <Position X="3" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAECAAAAEAAAAAgAAAAAAAAAAAAAACAAABAAAAAAAAA=</HashCode>
+      <FileName>BaseTextMessagesManager.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LogicalCore.BotOwner" Collapsed="true">
+    <Position X="8.5" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAgAAAASAAAAEAAAAAAAAAAAAAAACAAEAAAgA=</HashCode>
+      <FileName>BotOwner.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LogicalCore.BotWrapper" Collapsed="true">
+    <Position X="6" Y="9.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>RIAAgAAICACAAQAAAgEUAAAAASAAACABIAAAAAAAAAA=</HashCode>
+      <FileName>BotWrapper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LogicalCore.BotStatisticsForest" Collapsed="true">
+    <Position X="10.25" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAAAAABAAACAAAAgAAAAAACAAAAAAIAACAAAAAQAAA=</HashCode>
+      <FileName>BotWrapper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LogicalCore.StupidBotAntispam" Collapsed="true">
+    <Position X="13.75" Y="10" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ACAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAQAAAAAAA=</HashCode>
+      <FileName>BotWrapper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LogicalCore.ButtonIdManager" Collapsed="true">
+    <Position X="12" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAQAAAAAAAAAAAAAAAgAIAAAAAAgAAAAEAAAAAAA=</HashCode>
+      <FileName>ButtonIdManager.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LogicalCore.ConsoleWriter" Collapsed="true">
+    <Position X="13.75" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAIAAAAAAAAAAAAAAQAAAAAAAEAAAA=</HashCode>
+      <FileName>ConsoleWriter.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LogicalCore.DefaultStrings" Collapsed="true">
+    <Position X="8.5" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAIIAAAAKAkAEAAAEEAAKAAAAIAAEAAAA=</HashCode>
+      <FileName>DefaultStrings.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LogicalCore.LocationManager" Collapsed="true">
+    <Position X="13.75" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ElementsLocation.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LogicalCore.EmptyBot" Collapsed="true">
+    <Position X="6" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gIAAAAAAgAAAERAAAAQQAAAAAAgAAACAIACAAAAABEI=</HashCode>
+      <FileName>EmptyBot.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LogicalCore.GlobalFilter" Collapsed="true">
+    <Position X="10.25" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAEAAAAAABQ=</HashCode>
+      <FileName>GlobalFilter.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LogicalCore.KeyboardActionsManager" Collapsed="true">
+    <Position X="12" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>KeyboardActionsManager.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LogicalCore.MegaTree" Collapsed="true">
+    <Position X="8.5" Y="10" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAACCAgAAAAAAAAAIEAAAAAAEAAAAA=</HashCode>
+      <FileName>MegaTree.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LogicalCore.MultiarraysToIEnumerable" Collapsed="true">
+    <Position X="10.25" Y="10" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAASAAACAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>MultiarraysToIEnumerable.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LogicalCore.Session" Collapsed="true">
+    <Position X="12" Y="10" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAABEEAAiABABAgBAgAAAgAAEQEAAAABSAAEAFAABAA=</HashCode>
+      <FileName>Session.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LogicalCore.TextMessagesManager" Collapsed="true">
+    <Position X="3" Y="9.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAEAAAAAAAAgAAAAAAAAAAAAACAAABAAACAAAAA=</HashCode>
+      <FileName>TextMessagesManager.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LogicalCore.UniversalOrderContainer" Collapsed="true">
+    <Position X="8.5" Y="11" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAAAAAAAAAAACAAAAAAEAAAIAAAAAAAEAAAAAAAAAIA=</HashCode>
+      <FileName>UniversalOrderContainer.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LogicalCore.UniversalTranslator" Collapsed="true">
+    <Position X="10.25" Y="11" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>UniversalTranslator.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LogicalCore.VariablesContainer" Collapsed="true">
+    <Position X="12" Y="11" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAAAAAAAAAAAAAAAAgAAAAAAEAgAAAAAAAAIAAAAAIA=</HashCode>
+      <FileName>VariablesContainer.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Interface Name="LogicalCore.IOrdersSendable" Collapsed="true">
+    <Position X="8.5" Y="12.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>IOrdersSendable.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Enum Name="LogicalCore.ElementsLocation" Collapsed="true">
+    <Position X="8.5" Y="13.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAACBAAAAAAAAAAAAAAAAAAAQAAAABAAAEAAAAAQgQ=</HashCode>
+      <FileName>ElementsLocation.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

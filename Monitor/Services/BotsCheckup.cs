@@ -9,6 +9,10 @@ using Newtonsoft.Json.Linq;
 
 namespace Monitor.Services
 {
+    /// <summary>
+    /// Проверяет наличие ботов в лесах.
+    /// Запрашивает убийство бота, если синхронизация не удалась.
+    /// </summary>
     public class BotsCheckup
     {
         private bool _isWorking;
@@ -18,44 +22,35 @@ namespace Monitor.Services
         {
             _logger = logger;
         }
-
-
-        public async void StartCheckupAsync(int delaySec = 1, List<string> targetUrls= null)
+        
+        public async void StartCheckupAsync(int delaySec = 10, List<string> targetUrls= null)
         {
             _logger.Log(LogLevel.INFO,Source.MONITOR,"Старт сервиса для проверки работы ботов");
-
             _isWorking = true;
             
             while (true)
             {
                 if(!_isWorking)
                     break;
-
                 await Task.Delay(1000 * delaySec);
-                
                 var contextDb = new DbContextFactory().GetNewDbContext();
-                
                 var routeRecords = contextDb.RouteRecords.ToArray();
-
                 if (routeRecords.Length == 0)
                 {
                     _logger.Log(LogLevel.INFO,Source.MONITOR,"При проверке работоспособности ботов в лесах монитором в таблице ботов не было найдено ни одного");
                     continue;
                 }
-                
                 foreach (var routeRecord in routeRecords)
                 {
                     string link = routeRecord.ForestLink + "/MonitorNegotiator/BotIsHere";
                     try
                     {
                         await Checkup(link, routeRecord.BotId);
-                        
                         _logger.Log(
                             LogLevel.INFO,
                             Source.MONITOR,
                             $"Успешная проверка наличия бота в лесу. " +
                             $"botId={routeRecord.BotId} url={link}");
-                        
                     }
                     catch (Exception exception)
                     {
@@ -71,8 +66,6 @@ namespace Monitor.Services
                         contextDb.SaveChanges();
                     }
                 }
-
-
             }
         }
 

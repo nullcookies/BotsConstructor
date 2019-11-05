@@ -27,7 +27,7 @@ namespace DataLayer
                 {"User ID", "postgres"},
                 {"Password", "3t0ssszheM3G4MMM0Ch~n`yparollb_wubfubrkmdbwiyro38" },
                 { "Port", 5432 },
-                { "Database", "Ruslan_09_10_2019_number1" },
+                { "Database", "Ruslan_05_11_2019_number1" },
                 { "Integrated Security", true },
                 { "Pooling", true }
             };
@@ -39,7 +39,7 @@ namespace DataLayer
             else
             {
                 conStrBuilder["Database"] += "Dev";
-                conStrBuilder.Add("Server", "3.91.239.153");
+                conStrBuilder.Add("Server", "54.209.245.213");
             }
 
             ConnectionString = conStrBuilder.ConnectionString;
