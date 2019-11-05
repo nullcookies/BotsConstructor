@@ -6,20 +6,8 @@ namespace DataLayer
 {
     public class DbContextFactory
     {
-
-        
-        private  static string ReleaseConnectionString =
-            @"User ID = postgres;
-            Password=3t0ssszheM3G4MMM0Ch~n`yparollb_wubfubrkmdbwiyro38;
-            Server=127.0.0.1;
-            Port=5432;
-            Database=CombatVersion0008_guid=02u2h2-f2f2f2-frvebrtc;
-            Integrated Security=true;
-            Pooling=true;";
-        
-
         private static readonly string ConnectionString;
-
+        
         static DbContextFactory()
         {
             var conStrBuilder = new DbConnectionStringBuilder
@@ -27,7 +15,7 @@ namespace DataLayer
                 {"User ID", "postgres"},
                 {"Password", "3t0ssszheM3G4MMM0Ch~n`yparollb_wubfubrkmdbwiyro38" },
                 { "Port", 5432 },
-                { "Database", "Ruslan_05_11_2019_number1" },
+                { "Database", "MainDB001" },
                 { "Integrated Security", true },
                 { "Pooling", true }
             };
@@ -41,20 +29,13 @@ namespace DataLayer
                 conStrBuilder["Database"] += "Dev";
                 conStrBuilder.Add("Server", "54.209.245.213");
             }
-
             ConnectionString = conStrBuilder.ConnectionString;
         }
 
-        public static string GetConnectionString()
-        {
-            return ConnectionString;
-        }
- 
+        public static string GetConnectionString() => ConnectionString;
 
         public  ApplicationContext GetNewDbContext()
         {
-            string connectionString = ReleaseConnectionString;
-            
             return new ApplicationContext(
                 new DbContextOptionsBuilder<ApplicationContext>()
                     .UseNpgsql(GetConnectionString())
