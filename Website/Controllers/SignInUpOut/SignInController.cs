@@ -144,15 +144,13 @@ namespace Website.Controllers.SignInUpOut
 
         private void Authenticate(Account user)
         {
-            //OPTIMIZATION убрать отсюда запрос к базе
+
             string userRoleName = _context.AuthRoles.First(role => role.Id == user.RoleTypeId).Name;
 
             var claims = new List<Claim>
             {
-                new Claim("userId", user.Id.ToString())
-
-                //new Claim(ClaimsIdentity.DefaultRoleClaimType, userRoleName),
-                //new Claim("testType", "testValue")
+                new Claim("userId", user.Id.ToString()),
+                new Claim(ClaimsIdentity.DefaultNameClaimType, user.Name)
             };
 
             
