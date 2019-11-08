@@ -1,0 +1,29 @@
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@{
+    ViewData["Title"] = "Примеры ботов";
+}
+
+
+
+
+<div class="row">
+    <div class="col-4">
+        <div class="list-group" id="list-tab" role="tablist">
+            <a class="list-group-item list-group-item-action active" id="list-home-list" data-toggle="list" href="#list-home" role="tab" aria-controls="home">Расписание группы</a>
+            <a class="list-group-item list-group-item-action" id="list-profile-list" data-toggle="list" href="#list-profile" role="tab" aria-controls="profile">Бот для преподавателя</a>
+            <a class="list-group-item list-group-item-action" id="list-messages-list" data-toggle="list" href="#list-messages" role="tab" aria-controls="messages">Бот для пиццерии</a>
+            <a class="list-group-item list-group-item-action" id="list-settings-list" data-toggle="list" href="#list-settings" role="tab" aria-controls="settings">Бот для учреждения</a>
+            <a class="list-group-item list-group-item-action" id="list-proposal-list" data-toggle="list" href="#list-proposal" role="tab" aria-controls="proposal">Бот для предложки</a>
+        </div>
+    </div>
+    <div class="col-8">
+        <div class="tab-content" id="nav-tabContent">
+            <div class="tab-pane fade show active" id="list-home" role="tabpanel" aria-labelledby="list-home-list"><a href="https://telegram.me/example_schedule_bot" target="_blank">@@example_schedule_bot</a> — роскошный бот, который поможет вам моментально получать доступ к информации </div>
+            <div class="tab-pane fade" id="list-profile" role="tabpanel" aria-labelledby="list-profile-list"><a href="https://telegram.me/kpi_fict_halushko_bot" target="_blank">@@kpi_fict_halushko_bot</a>  тут нужно написать что-то умное</div>
+            <div class="tab-pane fade" id="list-messages" role="tabpanel" aria-labelledby="list-messages-list"><a href="https://telegram.me/my_pizzeria_bot" target="_blank">@@my_pizzeria_bot</a> тут тоже</div>
+            <div class="tab-pane fade" id="list-settings" role="tabpanel" aria-labelledby="list-settings-list"><a href="https://telegram.me/example_institution_bot" target="_blank">@@example_institution_bot</a></div>
+            <div class="tab-pane fade" id="list-proposal" role="tabpanel" aria-labelledby="list-proposal-list"><a href="https://telegram.me/example_proposal_bot" target="_blank">@@example_proposal_bot</a> можно отправлять новости или предолжения</div>
+        </div>
+    </div>
+</div>
