@@ -8,7 +8,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Website</title>
+    <title>@ViewData["Title"] - Bots Constructor</title>
 
     <environment include="Development">
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
@@ -39,7 +39,7 @@
 
             @if (Context.User.Identity.IsAuthenticated)
             {
-                <a class="btn btn-outline-primary m-1" asp-controller="SignIn" asp-action="Login">@Localizer["ChangeLogin"]</a>
+                <a class="btn btn-outline-primary m-1" asp-controller="SignIn" asp-action="ChangeLogin">@Localizer["ChangeLogin"]</a>
                 <a class="btn btn-outline-primary m-1" asp-controller="MyBots" asp-action="MyBots">@Localizer["LoginAs"] @User.Identity.Name</a>
             }
             else
