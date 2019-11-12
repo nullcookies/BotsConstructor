@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Telegram.Bot.Types;
 
 namespace LogicalCore
@@ -9,16 +10,16 @@ namespace LogicalCore
     /// </summary>
     public class GlobalFilter
     {
-        private readonly Dictionary<string, Action<Session, Message>> messageActions;
-        private readonly Dictionary<string, Action<Session, CallbackQuery>> callbackActions;
+        private readonly Dictionary<string, Func<Session, Message, Task>> messageFuncs;
+        private readonly Dictionary<string, Func<Session, CallbackQuery, Task>> callbackFuncs;
 
         public GlobalFilter()
         {
-            messageActions = new Dictionary<string, Action<Session, Message>>()
+            messageFuncs = new Dictionary<string, Func<Session, Message, Task>>()
             {
-                {"/start", (session, message) =>
+                {"/start", async (session, message) =>
                     {
-                        session.BotClient.SendTextMessageAsync(
+                        await session.BotClient.SendTextMessageAsync(
                             message.Chat.Id,
                             session.Translate("Hello"));
 
@@ -44,23 +45,24 @@ namespace LogicalCore
 						}
 					}
                 },
-                {"/shotam", (session, message) =>
+                {"/shotam", async (session, message) =>
                     {
-                        session.BotClient.SendStickerAsync(
+                        await session.BotClient.SendStickerAsync(
                             message.Chat.Id,
                             "CAADAgADBwADuD87Gip7Mrcgkf0TAg");
                     }
                 }
             };
 
-            callbackActions = new Dictionary<string, Action<Session, CallbackQuery>>()
+            callbackFuncs = new Dictionary<string, Func<Session, CallbackQuery, Task>>()
             {
                 //Переход к узлу
-                {DefaultStrings.GOTO, (session, callbackQuerry) =>
+                {DefaultStrings.GOTO, async (session, callbackQuerry) =>
                     {
                         int nodeId = ButtonIdManager.GetIDFromCallbackData(callbackQuerry.Data);
                         Node node = session.MegaTree.GetNodeById(nodeId);
-                        session.GoToNode(node);
+                        session.GoToNode(node, out var task);
+                        await task;
                     }
                 },
                 //Вызов при нажатии влево/вправо в глобальной листалке или на текущем узле
@@ -75,7 +77,7 @@ namespace LogicalCore
                         }
                         else
                         {
-							//await session.BotClient.EditMessageTextAsync(session.telegramId, callbackQuerry.Message.MessageId, session.Translate("Error"));
+							await session.BotClient.EditMessageTextAsync(session.telegramId, callbackQuerry.Message.MessageId, session.Translate("Error"));
                         }
                     }
                 },
@@ -116,7 +118,7 @@ namespace LogicalCore
                     }
                 },
                 // Вызов при обработке нажатия владельцем
-                {DefaultStrings.OWNER, (session, callbackQuerry) =>
+                {DefaultStrings.OWNER, async (session, callbackQuerry) =>
                     {
                         BotOwner botOwner = session.BotOwner;
                         if(session == botOwner.Session)
@@ -130,17 +132,17 @@ namespace LogicalCore
                             }
                             else
                             {
-                                session.BotClient.SendTextMessageAsync(callbackQuerry.Message.Chat.Id, session.Translate("ThisCommandIsUnknown") + " ActionId=" + actionId);
+                                await session.BotClient.SendTextMessageAsync(callbackQuerry.Message.Chat.Id, session.Translate("ThisCommandIsUnknown") + " ActionId=" + actionId);
                             }
                         }
                         else
                         {
-                            session.BotClient.SendTextMessageAsync(callbackQuerry.Message.Chat.Id, session.Translate("ThisCommandIsUnknown") + " ActionId=" + DefaultStrings.OWNER);
+                            await session.BotClient.SendTextMessageAsync(callbackQuerry.Message.Chat.Id, session.Translate("ThisCommandIsUnknown") + " ActionId=" + DefaultStrings.OWNER);
                         }
                     }
                 },
                 // Заглушка, когда необходимо по нажатию на кнопку ничего не делать и при этом не отправлять сообщение об ошибке
-                {DefaultStrings.DONOTHING, (session, callbackQuerry) => { }}
+                {DefaultStrings.DONOTHING, async (session, callbackQuerry) => { }}
             };
         }
 
@@ -148,34 +150,58 @@ namespace LogicalCore
 
         public void Filter(Session session, Message message)
         {
-            string key = message.Text?.Trim() ?? "";
-            int indexOfCommandEnd = key.IndexOf(' ');
-            if (indexOfCommandEnd < 0) indexOfCommandEnd = key.Length;
-            key = key.Substring(0, indexOfCommandEnd);
+            try
+            {
+                string key = message.Text?.Trim() ?? "";
+                int indexOfCommandEnd = key.IndexOf(' ');
+                if (indexOfCommandEnd < 0) indexOfCommandEnd = key.Length;
+                key = key.Substring(0, indexOfCommandEnd);
 
-            if (messageActions.TryGetValue(key, out var action))
-            {
-                action.Invoke(session, message);
+                if (messageFuncs.TryGetValue(key, out var func))
+                {
+                    func.Invoke(session, message).Wait();
+                }
+                else
+                {
+                    session.BotClient.SendTextMessageAsync(session.telegramId, session.Translate("ThisCommandIsUnknown")).Wait();
+                    session.GoToNode(session.CurrentNode);
+                }
             }
-            else
+            catch (Exception e)
             {
-				session.BotClient.SendTextMessageAsync(session.telegramId, session.Translate("ThisCommandIsUnknown"));
-				session.GoToNode(session.CurrentNode);
-			}
+                ConsoleWriter.WriteLine("Не удалось обработать сообщение: " + e.Message, ConsoleColor.Red);
+            }
         }
 
         public void Filter(Session session, CallbackQuery callbackQuerry)
         {
-            string key = ButtonIdManager.GetActionNameFromCallbackData(callbackQuerry.Data);
+            try
+            {
+                string key = ButtonIdManager.GetActionNameFromCallbackData(callbackQuerry.Data);
 
-            if (callbackActions.TryGetValue(key, out var action))
-            {
-                action.Invoke(session, callbackQuerry);
+                if (callbackFuncs.TryGetValue(key, out var func))
+                {
+                    func.Invoke(session, callbackQuerry).Wait();
+                }
+                else
+                {
+                    session.BotClient.EditMessageTextAsync(session.telegramId, callbackQuerry.Message.MessageId, session.Translate("Error")).Wait();
+                }
             }
-            else
+            catch (Exception)
             {
-				session.BotClient.EditMessageTextAsync(session.telegramId, callbackQuerry.Message.MessageId, session.Translate("Error"));
-			}
+                try
+                {
+                    session.BotClient.DeleteMessageAsync(session.telegramId, callbackQuerry.Message.MessageId).Wait();
+                    session.GoToNode(session.CurrentNode);
+                }
+                catch (Exception e)
+                {
+                    ConsoleWriter.WriteLine("Не удалось удалить сообщение: " + e.Message, ConsoleColor.Red);
+                }
+
+                session.BotClient.SendTextMessageAsync(session.telegramId, session.Translate("ThisCommandIsUnknown"));
+            }
         }
     }
 }
