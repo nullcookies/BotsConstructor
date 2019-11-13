@@ -115,7 +115,6 @@ namespace Forest.Services
 
                 #endregion
 
-
                 #region Обновление списка пользователей в бд
                 var dbBotUsers = allBotsUsers
                     .Where(_record => _record.BotUsername == botUsername)
