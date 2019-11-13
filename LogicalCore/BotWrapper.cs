@@ -257,10 +257,8 @@ namespace LogicalCore
         } 
         public long NumberOfMessages
         {
-            get
-            {
-                return _numberOfMessages;
-            }
+            get => _numberOfMessages;
+            set => _numberOfMessages = value;
         }
 
         public void UpdateStatistics(int userTelegramId)
