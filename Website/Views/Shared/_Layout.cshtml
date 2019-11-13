@@ -27,9 +27,9 @@
 
         <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm container">
             <h5 class="my-0 mr-md-auto font-weight-normal"> <a class="text-reset" asp-controller="Main" asp-action="Index">@Localizer["Bots constructor"]</a></h5>
-             <nav class="my-2 my-md-0 mr-md-3"> 
-            @*     $1$ <a class="p-2 text-dark" asp-area="" asp-controller="Home" asp-action="Index">@Localizer["Home"]</a> #1# *@
+             <nav class="my-2 my-md-0 mr-md-3">
                 <a class="p-2 text-dark" asp-area="" asp-controller="BotExamples" asp-action="Index">Примеры ботов <span class="badge badge-primary">New</span></a> 
+                <a class="p-2 text-dark" asp-area="" asp-controller="Pricing" asp-action="Index">Ценообразование<span class="badge badge-primary">Деньги</span></a> 
              </nav> 
 
             @if (HostingEnvironment.IsDevelopment())
