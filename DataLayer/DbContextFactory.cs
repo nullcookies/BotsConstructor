@@ -42,5 +42,12 @@ namespace DataLayer
                     .UseNpgsql(GetConnectionString())
                     .Options);
         }
+        public static ApplicationContext GetNewDbContext(string connectionString)
+        {
+            return new ApplicationContext(
+                new DbContextOptionsBuilder<ApplicationContext>()
+                    .UseNpgsql(connectionString)
+                    .Options);
+        }
     }
 }

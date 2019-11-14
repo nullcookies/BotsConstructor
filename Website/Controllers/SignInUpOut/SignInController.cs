@@ -8,6 +8,7 @@ using DataLayer;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using Website.Services;
 using Website.ViewModels;
 
 namespace Website.Controllers.SignInUpOut
@@ -15,10 +16,12 @@ namespace Website.Controllers.SignInUpOut
     public class SignInController : Controller
     {
         private readonly ApplicationContext _context;
+        private readonly SignInService _signInService;
 
-        public SignInController(ApplicationContext context)
+        public SignInController(ApplicationContext context, SignInService signInService)
         {
             _context = context;
+            _signInService = signInService;
         }
         
         [HttpGet]
@@ -126,25 +129,19 @@ namespace Website.Controllers.SignInUpOut
         {
             if (ModelState.IsValid)
             {
-                Account account = _context.Accounts
-                    .FirstOrDefault(a => a.Email == model.Email && a.Password == model.Password);
-
-                if (account != null)
+                bool verificationPassed = _signInService.IsVerificationPassed(model, out Account account);
+                if (verificationPassed)
                 {
                     Authenticate(account);
-
                     return RedirectToAction("MyBots", "MyBots");
                 }
-
                 ModelState.AddModelError("", "Некорректные логин и(или) пароль ");
             }
-
             return View(model);
         }
 
         private void Authenticate(Account user)
         {
-
             string userRoleName = _context.AuthRoles.First(role => role.Id == user.RoleTypeId).Name;
 
             var claims = new List<Claim>

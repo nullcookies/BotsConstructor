@@ -32,10 +32,11 @@ namespace Website.Services
         }
 
 
-        public bool SendEmailCheck(string email, string name, string link)
+        public virtual bool  SendEmailCheck(string email, string name, string link, string emailSender =null, string emailSenderPass=null)
         {
             email = email.Trim();
 
+            
             try
             {
                 if (!EmailIsValid(email))
@@ -46,13 +47,14 @@ namespace Website.Services
                 MailMessage mail = new MailMessage();
                 SmtpClient smtpServer = new SmtpClient("smtp.gmail.com");
 
-                mail.From = new MailAddress(Email, "Bots constructor");
+                mail.From = new MailAddress(emailSender??Email, "Bots constructor");
                 mail.To.Add(email);
                 mail.Subject = "Уведомление о регистрации";
                 mail.Body =  $"Поздравляем с регистрацией на платформе Interactive bots 🤗👍🏻\nДля подтверждения своего email перейдите по ссылке {link} .";
 
                 smtpServer.Port = 587;
-                smtpServer.Credentials = new System.Net.NetworkCredential(Email, EmailPassword);
+                
+                smtpServer.Credentials = new System.Net.NetworkCredential(emailSender??Email, emailSenderPass?? EmailPassword);
                 smtpServer.EnableSsl = true;
                 smtpServer.Send(mail);
            
@@ -61,7 +63,7 @@ namespace Website.Services
             }catch (Exception ex)
             {
                 _logger.Log(LogLevel.EMAIL_SEND_FAILURE,Source.WEBSITE, 
-                    $"Не удалось отправить email с данными для окончания регистрации. email={email}, name={name}, link={link}",ex:ex );
+                    $"Не удалось отправить email с данными для окончания регистрации. email={email}, name={name}, link={link} {ex.Message}",ex:ex );
                 
                 return false;
             }
