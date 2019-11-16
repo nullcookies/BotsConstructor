@@ -27,13 +27,14 @@
 
         <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm container">
             <h5 class="my-0 mr-md-auto font-weight-normal"> <a class="text-reset" asp-controller="Main" asp-action="Index">@Localizer["Bots constructor"]</a></h5>
-             <nav class="my-2 my-md-0 mr-md-3">
-                <a class="p-2 text-dark" asp-area="" asp-controller="BotExamples" asp-action="Index">Примеры ботов <span class="badge badge-primary">New</span></a> 
-                <a class="p-2 text-dark" asp-area="" asp-controller="Pricing" asp-action="Index">Цены<span class="badge badge-primary">Деньги</span></a> 
-             </nav> 
+           
 
             @if (HostingEnvironment.IsDevelopment())
             {
+                <nav class="my-2 my-md-0 mr-md-3">
+                    <a class="p-2 text-dark" asp-area="" asp-controller="BotExamples" asp-action="Index">Примеры ботов <span class="badge badge-primary">New</span></a> 
+                    <a class="p-2 text-dark" asp-area="" asp-controller="Pricing" asp-action="Index">Цены<span class="badge badge-primary">Деньги</span></a> 
+                </nav> 
                 <a class="p-2 text-dark" asp-area="" asp-controller="Test1" asp-action="Index">Тест</a>
             }
 
@@ -58,8 +59,8 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            <a class="p-2 text-dark text-muted" asp-controller="AboutCompany" asp-action="Index">О кампании</a>
-            <a class="text-muted"> Версия 0.0.1</a>
+            <a class="p-2 text-dark text-muted" asp-controller="Contacts" asp-action="Index">Контакты</a>
+            <a class="text-muted">Версия 1.1.4</a>
         </div>
     </footer>
 

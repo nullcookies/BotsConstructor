@@ -28,7 +28,7 @@ namespace DataLayer
             else
             {
                 conStrBuilder["Database"] += "Dev";
-                conStrBuilder.Add("Server", "54.209.245.213");
+                conStrBuilder.Add("Server", "34.201.118.95");
             }
             ConnectionString = conStrBuilder.ConnectionString;
         }
