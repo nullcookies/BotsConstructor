@@ -22,8 +22,6 @@ namespace Website.Controllers.Main
         [AllowAnonymous]
         public IActionResult Index()
         {
-            var www = HttpContext.Request.Headers ;
-            
             Console.WriteLine($"CurrentCulture:{CultureInfo.CurrentCulture.Name}, CurrentUICulture:{CultureInfo.CurrentUICulture.Name}");
             return View();
         }

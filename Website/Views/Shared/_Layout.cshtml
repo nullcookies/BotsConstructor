@@ -8,7 +8,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Bots Constructor</title>
+    <title>@ViewData["Title"]</title>
 
     <environment include="Development">
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
@@ -27,19 +27,20 @@
 
         <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm container">
             <h5 class="my-0 mr-md-auto font-weight-normal"> <a class="text-reset" asp-controller="Main" asp-action="Index">@Localizer["Bots constructor"]</a></h5>
-            @* <nav class="my-2 my-md-0 mr-md-3"> *@
-            @*     $1$ <a class="p-2 text-dark" asp-area="" asp-controller="Home" asp-action="Index">@Localizer["Home"]</a> #1# *@
-            @*     <a class="p-2 text-dark" asp-area="" asp-controller="News" asp-action="All">@Localizer["News"]</a> *@
-            @* </nav> *@
+           
 
             @if (HostingEnvironment.IsDevelopment())
             {
+                <nav class="my-2 my-md-0 mr-md-3">
+                    <a class="p-2 text-dark" asp-area="" asp-controller="BotExamples" asp-action="Index">Примеры ботов <span class="badge badge-primary">New</span></a> 
+                    <a class="p-2 text-dark" asp-area="" asp-controller="Pricing" asp-action="Index">Цены<span class="badge badge-primary">Деньги</span></a> 
+                </nav> 
                 <a class="p-2 text-dark" asp-area="" asp-controller="Test1" asp-action="Index">Тест</a>
             }
 
             @if (Context.User.Identity.IsAuthenticated)
             {
-                <a class="btn btn-outline-primary m-1" asp-controller="SignIn" asp-action="ChangeLogin">@Localizer["ChangeLogin"]</a>
+                <a class="btn btn-outline-primary m-1" asp-controller="SignIn" asp-action="Login">@Localizer["ChangeLogin"]</a>
                 <a class="btn btn-outline-primary m-1" asp-controller="MyBots" asp-action="MyBots">@Localizer["LoginAs"] @User.Identity.Name</a>
             }
             else
@@ -58,9 +59,8 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            @*&copy; 2019 - bots -<a asp-area="" asp-controller="Main" asp-action="Privacy">@Localizer["Privacy"]</a>*@ 
-            @*<a class="p-2 text-dark" href="#">@Localizer["Support"]</a>*@
-            Версия 0.0.0.0.3
+            <a class="p-2 text-dark text-muted" asp-controller="Contacts" asp-action="Index">Контакты</a>
+            <a class="text-muted">Версия 1.1.4</a>
         </div>
     </footer>
 

@@ -1,7 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
 @{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = Localizer["Bots constructor"];
 }
 
 <script src="~/lib/jquery/dist/jquery.js"></script>
@@ -15,53 +15,114 @@
 
    
     <div class="h4" style="text-align:justify;font-weight:400;">
-        <strong>Bots constructor</strong> — платформа, которая позволяет максимально простым образом создавать ботов для мессенджера Telegram. Такие боты могут быть использованы для оформления заказов, сбора отзывов или продвижения бизнеса другими способами.
-        <br />@*Ниже показаны примеры таких ботов.*@
+      @* <strong>Bots constructor</strong> — платформа для создания чат-ботов. *@
+      @* *@
+      @* Bots constructor — платформа, которая позволяет максимально простым образом создавать ботов для мессенджера Telegram.  *@
+      @* Такие боты могут быть использованы для оформления заказов, сбора отзывов или продвижения бизнеса другими способами. *@
+      @* *@
+
+      <strong >Bots constructor</strong> — это мощный продукт автоматизации, который позволяет вам быстро и просто создавать невероятных
+      чат-ботов, которые помогут вам общаться и взаимодействовать с вашими клиентами.
+      <br />
+      Правильное использование ботов помогает увеличивать продажи и сокращать стоимость за счёт автоматизации поддержки.
+      Быть в постоянном контакте с клиентом, помогать ему легко и оперативно узнавать о самых выгодных или индивидуальных предложениях — это те задачи, с которыми легко справляются боты.
+      <br />
     </div>
-   
+  
+  @* <div id="carouselExampleControls" class="carousel slide" data-ride="carousel" style="margin-top: 2rem;"> *@
+  @*   <div class="carousel-inner"> *@
+  @*     <div class="carousel-item active"> *@
+  @*       <img src="@Url.Content("images/фон.png")" class="d-block w-100" alt="..."> *@
+  @*     </div> *@
+  @*     <div class="carousel-item"> *@
+  @*       <img src="@Url.Content("images/wwwq — копия.png")" class="d-block w-100" alt="..."> *@
+  @*     </div> *@
+  @*     <div class="carousel-item"> *@
+  @*       <img src="@Url.Content("images/фон.png")" class="d-block w-100" alt="..."> *@
+  @*     </div> *@
+  @*   </div> *@
+  @*   <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev"> *@
+  @*     <span class="carousel-control-prev-icon" aria-hidden="true"></span> *@
+  @*     <span class="sr-only">Previous</span> *@
+  @*   </a> *@
+  @*   <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next"> *@
+  @*     <span class="carousel-control-next-icon" aria-hidden="true"></span> *@
+  @*     <span class="sr-only">Next</span> *@
+  @*   </a> *@
+  @* </div> *@
+  
+  <div class="row" style="margin-top: 100px;margin-bottom: 100px;">
+    <div class="col-4">
+      <div class="list-group" id="list-tab" role="tablist">
+        <a class="list-group-item list-group-item-action active" id="list-home-list" data-toggle="list" href="#list-home" role="tab" aria-controls="home">Расписание группы</a>
+        <a class="list-group-item list-group-item-action" id="list-profile-list" data-toggle="list" href="#list-profile" role="tab" aria-controls="profile">Бот для преподавателя</a>
+        <a class="list-group-item list-group-item-action" id="list-messages-list" data-toggle="list" href="#list-messages" role="tab" aria-controls="messages">Бот для пиццерии</a>
+        <a class="list-group-item list-group-item-action" id="list-settings-list" data-toggle="list" href="#list-settings" role="tab" aria-controls="settings">Бот для учреждения</a>
+        <a class="list-group-item list-group-item-action" id="list-proposal-list" data-toggle="list" href="#list-proposal" role="tab" aria-controls="proposal">Бот для предложки</a>
+      </div>
+    </div>
+    <div class="col-8">
+      <div class="tab-content" id="nav-tabContent">
+        <div class="text-justify tab-pane fade show active" id="list-home" role="tabpanel" aria-labelledby="list-home-list"><a href="https://telegram.me/example_schedule_bot" target="_blank">@@example_schedule_bot</a> — пример бота для расписания. Помогает хранить необходимую студентам и ученикам информацию о расписании и домашних заданиях, а также важных объявлениях.</div>
+        <div class="text-justify tab-pane fade" id="list-profile" role="tabpanel" aria-labelledby="list-profile-list"><a href="https://telegram.me/kpi_fict_halushko_bot" target="_blank">@@kpi_fict_halushko_bot</a> — бот, который может дополнить возможности преподавателя. В него можно добавить всю полезную информацию: время консультаций, домашние задания и важные объявления.</div>
+        <div class="text-justify tab-pane fade" id="list-messages" role="tabpanel" aria-labelledby="list-messages-list"><a href="https://telegram.me/my_pizzeria_bot" target="_blank">@@my_pizzeria_bot</a> — виртуальный ассистент для малого и среднего бизнеса. Позволяет делать заказы прямо через бота. Поддерживает возможность добавления и редактирования товаров с разными подтипами. Полученные заказы можно просмотреть и ответить на них через специальное меню заказов.</div>
+        <div class="text-justify tab-pane fade" id="list-settings" role="tabpanel" aria-labelledby="list-settings-list"><a href="https://telegram.me/example_institution_bot" target="_blank">@@example_institution_bot</a> — применение бота для небольших организаций. Позволяет удобно хранить важную информацию про события, контактные данные, время работы и FAQ.</div>
+        <div class="text-justify tab-pane fade" id="list-proposal" role="tabpanel" aria-labelledby="list-proposal-list"><a href="https://telegram.me/example_proposal_bot" target="_blank">@@example_proposal_bot</a> — бот, позволяющий быстро и просто отправлять новости или предолжения. Все отправленные сообщения будут сохранены и отображены в специальном меню, где их можно будет прочитать, ответить на них или же удалить.</div>
+      </div>
+    </div>
+  </div>
+  
+    
     <div class="container">
-        @*<div class="row m-1 justify-content-md-center">
-            <div class="col-sm-3 m-1 ">
-                <div class="embed-responsive " style="padding-top: 177%;">
-                    <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/4bRe4eQLKBM" frameborder="0" allowfullscreen></iframe>
-                </div>
-            </div>
-
-            <div class="col-sm-3 m-1 ">
-                <div class="embed-responsive " style="padding-top: 177%;">
-                    <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/4bRe4eQLKBM" frameborder="0" allowfullscreen></iframe>
-                </div>
-            </div>
-
-            <div class="col-sm-3 m-1">
-                <div class="embed-responsive " style="padding-top: 177%;">
-                    <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/4bRe4eQLKBM" frameborder="0" allowfullscreen></iframe>
-                </div>
-            </div>
-
-
-        </div>*@
-
-        @*<div class="row m-2">
-            <div class="col ">
-                <div class="embed-responsive embed-responsive-16by9">
-                    <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/nDawGQcH17E" frameborder="0" allowfullscreen></iframe>
-                </div>
-            </div>
-        </div>*@
-
-        <div class="row m-2">
-            <div class="col ">
-                <div class="embed-responsive embed-responsive-16by9">
-                    <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/zUc8RN0OmgA" frameborder="0" allowfullscreen></iframe>
-                </div>
-            </div>
+      <div class="card-deck mb-3 text-center">
+        <div class="card mb-4 shadow-sm">
+          <div class="card-header">
+            <h4 class="my-0 font-weight-normal">Free</h4>
+          </div>
+          <div class="card-body">
+            <h1 class="card-title pricing-card-title">$0 <small class="text-muted">/ @Localizer["month"]</small></h1>
+            <ul class="list-unstyled mt-3 mb-4">
+              <li>@Localizer["1bot"]</li>
+              <li>@Localizer["noMassMailing"]</li>
+              <li>@Localizer["advertisingMessage"]</li>
+              <li>@Localizer["limitedNumberOfMessages"]</li>
+            </ul>
+            <a asp-controller="SignUp" asp-action="Register" class="btn btn-lg btn-block btn-outline-primary">@Localizer["signUp"]</a>
+          </div>
         </div>
-
-
-
-
-
+        <div class="card mb-4 shadow-sm">
+          <div class="card-header">
+            <h4 class="my-0 font-weight-normal">Pro</h4>
+          </div>
+          <div class="card-body">
+            <h1 class="card-title pricing-card-title">$1 <small class="text-muted">/ @Localizer["month"]</small></h1>
+            <ul class="list-unstyled mt-3 mb-4">
+              <li>@Localizer["5bots"]</li>
+              <li>@Localizer["massMailing"]</li>
+              <li>@Localizer["feedbackFunction"]</li>
+              <li>@Localizer["unlimitedMessages"]</li>
+            </ul>
+            <a asp-controller="SignUp" asp-action="Register" class="btn btn-lg btn-block btn-primary">@Localizer["tryIt"]</a>
+          </div>
+        </div>
+        <div class="card mb-4 shadow-sm">
+          <div class="card-header">
+            <h4 class="my-0 font-weight-normal">Enterprise</h4>
+          </div>
+          <div class="card-body">
+            <h1 class="card-title pricing-card-title">$10 <small class="text-muted">/ @Localizer["month"]</small></h1>
+            <ul class="list-unstyled mt-3 mb-4">
+              <li>@Localizer["20bots"]</li>
+              <li>@Localizer["massMailing"]</li>
+              <li>@Localizer["feedbackFunction"]</li>
+              <li>@Localizer["unlimitedMessages"]</li>
+            </ul>
+            <a asp-controller="SignUp" asp-action="Register" class="btn btn-lg btn-block btn-primary">@Localizer["getStarted"]</a>
+          </div>
+        </div>
+      </div>
+    
+     
     </div>
 </div>
 

@@ -117,72 +117,66 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Pricing" xml:space="preserve">
-    <value>Pricing</value>
-    <comment>Pricing</comment>
-  </data>
   <data name="Description" xml:space="preserve">
-    <value>Choose a tariff for your purposes</value>
-    <comment>Description</comment>
+    <value>Выберите  подходящий тариф для ваших целей</value>
   </data>
   <data name="month" xml:space="preserve">
-    <value>mo</value>
+    <value>мес</value>
+  </data>
+  <data name="Pricing" xml:space="preserve">
+    <value>Цены</value>
   </data>
   <data name="freeTariffBotsCountString" xml:space="preserve">
-    <value>1 bot</value>
+    <value>1 бот</value>
     <comment>freeTariffBotsCountString</comment>
   </data>
   <data name="freeTariffBulkMailing" xml:space="preserve">
-    <value>No mass mailing</value>
+    <value>Нет массовой рассылки</value>
     <comment>freeTariffBulkMailing</comment>
   </data>
   <data name="advertisingMessage" xml:space="preserve">
-    <value>Advertising message</value>
+    <value>Рекламное сообщение</value>
     <comment>advertisingMessage</comment>
   </data>
   <data name="limitedNumberOfMessages" xml:space="preserve">
-    <value>Limited number of messages</value>
-    <comment>Limited number of messages</comment>
+    <value>Ограниченное количество сообщений</value>
+    <comment>limitedNumberOfMessages</comment>
   </data>
   <data name="1bot" xml:space="preserve">
-    <value>1 bot</value>
+    <value>1 бот</value>
     <comment>1bot</comment>
   </data>
   <data name="noMassMailing" xml:space="preserve">
-    <value>No mass mailing</value>
+    <value>Нет массовой рассылки</value>
     <comment>noMassMailing</comment>
   </data>
   <data name="massMailing" xml:space="preserve">
-    <value>Mass mailing function</value>
+    <value>Функция массовой рассылки</value>
     <comment>massMailing</comment>
   </data>
   <data name="feedbackFunction" xml:space="preserve">
-    <value>FeedbackFunction</value>
+    <value>Функция обратной связи</value>
     <comment>feedbackFunction</comment>
   </data>
   <data name="unlimitedMessages" xml:space="preserve">
-    <value>unlimitedMessages</value>
+    <value>Сколько угодно сообщений</value>
     <comment>unlimitedMessages</comment>
   </data>
   <data name="20bots" xml:space="preserve">
-    <value>20bots</value>
+    <value>до 20-ти ботов</value>
     <comment>20bots</comment>
   </data>
-  
+ 
   <data name="getStarted" xml:space="preserve">
-    <value>Get started</value>
+    <value>Начать</value>
     <comment>getStarted</comment>
   </data>
   <data name="tryIt" xml:space="preserve">
-    <value>Try it</value>
+    <value>Попробовать</value>
     <comment>tryIt</comment>
   </data>
   <data name="signUp" xml:space="preserve">
-    <value>Sign Up</value>
+    <value>Регистрация</value>
     <comment>signUp</comment>
-  </data>
-  <data name="5bots" xml:space="preserve">
-    <value>5 bots</value>
-    <comment>5bots</comment>
   </data>
 </root>

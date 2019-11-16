@@ -4,7 +4,6 @@ using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 using DataLayer;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -27,24 +26,12 @@ namespace Website.Controllers.SignInUpOut
         {
             if (HttpContext.User.Identity.IsAuthenticated)
             {
-                HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme).Wait();
                 return RedirectToAction("MyBots", "MyBots");
             }
             else
             {
                 return View();
             }
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> ChangeLogin()
-        {
-            if (HttpContext.User.Identity.IsAuthenticated)
-            {
-                await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            }
-
-            return RedirectToAction("Login", "SignIn");
         }
 
 
@@ -157,16 +144,13 @@ namespace Website.Controllers.SignInUpOut
 
         private void Authenticate(Account user)
         {
-            //OPTIMIZATION убрать отсюда запрос к базе
+
             string userRoleName = _context.AuthRoles.First(role => role.Id == user.RoleTypeId).Name;
 
             var claims = new List<Claim>
             {
                 new Claim("userId", user.Id.ToString()),
                 new Claim(ClaimsIdentity.DefaultNameClaimType, user.Name)
-
-                //new Claim(ClaimsIdentity.DefaultRoleClaimType, userRoleName),
-                //new Claim("testType", "testValue")
             };
 
             

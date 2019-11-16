@@ -144,4 +144,7 @@
   <data name="Support" xml:space="preserve">
     <value>Поддержка</value>
   </data>
+  <data name="BotExamples" xml:space="preserve">
+    <value>Примеры ботов</value>
+  </data>
 </root>

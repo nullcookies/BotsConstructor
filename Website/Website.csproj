@@ -47,6 +47,11 @@
   </ItemGroup>
 
 
+  <ItemGroup>
+    <Folder Include="Views\BotExamples\" />
+  </ItemGroup>
+
+
   <ProjectExtensions><VisualStudio><UserProperties properties_4launchsettings_1json__JsonSchema="" appsettings_1json__JSONSchema="" /></VisualStudio></ProjectExtensions>
 
 </Project>

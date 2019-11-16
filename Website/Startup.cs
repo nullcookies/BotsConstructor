@@ -12,11 +12,10 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Claims;
 using System.Threading;
-using Monitor.TelegramAgent;
 using MyLibrary;
 using Website.Other.Middlewares;
 using Website.Services;
-using Website.TelegramAgent;
+
 
 namespace Website
 {
@@ -68,10 +67,7 @@ namespace Website
             services.AddSingleton<BotForSalesStatisticsService>();
             services.AddSingleton<TotalLog>();
             services.AddSingleton<BotsAirstripService>();
-            
-            
-            services.AddSingleton<MyTelegramAgent>();
-            services.AddSingleton<TelegramAgentHelperBot>();
+          
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
               .AddCookie(options =>
