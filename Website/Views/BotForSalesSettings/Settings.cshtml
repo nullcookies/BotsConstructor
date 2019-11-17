@@ -546,7 +546,7 @@
             type: "POST",
             url: url,
             success: function () {
-                document.location.href = window.location.origin + "/Home/MyBots";
+                document.location.href = window.location.origin + "@Url.Action("MyBots","MyBots")";
 
             },
             error: function (xhr) {
