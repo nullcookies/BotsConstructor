@@ -1,25 +1,25 @@
 ﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using Monitor.Models;
+using Monitor.Services;
+
 
 namespace Monitor.Controllers
 {
     public class HomeController : Controller
     {
+        private DiagnosticService _diagnosticService;
+
+        public HomeController(DiagnosticService diagnosticService)
+        {
+            _diagnosticService = diagnosticService;
+        }
+
         public IActionResult Index()
         {
+            var statistics = _diagnosticService.GetTargetsStatistics();
+            
+            ViewData["targets"] = statistics; 
             return View();
-        }
-
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel {RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier});
         }
     }
 }

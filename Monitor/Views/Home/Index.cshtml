@@ -1,8 +1,43 @@
-﻿@{
+﻿@using Monitor.Services
+@{
     ViewData["Title"] = "Home Page";
 }
+<style>
+    table,
+    td {
+        border: 1px solid #333;
+    }
+    
+    thead,
+    tfoot {
+        background-color: #333;
+        color: #fff;
+    }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+</style>
+<div class="container">
+    <div class="align-items-end">
+        <a asp-controller="TargetUrls" asp-action="AddUrl">
+            Добавить ссылку для опроса
+        </a>
+    </div>
+    <div >
+        <h3>Список ссылок, которые пингуются</h3>
+        <table >
+            <tr>
+                <th>Url</th>
+                <th>Last fail time</th>
+            </tr>
+            @{
+                UrlStatistics[] targetUrls = (UrlStatistics[]) ViewData["targets"];
+                for (int i = 0; i < targetUrls.Length; i++)
+                {
+                    <tr>
+                        <td>@(targetUrls[i].Url)</td>
+                        <td>@(targetUrls[i].FailedCheckDateTimes.OrderBy(x=>x).LastOrDefault())</td>
+                    </tr>
+                }
+            }
+        </table>
+    </div>
 </div>

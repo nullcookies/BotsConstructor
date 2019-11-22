@@ -24,9 +24,8 @@ namespace Monitor
 
 
             services.AddSingleton<SimpleLogger>();
-            services.AddSingleton<WoodpeckerService>();
-            services.AddSingleton<BotsCheckup>();
-          
+            services.AddSingleton<DiagnosticService>();
+            
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             
             services.AddEntityFrameworkNpgsql()
@@ -37,16 +36,14 @@ namespace Monitor
         public void Configure(
                 IApplicationBuilder app,
                 IHostingEnvironment env,
-                WoodpeckerService woodpeckerService,
-                BotsCheckup botsCheckup,
+                DiagnosticService diagnosticService, 
                 SimpleLogger logger)
         {
             
             
             logger.Log(LogLevel.IMPORTANT_INFO, Source.MONITOR,"Старт монитора");
 
-            woodpeckerService.StartPingAsync(1);
-            botsCheckup.StartCheckupAsync(1);
+            diagnosticService.StartPingAsync(1);
             
             
             if (env.IsDevelopment())

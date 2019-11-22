@@ -25,4 +25,9 @@
       <_ContentIncludedByDefault Remove="Views\NewsCreator\Index.cshtml" />
     </ItemGroup>
 
+
+    <ItemGroup>
+      <UpToDateCheckInput Remove="Views\NewsCreator\Index.cshtml" />
+    </ItemGroup>
+
 </Project>

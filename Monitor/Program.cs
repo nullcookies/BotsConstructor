@@ -17,7 +17,7 @@ namespace Monitor
                 .CreateDefaultBuilder(args)
                 .UseKestrel(options =>
                 {
-                    options.Listen(IPAddress.Loopback, 9516);
+                    options.Listen(IPAddress.Loopback, 6001);
                     options.Limits.MaxConcurrentConnections = 500;
                 })
                 .UseStartup<Startup>();
