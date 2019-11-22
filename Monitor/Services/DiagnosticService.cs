@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DataLayer;
+using Monitor.Models;
 using MyLibrary;
 
 namespace Monitor.Services
@@ -11,12 +12,14 @@ namespace Monitor.Services
     {
         private bool _isWorking;
         private readonly SimpleLogger _logger;
+        
         private ConcurrentDictionary<string,UrlStatistics> _targetUrlsStatistics 
             = new ConcurrentDictionary<string, UrlStatistics>();
         
         public DiagnosticService(SimpleLogger logger)
         {
             _logger = logger;
+            
         }
         public bool TryAddUrl(string url, ref string errorMessage)
         {
@@ -60,17 +63,34 @@ namespace Monitor.Services
                     try
                     {
                         Ping(urlStatistics.Key);
+                        await WriteToDatabase(urlStatistics.Key, true);
                     }
                     catch (Exception exception)
                     {
                         urlStatistics.Value.FailedCheckDateTimes.Add(DateTime.UtcNow);
-                        _logger.Log(LogLevel.ERROR,Source.MONITOR,$"Ошибка в сервисе пинга в мониторе. Url={urlStatistics}",ex:exception);
+                        await WriteToDatabase(urlStatistics.Key, false, exception.Message);
                     }
                 }
                 await Task.Delay(1000 * delaySec);
             }
         }
 
+        private async Task WriteToDatabase(string url, bool success, string errorMessage=null)
+        {
+            var dbContext = new DbContextFactory().GetNewDbContext();
+            var record = new PingRecord
+            {
+                DateTime = DateTime.UtcNow,
+                IsOk = success,
+                Url = url,
+                Description = errorMessage
+            };
+            await dbContext.PingRecords.AddAsync(record);
+            await dbContext.SaveChangesAsync();
+        }
+
+     
+        
         public void StopPing()
         {
             _isWorking = false;

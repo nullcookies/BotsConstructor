@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Data;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -37,9 +38,8 @@ namespace DataLayer
         public DbSet<BotWorkLog> BotWorkLogs { get; set; }
         public DbSet<SpyRecord> SpyRecords { get; set; }
         
-        public DbSet<PrimitiveNews> PrimitiveNews { get; set; }
-
-        
+        public DbSet<PingRecord> PingRecords { get; set; }
+      
 
         public ApplicationContext(DbContextOptions<ApplicationContext> options)
            : base(options)
@@ -826,22 +826,18 @@ namespace DataLayer
         public int AccountId { get; set; }
     }
 
-    public class PrimitiveNews
+    
+    public class PingRecord
     {
-	    [Key]
-	    public  int Id { get; set; }
-	    
-	    [Required]
-	    public string Title { get; set; }
-	    
-	    [Required]
-	    public  string HtmlText { get; set; }
-	    
-	    [Required]
-	    public DateTime DateTime { get; set; }
-	    
-	    [Required]
-	    public bool IsShown  { get; set; }
+        [Key]
+        public int Id { get; set; }
+        [Required]
+        public string Url { get; set; }
+        [Required]
+        public DateTime DateTime { get; set; }
+        [Required]
+        public bool IsOk { get; set; }
+        public string Description { get; set; }
     }
 
 }
