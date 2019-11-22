@@ -33,6 +33,19 @@ namespace Monitor.Services
             errorMessage = "Такая ссылка уже есть";
             return false;
         }
+
+        public bool TryRemoveUrl(string url, ref string errorMessage)
+        {
+            if (_targetUrlsStatistics.TryRemove(url, out UrlStatistics value))
+            {
+                return true;
+            }
+            else
+            {
+                errorMessage = "Не удалось достать из словаря";
+                return false;
+            }
+        }
         public async void StartPingAsync(int delaySec = 1)
         {
             _logger.Log(LogLevel.INFO,Source.MONITOR,"Старт сервиса диагностики");

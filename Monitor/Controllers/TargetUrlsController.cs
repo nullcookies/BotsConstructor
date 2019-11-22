@@ -21,7 +21,7 @@ namespace Monitor.Controllers
         [HttpGet]
         public IActionResult AddUrl()
         {
-            return View("Index");
+            return View();
         }
         [HttpPost]
         public IActionResult AddUrl(UrlModel model)
@@ -34,6 +34,26 @@ namespace Monitor.Controllers
             else
             {
                 return Content($"Не удалось добавить ссылку для опроса. Причина {errorMessage}");
+            }
+        }
+
+        [HttpGet]
+        public IActionResult RemoveUrl()
+        {
+            return View();
+        }
+        
+        [HttpPost]
+        public IActionResult RemoveUrl(UrlModel model)
+        {
+            string errorMessage = "";
+            if (_diagnosticService.TryRemoveUrl(model.Url, ref errorMessage))
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            else
+            {
+                return Content($"Не удалось добавить удалить ссылку. Причина {errorMessage}");
             }
         }
     }
