@@ -10,16 +10,20 @@ namespace Monitor
         {
             CreateWebHostBuilder(args).Build().Run();
         }
-        private static IWebHostBuilder CreateWebHostBuilder(string[] args)
-        {
-            return WebHost
-                .CreateDefaultBuilder(args)
-                .UseKestrel(options =>
-                {
-                    options.Listen(IPAddress.Loopback, 6001);
-                    options.Limits.MaxConcurrentConnections = 500;
-                })
+//        private static IWebHostBuilder CreateWebHostBuilder(string[] args)
+//        {
+//            return WebHost
+//                .CreateDefaultBuilder(args)
+//                .UseKestrel(options =>
+//                {
+//                    options.Listen(IPAddress.Loopback, 6001);
+//                    options.Limits.MaxConcurrentConnections = 500;
+//                })
+//                .UseStartup<Startup>();
+//        }
+//        
+        private static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
+            WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>();
-        }
     }
 }
