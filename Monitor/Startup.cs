@@ -45,7 +45,7 @@ namespace Monitor
             logger.Log(LogLevel.IMPORTANT_INFO, Source.MONITOR,"Старт монитора");
 
             diagnosticService.StartPingAsync();
-            app.UseHttpsRedirection();
+//            app.UseHttpsRedirection();
             
             if (env.IsDevelopment())
             {
