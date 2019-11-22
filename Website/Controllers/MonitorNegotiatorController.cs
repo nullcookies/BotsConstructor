@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Website.Controllers
 {
@@ -7,6 +8,7 @@ namespace Website.Controllers
         [HttpPost]
         public IActionResult Ping()
         {
+            Console.WriteLine("Ping");
             return Ok();
         }
     }

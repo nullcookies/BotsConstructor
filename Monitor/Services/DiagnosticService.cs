@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Data;
 using System.Threading.Tasks;
 using DataLayer;
-using Monitor.Models;
 using MyLibrary;
 
 namespace Monitor.Services
@@ -13,15 +11,13 @@ namespace Monitor.Services
     {
         private bool _isWorking;
         private readonly SimpleLogger _logger;
-
+        private ConcurrentDictionary<string,UrlStatistics> _targetUrlsStatistics 
+            = new ConcurrentDictionary<string, UrlStatistics>();
+        
         public DiagnosticService(SimpleLogger logger)
         {
             _logger = logger;
         }
-
-        private ConcurrentBag<UrlStatistics> _targetUrlsStatistics = new ConcurrentBag<UrlStatistics>();
-        
-        
         public bool TryAddUrl(string url, ref string errorMessage)
         {
             if (!Uri.IsWellFormedUriString(url, UriKind.Absolute))
@@ -29,16 +25,18 @@ namespace Monitor.Services
                 errorMessage = "Строка не является ссылкой";
                 return false;
             }
-            _targetUrlsStatistics.Add(new UrlStatistics(url));
-            return true;
-        }
 
-        public async void StartPingAsync(int delaySec = 10)
+            if (_targetUrlsStatistics.TryAdd(url, new UrlStatistics(url)))
+            {
+                return true;
+            }
+            errorMessage = "Такая ссылка уже есть";
+            return false;
+        }
+        public async void StartPingAsync(int delaySec = 1)
         {
             _logger.Log(LogLevel.INFO,Source.MONITOR,"Старт сервиса диагностики");
             _isWorking = true;
-            
-            
             while (true)
             {
                 if(!_isWorking)
@@ -48,11 +46,11 @@ namespace Monitor.Services
                 {
                     try
                     {
-                        Ping(urlStatistics.Url);
+                        Ping(urlStatistics.Key);
                     }
                     catch (Exception exception)
                     {
-                        urlStatistics.FailedCheckDateTimes.Add(DateTime.UtcNow);
+                        urlStatistics.Value.FailedCheckDateTimes.Add(DateTime.UtcNow);
                         _logger.Log(LogLevel.ERROR,Source.MONITOR,$"Ошибка в сервисе пинга в мониторе. Url={urlStatistics}",ex:exception);
                     }
                 }
@@ -74,7 +72,7 @@ namespace Monitor.Services
         public UrlStatistics[] GetTargetsStatistics()
         {
             UrlStatistics[] targetUrlsCopy=new UrlStatistics[_targetUrlsStatistics.Count];
-            _targetUrlsStatistics.CopyTo(targetUrlsCopy,0);
+            _targetUrlsStatistics.Values.CopyTo(targetUrlsCopy,0);
             return targetUrlsCopy;
         }
     }
@@ -82,7 +80,7 @@ namespace Monitor.Services
     public class UrlStatistics
     {
         public readonly string Url;
-        public List<DateTime> FailedCheckDateTimes=new List<DateTime>();
+        public readonly List<DateTime> FailedCheckDateTimes=new List<DateTime>();
 
         public UrlStatistics(string url)
         {

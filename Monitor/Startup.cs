@@ -1,4 +1,5 @@
 ﻿using DataLayer;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -12,8 +13,6 @@ namespace Monitor
 {
     public class Startup
     {
-
-     
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<CookiePolicyOptions>(options =>
@@ -21,16 +20,20 @@ namespace Monitor
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
-
-
             services.AddSingleton<SimpleLogger>();
             services.AddSingleton<DiagnosticService>();
-            
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-            
             services.AddEntityFrameworkNpgsql()
                 .AddDbContext<ApplicationContext>(opt => opt.UseNpgsql(DbContextFactory.GetConnectionString()))
                 .BuildServiceProvider();
+            
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options =>
+                {
+                    options.LoginPath = new PathString("/SignIn/Login");
+                    options.AccessDeniedPath = new PathString("/SignIn/Login");
+                });
+            
         }
         
         public void Configure(
@@ -39,12 +42,10 @@ namespace Monitor
                 DiagnosticService diagnosticService, 
                 SimpleLogger logger)
         {
-            
-            
             logger.Log(LogLevel.IMPORTANT_INFO, Source.MONITOR,"Старт монитора");
 
-            diagnosticService.StartPingAsync(1);
-            
+            diagnosticService.StartPingAsync();
+            app.UseHttpsRedirection();
             
             if (env.IsDevelopment())
             {
@@ -56,6 +57,10 @@ namespace Monitor
                 app.UseHsts();
             }
 
+            
+            //my
+            app.UseAuthentication();
+            
             app.UseStaticFiles();
             app.UseCookiePolicy();
 

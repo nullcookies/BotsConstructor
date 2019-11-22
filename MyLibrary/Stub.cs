@@ -44,9 +44,7 @@ namespace MyLibrary
             {
                 dataStream.Write(byteArray, 0, byteArray.Length);
             }
-
             WebResponse response = await request.GetResponseAsync();
-
             string answer ;
             using (Stream stream = response.GetResponseStream())
             {
@@ -56,7 +54,6 @@ namespace MyLibrary
                 }
             }
             response.Close();
-
             return answer;
         }
     }

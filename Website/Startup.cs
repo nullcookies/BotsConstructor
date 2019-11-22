@@ -16,7 +16,6 @@ using MyLibrary;
 using Website.Other.Middlewares;
 using Website.Services;
 
-
 namespace Website
 {
     public class Startup

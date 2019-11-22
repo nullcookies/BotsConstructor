@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Monitor.Models;
 using Monitor.Services;
@@ -7,9 +8,10 @@ using Monitor.Services;
 
 namespace Monitor.Controllers
 {
+    [Authorize]
     public class TargetUrlsController : Controller
     {
-        private DiagnosticService _diagnosticService;
+        private readonly DiagnosticService _diagnosticService;
 
         public TargetUrlsController(DiagnosticService diagnosticService)
         {

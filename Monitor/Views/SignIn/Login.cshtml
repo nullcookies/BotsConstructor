@@ -1,0 +1,22 @@
+﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@model Monitor.Models.LoginModel
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>title</title>
+</head>
+<body>
+<div>
+    <form asp-controller="SignIn" asp-action="Login">
+        <input asp-for="Password"/>
+        <button type="submit">Войти</button>
+    </form>
+</div>
+</body>
+</html>

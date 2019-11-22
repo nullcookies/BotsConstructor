@@ -10,7 +10,6 @@ namespace Monitor
         {
             CreateWebHostBuilder(args).Build().Run();
         }
-
         private static IWebHostBuilder CreateWebHostBuilder(string[] args)
         {
             return WebHost
