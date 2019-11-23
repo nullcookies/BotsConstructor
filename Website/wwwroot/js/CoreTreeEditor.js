@@ -631,7 +631,7 @@ class TreeNode {
      * @returns {TreeNode[]} Возвращает массив детей.
      */
     get children() {
-        let childrenNodes = [];
+        const childrenNodes = [];
         let tmpChildWrapper = this.firstChild;
         while (tmpChildWrapper != null) {
             childrenNodes.push(tmpChildWrapper.node);
@@ -647,7 +647,7 @@ class TreeNode {
      * @param {TreeNode} child Узел, который вставляется.
      */
     insertChild(afterWrapper, child) {
-        let childWrapper = child.detach();
+        const childWrapper = child.detach();
         child.parent = this;
         afterWrapper.setPrev(childWrapper);
         if (this.firstChild == afterWrapper) {
@@ -661,7 +661,7 @@ class TreeNode {
      * @param {TreeNode} child Узел, который добавляется.
      */
     appendChild(child) {
-        let childWrapper = child.detach();
+        const childWrapper = child.detach();
         child.parent = this;
         if (this.firstChild == null) {
             this.firstChild = childWrapper;
@@ -680,12 +680,12 @@ class TreeNode {
      */
     detachChild(child) {
         child.parent = null;
-        let childWrapper = child.wrapper;
+        const childWrapper = child.wrapper;
 
         if (this.firstChild == childWrapper) {
             this.firstChild = this.firstChild.next;
         }
-        else if (this.lastChild == childWrapper) {
+        if (this.lastChild == childWrapper) {
             this.lastChild = this.lastChild.prev;
         }
 
@@ -710,12 +710,12 @@ class TreeNode {
      * @param {TreeNode} child Узел, который необходимо удалить.
      */
     removeChild(child) {
-        let childWrapper = child.wrapper;
+        const childWrapper = child.wrapper;
 
-        if (this.firstChild == childWrapper) {
+        if (this.firstChild === childWrapper) {
             this.firstChild = this.firstChild.next;
         }
-        else if (this.lastChild == childWrapper) {
+        if (this.lastChild === childWrapper) {
             this.lastChild = this.lastChild.prev;
         }
 

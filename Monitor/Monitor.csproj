@@ -16,11 +16,18 @@
 
     <ItemGroup>
       <ProjectReference Include="..\DataLayer\DataLayer.csproj" />
+      <ProjectReference Include="..\MyLibrary\MyLibrary.csproj" />
     </ItemGroup>
 
 
     <ItemGroup>
       <_ContentIncludedByDefault Remove="Views\TelegramAgentSettings\Index.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\NewsCreator\Index.cshtml" />
+    </ItemGroup>
+
+
+    <ItemGroup>
+      <UpToDateCheckInput Remove="Views\NewsCreator\Index.cshtml" />
     </ItemGroup>
 
 </Project>

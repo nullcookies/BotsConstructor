@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 using DataLayer;
-using DataLayer.Models;
 using LogicalCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;

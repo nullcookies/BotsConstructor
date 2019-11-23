@@ -32,7 +32,7 @@
     height: 125px;
     width: 200px;
     border: 2px solid black;
-    border-radius: 10px 10px;
+    border-radius: 10px;
     clear: both;
     background-color: gray;
     padding: 5px;
@@ -62,6 +62,7 @@
 
 .baseArrow {
     display: flex;
+    background: black;
     border: 2px solid black;
     margin-left: 100px;
 }

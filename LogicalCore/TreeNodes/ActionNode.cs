@@ -34,7 +34,7 @@ namespace LogicalCore
                     session.CurrentNode = this;
                     return prevTask.Result;
                 },
-                TaskContinuationOptions.None);
+                TaskContinuationOptions.NotOnFaulted);
             }
 
             if(Children.Count > 0)

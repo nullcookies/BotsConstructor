@@ -1,9 +1,9 @@
 ﻿using DataLayer;
-using DataLayer.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MyLibrary;
 using Website.Services;
 using Website.ViewModels;
 
@@ -15,10 +15,10 @@ namespace Website.Controllers.SignInUpOut
 
         private readonly ApplicationContext _context;
         private readonly EmailMessageSender _emailSender;
-        private readonly StupidLogger _logger;
+        private readonly SimpleLogger _logger;
 
         public SignUpController(ApplicationContext context, 
-            EmailMessageSender emailSender, StupidLogger logger)
+            EmailMessageSender emailSender, SimpleLogger logger)
         {
             _context = context;
             _emailSender = emailSender;
@@ -54,12 +54,14 @@ namespace Website.Controllers.SignInUpOut
                         RoleTypeId = 1
                     };
 
+                    //TODO: менять сообщения и названия в зависимости от языка владельца бота
                     var statusGroup = new OrderStatusGroup()
                     {
                         Name = "Стандартный набор статусов",
                         Owner = account,
                         OrderStatuses = new List<OrderStatus>()
                         {
+                            new OrderStatus() {Name = "Просмотрено", Message = ""},
                             new OrderStatus() {Name = "В обработке", Message = "Ваш заказ находится в обработке."},
                             new OrderStatus() {Name = "В пути", Message = "Ваш заказ в пути."},
                             new OrderStatus() {Name = "Принят", Message = "Ваш заказ был принят."},
@@ -103,7 +105,7 @@ namespace Website.Controllers.SignInUpOut
                     _context.SaveChanges();
 
                   
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("MyBots", "MyBots");
                 }
                 else
                 {
@@ -173,7 +175,7 @@ namespace Website.Controllers.SignInUpOut
             }
             catch (Exception exception)
             {
-                _logger.Log(LogLevelMyDich.WARNING, Source.WEBSITE, 
+                _logger.Log(LogLevel.WARNING, Source.WEBSITE, 
                     "При переходе на страцицу с гуидом для завершения регистрации произошла ошибка.", accountId,exception);
 
                 string errorMessage = "Что-то пошло не так";

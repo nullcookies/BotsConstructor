@@ -4,7 +4,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using DataLayer.Models;
+using DataLayer;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
@@ -26,7 +26,7 @@ namespace Website.Controllers.SignInUpOut
         {
             if (HttpContext.User.Identity.IsAuthenticated)
             {
-                return RedirectToAction("MyBots", "Home");
+                return RedirectToAction("MyBots", "MyBots");
             }
             else
             {
@@ -45,7 +45,7 @@ namespace Website.Controllers.SignInUpOut
             [FromQuery(Name = "hash")]       string hash)
         {
             //@bots_constructor_bot
-            string botToken = "913688656:AAGIJK2GQLFZTDGWjUX8jV5aPujLoHSiSus";
+            string botToken = "913688656:AAH5l-ZAOmpI5MDqcq3ye1M1CF8ESF-Bms8";
 
             List<string> myList = new List<string>
             {
@@ -111,7 +111,7 @@ namespace Website.Controllers.SignInUpOut
 
                 Authenticate(user);
 
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("MyBots", "MyBots");
                 //TODO Отправить сообщение о авторизации пользователю (приветствие)
             }
 
@@ -133,7 +133,7 @@ namespace Website.Controllers.SignInUpOut
                 {
                     Authenticate(account);
 
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("MyBots", "MyBots");
                 }
 
                 ModelState.AddModelError("", "Некорректные логин и(или) пароль ");
@@ -144,15 +144,13 @@ namespace Website.Controllers.SignInUpOut
 
         private void Authenticate(Account user)
         {
-            //OPTIMIZATION убрать отсюда запрос к базе
+
             string userRoleName = _context.AuthRoles.First(role => role.Id == user.RoleTypeId).Name;
 
             var claims = new List<Claim>
             {
-                new Claim("userId", user.Id.ToString())
-
-                //new Claim(ClaimsIdentity.DefaultRoleClaimType, userRoleName),
-                //new Claim("testType", "testValue")
+                new Claim("userId", user.Id.ToString()),
+                new Claim(ClaimsIdentity.DefaultNameClaimType, user.Name)
             };
 
             

@@ -13,7 +13,7 @@ namespace LogicalCore
             MessageType messageType = MessageType.Text,
             InputOnlineFile messageFile = null,
             IMetaReplyMarkup messageKeyboard = null,
-            ParseMode parsing = ParseMode.Default) :
+            ParseMode parsing = ParseMode.Markdown) :
             base(metaText, messageType, messageFile, messageKeyboard, parsing)
         {
             MetaKeyboard = MetaKeyboard ?? new MetaReplyKeyboardMarkup();
@@ -32,7 +32,7 @@ namespace LogicalCore
             MessageType messageType = MessageType.Text,
             InputOnlineFile messageFile = null,
             MetaInlineKeyboardMarkup messageKeyboard = null,
-            ParseMode parsing = ParseMode.Default) :
+            ParseMode parsing = ParseMode.Markdown) :
             base(metaText, messageType, messageFile, messageKeyboard, parsing)
         {
             MetaKeyboard = MetaKeyboard ?? new MetaInlineKeyboardMarkup();
@@ -51,7 +51,7 @@ namespace LogicalCore
             MessageType messageType = MessageType.Text,
             InputOnlineFile messageFile = null,
             MetaReplyKeyboardMarkup messageKeyboard = null,
-            ParseMode parsing = ParseMode.Default) :
+            ParseMode parsing = ParseMode.Markdown) :
             base(metaText, messageType, messageFile, messageKeyboard, parsing)
         {
             MetaKeyboard = MetaKeyboard ?? new MetaReplyKeyboardMarkup();
@@ -79,7 +79,7 @@ namespace LogicalCore
             MessageType messageType = MessageType.Text,
             InputOnlineFile messageFile = null,
             KeyboardType messageKeyboard = null,
-            ParseMode parsing = ParseMode.Default)
+            ParseMode parsing = ParseMode.Markdown)
         {
             Type = messageType;
             Text = metaText ?? new MetaText();

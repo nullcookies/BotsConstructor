@@ -100,7 +100,7 @@ namespace LogicalCore
             {
                 lastTask = await lastTask.ContinueWith((task) =>
                 messages[i].SendMessage(session),
-                TaskContinuationOptions.None);
+                TaskContinuationOptions.NotOnFaulted);
             }
 
             return await lastTask;

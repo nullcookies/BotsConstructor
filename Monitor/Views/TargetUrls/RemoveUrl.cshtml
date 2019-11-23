@@ -1,0 +1,7 @@
+﻿@model Monitor.Models.UrlModel
+
+<h3>Удаление ссылки</h3>
+<form asp-controller="TargetUrls" asp-action="RemoveUrl">
+    <input asp-for="Url"/>
+    <button type="submit">Удалить ссылку</button>
+</form>

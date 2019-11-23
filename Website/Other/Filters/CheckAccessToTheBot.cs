@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DataLayer;
-using DataLayer.Models;
+using MyLibrary;
 
 //15 09 2019 15 44 это выглядит очень плохо
 //22 09 2019 13 06 ага
@@ -20,9 +20,9 @@ namespace Website.Other.Filters
     public class CheckAccessToTheBot : Attribute, IActionFilter
     {
         readonly ApplicationContext _context;
-        readonly StupidLogger _logger;
+        readonly SimpleLogger _logger;
 
-        public CheckAccessToTheBot(ApplicationContext context, StupidLogger logger)
+        public CheckAccessToTheBot(ApplicationContext context, SimpleLogger logger)
         {
             _context = context;
             _logger = logger;
@@ -33,7 +33,7 @@ namespace Website.Other.Filters
         {
             if (!(context.ActionArguments["botId"] is int botId))
             {
-                _logger.Log(LogLevelMyDich.UNAUTHORIZED_ACCESS_ATTEMPT, Source.WEBSITE, "В запросе не был указан botId");
+                _logger.Log(LogLevel.UNAUTHORIZED_ACCESS_ATTEMPT, Source.WEBSITE, "В запросе не был указан botId");
                 context.Result = new StatusCodeResult(404);
                 return;
             }
@@ -42,7 +42,7 @@ namespace Website.Other.Filters
 			
             if (bot == null)
             {
-                _logger.Log(LogLevelMyDich.UNAUTHORIZED_ACCESS_ATTEMPT, Source.WEBSITE, $"Бота с таким id не существует botId={botId}");
+                _logger.Log(LogLevel.UNAUTHORIZED_ACCESS_ATTEMPT, Source.WEBSITE, $"Бота с таким id не существует botId={botId}");
                 context.Result = new StatusCodeResult(404);
                 return;
             }
@@ -55,7 +55,7 @@ namespace Website.Other.Filters
             catch
             {
                 context.Result = new StatusCodeResult(403);
-                _logger.Log(LogLevelMyDich.UNAUTHORIZED_ACCESS_ATTEMPT, Source.WEBSITE, $"Сайт. Из cookies не удалось извлечь accountId. При доступе к боту bot.Id={bot.Id}");
+                _logger.Log(LogLevel.UNAUTHORIZED_ACCESS_ATTEMPT, Source.WEBSITE, $"Сайт. Из cookies не удалось извлечь accountId. При доступе к боту bot.Id={bot.Id}");
                 return;
             }
 
@@ -65,7 +65,7 @@ namespace Website.Other.Filters
             if (ownerId != accountId)
             {
                 //Бот не принадлежит этому пользователю
-                _logger.Log(LogLevelMyDich.UNAUTHORIZED_ACCESS_ATTEMPT, Source.WEBSITE, $"Бот не принадлежит этому пользователю. accountId={accountId}, ownerId={ownerId}");
+                _logger.Log(LogLevel.UNAUTHORIZED_ACCESS_ATTEMPT, Source.WEBSITE, $"Бот не принадлежит этому пользователю. accountId={accountId}, ownerId={ownerId}");
 
                 context.Result = new StatusCodeResult(403);
                 return;

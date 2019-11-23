@@ -1,9 +1,9 @@
-﻿using DataLayer.Models;
-using System;
+﻿using System;
 using System.Configuration;
 using System.Net.Mail;
 using System.Text.RegularExpressions;
 using DataLayer;
+using MyLibrary;
 
 //20 09 2019 14:09 дублирование кода
 
@@ -14,9 +14,9 @@ namespace Website.Services
         
         private static readonly string Email  = ConfigurationManager.AppSettings["CombatEmail"];
         private static readonly string EmailPassword  = ConfigurationManager.AppSettings["CombatEmailPassword"];
-        private readonly StupidLogger _logger;
+        private readonly SimpleLogger _logger;
 
-        public EmailMessageSender(StupidLogger logger)
+        public EmailMessageSender(SimpleLogger logger)
         {
             _logger = logger;
         }
@@ -60,7 +60,7 @@ namespace Website.Services
 
             }catch (Exception ex)
             {
-                _logger.Log(LogLevelMyDich.EMAIL_SEND_FAILURE,Source.WEBSITE, 
+                _logger.Log(LogLevel.EMAIL_SEND_FAILURE,Source.WEBSITE, 
                     $"Не удалось отправить email с данными для окончания регистрации. email={email}, name={name}, link={link}",ex:ex );
                 
                 return false;
@@ -87,7 +87,7 @@ namespace Website.Services
 
             }catch (Exception ex)
             {
-                _logger.Log(LogLevelMyDich.EMAIL_SEND_FAILURE, Source.WEBSITE,
+                _logger.Log(LogLevel.EMAIL_SEND_FAILURE, Source.WEBSITE,
                     "Не удалось отправить email для сброса пароля", ex: ex);
                 return false;
             }

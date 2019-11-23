@@ -1,5 +1,4 @@
 ﻿using DataLayer;
-using DataLayer.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
@@ -13,13 +12,14 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using MyLibrary;
 
 namespace Website.Services
 {
     public class BotForSalesStatisticsService
     {
 
-        public BotForSalesStatisticsService(StupidLogger logger, IConfiguration configuration)
+        public BotForSalesStatisticsService(SimpleLogger logger, IConfiguration configuration)
         {
             _logger = logger;
             _dbContextWrapper = new DbContextFactory();
@@ -113,7 +113,7 @@ namespace Website.Services
             }
             catch (Exception ee)
             {
-                _logger.Log(LogLevelMyDich.ERROR, Source.WEBSITE, "Сайт. При отправке статистики бота по websocket произошла ошибка. " + ee.Message);
+                _logger.Log(LogLevel.ERROR, Source.WEBSITE, "Сайт. При отправке статистики бота по websocket произошла ошибка. " + ee.Message);
             }
         }
 
@@ -148,7 +148,7 @@ namespace Website.Services
 
 
         readonly DbContextFactory _dbContextWrapper;
-        readonly StupidLogger _logger;
+        readonly SimpleLogger _logger;
         ApplicationContext _contextDb
         {
             get

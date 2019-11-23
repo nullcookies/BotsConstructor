@@ -1,44 +1,45 @@
-﻿using DataLayer.Models;
+﻿using System.Data.Common;
+using System.Runtime.InteropServices;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Hosting;
 
 namespace DataLayer
 {
     public class DbContextFactory
     {
-
-        private  static string ReleaseConnectionString =
-            @"User ID = postgres;
-            Password=3t0ssszheM3G4MMM0Ch~n`yparollb_wubfubrkmdbwiyro38;
-            Server=127.0.0.1;
-            Port=5432;
-            Database=CombatVersion0007;
-            Integrated Security=true;
-            Pooling=true;";
-
-//        private static string DevelopmentConnectionString =
-//            @"User ID = postgres;
-//            Password=3t0ssszheM3G4MMM0Ch~n`yparollb_wubfubrkmdbwiyro38;
-//            Server=54.89.247.235;
-//            Port=5432;
-//            Database=Dev0165184R;
-//            Integrated Security=true;
-//            Pooling=true;";
-
-
-        public static string GetConnectionString()
+        private static readonly string ConnectionString;
+        
+        static DbContextFactory()
         {
-            return ReleaseConnectionString;
+            var conStrBuilder = new DbConnectionStringBuilder
+            {
+                {"User ID", "postgres"},
+                {"Password", "3t0ssszheM3G4MMM0Ch~n`yparollb_wubfubrkmdbwiyro38" },
+                { "Port", 5432 },
+                { "Database", "MainDB001" },
+//                { "Database", "Ruslan_22_11_2019_number2" },
+                { "Integrated Security", true },
+                { "Pooling", true }
+            };
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                conStrBuilder["Database"] += "Rel";
+                conStrBuilder.Add("Server", "127.0.0.1");
+            }
+            else
+            {
+                conStrBuilder["Database"] += "Dev";
+                conStrBuilder.Add("Server", "3.88.252.188");
+            }
+            ConnectionString = conStrBuilder.ConnectionString;
         }
- 
+
+        public static string GetConnectionString() => ConnectionString;
 
         public  ApplicationContext GetNewDbContext()
         {
-            string connectionString = GetConnectionString();
-            
             return new ApplicationContext(
                 new DbContextOptionsBuilder<ApplicationContext>()
-                    .UseNpgsql(connectionString)
+                    .UseNpgsql(GetConnectionString())
                     .Options);
         }
     }

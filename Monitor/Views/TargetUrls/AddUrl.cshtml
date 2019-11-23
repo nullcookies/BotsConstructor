@@ -1,0 +1,7 @@
+﻿@model Monitor.Models.UrlModel
+
+<h3>Добавление ссылки</h3>
+<form asp-controller="TargetUrls" asp-action="AddUrl">
+    <input asp-for="Url"/>
+    <button type="submit">Добавить ссылку</button>
+</form>

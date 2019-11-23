@@ -6,9 +6,6 @@
 }
 
 <link href="@Url.Content("~/lib/open-iconic/font/css/open-iconic-bootstrap.css")" rel="stylesheet">
-@*<link rel="stylesheet" href="@Url.Content("~/css/orders-pagination.css")" />*@
-@* Нужно для круглых кнопок *@
-<link rel="stylesheet" href="@Url.Content("~/css/bot-for-sales.css")" />
 <script src="~/js/FileManager.js"></script>
 
 <style>
@@ -34,8 +31,8 @@
 
 <div class="d-flex justify-content-sm-between align-items-sm-center" style="margin: 15px 0 10px;">
     <div class="ml-4">
-        <button id="refresh_btn" class="btn btn-outline-secondary" onclick="Refresh()" ondblclick="RefreshVariables()">
-            <span class="oi oi-reload"></span>
+        <button id="refresh_btn" class="btn btn-outline-secondary" style="padding: 6px 10px" onclick="Refresh()" ondblclick="RefreshVariables()">
+            <span class="spinner-border spinner-border-sm"></span>
         </button>
     </div>
 
@@ -70,7 +67,7 @@
 
                 <div id="dateTime_" class="col-sm-2 h5"></div>
 
-                <div class="col-sm-1"><button id="del_btn_" class="btn btn-outline-danger btn-circle btn-circle-sm m-1"><span class="oi oi-trash"></span></button></div>
+                <div class="col-sm-1"><button id="del_btn_" class="btn btn-outline-danger rounded-circle m-1" style="padding: 6px 10px"><span class="oi oi-trash"></span></button></div>
             </div>
 
             <div id="collapsed_msg_" class="collapse" aria-labelledby="heading_msg_" data-parent="#div_order_">
@@ -198,7 +195,9 @@
         AddContainers(mainMsgElem, mainContainer);
         if (mainContainer.children.length > 0 && totalSum > 0.0) {
             var totalElem = document.createElement("p");
-            totalElem.innerHTML = `<strong>Total: ${totalSum}</strong>`;
+            var strongElem = document.createElement("strong");
+            strongElem.innerText = `Total: ${totalSum}`;
+            totalElem.appendChild(strongElem);
             mainMsgElem.appendChild(totalElem);
         }
         function AddContainers(msgElem, container) {
@@ -208,20 +207,22 @@
                 var item = items[itemInfo.itemId];
                 var value = parseFloat(item.value) * parseInt(itemInfo.count);
                 var listElem = document.createElement("li");
-                listElem.innerHTML = `${item.name} ${itemInfo.count} X ${item.value} = ${value}`;
+                listElem.innerText = `${item.name} ${itemInfo.count} X ${item.value} = ${value}`;
                 msgElem.appendChild(listElem);
                 localSum += value;
             }
             if (localSum > 0.0) {
                 var listElem = document.createElement("li");
-                listElem.innerHTML = `<strong>Sum: ${localSum}</strong>`;
+                var strongElem = document.createElement("strong");
+                strongElem.innerText = `Sum: ${localSum}`;
+                listElem.appendChild(strongElem);
                 msgElem.appendChild(listElem);
                 totalSum += localSum;
             }
             for (var t = 0; t < container.texts.length; t++) {
                 var text = container.texts[t];
                 var listElem = document.createElement("li");
-                listElem.innerHTML = text;
+                listElem.innerText = text;
                 msgElem.appendChild(listElem);
             }
             for (var f = 0; f < container.files.length; f++) {
@@ -341,6 +342,7 @@
     }
 
     function RefreshVariables(func) {
+        $("#refresh_btn").addClass("active");
         $.ajax({
             url: '/Orders/GetVariables',
             type: 'post',
@@ -349,15 +351,13 @@
                 statusGroups = data.statusGroups;
                 bots = data.bots;
                 items = data.items;
-                //console.log(bots);
-                //console.log(statusGroups);
-                //console.log(statuses);
                 statuses[null] = { item1: "NEW", item2: "Sends nothing.", item3: false };
             },
             error: function (data) {
                 console.log(`ERROR! Can't refresh variables!\n${data.responseText}`);
             },
             complete: function () {
+                $("#refresh_btn").removeClass("active");
                 if (func != null) {
                     func();
                 }
@@ -376,8 +376,6 @@
             type: 'post',
             data: { page: @ViewData["currentPage"] },
             success: function (data) {
-                //OK
-                console.log(data);
                 var orders = data.orders;
                 for (var c_i = 0; c_i < data.containers.length; c_i++) {
                     var container = data.containers[c_i];

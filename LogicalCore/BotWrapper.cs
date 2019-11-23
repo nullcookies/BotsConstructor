@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using DataLayer;
+using MyLibrary;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
@@ -44,13 +46,18 @@ namespace LogicalCore
 
         }
 
-        public void SetOwner(int ownerID)
+        public void SetOwner(int ownerId)
         {
-            BotOwner = new BotOwner(ownerID, this);
+            BotOwner = new BotOwner(ownerId, this);
         }
 
         public override void Stop()
         {
+            LoggerSingelton.GetLogger().Log(
+                LogLevel.IMPORTANT_INFO,
+                Source.FOREST,
+                $"Остановка бота. BotUsername={BotUsername}");
+            
             base.Stop();
         }
 
@@ -71,32 +78,45 @@ namespace LogicalCore
                     break;
             }
         }
-
-        //460805780
-        //344399241
+        
         protected override void AcceptMessage(Message message)
         {
             int telegramId = message.From.Id;
 
             //На случай запуска через long polling
             StatisticsContainer.UpdateStatistics(telegramId);
+            
 
+            
+            //Шпионское логгирование
+            LoggerSingelton.GetLogger().Log(
+                LogLevel.INFO,
+                Source.OTHER,
+                $"Message, BotUsername={BotUsername}, senderId={message.From.Id}, type ={message.Type}, text={message.Text}"
+            );
+            
             bool isBlocked = StupidBotAntispam.UserIsBlockedForThisBot(telegramId);
             if (isBlocked)
             {
                 //TODO ответить, что заблокирован
                 BotClient.SendTextMessageAsync(message.Chat.Id,"это же бан");
                 return;
+                
             }
-
+            
             try
             {
                 Session session = GetSessionByTelegramId(telegramId);
                 session.TakeControl(message);
             }
-            catch
+            catch(Exception exception)
             {
-                Console.WriteLine("Some dich");
+                LoggerSingelton.GetLogger().Log(
+                    LogLevel.ERROR,
+                    Source.FOREST,
+                    $"При обработке сообщения для бота BotUsername= {BotUsername} через long polling было брошено исключение",
+                    ex:exception
+                );
             }
         }
 
@@ -108,6 +128,16 @@ namespace LogicalCore
             //На случай запуска через long polling
             StatisticsContainer.UpdateStatistics(telegramId);
 
+            
+                   
+            //Шпионское логгирование
+            LoggerSingelton.GetLogger().Log(
+                LogLevel.INFO,
+                Source.OTHER,
+                $"CallbackQuery, BotUsername={BotUsername}, senderId={callbackQuerry.Message.From.Id}, text={callbackQuerry.Data}"
+            );
+            
+            
             bool isBlocked = StupidBotAntispam.UserIsBlockedForThisBot(telegramId);
             if (isBlocked)
             {
@@ -127,13 +157,9 @@ namespace LogicalCore
             bool chatIsFound = BotClient.GetChatAsync(id).ContinueWith((chatTask) => chatTask.IsCompletedSuccessfully).Result;
 
             if (chatIsFound)
-            {
                 session = GetSessionByTelegramId(id);
-            }
             else
-            {
                 session = null;
-            }
 
             return chatIsFound;
         }
@@ -231,10 +257,8 @@ namespace LogicalCore
         } 
         public long NumberOfMessages
         {
-            get
-            {
-                return _numberOfMessages;
-            }
+            get => _numberOfMessages;
+            set => _numberOfMessages = value;
         }
 
         public void UpdateStatistics(int userTelegramId)

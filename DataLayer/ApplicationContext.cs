@@ -1,10 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Data;
+using Microsoft.EntityFrameworkCore;
 
-namespace DataLayer.Models
+
+namespace DataLayer
 {
 	public sealed class ApplicationContext: DbContext
     {
@@ -36,9 +38,8 @@ namespace DataLayer.Models
         public DbSet<BotWorkLog> BotWorkLogs { get; set; }
         public DbSet<SpyRecord> SpyRecords { get; set; }
         
-        public DbSet<PrimitiveNews> PrimitiveNews { get; set; }
-
-        
+        public DbSet<PingRecord> PingRecords { get; set; }
+      
 
         public ApplicationContext(DbContextOptions<ApplicationContext> options)
            : base(options)
@@ -132,17 +133,6 @@ namespace DataLayer.Models
 
             modelBuilder.Entity<OrderStatus>().Property(status => status.IsOld).HasDefaultValue(false);
 
-            //         // Для тестирования
-            //         modelBuilder.Entity<BotDB>().HasData(new List<object>
-            //{
-            //	new {
-            //                 Id = 1_000_000,
-            //                 BotName = "ping_uin_bot",
-            //                 OwnerId = 1_000_001,
-            //                 BotType ="BotForSales",
-            //                 Token = "825321671:AAFoJoGk7VIMU19wvOmiwZHKRwyGptvAqJ4"
-            //             }
-            //});
 
             modelBuilder.Entity<BotDB>().HasIndex(_bot => _bot.Token).IsUnique();
 
@@ -197,50 +187,7 @@ namespace DataLayer.Models
 
 			modelBuilder.Entity<OrderStatus>().HasData(statuses);
 
-			// Для тестирования
-            /*
-			modelBuilder.Entity<Order>().HasData(new List<object>
-			{
-				new {Id = 101, SenderId = 440090552, SenderNickname = "Ivan Ivanov",
-                    BotId = 1_000_000, ContainerId = 101, OrderStatusGroupId = 1_000_001,                    DateTime = DateTime.UtcNow},
-                new {Id = 102, SenderId = 460805780, SenderNickname = "Petro Ivanov",
-                    BotId = 1_000_000, ContainerId = 102, OrderStatusGroupId = 1_000_001,                    DateTime = DateTime.UtcNow.AddMinutes(-1)}
-                //,
-				//new {Id = 102, SenderId = 440090552, SenderNickname = "Ruslan Starovoitov",
-    //                BotId = 1_000_000, ContainerId = 102, OrderStatusGroupId = 1, OrderStatusId = 1, DateTime = DateTime.UtcNow},
-				//new {Id = 103, SenderId = 440090552, SenderNickname = "Ruslan Starovoitov",
-    //                BotId = 1_000_000, ContainerId = 103, OrderStatusGroupId = 1, OrderStatusId = 3, DateTime = DateTime.UtcNow}
-			});
-
-			modelBuilder.Entity<Inventory>().HasData(new List<object>
-			{
-				new {Id = 101, SessionId = 440090552},
-				new {Id = 102, SessionId = 460805780}
-               
-			});
-           
-            int id = 101;
-            modelBuilder.Entity<SessionText>().HasData(new List<object>
-			{
-				new {Id = id++, Text = "Сет Патриот 359 ₴: 1",				InventoryId = 101},
-				new {Id = id++, Text = "Баварская 30 см Хот-дог борт (id40) 3 ₴: 1",				InventoryId = 101},
-				new {Id = id++, Text = "Кальцоне 25 см Обычный борт (id45) 9 ₴: 1",				InventoryId = 101},
-				new {Id = id++, Text = "Стоимость:  371 ₴",				InventoryId = 101},
-				new {Id = id++, Text = "221B Baker Street",				InventoryId = 101},
-				new {Id = id++, Text = "Доставьте пиццу холодной, пожалуйста.",				InventoryId = 101}
-                ,
-
-                new {Id = id++, Text = "Карбонара 30 см Хот-дог борт (id22) 2 ₴: 1",              InventoryId = 102},
-                new {Id = id++, Text = "⚙️🍕Собранная пицца🍕⚙️: Помидоры (2); Грибы(2); = 6₴: 1",                InventoryId = 102},
-                new {Id = id++, Text = "Калифорния с креветкой 99 ₴: 1",             InventoryId = 102},
-                new {Id = id++, Text = "Стоимость: 107 ₴",             InventoryId = 102},
-                new {Id = id++, Text = "221B Baker Street",             InventoryId = 102},
-                new {Id = id++, Text = "Доставьте пиццу гарячей, пожалуйста.",             InventoryId = 102}
-            });
-
-			//modelBuilder.Entity<ImageMy>().HasIndex(i => new { i.BotId, i.ProductId}).IsUnique();
-            */
-            
+			
 
         }
     }
@@ -264,8 +211,7 @@ namespace DataLayer.Models
         //public string Login { get; set; }
         [Required]
         public string Name { get; set; }
-
-        //логин через телеграм
+        
         public string Password { get; set; }
 
         public RoleType RoleType { get; set; }
@@ -274,6 +220,7 @@ namespace DataLayer.Models
         [Required]
         public int RoleTypeId { get; set; }
 
+        [DataType(DataType.EmailAddress)]
         //email не обязателен, тк возможен логин через телеграм
         public string Email { get;  set; }
 
@@ -375,7 +322,6 @@ namespace DataLayer.Models
 		[Required]
 		public string Name { get; set; }
 
-		[Required]
 		public string Message { get; set; }
 
         [Required]
@@ -471,7 +417,7 @@ namespace DataLayer.Models
         public int AccountId { get; set; }
 
         public DateTime DateTime { get; set; }
-        public LogLevelMyDich LogLevel { get; set; }
+        public LogLevel LogLevel { get; set; }
 
 
         [Required]
@@ -492,7 +438,7 @@ namespace DataLayer.Models
 	    PASSWORD_RESET
     }
     
-    public enum LogLevelMyDich
+    public enum LogLevel
     {
         INFO,
         CRITICAL_SECURITY_ERROR,
@@ -880,22 +826,18 @@ namespace DataLayer.Models
         public int AccountId { get; set; }
     }
 
-    public class PrimitiveNews
+    
+    public class PingRecord
     {
-	    [Key]
-	    public  int Id { get; set; }
-	    
-	    [Required]
-	    public string Title { get; set; }
-	    
-	    [Required]
-	    public  string HtmlText { get; set; }
-	    
-	    [Required]
-	    public DateTime DateTime { get; set; }
-	    
-	    [Required]
-	    public bool IsShown  { get; set; }
+        [Key]
+        public int Id { get; set; }
+        [Required]
+        public string Url { get; set; }
+        [Required]
+        public DateTime DateTime { get; set; }
+        [Required]
+        public bool IsOk { get; set; }
+        public string Description { get; set; }
     }
 
 }

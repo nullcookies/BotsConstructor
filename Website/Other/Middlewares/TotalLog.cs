@@ -1,14 +1,15 @@
 ﻿using Microsoft.AspNetCore.Http;
 using DataLayer;
+using MyLibrary;
 
 namespace Website.Other.Middlewares
 {
     public class TotalLog
     {
-        private StupidLogger _logger;
+        private SimpleLogger _logger;
         
 
-        public TotalLog(StupidLogger logger )
+        public TotalLog(SimpleLogger logger )
         {
             _logger = logger;
         }

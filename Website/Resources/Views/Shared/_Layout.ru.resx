@@ -126,6 +126,12 @@
   <data name="Login" xml:space="preserve">
     <value>Войти</value>
   </data>
+  <data name="LoginAs" xml:space="preserve">
+    <value>Войти как</value>
+  </data>
+  <data name="ChangeLogin" xml:space="preserve">
+    <value>Сменить аккаунт</value>
+  </data>
   <data name="News" xml:space="preserve">
     <value>Новости</value>
   </data>
@@ -137,5 +143,8 @@
   </data>
   <data name="Support" xml:space="preserve">
     <value>Поддержка</value>
+  </data>
+  <data name="BotExamples" xml:space="preserve">
+    <value>Примеры ботов</value>
   </data>
 </root>

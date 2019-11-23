@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using DataLayer;
-using DataLayer.Models;
 using Forest.Services;
 using LogicalCore;
 using Microsoft.AspNetCore.Mvc;
+using MyLibrary;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Telegram.Bot;
@@ -29,9 +29,9 @@ namespace Forest.Controllers
 
 		private readonly ApplicationContext _contextDb;
 		private readonly DbConnector connector;
-        private readonly StupidLogger _logger;
+        private readonly SimpleLogger _logger;
 
-		public HomeController(ApplicationContext context, DbConnector dBConnector, StupidLogger logger)
+		public HomeController(ApplicationContext context, DbConnector dBConnector, SimpleLogger logger)
         {
             _contextDb = context;
 			connector = dBConnector;
@@ -49,14 +49,26 @@ namespace Forest.Controllers
         {
             string botUsername = RouteData.Values["telegramBotUsername"].ToString();
             
-            if (BotsContainer.BotsDictionary.TryGetValue(botUsername, out BotWrapper botWrapper))
+            if (BotsStorage.BotsDictionary.TryGetValue(botUsername, out BotWrapper botWrapper))
             {
-                botWrapper.AcceptUpdate(update);
+	            try
+	            {
+		            botWrapper.AcceptUpdate(update);
+	            }
+	            catch (Exception exception)
+	            {
+		            _logger.Log(
+			            LogLevel.ERROR,
+			            Source.FOREST,
+			            $"При обработке сообщения ботом botUsername={botUsername}" +
+			            $" через webhook было брошено исключение",
+			            ex:exception);
+	            }
             }
             else
             {
                 _logger.Log(
-                    LogLevelMyDich.WARNING, 
+                    LogLevel.WARNING, 
                     Source.FOREST, 
                     $"Пришло обновление для бота, которого нет в списке онлайн ботов. botUsername={botUsername}");
             }
@@ -69,7 +81,7 @@ namespace Forest.Controllers
 		{
 			try
 			{
-				_logger.Log(LogLevelMyDich.INFO, Source.FOREST, $"Лес. Запуск бота. botId={botId}");
+				_logger.Log(LogLevel.INFO, Source.FOREST, $"Лес. Запуск бота. botId={botId}");
 
 				JObject answer = null;
 				var bot = _contextDb.Bots.Find(botId);
@@ -109,12 +121,12 @@ namespace Forest.Controllers
 					//Бот уже запущен с вебхуком
 					if (!string.IsNullOrEmpty(the_link_on_which_the_server_is_running))
 					{
-						_logger.Log(LogLevelMyDich.WARNING, Source.FOREST, "Запуск бота поверх запущенного webhook-а");
+						_logger.Log(LogLevel.WARNING, Source.FOREST, "Запуск бота поверх запущенного webhook-а");
 					}
 				}
 				catch (Exception ee)
 				{
-					_logger.Log(LogLevelMyDich.ERROR, Source.FOREST, "Не удалось узнать botUsername" +
+					_logger.Log(LogLevel.ERROR, Source.FOREST, "Не удалось узнать botUsername" +
 						" у бота с botId" + botId + ". Возможно у бота сохранён битый токен. " + ee.Message);
 
 					answer = new JObject()
@@ -128,12 +140,12 @@ namespace Forest.Controllers
 
 				}
 
-				BotsContainer.BotsDictionary.TryGetValue(botUsername, out BotWrapper _botWrapper);
+				BotsStorage.BotsDictionary.TryGetValue(botUsername, out BotWrapper _botWrapper);
 
 				//Если найден бот в контейнере
 				if (_botWrapper != null)
 				{
-					_logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, Source.FOREST, $"Лес. Попытка запуска бота, которые уже работает в этом лесу. botId={botId}");
+					_logger.Log(LogLevel.LOGICAL_DATABASE_ERROR, Source.FOREST, $"Лес. Попытка запуска бота, которые уже работает в этом лесу. botId={botId}");
 
 					answer = new JObject()
 						{
@@ -163,18 +175,18 @@ namespace Forest.Controllers
 				{
 					return StatusCode(403, "First node is not root node.");
 				}
-				MegaTree megaTree = new MegaTree(new SimpleNode((string)rootParams["name"], GetReplyMsgFromParams(rootParams), false));
+				MegaTree megaTree = new MegaTree(new SimpleNode(((string)rootParams["name"]).Trim(), GetReplyMsgFromParams(rootParams), false));
 				botWrapper.MegaTree = megaTree;
 				var treeNodes = new Node[allNodesCount];
 				treeNodes[0] = megaTree.root;
-				var variablesInfo = new List<(Type type, string name)>()
+				var variablesInfo = new HashSet<(Type type, string name)>()
 				{
 					(typeof(MetaValuedContainer<decimal>), "ShoppingCart")
 				};
 				for (int i = 1; i < allNodesCount; i++)
 				{
 					var nodeParams = allNodes[i]["parameters"];
-					string nodeName = (string)nodeParams["name"];
+					string nodeName = ((string)nodeParams["name"]).Trim();
 					Node node = null;
 					switch ((NodeType)(int)nodeParams["type"])
 					{
@@ -271,7 +283,7 @@ namespace Forest.Controllers
 										}
 										break;
 									case DisplayType.Multi:
-										List<MetaText> foldersNames = nodeParams["properties"].Select((section) => new MetaText(section["name"])).ToList();
+										List<MetaText> foldersNames = nodeParams["properties"].Select((section) => new MetaText(((string)section["name"]).Trim())).ToList();
 										node = new ProductMultiNode<decimal>(nodeName, elements, "Products", IDs, foldersNames, "ShoppingCart", "Добавлено: ", "Добавить", GetDoubleMsgFromParams(nodeParams));
 										break;
 									default:
@@ -319,7 +331,7 @@ namespace Forest.Controllers
 						case NodeType.SendOrder:
 							node = new OwnerNotificationNode(nodeName, GetInlineMsgFromParams(nodeParams), connector, (int)nodeParams["statusGroupId"],
 									UniversalOrderContainer.generateContainerCreator(variablesInfo),
-									variablesInfo.ToArray());
+									variablesInfo);
 							break;
 						default:
 							return StatusCode(403, "Incorrect node type.");
@@ -338,7 +350,7 @@ namespace Forest.Controllers
 					}
 					else
 					{
-						string name = (string)parameters["name"];
+						string name = ((string)parameters["name"]).Trim();
 						if (!string.IsNullOrWhiteSpace(name))
 						{
 							return new MetaText(name);
@@ -409,12 +421,12 @@ namespace Forest.Controllers
 					string fileId = (string)parameters["fileId"];
 					if (!string.IsNullOrWhiteSpace(fileId))
 					{
-						return new MetaDoubleKeyboardedMessage(metaReplyText: (string)parameters["message"], metaInlineText: (string)parameters["name"],
+						return new MetaDoubleKeyboardedMessage(metaReplyText: (string)parameters["message"], metaInlineText: ((string)parameters["name"]).Trim(),
 							useReplyMsgForFile: true, messageType: GetMessageTypeByFileId(fileId), messageFile: fileId);
 					}
 					else
 					{
-						return new MetaDoubleKeyboardedMessage(metaReplyText: (string)parameters["message"], metaInlineText: (string)parameters["name"]);
+						return new MetaDoubleKeyboardedMessage(metaReplyText: (string)parameters["message"], metaInlineText: ((string)parameters["name"]).Trim());
 					}
 				}
 
@@ -457,7 +469,7 @@ namespace Forest.Controllers
 					return Json(answer);
 				}
 
-				BotsContainer.RunAndRegisterBot(botWrapper);
+				BotsStorage.RunAndRegisterBot(botWrapper);
 
 				answer = new JObject()
 				{
@@ -506,16 +518,16 @@ namespace Forest.Controllers
             if (rrDb != null)
             {
                 //В базе уже запись о том, что бот запущен
-                _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, Source.FOREST, $"Лес. Запуск бота. В БД уже существует запись о том, что бот запущен. botId={botId}");
+                _logger.Log(LogLevel.LOGICAL_DATABASE_ERROR, Source.FOREST, $"Лес. Запуск бота. В БД уже существует запись о том, что бот запущен. botId={botId}");
 
                 //перезапись значения
-                _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, Source.FOREST, $"Лес. Запуск бота. Перезапись значения. botId={botId}");
+                _logger.Log(LogLevel.LOGICAL_DATABASE_ERROR, Source.FOREST, $"Лес. Запуск бота. Перезапись значения. botId={botId}");
 
                 rrDb.ForestLink = rr.ForestLink;
             }
             else
             {
-                _logger.Log(LogLevelMyDich.INFO, Source.FOREST, $" Создание новой записи о запущеном боте" + $"{rr.BotId}  {rr.ForestLink}");
+                _logger.Log(LogLevel.INFO, Source.FOREST, $" Создание новой записи о запущеном боте" + $"{rr.BotId}  {rr.ForestLink}");
                 _contextDb.RouteRecords.Add(rr);
             }
             _contextDb.BotLaunchRecords.Add(blr);
@@ -537,7 +549,7 @@ namespace Forest.Controllers
 
             string botUsername = new TelegramBotClient(botDb.Token).GetMeAsync().Result.Username;
 
-            if ( BotsContainer.BotsDictionary.TryGetValue(botUsername, out BotWrapper botWrapper))
+            if ( BotsStorage.BotsDictionary.TryGetValue(botUsername, out BotWrapper botWrapper))
             {
                 Console.WriteLine("  BotsContainer.BotsDictionary.TryGetValue(botUsername, out BotWrapper botWrappe              ");
                 if (botWrapper != null)
@@ -546,7 +558,7 @@ namespace Forest.Controllers
                     Console.WriteLine("         if (botWrapper != null)        ");
 
                     //удаление бота из памяти
-                    BotsContainer.BotsDictionary.Remove(botUsername);
+                    BotsStorage.BotsDictionary.Remove(botUsername);
                     Console.WriteLine("         BotsContainer.BotsDictionary.Remove(bot       ");
 
                     //очистка БД
@@ -558,7 +570,7 @@ namespace Forest.Controllers
                     }
                     else
                     {
-                        _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, Source.FOREST, "Куда успела деться RouteRecord?");
+                        _logger.Log(LogLevel.LOGICAL_DATABASE_ERROR, Source.FOREST, "Куда успела деться RouteRecord?");
                         Console.WriteLine("     ogger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, Куда успела деться RouteRecord ? )   ");
 
                         
@@ -570,15 +582,24 @@ namespace Forest.Controllers
                 }
                 else
                 {
-                    _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, Source.FOREST, $"Лес принял запрос на остановку " +
+                    _logger.Log(LogLevel.LOGICAL_DATABASE_ERROR, Source.FOREST, $"Лес принял запрос на остановку " +
                         $"бота, которого у него нет. botId={botId} botUsername={botUsername}. В словаре" +
                         $" ботов хранился botWrapper==null.");
                 }
             }
             else
             {
-                _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, Source.FOREST, $"Лес принял запрос на остановку бота," +
+                _logger.Log(LogLevel.LOGICAL_DATABASE_ERROR, Source.FOREST, $"Лес принял запрос на остановку бота," +
                     $" которого у него нет. botId={botId} botUsername={botUsername}");
+                
+                //попытка удалить неправильный route record
+
+                var maliciousRouteRecord = _contextDb.RouteRecords.SingleOrDefault(_rr => _rr.BotId == botId);
+                if (maliciousRouteRecord != null)
+                {
+	                _contextDb.RouteRecords.Remove(maliciousRouteRecord);
+	                _contextDb.SaveChanges();
+                }
             }
             return StatusCode(500);
         }

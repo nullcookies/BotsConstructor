@@ -1,5 +1,4 @@
 ﻿using DataLayer;
-using DataLayer.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -13,10 +12,9 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Claims;
 using System.Threading;
-using Monitor.TelegramAgent;
+using MyLibrary;
 using Website.Other.Middlewares;
 using Website.Services;
-using Website.TelegramAgent;
 
 namespace Website
 {
@@ -25,11 +23,8 @@ namespace Website
         private readonly IHostingEnvironment _environment;
         public Startup(IConfiguration configuration, IHostingEnvironment environment)
         {
-            Configuration = configuration;
             _environment = environment;
         }
-
-        private IConfiguration Configuration { get; }
 
         public void ConfigureServices(IServiceCollection services)
         {
@@ -66,21 +61,18 @@ namespace Website
 
             services.AddTransient<EmailMessageSender>();
 
-            services.AddSingleton<StupidLogger>();
+            services.AddSingleton<SimpleLogger>();
             services.AddSingleton<OrdersCountNotificationService>();
             services.AddSingleton<BotForSalesStatisticsService>();
             services.AddSingleton<TotalLog>();
             services.AddSingleton<BotsAirstripService>();
-            
-            
-            services.AddSingleton<MyTelegramAgent>();
-            services.AddSingleton<TelegramAgentHelperBot>();
+          
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
               .AddCookie(options =>
               {
-                  options.LoginPath = new Microsoft.AspNetCore.Http.PathString("/SignIn/Login");
-                  options.AccessDeniedPath = new Microsoft.AspNetCore.Http.PathString("/SignIn/Login");
+                  options.LoginPath = new PathString("/SignIn/Login");
+                  options.AccessDeniedPath = new PathString("/SignIn/Login");
               });
         }
 
@@ -89,17 +81,14 @@ namespace Website
             IHostingEnvironment env,
             ApplicationContext _contextDb,
             TotalLog totalLog,
-            //MoneyCollectorService moneyCollectorService,
-            StupidLogger logger)
+            SimpleLogger logger)
         {
 
-            logger.Log(LogLevelMyDich.IMPORTANT_INFO,
+            logger.Log(LogLevel.IMPORTANT_INFO,
                 Source.WEBSITE,
                 "Запуск сервера сайта");
             
-
-            _contextDb.RouteRecords.RemoveRange(_contextDb.RouteRecords);
-            _contextDb.SaveChanges();
+            
 
             if (env.IsDevelopment())
             {
@@ -115,7 +104,7 @@ namespace Website
             if (!isWindows)
             {
                 app.UseHsts();
-                app.UseHttpsRedirection();
+//                app.UseHttpsRedirection();
             }
 
 
@@ -138,18 +127,14 @@ namespace Website
             app.Use((context, next) =>
             {
 
-                var userLangs = context.Request.Headers["Accept-Language"].ToString();
-                var firstLang = userLangs.Split(',').FirstOrDefault();
+                var userLanguages = context.Request.Headers["Accept-Language"].ToString();
+                var firstLang = userLanguages.Split(',').FirstOrDefault();
 
                 string lang = "";
-                if (firstLang.ToLower().Contains("ru"))
-                {
+                if (firstLang != null && firstLang.ToLower().Contains("ru"))
                     lang = "ru";
-                }
                 else
-                {
                     lang = "en";
-                }
 
 
                 //switch culture
@@ -179,8 +164,7 @@ namespace Website
             });
 
 
-
-            //как это засунуть в Middleware?
+            
             app.Use(async (context, next) =>
             {
                 totalLog.Log(context);
@@ -194,24 +178,11 @@ namespace Website
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Main}/{action=Index}/{id?}");
-
-                routes.MapRoute(
-                    name: "areas",
-                    template: "{area:exists}/{controller=Home}/{action=Index}/{id?}"
-                );
-
             });
 
+            
+            
         }
     }
 }
-
-
-////Политика настраивается в Startup
-//[Authorize(Policy = "OnlyForAdmins")]
-//public IActionResult IndexAdmin()
-//{
-//    return Content("Проверка пройдена");
-//}
-
 

@@ -1,5 +1,4 @@
 ﻿using DataLayer;
-using DataLayer.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
@@ -13,6 +12,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using MyLibrary;
 
 
 namespace Website.Services
@@ -24,7 +24,7 @@ namespace Website.Services
     /// </summary>
     public class OrdersCountNotificationService
     {
-        StupidLogger _logger;
+        SimpleLogger _logger;
         ApplicationContext _contextDb {
             get
             {
@@ -33,7 +33,7 @@ namespace Website.Services
         }
         DbContextFactory _dbContextWrapper;
 
-        public OrdersCountNotificationService(IConfiguration configuration, StupidLogger _logger)
+        public OrdersCountNotificationService(IConfiguration configuration, SimpleLogger _logger)
         {
             this._logger = _logger;
 
@@ -185,7 +185,7 @@ namespace Website.Services
 
                     if (!addIsOk)
                     {
-                        _logger.Log(LogLevelMyDich.ERROR, Source.WEBSITE, $"Сайт. Сервис подсчёта заказов. Не удалось добавить webSocket для аккаунта accountId={accountId},");
+                        _logger.Log(LogLevel.ERROR, Source.WEBSITE, $"Сайт. Сервис подсчёта заказов. Не удалось добавить webSocket для аккаунта accountId={accountId},");
                     }
                 }
 
@@ -223,7 +223,7 @@ namespace Website.Services
                         }
                         else
                         {
-                            _logger.Log(LogLevelMyDich.INFO, Source.WEBSITE, "К словарю (accountId, List<WebSocket> ) добавлен сокет для аккаунта, который уже существует. Значит открыто несколько вкладок.");
+                            _logger.Log(LogLevel.INFO, Source.WEBSITE, "К словарю (accountId, List<WebSocket> ) добавлен сокет для аккаунта, который уже существует. Значит открыто несколько вкладок.");
                         }
                     }
                     else

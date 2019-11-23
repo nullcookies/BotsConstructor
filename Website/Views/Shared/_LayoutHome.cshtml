@@ -1,4 +1,5 @@
-﻿@using Microsoft.AspNetCore.Mvc.Localization
+﻿@using Microsoft.AspNetCore.Http.Extensions
+@using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
 <!DOCTYPE html>
 <html lang="en">
@@ -31,20 +32,55 @@
         <div class="bg-light border-right" id="sidebar-wrapper">
             <div class="sidebar-heading "><a class="text-decoration-none text-reset" asp-controller="Main" asp-action="Index">@Localizer["Bots constructor"] </a></div>
             <div class="list-group list-group-flush">
-                <a asp-controller="Home" asp-action="MyBots" class="list-group-item list-group-item-action bg-light">Мои боты</a>
+                <a asp-controller="MyBots" asp-action="MyBots" class="list-group-item list-group-item-action bg-light">Мои боты</a>
                 <a asp-controller="StatusGroups" asp-action="Index" class="list-group-item list-group-item-action bg-light">Группы статусов</a>
                 <a asp-controller="Orders" asp-action="Orders2" class="list-group-item list-group-item-action bg-light">Заказы <span class="badge badge-danger" id="newOrdersSpan"></span></a>
                 <a asp-controller="AccountManagement" asp-action="Index" class="list-group-item list-group-item-action bg-light">Аккаунт</a>
                 <a asp-controller="Support" asp-action="Index" class="list-group-item list-group-item-action bg-light">Поддержка</a>
             </div>
             <script>
+                var notOrders = window.location.pathname !== "/Orders/Orders2";
+
+                function sendNotification(title, options, clickFunc) {
+                    if (!("Notification" in window)) {
+                        console.warn('Браузер не поддерживает HTML Notifications.');
+                    }
+                    else if (Notification.permission === "granted") {
+                        new Notification(title, options).onclick = clickFunc;
+                    }
+                    else if (Notification.permission !== 'denied') {
+                        Notification.requestPermission(function (permission) {
+                            if (permission === "granted") {
+                                new Notification(title, options).onclick = clickFunc;
+                            }
+                        });
+                    }
+                }
+
+                var firstUpdate = true;
+                var ordersCount = 0;
                 function SetNewOrdersCount (count) {
                     if (count == 0) {
                         document.getElementById("newOrdersSpan").innerHTML = "";
                     }
                     else {
                         document.getElementById("newOrdersSpan").innerHTML = count;
+                        if (!firstUpdate && ordersCount < count && notOrders) {
+                            sendNotification('Новые заказы', {
+                                body: `Новых заказов: ${count}`,
+                                icon: "@Url.Content("~/favicon.ico")",
+                                tag : "new-orders",
+                                dir: 'auto'
+                            }, function() {
+                                if (notOrders) {
+                                    window.open("@Url.Action("Orders2", "Orders")", '_blank').focus();
+                                } else {
+                                    window.focus();
+                                }
+                            });
+                        }
                     }
+                    ordersCount = count;
                 }
 
 
@@ -52,55 +88,53 @@
 
                 var update = function () {
                     console.log(   "ajax ");
-                    $.ajax({
+                    return $.ajax({
                         type: 'POST',
                         url: '/Orders/GetNewOrdersCount',
                         success: function (data) {
                             SetNewOrdersCount(data);
                             //setNewFeedbackCount(?);
-                        },
+                        }
                     });
                 };
 
-                update();
-
-
+                update().done(function () {firstUpdate = false;});
             </script>
 
 
 
             <script>
-            (function () {
-                const getWebSocketMessages = function (onMessageReceived) {
-                    const url = `wss://${location.host}/Orders/SetWebsocketOrdersCount`;
-                    console.log('url is: ' + url);
+                (function () {
+                    const getWebSocketMessages = function (onMessageReceived) {
+                        const url = `wss://${location.host}/Orders/SetWebsocketOrdersCount`;
+                        console.log('url is: ' + url);
 
-                    const webSocket = new WebSocket(url);
-                    webSocket.onmessage = onMessageReceived;
-                    webSocket.onerror = onError;
-                };
+                        const webSocket = new WebSocket(url);
+                        webSocket.onmessage = onMessageReceived;
+                        webSocket.onerror = onError;
+                    };
 
-                function onError() {
+                    function onError() {
 
-                    console.log("Не удалось установить webSocket соединение");
-                    console.log("Запуск long polling");
-                    setInterval(() => update(), 10000);
+                        console.log("Не удалось установить webSocket соединение");
+                        console.log("Запуск long polling");
+                        setInterval(() => update(), 10000);
 
-                }
+                    }
 
 
-                getWebSocketMessages(function (message) {
-                    //console.log("Пришло уведомление");
-                    const jsonObj = JSON.parse(message.data);
-                    //console.log(jsonObj);
+                    getWebSocketMessages(function (message) {
+                        //console.log("Пришло уведомление");
+                        const jsonObj = JSON.parse(message.data);
+                        //console.log(jsonObj);
 
-                    SetNewOrdersCount(jsonObj.ordersCount);
+                        SetNewOrdersCount(jsonObj.ordersCount);
                     
 
-                });
-            }());
+                    });
+                }());
 
-        </script>
+            </script>
 
 
 
@@ -177,21 +211,21 @@
                 <!-- Правый верхний выпадающий список и ссылки -->
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
-                        <li class="nav-item active">
-                            <a class="nav-link" asp-controller="Home" asp-action="Index">Bots</a>
+                        <li class="nav-item">@{bool isMyBots = Url.Action("MyBots", "MyBots") == Url.Action();}
+                            <a class="nav-link @if (isMyBots){@Html.Raw("active disabled")}" asp-controller="MyBots" asp-action="MyBots">@Localizer["Bots"]</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Orders" asp-action="Orders2">Orders</a>
+                        <li class="nav-item">@{bool isOrders2 = Url.Action("Orders2", "Orders") == @Url.Action();}
+                            <a class="nav-link @if (isOrders2){@Html.Raw("active disabled")}" asp-controller="Orders" asp-action="Orders2">@Localizer["Orders"]</a>
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                Menu
+                                @User.Identity.Name
                             </a>
                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                @*<a class="dropdown-item" href="#">Something</a>*@
-                                <a class="dropdown-item" asp-controller="AccountManagement" asp-action="Index">Account</a>
+                                @*<a class="dropdown-item" href="#">Something</a>*@@{bool isHome = Url.Action("Index", "AccountManagement") == Url.Action();}
+                                <a class="dropdown-item @if (isHome){@Html.Raw("active disabled")}" asp-controller="AccountManagement" asp-action="Index">@Localizer["Home"]</a>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" asp-controller="SignOut" asp-action="Logout">Выйти</a>
+                                <a class="dropdown-item" asp-controller="SignOut" asp-action="Logout">@Localizer["Logout"]</a>
                             </div>
                         </li>
                     </ul>

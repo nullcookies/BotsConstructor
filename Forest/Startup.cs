@@ -1,6 +1,6 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 using DataLayer;
-using DataLayer.Models;
 using Forest.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MyLibrary;
 
 namespace Forest
 {
@@ -33,26 +34,32 @@ namespace Forest
                 .BuildServiceProvider();
 
 			services.AddSingleton<DbConnector>();
-            services.AddSingleton<StupidLogger>();
+            services.AddSingleton<SimpleLogger>();
             services.AddSingleton<BotStatisticsSynchronizer>();
+            services.AddSingleton<RouteRecordsSynchronizerService>();
 
 
 
         }
 
-        public void Configure(IApplicationBuilder app, 
-            IHostingEnvironment env, 
+        public void Configure(IApplicationBuilder app,
             BotStatisticsSynchronizer botStatisticsSynchronizer,
-            StupidLogger logger)
+            SimpleLogger logger,
+            RouteRecordsSynchronizerService routeRecordsSynchronizerService)
         {
 
-            logger.Log(LogLevelMyDich.IMPORTANT_INFO,
-                Source.WEBSITE,
+                
+            logger.Log(
+                LogLevel.IMPORTANT_INFO,
+                Source.FOREST,
                 "Запуск сервера леса");
 
-
+            botStatisticsSynchronizer.Start();
+            routeRecordsSynchronizerService.Start();
+            
+            
             app.UseDeveloperExceptionPage();
-
+            
 
             app.UseMvc(routes =>
             {
@@ -61,6 +68,10 @@ namespace Forest
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
 
+            logger.Log(
+                LogLevel.IMPORTANT_INFO,
+                Source.FOREST,
+                "Запуск сервера леса закончен");
         }
     }
 }

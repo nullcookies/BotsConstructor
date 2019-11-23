@@ -1,5 +1,4 @@
 ﻿using DataLayer;
-using DataLayer.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -11,6 +10,7 @@ using System.Configuration;
 using System.Linq;
 using System.Net.WebSockets;
 using System.Threading.Tasks;
+using MyLibrary;
 using Website.Other;
 using Website.Other.Filters;
 using Website.Services;
@@ -21,10 +21,10 @@ namespace Website.Services
   
     public class BotsAirstripService
     {
-        readonly StupidLogger _logger;
+        readonly SimpleLogger _logger;
         private readonly DbContextFactory _dbContextWrapper;
 
-        public BotsAirstripService(StupidLogger logger, IConfiguration configuration)
+        public BotsAirstripService(SimpleLogger logger, IConfiguration configuration)
         {
             _logger = logger;
             _dbContextWrapper = new DbContextFactory();
@@ -46,21 +46,21 @@ namespace Website.Services
             Account account = contextDb.Accounts.Find(accountId);
 
             //TODO вынести в другой сервис
-            bool account_can_run_a_bot = bot.OwnerId == accountId;
+            bool accountCanRunABot = bot.OwnerId == accountId;
 
             //Аккаунт может запускать бота?
-            if (!account_can_run_a_bot)
+            if (!accountCanRunABot)
             {
-                _logger.Log(LogLevelMyDich.WARNING,
+                _logger.Log(LogLevel.WARNING,
                       Source.WEBSITE_BOTS_AIRSTRIP_SERVICE,
                       "Попытка запуска бота аккаунтом, который не имеет к нему доступа.",
                       accountId: accountId);
 
                 jObject = new JObject()
-                            {
-                                { "success", false},
-                                {"failMessage", " У вас нет доступа к этому боту." }
-                            };
+                    {
+                        { "success", false},
+                        {"failMessage", " У вас нет доступа к этому боту." }
+                    };
                 return jObject;
 
             }
@@ -70,7 +70,7 @@ namespace Website.Services
             //У собственника бота есть деньги?
             if (botOwner.Money < 0)
             {
-                _logger.Log(LogLevelMyDich.WARNING,
+                _logger.Log(LogLevel.WARNING,
                      Source.WEBSITE_BOTS_AIRSTRIP_SERVICE,
                      "Попытка запуска бота с маленьким количеством средств на счету.",
                      accountId: accountId);
@@ -86,7 +86,8 @@ namespace Website.Services
             //без токена запускаться нельзя
             if (bot.Token == null)
             {
-                _logger.Log(LogLevelMyDich.USER_INTERFACE_ERROR_OR_HACKING_ATTEMPT, Source.WEBSITE, $"Попытка запутить бота без токена. botId={botId}");
+                _logger.Log(LogLevel.USER_INTERFACE_ERROR_OR_HACKING_ATTEMPT, Source.WEBSITE, 
+                    $"Попытка запутить бота без токена. botId={botId}");
                 jObject = new JObject()
                 {
                     { "success", false},
@@ -98,7 +99,8 @@ namespace Website.Services
             //без разметки запускаться нельзя
             if (bot.Markup == null)
             {
-                _logger.Log(LogLevelMyDich.USER_INTERFACE_ERROR_OR_HACKING_ATTEMPT, Source.WEBSITE, $"Попытка запутить бота без разметки. botId={botId}");
+                _logger.Log(LogLevel.USER_INTERFACE_ERROR_OR_HACKING_ATTEMPT, Source.WEBSITE,
+                    $"Попытка запутить бота без разметки. botId={botId}");
                 jObject = new JObject()
                 {
                     { "success", false},
@@ -111,7 +113,8 @@ namespace Website.Services
             RouteRecord existingRecord = contextDb.RouteRecords.Find(botId);
             if (existingRecord != null)
             {
-                _logger.Log(LogLevelMyDich.USER_INTERFACE_ERROR_OR_HACKING_ATTEMPT, Source.WEBSITE, $"Попытка запутить запущенного бота.");
+                _logger.Log(LogLevel.USER_INTERFACE_ERROR_OR_HACKING_ATTEMPT, Source.WEBSITE, 
+                    $"Попытка запутить запущенного бота.");
                 jObject = new JObject()
                 {
                     { "success", false},
@@ -127,7 +130,7 @@ namespace Website.Services
                 string forestUrl = "http://localhost:8080/Home/RunNewBot";
 
                 string data = "botId=" + botId;
-                var result = Stub.SendPost(forestUrl, data).Result;
+                var result = Stub.SendPostAsync(forestUrl, data).Result;
 
                 JObject answer = (JObject)JsonConvert.DeserializeObject(result);
 
@@ -148,7 +151,7 @@ namespace Website.Services
                     }
                     else
                     {
-                        _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR,
+                        _logger.Log(LogLevel.LOGICAL_DATABASE_ERROR,
                             Source.WEBSITE, 
                             $"Лес вернул Ок (нормальный запуск бота), но не сделал запись в бд. botId={botId}");
 
@@ -175,7 +178,7 @@ namespace Website.Services
             catch (Exception ex)
             {
 
-                _logger.Log(LogLevelMyDich.ERROR, Source.WEBSITE, $"Не удалось запустить бота. botId={botId}. ex.Message={ex.Message}");
+                _logger.Log(LogLevel.ERROR, Source.WEBSITE, $"Не удалось запустить бота. botId={botId}. ex.Message={ex.Message}");
 
                 jObject = new JObject()
                         {
@@ -197,24 +200,20 @@ namespace Website.Services
         public JObject StopBot(int botId, int accountId)
         {
 
-            ApplicationContext _contextDb = _dbContextWrapper.GetNewDbContext();
+            ApplicationContext contextDb = _dbContextWrapper.GetNewDbContext();
 
             JObject jObject = null;
-            BotDB bot = _contextDb.Bots.Find(botId);
+            BotDB bot = contextDb.Bots.Find(botId);
 
             if (bot != null)
             {
-                bool account_can_stop_the_bot = false;
+                bool accountCanStopTheBot = bot.OwnerId == accountId;
 
                 //TODO вынести в другой сервис
-                if (bot.OwnerId == accountId)
-                {
-                    account_can_stop_the_bot = true;
-                }
 
-                if (account_can_stop_the_bot)
+                if (accountCanStopTheBot)
                 {
-                    RouteRecord record = _contextDb.RouteRecords.Find(bot.Id);
+                    RouteRecord record = contextDb.RouteRecords.Find(bot.Id);
 
                     if (record != null)
                     {
@@ -224,16 +223,15 @@ namespace Website.Services
 
                             string forestUrl = record.ForestLink + "/Home/StopBot";
                             string data = "botId=" + bot.Id;
-                            var result = Stub.SendPost(forestUrl, data).Result;
+                            var result = Stub.SendPostAsync(forestUrl, data).Result;
 
-                            RouteRecord rr = _contextDb
+                            RouteRecord rr = contextDb
                                 .RouteRecords
-                                .Where(_rr => _rr.BotId == botId)
-                                .SingleOrDefault();
+                                .SingleOrDefault(_rr => _rr.BotId == botId);
 
                             if (rr == null)
                             {
-                                _logger.Log(LogLevelMyDich.INFO, Source.WEBSITE_BOTS_AIRSTRIP_SERVICE, $"Бот {bot.Id} был нормально остановлен.");
+                                _logger.Log(LogLevel.INFO, Source.WEBSITE_BOTS_AIRSTRIP_SERVICE, $"Бот {bot.Id} был нормально остановлен.");
                                 jObject = new JObject()
                                 {
                                     { "success", true}
@@ -242,7 +240,7 @@ namespace Website.Services
                             }
                             else
                             {
-                                _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, Source.WEBSITE, $"При остановке бота botId={botId}," +
+                                _logger.Log(LogLevel.LOGICAL_DATABASE_ERROR, Source.WEBSITE, $"При остановке бота botId={botId}," +
                                     $" accountId={accountId}. Лес ответил Ok, но не удалил RouteRecord из БД ");
 
                                 jObject = new JObject()
@@ -256,7 +254,7 @@ namespace Website.Services
                         }
                         catch (Exception exe)
                         {
-                            _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, Source.WEBSITE, $"При остановке бота(botId={bot.Id}, " +
+                            _logger.Log(LogLevel.LOGICAL_DATABASE_ERROR, Source.WEBSITE, $"При остановке бота(botId={bot.Id}, " +
                             $"ownerId={bot.OwnerId}, пользователем accountId={accountId}) не удалось выполнить post запрос на лес." +
                             $"Exception message ={exe.Message}");
 
@@ -270,7 +268,7 @@ namespace Website.Services
                     }
                     else
                     {
-                        _logger.Log(LogLevelMyDich.LOGICAL_DATABASE_ERROR, Source.WEBSITE, $"При остановке бота(botId={bot.Id}, " +
+                        _logger.Log(LogLevel.LOGICAL_DATABASE_ERROR, Source.WEBSITE, $"При остановке бота(botId={bot.Id}, " +
                             $"ownerId={bot.OwnerId}, пользователем accountId={accountId}) в БД не была найдена" +
                             $"запись о сервере на котором бот работает. Возможно, она была удалена или не добавлена.");
 
@@ -286,7 +284,7 @@ namespace Website.Services
                 }
                 else
                 {
-                    _logger.Log(LogLevelMyDich.WARNING,
+                    _logger.Log(LogLevel.WARNING,
                         Source.WEBSITE_BOTS_AIRSTRIP_SERVICE,
                         "Попытка остановки бота аккаунтом, который не имеет к нему доступа.",
                         accountId:accountId);

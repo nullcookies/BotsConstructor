@@ -38,7 +38,7 @@ namespace LogicalCore
                 session.CurrentNode = this;
                 return prevTask.Result;
             },
-            TaskContinuationOptions.None);
+            TaskContinuationOptions.NotOnFaulted);
         }
 
         protected bool TryGoBack(Session session, Message message)

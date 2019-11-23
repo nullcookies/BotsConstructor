@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using DataLayer;
-using DataLayer.Models;
 using Microsoft.AspNetCore.Mvc;
+using MyLibrary;
 using Website.Other;
 using Website.Services;
 using Website.ViewModels;
@@ -13,13 +13,13 @@ namespace Website.Controllers.SignInUpOut
     public class PasswordResetController : Controller
     {
 
-        private readonly StupidLogger _logger;
+        private readonly SimpleLogger _logger;
         private readonly ApplicationContext _context;
         private readonly EmailMessageSender _emailSender;
 
         public PasswordResetController(ApplicationContext context, 
             EmailMessageSender emailSender,
-            StupidLogger logger)
+            SimpleLogger logger)
         {
             _context = context;
             _emailSender = emailSender;
@@ -142,7 +142,7 @@ namespace Website.Controllers.SignInUpOut
                     return StatusCode(403);
                 }
 
-                _logger.Log(LogLevelMyDich.UNAUTHORIZED_ACCESS_ATTEMPT,
+                _logger.Log(LogLevel.UNAUTHORIZED_ACCESS_ATTEMPT,
                     Source.PASSWORD_RESET,
                     $"Аккаунт {targetAccountId} запросил смену пароля. В это время пришёл post запрос " +
                     $"с новым паролем, но guid был неверным. guid={guid}, accountId из cookie = {accountId}");
