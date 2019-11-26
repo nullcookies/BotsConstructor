@@ -27,7 +27,6 @@
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="2.2.4" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.5.0" />
     <PackageReference Include="Telegram.Bot" Version="14.12.0" />
-    <PackageReference Include="TLSharp" Version="0.1.0.396" />
   </ItemGroup>
 
 
