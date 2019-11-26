@@ -157,7 +157,10 @@ namespace Website.Controllers.SignInUpOut
             ClaimsIdentity id = new ClaimsIdentity(claims, "ApplicationCookie", ClaimsIdentity.DefaultNameClaimType,
                 ClaimsIdentity.DefaultRoleClaimType);
 
-            HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id));
+            HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id), new AuthenticationProperties()
+            {
+                ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7)
+            });
         }
     }
 }
