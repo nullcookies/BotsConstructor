@@ -75,9 +75,9 @@ namespace Website.Controllers.Private_office.AccountManagement
         LiqPayInfo CalculateLiqPayInfo(decimal amount, int accountId)
         {
             string domain = "botsconstructor.com";
-            string link = $"https://{domain}/TopUp/";
-            string serverUrl = link + "LiqPayCallback";
-            string resultUrl = link + "SuccessPayment";
+            string link = $"https://{domain}/";
+            string serverUrl = link + "TopUp/LiqPayCallback";
+            string resultUrl = link + "StaticMessage/Success?message=Ваш+платёж+был+успешно+принят";
             
             _simpleLogger.Log(LogLevel.IMPORTANT_INFO, Source.WEBSITE_TOP_UP, $"Формирование data и signature. serverUrl={serverUrl} resultUrl ={resultUrl}");
             
