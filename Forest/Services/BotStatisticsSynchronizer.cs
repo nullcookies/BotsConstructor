@@ -98,14 +98,14 @@ namespace Forest.Services
                         Source.FOREST_BOT_STATISTICS_SYNCHRONIZER,
                         $"Обновление статистики бота в бд. Количество сообщений у бота в памяти " +
                         $"меньше старого значения кол-ва сообщений у бота в БД." +
-                        $"actualNumberOfMessages{actualNumberOfMessages}, " +
+                        $"actualNumberOfMessages = {actualNumberOfMessages}, " +
                         $"statisticsDb.NumberOfUniqueMessages = {statisticsDb.NumberOfUniqueMessages}");
 
                     //Это может произойти, если при старте бота из бд не была извлечена статистика бота,
                     //которая накопилась за прошлые запуски
 
                     //Заношу в память данные из бд, чтобы такой ошибки больше не было
-                    actualNumberOfMessages = statisticsDb.NumberOfUniqueMessages;
+                    statisticsDb.NumberOfUniqueMessages  = statisticsDb.NumberOfUniqueMessages;
                 }
                 else
                 {

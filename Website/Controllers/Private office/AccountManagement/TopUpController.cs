@@ -73,6 +73,13 @@ namespace Website.Controllers.Private_office.AccountManagement
 
         LiqPayInfo CalculateLiqPayInfo(decimal amount, int accountId)
         {
+            string domain = HttpContext.Request.Host.Value;
+            string link = $"https://{domain}/TopUp/";
+            string serverUrl = link + "LiqPayCallback";
+            string resultUrl = link + "SuccessPayment";
+            
+            _simpleLogger.Log(LogLevel.IMPORTANT_INFO, Source.WEBSITE_TOP_UP, $"Формирование data и signature. serverUrl={serverUrl}, resultUrl={resultUrl}");
+            
             var jsonObj = new
             {
                 version = "3",
@@ -83,8 +90,8 @@ namespace Website.Controllers.Private_office.AccountManagement
                 description = $"Пополнение личного счёта на сайте botsconstructor.com, accountId={accountId}",
                 info= $"accountId={accountId}",
                 order_id = Guid.NewGuid().ToString(),
-                server_url = Url.Action("LiqPayCallback"),
-                result_url = Url.Action("SuccessPayment")
+                server_url = serverUrl,
+                result_url = resultUrl
             };
             string jsonString = JsonConvert.SerializeObject(jsonObj);
             string data = Base64Encode(jsonString);
