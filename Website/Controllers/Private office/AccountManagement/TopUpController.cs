@@ -34,7 +34,7 @@ namespace Website.Controllers.Private_office.AccountManagement
         }
 
         [HttpPost]
-        public IActionResult LiqPayCallback(string data, string signature)
+        public IActionResult LiqPayCallback()
         {
             var request = HttpContext.Request;
             var jsonString = JsonConvert.SerializeObject(request);
@@ -42,19 +42,19 @@ namespace Website.Controllers.Private_office.AccountManagement
             _simpleLogger.Log(LogLevel.IMPORTANT_INFO, Source.WEBSITE_TOP_UP,
                 $"Был получен post запрос на LiqPayCallback. Тело запроса:{jsonString}");
             
-            string checkSignature = GetBase64EncodedSHA1Hash(privateKey + data + privateKey);
-            if (checkSignature != signature)
-            {
-                //Запрос пришёл не от LiqPay
-                //Идите в жопу
-                _simpleLogger.Log(LogLevel.IMPORTANT_INFO, Source.WEBSITE_TOP_UP,
-                    $"Сигнатуры не совпали checkSignature={checkSignature} signature={signature}");
-
-                return Forbid();
-            }
-
-            _simpleLogger.Log(LogLevel.IMPORTANT_INFO, Source.WEBSITE_TOP_UP,
-                $"Сигнатуры совпали {checkSignature}");
+//            string checkSignature = GetBase64EncodedSHA1Hash(privateKey + data + privateKey);
+//            if (checkSignature != signature)
+//            {
+//                //Запрос пришёл не от LiqPay
+//                //Идите в жопу
+//                _simpleLogger.Log(LogLevel.IMPORTANT_INFO, Source.WEBSITE_TOP_UP,
+//                    $"Сигнатуры не совпали checkSignature={checkSignature} signature={signature}");
+//
+//                return Forbid();
+//            }
+//
+//            _simpleLogger.Log(LogLevel.IMPORTANT_INFO, Source.WEBSITE_TOP_UP,
+//                $"Сигнатуры совпали {checkSignature}");
 
             return Ok();
         }
