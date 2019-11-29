@@ -76,9 +76,9 @@ namespace Website.Controllers.Private_office.AccountManagement
             string domain = "botsconstructor.com";
             string link = $"https://{domain}/TopUp/";
             string serverUrl = link + "LiqPayCallback";
-            string resultUrl = link + "SuccessPayment";
+//            string resultUrl = link + "SuccessPayment";
             
-            _simpleLogger.Log(LogLevel.IMPORTANT_INFO, Source.WEBSITE_TOP_UP, $"Формирование data и signature. serverUrl={serverUrl}, resultUrl={resultUrl}");
+            _simpleLogger.Log(LogLevel.IMPORTANT_INFO, Source.WEBSITE_TOP_UP, $"Формирование data и signature. serverUrl={serverUrl}");
             
             var jsonObj = new
             {
@@ -91,7 +91,7 @@ namespace Website.Controllers.Private_office.AccountManagement
                 info= $"accountId={accountId}",
                 order_id = Guid.NewGuid().ToString(),
                 server_url = serverUrl,
-                result_url = resultUrl
+//                result_url = resultUrl
             };
             string jsonString = JsonConvert.SerializeObject(jsonObj);
             string data = Base64Encode(jsonString);
