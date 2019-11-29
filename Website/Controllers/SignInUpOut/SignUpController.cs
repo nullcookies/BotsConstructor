@@ -80,9 +80,9 @@ namespace Website.Controllers.SignInUpOut
                         if (EmailMessageSender.EmailIsValid(model.Email))
                         {
 
-
+                            
                             Guid guid = Guid.NewGuid();
-                            string domain = HttpContext.Request.Host.Value;
+                            string domain = "botsconstructor.com";
                             string link = $"https://{domain}/SignUp/EmailCheckSuccess?guid={guid.ToString()}&accountId={account.Id}";
 
 //                            string link = Url.Action("EmailCheckSuccess", new {guid = guid.ToString(), accountId = account.Id});
