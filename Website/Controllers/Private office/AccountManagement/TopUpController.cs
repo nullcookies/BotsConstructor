@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Security.Cryptography;
 using System.Text;
 using DataLayer;
@@ -65,12 +66,18 @@ namespace Website.Controllers.Private_office.AccountManagement
             public string Signature;
         }
 
+        [HttpPost]
+        public IActionResult SucceddPayment()
+        {
+            return RedirectToAction("Success", "StaticMessage",new {message="Ваш платёж был успешно принят"});
+        }
+        
         LiqPayInfo CalculateLiqPayInfo(decimal amount, int accountId)
         {
             string domain = "botsconstructor.com";
             string link = $"https://{domain}/";
             string serverUrl = link + "TopUp/LiqPayCallback";
-            string resultUrl = link + "StaticMessage/Success?message=Ваш+платёж+был+успешно+принят";
+            string resultUrl = link + "TopUp/SucceddPayment";
             
             _simpleLogger.Log(LogLevel.IMPORTANT_INFO, Source.WEBSITE_TOP_UP, $"Формирование data и signature. serverUrl={serverUrl} resultUrl ={resultUrl}");
             
