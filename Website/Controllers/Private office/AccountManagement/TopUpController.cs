@@ -73,7 +73,7 @@ namespace Website.Controllers.Private_office.AccountManagement
 
         LiqPayInfo CalculateLiqPayInfo(decimal amount, int accountId)
         {
-            string domain = HttpContext.Request.Host.Value;
+            string domain = "botsconstructor.com";
             string link = $"https://{domain}/TopUp/";
             string serverUrl = link + "LiqPayCallback";
             string resultUrl = link + "SuccessPayment";
