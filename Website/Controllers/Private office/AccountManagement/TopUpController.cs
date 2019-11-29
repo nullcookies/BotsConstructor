@@ -37,10 +37,10 @@ namespace Website.Controllers.Private_office.AccountManagement
 
         [AllowAnonymous]
         [HttpPost]
-        public IActionResult LiqPayCallback(string data, string signature)
+        public IActionResult LiqPayCallback(string data, string signature, decimal amount)
         {
             _simpleLogger.Log(LogLevel.IMPORTANT_INFO, Source.WEBSITE_TOP_UP,
-                $"Был получен post запрос на LiqPayCallback. Запрос : data = {data}, signature={signature}");
+                $"Был получен post запрос на LiqPayCallback. Запрос : data = {data}, signature={signature}, amount = {amount}");
             
             string checkSignature = GetBase64EncodedSHA1Hash(privateKey + data + privateKey);
             if (checkSignature != signature)
@@ -58,14 +58,7 @@ namespace Website.Controllers.Private_office.AccountManagement
 
             return Ok();
         }
-        
-        [HttpPost]
-        [AllowAnonymous]
-        public IActionResult SuccessPayment()
-        {
-            var aaa = HttpContext;
-            return Content("Це тотальна перемога");
-        }
+      
         class LiqPayInfo
         {
             public string Data;
