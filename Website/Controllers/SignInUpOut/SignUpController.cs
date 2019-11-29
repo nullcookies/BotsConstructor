@@ -82,8 +82,10 @@ namespace Website.Controllers.SignInUpOut
 
 
                             Guid guid = Guid.NewGuid();
-                            string domain = HttpContext.Request.Host.Value;
-                            string link = $"https://{domain}/SignUp/EmailCheckSuccess?guid={guid.ToString()}&accountId={account.Id}";
+//                            string domain = HttpContext.Request.Host.Value;
+//                            string link = $"https://{domain}/SignUp/EmailCheckSuccess?guid={guid.ToString()}&accountId={account.Id}";
+
+                            string link = Url.Action("EmailCheckSuccess", new {guid = guid.ToString(), accountId = account.Id});
 
                             var unconfirmedEmail = new UnconfirmedEmail() { AccountId = account.Id, Email = model.Email, GuidPasswordSentToEmail = guid };
 

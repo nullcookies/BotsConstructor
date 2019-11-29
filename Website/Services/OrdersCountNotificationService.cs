@@ -43,7 +43,7 @@ namespace Website.Services
         }
 
         //Периодический запуск
-        public async Task<bool> PeriodicFooAsync(TimeSpan interval, CancellationToken cancellationToken)
+        public async void PeriodicFooAsync(TimeSpan interval, CancellationToken cancellationToken)
         {
             while (true)
             {                
