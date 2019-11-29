@@ -36,16 +36,16 @@ namespace Website.Controllers.Private_office.AccountManagement
         [HttpPost]
         public IActionResult LiqPayCallback(string data, string signature)
         {
-            var request1 = HttpContext.Request.Body;
-            var request2 = HttpContext.Request.Headers;
-            var request3 = HttpContext.Request.Query;
-            
-            var jsonString1 = JsonConvert.SerializeObject(request1);
-            var jsonString2 = JsonConvert.SerializeObject(request2);
-            var jsonString3 = JsonConvert.SerializeObject(request3);
+//            var request1 = HttpContext.Request.Body;
+//            var request2 = HttpContext.Request.Headers;
+//            var request3 = HttpContext.Request.Query;
+//            
+//            var jsonString1 = JsonConvert.SerializeObject(request1);
+//            var jsonString2 = JsonConvert.SerializeObject(request2);
+//            var jsonString3 = JsonConvert.SerializeObject(request3);
 
             _simpleLogger.Log(LogLevel.IMPORTANT_INFO, Source.WEBSITE_TOP_UP,
-                $"Был получен post запрос на LiqPayCallback. Запрос :{jsonString1} {jsonString2} {jsonString3} data = {data}, signature={signature}");
+                $"Был получен post запрос на LiqPayCallback. Запрос : data = {data}, signature={signature}");
             
             string checkSignature = GetBase64EncodedSHA1Hash(privateKey + data + privateKey);
             if (checkSignature != signature)
