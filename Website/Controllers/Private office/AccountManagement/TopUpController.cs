@@ -36,13 +36,7 @@ namespace Website.Controllers.Private_office.AccountManagement
         [HttpPost]
         public IActionResult LiqPayCallback(string data, string signature)
         {
-//            var request1 = HttpContext.Request.Body;
-//            var request2 = HttpContext.Request.Headers;
-//            var request3 = HttpContext.Request.Query;
-//            
-//            var jsonString1 = JsonConvert.SerializeObject(request1);
-//            var jsonString2 = JsonConvert.SerializeObject(request2);
-//            var jsonString3 = JsonConvert.SerializeObject(request3);
+
 
             _simpleLogger.Log(LogLevel.IMPORTANT_INFO, Source.WEBSITE_TOP_UP,
                 $"Был получен post запрос на LiqPayCallback. Запрос : data = {data}, signature={signature}");
@@ -81,7 +75,7 @@ namespace Website.Controllers.Private_office.AccountManagement
             string domain = "botsconstructor.com";
             string link = $"https://{domain}/TopUp/";
             string serverUrl = link + "LiqPayCallback";
-//            string resultUrl = link + "SuccessPayment";
+            string resultUrl = link + "SuccessPayment";
             
             _simpleLogger.Log(LogLevel.IMPORTANT_INFO, Source.WEBSITE_TOP_UP, $"Формирование data и signature. serverUrl={serverUrl}");
             
@@ -96,7 +90,7 @@ namespace Website.Controllers.Private_office.AccountManagement
                 info= $"accountId={accountId}",
                 order_id = Guid.NewGuid().ToString(),
                 server_url = serverUrl,
-//                result_url = resultUrl
+                result_url = resultUrl
             };
             string jsonString = JsonConvert.SerializeObject(jsonObj);
             string data = Base64Encode(jsonString);
