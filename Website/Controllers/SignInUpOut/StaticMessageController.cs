@@ -6,6 +6,7 @@ namespace Website.Controllers.SignInUpOut
     {
                 
         [HttpGet]
+        [HttpPost]
         public IActionResult Success(string message)
         {
             ViewData["message"] = message;
@@ -14,6 +15,7 @@ namespace Website.Controllers.SignInUpOut
         }
 
         [HttpGet]
+        [HttpPost]
         public IActionResult Failure(string message)
         {
             ViewData["message"] = message;
