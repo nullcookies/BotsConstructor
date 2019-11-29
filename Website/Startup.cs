@@ -123,6 +123,19 @@ namespace Website
 
             app.UseWebSockets(wsOptions);
 
+            //Костыльное отлавливание ошибок
+            app.Use(async (context, next) =>
+            {
+                try
+                {
+                    await next.Invoke();
+                }
+                catch (Exception exception)
+                {
+                    logger.Log(LogLevel.FATAL, Source.WEBSITE, "Сайт навернулся", ex:exception);
+                }
+            });
+
 
             //сохранение в удобном виде для настроек локализации
             app.Use((context, next) =>
