@@ -4,12 +4,14 @@ using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 using DataLayer;
+using Microsoft.AspNetCore.Authorization;
 using MyLibrary;
 using Newtonsoft.Json;
 
 
 namespace Website.Controllers.Private_office.AccountManagement
 {
+    [Authorize]
     public class TopUpController:Controller
     {
         private readonly SimpleLogger _simpleLogger;
@@ -33,11 +35,10 @@ namespace Website.Controllers.Private_office.AccountManagement
             return View();
         }
 
+        [AllowAnonymous]
         [HttpPost]
         public IActionResult LiqPayCallback(string data, string signature)
         {
-
-
             _simpleLogger.Log(LogLevel.IMPORTANT_INFO, Source.WEBSITE_TOP_UP,
                 $"Был получен post запрос на LiqPayCallback. Запрос : data = {data}, signature={signature}");
             
@@ -58,7 +59,8 @@ namespace Website.Controllers.Private_office.AccountManagement
             return Ok();
         }
         
-        [HttpGet]
+        [HttpPost]
+        [AllowAnonymous]
         public IActionResult SuccessPayment()
         {
             var aaa = HttpContext;
@@ -77,7 +79,7 @@ namespace Website.Controllers.Private_office.AccountManagement
             string serverUrl = link + "LiqPayCallback";
             string resultUrl = link + "SuccessPayment";
             
-            _simpleLogger.Log(LogLevel.IMPORTANT_INFO, Source.WEBSITE_TOP_UP, $"Формирование data и signature. serverUrl={serverUrl}");
+            _simpleLogger.Log(LogLevel.IMPORTANT_INFO, Source.WEBSITE_TOP_UP, $"Формирование data и signature. serverUrl={serverUrl} resultUrl ={resultUrl}");
             
             var jsonObj = new
             {
