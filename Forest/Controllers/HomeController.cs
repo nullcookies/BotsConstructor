@@ -42,8 +42,6 @@ namespace Forest.Controllers
         /// <summary>
         /// Принимает сообщения для ботов из Telegram
         /// </summary>
-        /// <param name="update"></param>
-        /// <returns></returns>
         [Route("{telegramBotUsername}")]
         public IActionResult Index([FromBody]Update update)
         {
@@ -155,7 +153,8 @@ namespace Forest.Controllers
 					return Json(answer);
 				}
 				//создание сериализованного объекта дерева
-				BotWrapper botWrapper = new BotWrapper(botId, null, bot.Token);
+				string link = " https://5cd14e61.ngrok.io/" + botUsername;
+				BotWrapper botWrapper = new BotWrapper(botId, link, bot.Token);
 				JArray allNodes = JsonConvert.DeserializeObject<JArray>(bot.Markup);
 
 				if (allNodes.Count == 0)
@@ -605,41 +604,7 @@ namespace Forest.Controllers
         }
     }
 
-	enum NodeType
-	{
-		Unknown = 0,
-		Root = 1,
-		Info = 2,
-		Section = 3,
-		Product = 4,
-		Input = 5,
-		SendOrder = 6
-	}
 
-	enum CollectionType
-    {
-		Unknown = 0,
-		Block = 1,
-        Flipper = 2
-	}
-
-	enum DisplayType
-	{
-		Unknown = 0,
-		Simple = 1,
-		Multi = 2
-	}
-
-	enum InputType
-	{
-		Unknown = 0,
-		Text = 1,
-		Time = 2,
-		Image = 3,
-		Audio = 4,
-		Video = 5,
-		Document = 6
-	}
 
 }
 

@@ -1,12 +1,6 @@
-﻿using System;
-using System.Configuration;
-using System.Net;
-using System.Runtime.InteropServices;
-using DeleteMeWebhook;
-using LogicalCore;
+﻿using System.Net;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
-using Telegram.Bot;
 
 namespace Forest
 {

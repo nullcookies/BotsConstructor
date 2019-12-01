@@ -13,7 +13,7 @@ namespace Forest
             botWrapper.Run();
 
             string botUsername = botWrapper.BotClient.GetMeAsync().Result.Username;
-            BotsStorage.BotsDictionary.Add(botUsername, botWrapper);
+            BotsDictionary.Add(botUsername, botWrapper);
         }
         
     }

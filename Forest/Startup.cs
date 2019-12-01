@@ -1,9 +1,6 @@
-﻿using System;
-using System.Runtime.InteropServices;
-using DataLayer;
+﻿using DataLayer;
 using Forest.Services;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -14,11 +11,9 @@ namespace Forest
 {
     public class Startup
     {
-        private IHostingEnvironment _environment;
-        public Startup(IConfiguration configuration, IHostingEnvironment environment)
+        public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            _environment = environment;
         }
 
         private IConfiguration Configuration { get; }
@@ -42,23 +37,12 @@ namespace Forest
 
         }
 
-        public void Configure(IApplicationBuilder app,
-            BotStatisticsSynchronizer botStatisticsSynchronizer,
-            SimpleLogger logger,
-            RouteRecordsSynchronizerService routeRecordsSynchronizerService)
+        public void Configure(IApplicationBuilder app, BotStatisticsSynchronizer botStatisticsSynchronizer, SimpleLogger logger, RouteRecordsSynchronizerService routeRecordsSynchronizerService)
         {
-
-                
-            logger.Log(
-                LogLevel.IMPORTANT_INFO,
-                Source.FOREST,
-                "Запуск сервера леса");
-
+            logger.Log(LogLevel.IMPORTANT_INFO, Source.FOREST, "Запуск сервера леса");
             botStatisticsSynchronizer.Start();
             routeRecordsSynchronizerService.Start();
-            
-            
-            app.UseDeveloperExceptionPage();
+//            app.UseDeveloperExceptionPage();
             
 
             app.UseMvc(routes =>
@@ -67,11 +51,6 @@ namespace Forest
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
-
-            logger.Log(
-                LogLevel.IMPORTANT_INFO,
-                Source.FOREST,
-                "Запуск сервера леса закончен");
         }
     }
 }

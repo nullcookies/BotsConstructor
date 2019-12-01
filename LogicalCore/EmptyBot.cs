@@ -13,13 +13,6 @@ namespace LogicalCore
     /// </summary>
     public class EmptyBot
 	{
-	
-        /// <summary>
-        /// Для запуска в режиме long polling
-        /// </summary>
-        /// <param name="token"></param>
-        public EmptyBot(string token) : this(0, null, token) { }
-
         /// <summary>
         /// Для запуска в режиме webhook
         /// </summary>
