@@ -34,9 +34,6 @@ namespace Forest
             services.AddSingleton<SimpleLogger>();
             services.AddSingleton<BotStatisticsSynchronizer>();
             services.AddSingleton<RouteRecordsSynchronizerService>();
-
-
-
         }
 
         public void Configure(IApplicationBuilder app, BotStatisticsSynchronizer botStatisticsSynchronizer, SimpleLogger logger, RouteRecordsSynchronizerService routeRecordsSynchronizerService)
@@ -44,27 +41,9 @@ namespace Forest
             logger.Log(LogLevel.IMPORTANT_INFO, Source.FOREST, "Запуск сервера леса");
 
             app.UseHttpsRedirection();
-//            botStatisticsSynchronizer.Start();
-//            routeRecordsSynchronizerService.Start();
+            botStatisticsSynchronizer.Start();
+            routeRecordsSynchronizerService.Start();
 
-            //Костыльное отлавливание ошибок
-//            app.Use(async (context, next) =>
-//            {
-//                try
-//                {
-//                    await next.Invoke();
-//                }
-//                catch (Exception exception)
-//                {
-//                    Console.WriteLine("лес навернулся "+ exception.Message);
-//                }
-//            });
-            
-//            app.Use(async (context, next) =>
-//            {
-//                Console.WriteLine("Что-то пришло");
-//                await next.Invoke();
-//            });
 
 
             app.UseMvc(routes =>
