@@ -16,19 +16,9 @@
 </head>
 <body>
 
-    <!-- Вся страница-->
+    
     <div class="d-flex" id="wrapper">
-        <!---->
-        <!---->
-        <!---->
-        <!---->
-        <!---->
-        <!---->
-        <!---->
-        <!---->
-        <!---->
-        <!---->
-        <!-- Левое меню -->
+    
         <div class="bg-light border-right" id="sidebar-wrapper">
             <div class="sidebar-heading "><a class="text-decoration-none text-reset" asp-controller="Main" asp-action="Index">@Localizer["Bots constructor"] </a></div>
             <div class="list-group list-group-flush">
@@ -140,42 +130,11 @@
 
 
         </div>
-        <!-- /#Левое меню -->
-        <!---->
-        <!---->
-        <!---->
-        <!---->
-        <!---->
-        <!---->
-        <!---->
-        <!---->
-        <!---->
-        <!---->
-        <!-- Страница без левого меню -->
+     
         <div id="page-content-wrapper">
-            <!---->
-            <!---->
-            <!---->
-            <!---->
-            <!---->
-            <!---->
-            <!---->
-            <!---->
-            <!---->
-            <!---->
-            <!-- Верхняя полоса -->
+       
             <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
-                <!---->
-                <!---->
-                <!---->
-                <!---->
-                <!---->
-                <!---->
-                <!---->
-                <!---->
-                <!---->
-                <!---->
-                <!-- Закрыть левое меню-->
+             
                 <button class="btn btn-primary" id="menu-toggle">Menu</button>
                 <script>
                     $("#menu-toggle").click(function (e) {
@@ -183,32 +142,11 @@
                         $("#wrapper").toggleClass("toggled");
                     });
                 </script>
-                <!---->
-                <!---->
-                <!---->
-                <!---->
-                <!---->
-                <!---->
-                <!---->
-                <!---->
-                <!---->
-                <!---->
-                <!-- Загадочная хрень -->
+            
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <!-- Загадочная хрень -->
-                <!---->
-                <!---->
-                <!---->
-                <!---->
-                <!---->
-                <!---->
-                <!---->
-                <!---->
-                <!---->
-                <!---->
-                <!-- Правый верхний выпадающий список и ссылки -->
+              
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
                         <li class="nav-item">@{bool isMyBots = Url.Action("MyBots", "MyBots") == Url.Action();}
@@ -230,33 +168,15 @@
                         </li>
                     </ul>
                 </div>
-                <!-- Правый верхний выпадающий список и ссылки -->
-                <!---->
-                <!---->
-                <!---->
-                <!---->
-                <!---->
-                <!---->
-                <!---->
-                <!---->
-                <!---->
-                <!---->
+              
             </nav>
-            <!-- Верхняя полоса -->
-
-
-            @RenderBody()
+          @RenderBody()
 
             @RenderSection("Scripts", required: false)
         </div>
-        <!-- /#Страница без левого меню -->
-
-
+     
 
     </div>
-    <!-- Вся страница-->
-
-
-
+   
 </body>
 </html>
