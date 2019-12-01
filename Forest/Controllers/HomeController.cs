@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using DataLayer;
 using Forest.Services;
 using LogicalCore;
@@ -16,6 +17,42 @@ namespace Forest.Controllers
 {
     public class HomeController : Controller
     {
+	    
+	    [HttpPost]
+		[Route("{telegramBotUsername}")]
+	    public IActionResult Index([FromBody]Update update)
+	    {
+		    
+		    Console.WriteLine("Пришло обновление");
+		    string botUsername = RouteData.Values["telegramBotUsername"].ToString();
+		    Console.WriteLine($"botUsername ] {botUsername}");
+		    if (BotsStorage.BotsDictionary.TryGetValue(botUsername, out BotWrapper botWrapper))
+		    {
+			    try
+			    {
+				    botWrapper.AcceptUpdate(update);
+			    }
+			    catch (Exception exception)
+			    {
+				    _logger.Log(
+					    LogLevel.ERROR,
+					    Source.FOREST,
+					    $"При обработке сообщения ботом botUsername={botUsername}" +
+					    $" через webhook было брошено исключение",
+					    ex:exception);
+			    }
+		    }
+		    else
+		    {
+			    _logger.Log(
+				    LogLevel.WARNING, 
+				    Source.FOREST, 
+				    $"Пришло обновление для бота, которого нет в списке онлайн ботов. botUsername={botUsername}");
+		    }
+
+		    return Ok();
+	    }
+	    
 	    //Шо это?
 		private readonly TryConvert<(string FileId, string PreviewId, string Description)> noFileCheck = 
 			(string text, out (string FileId, string PreviewId, string Description) variable) =>
@@ -39,40 +76,7 @@ namespace Forest.Controllers
         }
 		
 
-        /// <summary>
-        /// Принимает сообщения для ботов из Telegram
-        /// </summary>
-        [Route("{telegramBotUsername}")]
-        public IActionResult Index([FromBody]Update update)
-        {
-            string botUsername = RouteData.Values["telegramBotUsername"].ToString();
-            
-            if (BotsStorage.BotsDictionary.TryGetValue(botUsername, out BotWrapper botWrapper))
-            {
-	            try
-	            {
-		            botWrapper.AcceptUpdate(update);
-	            }
-	            catch (Exception exception)
-	            {
-		            _logger.Log(
-			            LogLevel.ERROR,
-			            Source.FOREST,
-			            $"При обработке сообщения ботом botUsername={botUsername}" +
-			            $" через webhook было брошено исключение",
-			            ex:exception);
-	            }
-            }
-            else
-            {
-                _logger.Log(
-                    LogLevel.WARNING, 
-                    Source.FOREST, 
-                    $"Пришло обновление для бота, которого нет в списке онлайн ботов. botUsername={botUsername}");
-            }
-
-            return Ok();
-        }
+		
 
 		[HttpPost]
 		public IActionResult RunNewBot(int botId)
@@ -153,7 +157,7 @@ namespace Forest.Controllers
 					return Json(answer);
 				}
 				//создание сериализованного объекта дерева
-				string link = " https://5cd14e61.ngrok.io/" + botUsername;
+				string link = "https://07106d6c.ngrok.io/"+botUsername;
 				BotWrapper botWrapper = new BotWrapper(botId, link, bot.Token);
 				JArray allNodes = JsonConvert.DeserializeObject<JArray>(bot.Markup);
 

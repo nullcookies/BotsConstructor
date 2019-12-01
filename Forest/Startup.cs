@@ -1,4 +1,6 @@
-﻿using DataLayer;
+﻿using System;
+using System.Threading.Channels;
+using DataLayer;
 using Forest.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
@@ -40,10 +42,30 @@ namespace Forest
         public void Configure(IApplicationBuilder app, BotStatisticsSynchronizer botStatisticsSynchronizer, SimpleLogger logger, RouteRecordsSynchronizerService routeRecordsSynchronizerService)
         {
             logger.Log(LogLevel.IMPORTANT_INFO, Source.FOREST, "Запуск сервера леса");
-            botStatisticsSynchronizer.Start();
-            routeRecordsSynchronizerService.Start();
-//            app.UseDeveloperExceptionPage();
+
+            app.UseHttpsRedirection();
+//            botStatisticsSynchronizer.Start();
+//            routeRecordsSynchronizerService.Start();
+
+            //Костыльное отлавливание ошибок
+//            app.Use(async (context, next) =>
+//            {
+//                try
+//                {
+//                    await next.Invoke();
+//                }
+//                catch (Exception exception)
+//                {
+//                    Console.WriteLine("лес навернулся "+ exception.Message);
+//                }
+//            });
             
+//            app.Use(async (context, next) =>
+//            {
+//                Console.WriteLine("Что-то пришло");
+//                await next.Invoke();
+//            });
+
 
             app.UseMvc(routes =>
             {
