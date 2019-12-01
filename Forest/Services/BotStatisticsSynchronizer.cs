@@ -105,7 +105,7 @@ namespace Forest.Services
                     //которая накопилась за прошлые запуски
 
                     //Заношу в память данные из бд, чтобы такой ошибки больше не было
-                    botWrapper.StatisticsContainer.NumberOfMessages = statisticsDb.NumberOfUniqueMessages;
+                    botWrapper.StatisticsContainer.NumberOfMessages  = statisticsDb.NumberOfUniqueMessages;
                 }
                 else
                 {
@@ -114,6 +114,7 @@ namespace Forest.Services
                 }
 
                 #endregion
+
 
                 #region Обновление списка пользователей в бд
                 var dbBotUsers = allBotsUsers
