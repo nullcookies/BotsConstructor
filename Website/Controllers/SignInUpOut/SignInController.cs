@@ -145,9 +145,6 @@ namespace Website.Controllers.SignInUpOut
 
         private void Authenticate(Account user)
         {
-
-            string userRoleName = _context.AuthRoles.First(role => role.Id == user.RoleTypeId).Name;
-
             var claims = new List<Claim>
             {
                 new Claim("userId", user.Id.ToString()),
