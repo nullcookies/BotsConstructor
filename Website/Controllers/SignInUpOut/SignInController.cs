@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 using DataLayer;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -161,6 +162,19 @@ namespace Website.Controllers.SignInUpOut
             {
                 ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7)
             });
+        }
+
+      
+        
+        [HttpGet]
+        public async Task<IActionResult> ChangeLogin()
+        {
+            if (HttpContext.User.Identity.IsAuthenticated)
+            {
+                await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            }
+
+            return RedirectToAction("Login", "SignIn");
         }
     }
 }

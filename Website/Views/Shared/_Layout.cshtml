@@ -40,7 +40,7 @@
 
             @if (Context.User.Identity.IsAuthenticated)
             {
-                <a class="btn btn-outline-primary m-1" asp-controller="SignIn" asp-action="Login">@Localizer["ChangeLogin"]</a>
+                <a class="btn btn-outline-primary m-1" asp-controller="SignIn" asp-action="ChangeLogin">@Localizer["ChangeLogin"]</a>
                 <a class="btn btn-outline-primary m-1" asp-controller="MyBots" asp-action="MyBots">@Localizer["LoginAs"] @User.Identity.Name</a>
             }
             else
