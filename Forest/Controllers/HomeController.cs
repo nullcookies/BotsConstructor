@@ -18,40 +18,6 @@ namespace Forest.Controllers
     public class HomeController : Controller
     {
 	    
-	    [HttpPost]
-		[Route("{telegramBotUsername}")]
-	    public IActionResult Index([FromBody]Update update)
-	    {
-		    
-		    Console.WriteLine("Пришло обновление");
-		    string botUsername = RouteData.Values["telegramBotUsername"].ToString();
-		    Console.WriteLine($"botUsername ] {botUsername}");
-		    if (BotsStorage.BotsDictionary.TryGetValue(botUsername, out BotWrapper botWrapper))
-		    {
-			    try
-			    {
-				    botWrapper.AcceptUpdate(update);
-			    }
-			    catch (Exception exception)
-			    {
-				    _logger.Log(
-					    LogLevel.ERROR,
-					    Source.FOREST,
-					    $"При обработке сообщения ботом botUsername={botUsername}" +
-					    $" через webhook было брошено исключение",
-					    ex:exception);
-			    }
-		    }
-		    else
-		    {
-			    _logger.Log(
-				    LogLevel.WARNING, 
-				    Source.FOREST, 
-				    $"Пришло обновление для бота, которого нет в списке онлайн ботов. botUsername={botUsername}");
-		    }
-
-		    return Ok();
-	    }
 	    
 	    //Шо это?
 		private readonly TryConvert<(string FileId, string PreviewId, string Description)> noFileCheck = 
@@ -157,7 +123,8 @@ namespace Forest.Controllers
 					return Json(answer);
 				}
 				//создание сериализованного объекта дерева
-				string link = "https://07106d6c.ngrok.io/"+botUsername;
+				string link = "https://botsconstructor.com:88/"+botUsername;
+//				string link = "https://2264b324.ngrok.io/"+botUsername;
 				BotWrapper botWrapper = new BotWrapper(botId, link, bot.Token);
 				JArray allNodes = JsonConvert.DeserializeObject<JArray>(bot.Markup);
 
