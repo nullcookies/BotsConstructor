@@ -6,7 +6,7 @@ namespace LogicalCore
 	public class ProductSimpleNode<T> : ProductNode<T>
 	{
 		public ProductSimpleNode(string name, List<List<string>> elements, string itemsContainer, List<int> productsIds, List<MetaReplyMessage> foldersMsgs,
-			string sessionContainer, string addedPrefix = DefaultStrings.PLUS, string addBtnName = DefaultStrings.ADD,
+			string sessionContainer, string addedPrefix = DefaultStrings.Plus, string addBtnName = DefaultStrings.Add,
 			MetaInlineMessage metaMessage = null, bool needBack = true) :
 			base(
 				CreateHead(name, foldersMsgs[0], metaMessage),

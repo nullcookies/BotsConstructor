@@ -9,13 +9,13 @@
 			byte pageSize = 6, bool needBack = true) : base
 			(
 			new SelectSingleInputNode<string>(
-				DefaultStrings.LANGUAGE,
-				DefaultStrings.LANGUAGE,
+				DefaultStrings.Language,
+				DefaultStrings.Language,
 				botWrapper.Languages,
 				requestMessage == null ? null : new MetaDoubleKeyboardedMessage(requestMessage),
 				pageSize, needBack: needBack),
 			new ActionNode(
-				(session) => session.Language = session.vars.GetVar<string>(DefaultStrings.LANGUAGE),
+				(session) => session.Language = session.vars.GetVar<string>(DefaultStrings.Language),
 				answerMessage == null ? null : new MetaInlineMessage(answerMessage)
 				)
 			)

@@ -8,7 +8,7 @@ namespace LogicalCore
 		public ProductNode(Node head, List<ActionNode> tails) : base(head, tails) { }
 
 		protected static List<ActionNode> CreateItemNodes(string name, string itemsContainer, List<List<string>> sections,
-			List<int> productsIds, string sessionContainer, string addedPrefix, bool useBtnName = false, string addBtnName = DefaultStrings.ADD)
+			List<int> productsIds, string sessionContainer, string addedPrefix, bool useBtnName = false, string addBtnName = DefaultStrings.Add)
 		{
 			List<MetaText> elements = new List<MetaText>();
 			string[] protoString = new string[sections.Count - 1];

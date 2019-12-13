@@ -17,7 +17,7 @@ namespace LogicalCore
         public MetaValuedContainerInputNode(string name, string varName, List<MetaValued<T>> options, IMetaMessage<MetaInlineKeyboardMarkup> metaMessage = null,
             Action<Session, MetaValuedContainer<T>> endAction = null, Func<Session, MetaValued<T>, string> btnNameFunc = null, Func<MetaValued<T>, string> btnCallbackFunc = null,
             byte pageSize = 6, FlipperArrowsType flipperArrows = FlipperArrowsType.Double, bool needBack = true, bool useGlobalCallbacks = false)
-            : base(name, options, btnNameFunc, btnCallbackFunc ?? ((element) => DefaultStrings.DONOTHING), metaMessage ?? new MetaDoubleKeyboardedMessage(name),
+            : base(name, options, btnNameFunc, btnCallbackFunc ?? ((element) => DefaultStrings.DoNothing), metaMessage ?? new MetaDoubleKeyboardedMessage(name),
                   pageSize, needBack, flipperArrows, useGlobalCallbacks)
         {
             VarName = varName ?? throw new ArgumentNullException(nameof(varName));
@@ -78,10 +78,10 @@ namespace LogicalCore
             new List<InlineKeyboardButton>(4)
             {
                 InlineKeyboardButton.WithCallbackData(nameFunc(session, element), callbackFunc(element)),
-                InlineKeyboardButton.WithCallbackData(session.Translate(DefaultStrings.MINUS), $"{DefaultStrings.DECREASE}_{VarName}_{element.ToString()}"),
+                InlineKeyboardButton.WithCallbackData(session.Translate(DefaultStrings.Minus), $"{DefaultStrings.Decrease}_{VarName}_{element.ToString()}"),
                 InlineKeyboardButton.WithCallbackData(session.vars.GetVar<MetaValuedContainer<T>>(VarName).
-                    TryGetValue(element, out int value) ? value.ToString() : "0", DefaultStrings.DONOTHING), // количество, если есть, или 0
-                InlineKeyboardButton.WithCallbackData(session.Translate(DefaultStrings.PLUS), $"{DefaultStrings.INCREASE}_{VarName}_{element.ToString()}")
+                    TryGetValue(element, out int value) ? value.ToString() : "0", DefaultStrings.DoNothing), // количество, если есть, или 0
+                InlineKeyboardButton.WithCallbackData(session.Translate(DefaultStrings.Plus), $"{DefaultStrings.Increase}_{VarName}_{element.ToString()}")
 
 			};
 
@@ -90,11 +90,11 @@ namespace LogicalCore
             string action = ButtonIdManager.GetActionNameFromCallbackData(callbackQuerry.Data);
 
             bool increase = false;
-            if(action == DefaultStrings.INCREASE)
+            if(action == DefaultStrings.Increase)
             {
                 increase = true;
             }
-            else if(action == DefaultStrings.DECREASE)
+            else if(action == DefaultStrings.Decrease)
             {
                 increase = false;
             }

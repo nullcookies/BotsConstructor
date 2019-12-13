@@ -10,7 +10,7 @@ namespace LogicalCore
 		public readonly Dictionary<string, Action<Session>> actions;
         private readonly BotWrapper botWrapper;
         private TelegramBotClient BotClient => botWrapper.BotClient;
-        public Session GetSessionByID(int id) => botWrapper.GetSessionByTelegramId(id);
+        public Session GetSessionByID(int sessionId) => botWrapper.GetSessionByTelegramId(sessionId);
         private Session session;
         public Session Session
         {

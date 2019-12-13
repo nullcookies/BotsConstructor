@@ -68,7 +68,7 @@ namespace LogicalCore
 
         protected bool TryShowNext(Session session, Message message)
         {
-            if (KeyboardActionsManager.CheckNeeding(NeedNextButton, this.message.HaveReplyKeyboard, session, message, DefaultStrings.NEXT))
+            if (KeyboardActionsManager.CheckNeeding(NeedNextButton, this.message.HaveReplyKeyboard, session, message, DefaultStrings.Next))
             {
                 SendNext(session);
                 return true;
@@ -81,7 +81,7 @@ namespace LogicalCore
 
         protected bool TryShowNext(Session session, CallbackQuery callbackQuerry)
         {
-            if (KeyboardActionsManager.CheckNeeding(NeedNextButton, message.HaveInlineKeyboard, session, callbackQuerry, DefaultStrings.NEXT, () =>
+            if (KeyboardActionsManager.CheckNeeding(NeedNextButton, message.HaveInlineKeyboard, session, callbackQuerry, DefaultStrings.Next, () =>
                 ButtonIdManager.GetIDFromCallbackData(callbackQuerry.Data) == id))
             {
                 SendNext(session, callbackQuerry.Message);
@@ -95,7 +95,7 @@ namespace LogicalCore
 
         protected bool TryShowPrevious(Session session, Message message)
         {
-            if (KeyboardActionsManager.CheckNeeding(NeedPreviousButton, this.message.HaveReplyKeyboard, session, message, DefaultStrings.PREVIOUS))
+            if (KeyboardActionsManager.CheckNeeding(NeedPreviousButton, this.message.HaveReplyKeyboard, session, message, DefaultStrings.Previous))
             {
                 SendPrevious(session);
                 return true;
@@ -108,7 +108,7 @@ namespace LogicalCore
 
         protected bool TryShowPrevious(Session session, CallbackQuery callbackQuerry)
         {
-            if (KeyboardActionsManager.CheckNeeding(NeedPreviousButton, message.HaveInlineKeyboard, session, callbackQuerry, DefaultStrings.PREVIOUS, () =>
+            if (KeyboardActionsManager.CheckNeeding(NeedPreviousButton, message.HaveInlineKeyboard, session, callbackQuerry, DefaultStrings.Previous, () =>
                 ButtonIdManager.GetIDFromCallbackData(callbackQuerry.Data) == id))
             {
                 SendPrevious(session, callbackQuerry.Message);

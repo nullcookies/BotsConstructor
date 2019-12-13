@@ -1,19 +1,22 @@
 ﻿namespace LogicalCore
 {
 	public static class DefaultStrings
-	{
-		public const string GOTO = "GoTo";
-		public const string SHOWPAGE = "ShowPage";
-		public const string PLUS = "Plus";
-		public const string MINUS = "Minus";
-		public const string OWNER = "Owner";
-		public const string DONOTHING = "DoNothing";
-		public const string INCREASE = "Increase";
-		public const string DECREASE = "Decrease";
-		public const string NEXT = "Next";
-		public const string PREVIOUS = "Previous";
-		public const string BACK = "Back";
-		public const string LANGUAGE = "Language";
-		public const string ADD = "Add";
+    {
+        public const string Hello = "Hello";
+        public const string Error = "Error";
+        public const string UnknownCommand = "UnknownCommand";
+		public const string GoTo = "GoTo";
+		public const string ShowPage = "ShowPage";
+		public const string Plus = "Plus";
+		public const string Minus = "Minus";
+		public const string Owner = "Owner";
+		public const string DoNothing = "DoNothing";
+		public const string Increase = "Increase";
+		public const string Decrease = "Decrease";
+		public const string Next = "Next";
+		public const string Previous = "Previous";
+		public const string Back = "Back";
+		public const string Language = "Language";
+		public const string Add = "Add";
 	}
 }

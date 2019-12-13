@@ -10,7 +10,7 @@ namespace LogicalCore
         private readonly Action<Session> action;
 
         public ActionNode(Action<Session> nodeAction, MetaInlineMessage metaMessage = null, string name = null)
-            : base(name ?? DefaultStrings.NEXT, metaMessage)
+            : base(name ?? DefaultStrings.Next, metaMessage)
         {
             Children = new List<Node>(1);
             message = metaMessage;

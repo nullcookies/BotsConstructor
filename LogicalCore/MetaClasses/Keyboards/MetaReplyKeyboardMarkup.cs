@@ -46,13 +46,13 @@ namespace LogicalCore
             InsertButton(rowNumber, columnNumber, new KeyboardButton(node.name), rules);
 
         public override void InsertBackButton(Node parent, int rowNumber = 0, int columnNumber = 0) =>
-            InsertButton(rowNumber, columnNumber, new KeyboardButton(DefaultStrings.BACK));
+            InsertButton(rowNumber, columnNumber, new KeyboardButton(DefaultStrings.Back));
 
         public override void AddNextButton(int rowNumber = 1) =>
-            AddButton(rowNumber, new KeyboardButton(DefaultStrings.NEXT));
+            AddButton(rowNumber, new KeyboardButton(DefaultStrings.Next));
 
         public override void InsertPreviousButton(int rowNumber = 1, int columnNumber = 0) =>
-            InsertButton(rowNumber, columnNumber, new KeyboardButton(DefaultStrings.PREVIOUS));
+            InsertButton(rowNumber, columnNumber, new KeyboardButton(DefaultStrings.Previous));
 
         public override void AddSpecialButton(string name, params Predicate<Session>[] rules) =>
             AddButton(new KeyboardButton(name), rules);

@@ -20,7 +20,7 @@ namespace LogicalCore
 
 		public MultiNode(string name, List<List<string>> elements, IMetaMessage<MetaInlineKeyboardMarkup> metaMessage = null,
 			byte pageSize = 6, bool needBack = true, FlipperArrowsType flipperArrows = FlipperArrowsType.Double, bool useGlobalCallbacks = false, List<MetaText> foldersNames = null) :
-			base(name, elements.SelectMany(_list => _list).ToList(), null, (elem) => DefaultStrings.DONOTHING, metaMessage,
+			base(name, elements.SelectMany(_list => _list).ToList(), null, (elem) => DefaultStrings.DoNothing, metaMessage,
 				pageSize, needBack, flipperArrows, useGlobalCallbacks)
 		{
 			if(elements == null) throw new ArgumentNullException(nameof(elements));
@@ -189,9 +189,9 @@ namespace LogicalCore
 
 			return new List<InlineKeyboardButton>(3)
 			{
-				InlineKeyboardButton.WithCallbackData(session.Translate(DefaultStrings.PREVIOUS), $"{DefaultStrings.SHOWPAGE}_{id}_{decreasedPage}"),
+				InlineKeyboardButton.WithCallbackData(session.Translate(DefaultStrings.Previous), $"{DefaultStrings.ShowPage}_{id}_{decreasedPage}"),
 				InlineKeyboardButton.WithCallbackData(nameFunc(session, element), callbackFunc(element)),
-				InlineKeyboardButton.WithCallbackData(session.Translate(DefaultStrings.NEXT), $"{DefaultStrings.SHOWPAGE}_{id}_{increasedPage}")
+				InlineKeyboardButton.WithCallbackData(session.Translate(DefaultStrings.Next), $"{DefaultStrings.ShowPage}_{id}_{increasedPage}")
 			};
 		}
 	}

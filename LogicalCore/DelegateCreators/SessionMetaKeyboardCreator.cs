@@ -27,13 +27,13 @@ namespace LogicalCore
 				{
 					if(column < buttonsInRows[row])
 					{
-						baseKeyboard[row].Add((button, $"{DefaultStrings.OWNER}_{button}_"));
+						baseKeyboard[row].Add((button, $"{DefaultStrings.Owner}_{button}_"));
 						column++;
 					}
 					else
 					{
 						baseKeyboard.Add(new List<(string name, string callback)>()
-						{ (button, $"{DefaultStrings.OWNER}_{button}_") });
+						{ (button, $"{DefaultStrings.Owner}_{button}_") });
 						column = 1;
 						row++;
 					}
@@ -41,7 +41,7 @@ namespace LogicalCore
 				else
 				{
 					baseKeyboard.Add(new List<(string name, string callback)>(1)
-						{ (button, $"{DefaultStrings.OWNER}_{button}_") });
+						{ (button, $"{DefaultStrings.Owner}_{button}_") });
 				}
 			}
 
@@ -50,12 +50,12 @@ namespace LogicalCore
 				int lastRow = baseKeyboard.Count - 1;
 				if(lastRow < buttonsInRows.Count && baseKeyboard[lastRow].Count < buttonsInRows[lastRow])
 				{
-					baseKeyboard[lastRow].Add((deleteButtonName, $"{DefaultStrings.OWNER}_{deleteButtonName}_"));
+					baseKeyboard[lastRow].Add((deleteButtonName, $"{DefaultStrings.Owner}_{deleteButtonName}_"));
 				}
 				else
 				{
 					baseKeyboard.Add(new List<(string name, string callback)>(1)
-					{ (deleteButtonName, $"{DefaultStrings.OWNER}_{deleteButtonName}_") });
+					{ (deleteButtonName, $"{DefaultStrings.Owner}_{deleteButtonName}_") });
 				}
 			}
 

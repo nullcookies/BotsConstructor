@@ -21,7 +21,7 @@ namespace LogicalCore
                     {
                         await session.BotClient.SendTextMessageAsync(
                             message.Chat.Id,
-                            session.Translate("Hello"));
+                            session.Translate(DefaultStrings.Hello));
 
 						session.GoToNode(session.MegaTree.root);
                     }
@@ -31,7 +31,7 @@ namespace LogicalCore
                         string command = message.Text.Trim();
                         if(command.Length <= 6)
                         {
-                            await session.BotClient.SendTextMessageAsync(message.Chat.Id, session.Translate("ThisCommandIsUnknown"));
+                            await session.BotClient.SendTextMessageAsync(message.Chat.Id, session.Translate(DefaultStrings.UnknownCommand));
                             return;
                         }
                         string containerName = command.Substring(6);
@@ -41,23 +41,16 @@ namespace LogicalCore
 						}
 						else
 						{
-							await session.BotClient.SendTextMessageAsync(message.Chat.Id, session.Translate("ThisCommandIsUnknown"));
+							await session.BotClient.SendTextMessageAsync(message.Chat.Id, session.Translate(DefaultStrings.UnknownCommand));
 						}
 					}
-                },
-                {"/shotam", async (session, message) =>
-                    {
-                        await session.BotClient.SendStickerAsync(
-                            message.Chat.Id,
-                            "CAADAgADBwADuD87Gip7Mrcgkf0TAg");
-                    }
                 }
             };
 
             callbackFuncs = new Dictionary<string, Func<Session, CallbackQuery, Task>>()
             {
                 //Переход к узлу
-                {DefaultStrings.GOTO, async (session, callbackQuerry) =>
+                {DefaultStrings.GoTo, async (session, callbackQuerry) =>
                     {
                         int nodeId = ButtonIdManager.GetIDFromCallbackData(callbackQuerry.Data);
                         Node node = session.MegaTree.GetNodeById(nodeId);
@@ -66,7 +59,7 @@ namespace LogicalCore
                     }
                 },
                 //Вызов при нажатии влево/вправо в глобальной листалке или на текущем узле
-                {DefaultStrings.SHOWPAGE, async (session, callbackQuerry) =>
+                {DefaultStrings.ShowPage, async (session, callbackQuerry) =>
                     {
                         int nodeID = ButtonIdManager.GetIDFromCallbackData(callbackQuerry.Data);
 						var node = session.MegaTree.GetNodeById(nodeID);
@@ -77,14 +70,14 @@ namespace LogicalCore
                         }
                         else
                         {
-							await session.BotClient.EditMessageTextAsync(session.telegramId, callbackQuerry.Message.MessageId, session.Translate("Error"));
+							await session.BotClient.EditMessageTextAsync(session.telegramId, callbackQuerry.Message.MessageId, session.Translate(DefaultStrings.Error));
                         }
                     }
                 },
                 //Добавить в контейнере какому-то значению 1
-                {DefaultStrings.PLUS, async (session, callbackQuerry) =>
+                {DefaultStrings.Plus, async (session, callbackQuerry) =>
                     {
-                        string containerName = ButtonIdManager.GetNextSubstring(callbackQuerry.Data, DefaultStrings.PLUS.Length, out int nextUnder);
+                        string containerName = ButtonIdManager.GetNextSubstring(callbackQuerry.Data, DefaultStrings.Plus.Length, out int nextUnder);
                         string varHash = ButtonIdManager.GetNextSubstring(callbackQuerry.Data, nextUnder);
 
                         if(session.vars.TryGetVar(containerName, out MetaValuedContainer<decimal> container)
@@ -95,14 +88,14 @@ namespace LogicalCore
                         }
                         else
                         {
-                            await session.BotClient.EditMessageTextAsync(session.telegramId, callbackQuerry.Message.MessageId, session.Translate("Error"));
+                            await session.BotClient.EditMessageTextAsync(session.telegramId, callbackQuerry.Message.MessageId, session.Translate(DefaultStrings.Error));
                         }
                     }
                 },
                 //Отнять в контейнере от какого-то значения 1
-                {DefaultStrings.MINUS, async (session, callbackQuerry) =>
+                {DefaultStrings.Minus, async (session, callbackQuerry) =>
                     {
-                        string containerName = ButtonIdManager.GetNextSubstring(callbackQuerry.Data, DefaultStrings.MINUS.Length, out int nextUnder);
+                        string containerName = ButtonIdManager.GetNextSubstring(callbackQuerry.Data, DefaultStrings.Minus.Length, out int nextUnder);
                         string varHash = ButtonIdManager.GetNextSubstring(callbackQuerry.Data, nextUnder);
 
                         if(session.vars.TryGetVar(containerName, out MetaValuedContainer<decimal> container)
@@ -113,12 +106,12 @@ namespace LogicalCore
                         }
                         else
                         {
-                            await session.BotClient.EditMessageTextAsync(session.telegramId, callbackQuerry.Message.MessageId, session.Translate("Error"));
+                            await session.BotClient.EditMessageTextAsync(session.telegramId, callbackQuerry.Message.MessageId, session.Translate(DefaultStrings.Error));
                         }
                     }
                 },
                 // Вызов при обработке нажатия владельцем
-                {DefaultStrings.OWNER, async (session, callbackQuerry) =>
+                {DefaultStrings.Owner, async (session, callbackQuerry) =>
                     {
                         BotOwner botOwner = session.BotOwner;
                         if(session == botOwner.Session)
@@ -132,17 +125,17 @@ namespace LogicalCore
                             }
                             else
                             {
-                                await session.BotClient.SendTextMessageAsync(callbackQuerry.Message.Chat.Id, session.Translate("ThisCommandIsUnknown") + " ActionId=" + actionId);
+                                await session.BotClient.SendTextMessageAsync(callbackQuerry.Message.Chat.Id, session.Translate(DefaultStrings.UnknownCommand) + " ActionId=" + actionId);
                             }
                         }
                         else
                         {
-                            await session.BotClient.SendTextMessageAsync(callbackQuerry.Message.Chat.Id, session.Translate("ThisCommandIsUnknown") + " ActionId=" + DefaultStrings.OWNER);
+                            await session.BotClient.SendTextMessageAsync(callbackQuerry.Message.Chat.Id, session.Translate(DefaultStrings.UnknownCommand) + " ActionId=" + DefaultStrings.Owner);
                         }
                     }
                 },
                 // Заглушка, когда необходимо по нажатию на кнопку ничего не делать и при этом не отправлять сообщение об ошибке
-                {DefaultStrings.DONOTHING, async (session, callbackQuerry) => { }}
+                {DefaultStrings.DoNothing, async (session, callbackQuerry) => { }}
             };
         }
 
@@ -163,7 +156,7 @@ namespace LogicalCore
                 }
                 else
                 {
-                    session.BotClient.SendTextMessageAsync(session.telegramId, session.Translate("ThisCommandIsUnknown")).Wait();
+                    session.BotClient.SendTextMessageAsync(session.telegramId, session.Translate(DefaultStrings.UnknownCommand)).Wait();
                     session.GoToNode(session.CurrentNode);
                 }
             }
@@ -185,7 +178,7 @@ namespace LogicalCore
                 }
                 else
                 {
-                    session.BotClient.EditMessageTextAsync(session.telegramId, callbackQuerry.Message.MessageId, session.Translate("Error")).Wait();
+                    session.BotClient.EditMessageTextAsync(session.telegramId, callbackQuerry.Message.MessageId, session.Translate(DefaultStrings.Error)).Wait();
                 }
             }
             catch (Exception)
@@ -200,7 +193,7 @@ namespace LogicalCore
                     ConsoleWriter.WriteLine("Не удалось удалить сообщение: " + e.Message, ConsoleColor.Red);
                 }
 
-                session.BotClient.SendTextMessageAsync(session.telegramId, session.Translate("ThisCommandIsUnknown"));
+                session.BotClient.SendTextMessageAsync(session.telegramId, session.Translate(DefaultStrings.UnknownCommand));
             }
         }
     }

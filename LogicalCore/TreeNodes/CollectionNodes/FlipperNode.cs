@@ -117,17 +117,17 @@ namespace LogicalCore
 
             if(GlobalCallbacks)
             {
-                callbackDataPrevious = $"{DefaultStrings.SHOWPAGE}_{id}_{leftPage}";
-				callbackDataNext = $"{DefaultStrings.SHOWPAGE}_{id}_{rightPage}";
+                callbackDataPrevious = $"{DefaultStrings.ShowPage}_{id}_{leftPage}";
+				callbackDataNext = $"{DefaultStrings.ShowPage}_{id}_{rightPage}";
             }
             else
             {
-                callbackDataPrevious = $"{DefaultStrings.PREVIOUS}_{id}";
-                callbackDataNext = $"{DefaultStrings.NEXT}_{id}";
+                callbackDataPrevious = $"{DefaultStrings.Previous}_{id}";
+                callbackDataNext = $"{DefaultStrings.Next}_{id}";
             }
 
-            InlineKeyboardButton previous = InlineKeyboardButton.WithCallbackData(session.Translate(DefaultStrings.PREVIOUS), callbackDataPrevious);
-            InlineKeyboardButton next = InlineKeyboardButton.WithCallbackData(session.Translate(DefaultStrings.NEXT), callbackDataNext);
+            InlineKeyboardButton previous = InlineKeyboardButton.WithCallbackData(session.Translate(DefaultStrings.Previous), callbackDataPrevious);
+            InlineKeyboardButton next = InlineKeyboardButton.WithCallbackData(session.Translate(DefaultStrings.Next), callbackDataNext);
 
             //Строки для листания
             List<InlineKeyboardButton> topRow = null, bottomRow = null;

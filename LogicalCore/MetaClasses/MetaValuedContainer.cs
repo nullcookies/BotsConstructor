@@ -76,10 +76,10 @@ namespace LogicalCore
             foreach (var pair in mainDict)
             {
                 string translatedText = pair.Key.ToString(session), elementHash = pair.Key.ToString().GetHashCode().ToString();
-                buttons[i, 0] = InlineKeyboardButton.WithCallbackData(translatedText, DefaultStrings.DONOTHING);
-                buttons[i, 1] = InlineKeyboardButton.WithCallbackData(session.Translate(DefaultStrings.MINUS), $"{DefaultStrings.MINUS}_{name}_{elementHash}");
-                buttons[i, 2] = InlineKeyboardButton.WithCallbackData(pair.Value.ToString(), DefaultStrings.DONOTHING);
-                buttons[i, 3] = InlineKeyboardButton.WithCallbackData(session.Translate(DefaultStrings.PLUS), $"{DefaultStrings.PLUS}_{name}_{elementHash}");
+                buttons[i, 0] = InlineKeyboardButton.WithCallbackData(translatedText, DefaultStrings.DoNothing);
+                buttons[i, 1] = InlineKeyboardButton.WithCallbackData(session.Translate(DefaultStrings.Minus), $"{DefaultStrings.Minus}_{name}_{elementHash}");
+                buttons[i, 2] = InlineKeyboardButton.WithCallbackData(pair.Value.ToString(), DefaultStrings.DoNothing);
+                buttons[i, 3] = InlineKeyboardButton.WithCallbackData(session.Translate(DefaultStrings.Plus), $"{DefaultStrings.Plus}_{name}_{elementHash}");
                 i++;
             }
 

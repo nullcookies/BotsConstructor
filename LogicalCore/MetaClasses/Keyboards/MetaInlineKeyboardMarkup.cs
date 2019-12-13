@@ -46,7 +46,7 @@ namespace LogicalCore
             InsertButton(rowNumber, columnNumber, InlineKeyboardButton.WithCallbackData(node.name, ButtonIdManager.GetInlineButtonId(node)), rules);
 
         public override void InsertBackButton(Node parent, int rowNumber = 0, int columnNumber = 0) =>
-            InsertButton(rowNumber, columnNumber, InlineKeyboardButton.WithCallbackData(DefaultStrings.BACK, ButtonIdManager.GetInlineButtonId(parent)));
+            InsertButton(rowNumber, columnNumber, InlineKeyboardButton.WithCallbackData(DefaultStrings.Back, ButtonIdManager.GetInlineButtonId(parent)));
 
         public override void AddNextButton(int rowNumber = 1)
             => throw new NotSupportedException("Кнопка 'Next' должна добавляться из узла.");

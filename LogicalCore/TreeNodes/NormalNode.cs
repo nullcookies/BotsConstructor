@@ -43,7 +43,7 @@ namespace LogicalCore
 
         protected bool TryGoBack(Session session, Message message)
         {
-            if (KeyboardActionsManager.CheckNeeding(needBackButton, this.message.HaveReplyKeyboard, session, message, DefaultStrings.BACK))
+            if (KeyboardActionsManager.CheckNeeding(needBackButton, this.message.HaveReplyKeyboard, session, message, DefaultStrings.Back))
             {
                 session.GoToNode(Parent);
                 return true;
@@ -56,7 +56,7 @@ namespace LogicalCore
 
         protected bool TryGoBack(Session session, CallbackQuery callbackQuerry)
         {
-            if (KeyboardActionsManager.CheckNeeding(needBackButton, message.HaveInlineKeyboard, session, callbackQuerry, DefaultStrings.BACK, () =>
+            if (KeyboardActionsManager.CheckNeeding(needBackButton, message.HaveInlineKeyboard, session, callbackQuerry, DefaultStrings.Back, () =>
                 ButtonIdManager.GetIDFromCallbackData(callbackQuerry.Data) == Parent.id))
             {
                 session.GoToNode(Parent);

@@ -5,7 +5,7 @@ namespace LogicalCore
 	public class ProductMultiNode<T> : ProductNode<T>
 	{
 		public ProductMultiNode(string name, List<List<string>> elements, string itemsContainer, List<int> productsIds, List<MetaText> foldersNames,
-			string sessionContainer, string addedPrefix = DefaultStrings.PLUS, string addBtnName = DefaultStrings.ADD, MetaDoubleKeyboardedMessage metaMessage = null,
+			string sessionContainer, string addedPrefix = DefaultStrings.Plus, string addBtnName = DefaultStrings.Add, MetaDoubleKeyboardedMessage metaMessage = null,
 			byte pageSize = 6, bool needBack = true, FlipperArrowsType flipperArrowsType = FlipperArrowsType.Double, bool useGlobalCallbacks = false) :
 			base(
 				new MultiNode(name, elements, metaMessage, pageSize, needBack, flipperArrowsType, useGlobalCallbacks, foldersNames),

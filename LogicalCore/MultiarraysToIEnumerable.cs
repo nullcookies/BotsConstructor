@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace LogicalCore
 {
@@ -9,14 +10,6 @@ namespace LogicalCore
             for (int i = 0; i < array.GetLength(1); i++)
             {
                 yield return array[row, i];
-            }
-        }
-
-        public static IEnumerable<T> ToEnumerable<T>(this T[,] array)
-        {
-            foreach (var item in array)
-            {
-                yield return item;
             }
         }
 

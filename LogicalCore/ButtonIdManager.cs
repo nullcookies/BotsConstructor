@@ -13,7 +13,7 @@
             return firstPart;
         }
 
-        internal static string GetInlineButtonId(Node node) => DefaultStrings.GOTO + '_' + node.id;
+        internal static string GetInlineButtonId(Node node) => DefaultStrings.GoTo + '_' + node.id;
 
         internal static string GetNextSubstring(string data, int indexOfPrevUnderscore, out int indexOfNextUnderscore)
         {

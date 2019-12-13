@@ -30,10 +30,7 @@ namespace LogicalCore
         private Node currentNode;
         public Node CurrentNode
         {
-            get
-            {
-                return currentNode;
-            }
+            get => currentNode;
             set
             {
                 currentNode = value;

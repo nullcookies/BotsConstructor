@@ -20,7 +20,7 @@ namespace LogicalCore
 						session.vars.SetVar(container);
 					}
 					container.Add(item, 1);
-				}, metaMessage, name ?? DefaultStrings.ADD) { }
+				}, metaMessage, name ?? DefaultStrings.Add) { }
 
 		public ItemNode(string itemsContainer, int itemID, string sessionContainer, string description, string name = null)
 			: this(itemsContainer, itemID, sessionContainer, description == null ? null : new MetaInlineMessage(description), name) { }
