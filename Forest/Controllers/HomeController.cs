@@ -128,6 +128,9 @@ namespace Forest.Controllers
 				BotWrapper botWrapper = new BotWrapper(botId, link, bot.Token);
 				JArray allNodes = JsonConvert.DeserializeObject<JArray>(bot.Markup);
 
+				List<OwnerNotificationNode> ownerNotificationNodes = new List<OwnerNotificationNode>();
+				List<Node> inputNodes = new List<Node>();
+
 				if (allNodes.Count == 0)
 				{
 					answer = new JObject()
@@ -297,11 +300,13 @@ namespace Forest.Controllers
 								default:
 									return StatusCode(403, "Incorrect input node's input type.");
 							}
+							inputNodes.Add(node);
 							break;
 						case NodeType.SendOrder:
 							node = new OwnerNotificationNode(nodeName, GetInlineMsgFromParams(nodeParams), connector, (int)nodeParams["statusGroupId"],
 									UniversalOrderContainer.generateContainerCreator(variablesInfo),
 									variablesInfo);
+							ownerNotificationNodes.Add((OwnerNotificationNode)node);
 							break;
 						default:
 							return StatusCode(403, "Incorrect node type.");
@@ -426,6 +431,21 @@ namespace Forest.Controllers
 				};
 				botWrapper.globalVars.SetVar("Products", Products);
 
+				
+				//there are no data entry nodes in the markup that are not in the same branch
+		
+
+				if (!CheckForLackOfShit(ownerNotificationNodes, inputNodes))
+				{
+					answer = new JObject()
+					{
+						{ "success", false},
+						{"failMessage", "В разметке есть узлы типа \"Ввод данных\", которые находятся не в одной ветке" }
+					};
+					return Json(answer);
+				}
+				
+				
 				bool synchronization_was_successful =
 					RecordOfTheLaunchOfTheBotWasMadeSuccessfully(botId);
 
@@ -459,7 +479,38 @@ namespace Forest.Controllers
 				return Json(answer);
 			}
 		}
+		
+		bool CheckForLackOfShit(List<OwnerNotificationNode> ownerNotificationNodes, List<Node> inputNodes)
+		{
+			if (inputNodes.Count > 0 )
+			{
+				switch (ownerNotificationNodes.Count)
+				{
+					case 0:
+						return false;
+					case 1:
+					{
+						var notificationNode = ownerNotificationNodes[0];
+						Node current = notificationNode.Parent;
+						while (current != null)
+						{
+							inputNodes.Remove(current);
+							current = current.Parent;
+						}
 
+						return inputNodes.Count == 0;
+					}
+					default:
+						return false;
+				}
+			}
+
+			return true;
+
+		}
+		
+		
+		
         /// <summary>
         /// Создание записи в БД, чтобы знать где запущен бот
         /// </summary>
