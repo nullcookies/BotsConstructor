@@ -81,7 +81,7 @@ namespace Website.Controllers
                 //нужно установить групппу статусов
                 if (jsonBotMarkup.Contains("1000001"))
                 {
-                    jsonBotMarkup = jsonBotMarkup.Replace("1000001", statusGroupId.ToString());
+                    jsonBotMarkup = jsonBotMarkup.Replace("1000001", statusGroupId.Value.ToString());
                 }
                 
                 
