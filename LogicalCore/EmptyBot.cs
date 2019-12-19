@@ -47,24 +47,24 @@ namespace LogicalCore
         /// </summary>
         public virtual void Run()
         {
-         
-            RunLongPolling();
-            ConsoleWriter.WriteLine($"Бот {BotUsername} запущен в режиме LongPolling ", ConsoleColor.Green);
-            
-            // else
-            // {
-            //     try
-            //     {
-            //         RunWebhook(link);
-            //         ConsoleWriter.WriteLine($"Бот {BotUsername} запущен в режиме Webhook ", ConsoleColor.Green);
-            //     }
-            //     catch (Exception e)
-            //     {
-            //         RunLongPolling();    
-            //     }
-            //     
-            //     
-            // }
+            if (link == null)
+            {
+                RunLongPolling(); 
+            }
+            else
+            {
+                try
+                {
+                    RunWebhook(link);
+                    ConsoleWriter.WriteLine($"Бот {BotUsername} запущен в режиме Webhook ", ConsoleColor.Green);
+                }
+                catch (Exception e)
+                {
+                    RunLongPolling();    
+                }
+                
+                
+            }
         }
 
         /// <summary>

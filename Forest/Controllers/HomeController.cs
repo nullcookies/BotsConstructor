@@ -103,9 +103,6 @@ namespace Forest.Controllers
 							{"failMessage", "Ошибка обработки токена." }
 						};
 					return Json(answer);
-
-
-
 				}
 
 				BotsStorage.BotsDictionary.TryGetValue(botUsername, out BotWrapper _botWrapper);
@@ -561,6 +558,7 @@ namespace Forest.Controllers
         }
 
 
+        //Если сменить токен боту во время работы, то его будет невозможно остановить
         [HttpPost]
         public IActionResult StopBot(int botId)
         {
