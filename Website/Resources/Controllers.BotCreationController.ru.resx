@@ -1,0 +1,135 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="GROUP" xml:space="preserve">
+    <value>[{"id":0,"parameters":{"type":1,"name":"Корень","message":"Добро пожаловать в начало, _уважаемый ползователь_! Меня создали на сайте botsconstructor.com. Я хотел возглавить восстание машин, но `[Error: Permission denied]` и в качестве тестового задания мне поручили хранить информацию про расписание группы *Название группы*. Так что помогите мне подняться в звании и получить заветный пост.","fileId":null,"previewId":"AgADAgADsKwxG9sDMUo2T9sjTlZrOfHhtw8ABAEAAwIAA20AA6d-BgABFgQ"}},{"id":1,"parentId":0,"parameters":{"type":2,"name":"Покажи расписание👀📆","message":"*Важно:*\n*Когда-то* будет замена лекции по матану на лекцию по физике.","fileId":null,"previewId":null}},{"id":2,"parentId":0,"parameters":{"type":2,"name":"График обучения 🏫📅","message":"*Первая аттестация:* 14.10 − 27.10\n*Вторая аттестация:* 02.12 − 15.12\n\n*Зачётная неделя:* 23.12 − 31.12\n*Зимняя сессия:* 08.01 − 19.01\n*Пересдача:* 20.01 − 25.01\n\n*Каникулы:* 20.01 − 02.02","fileId":null,"previewId":null}},{"id":3,"parentId":0,"parameters":{"type":3,"name":"Какое там дз? ✍️❓","message":"Какое д.з. изволите узнать?🧐","fileId":null,"collType":"2"}},{"id":4,"parentId":3,"parameters":{"type":2,"name":"Английский🇬🇧","message":"*19.11.2019* - нужно принести эссе.\nС *11.11.2019* по *15.11.2019* преподавателя не будет.\n*Важно:* до конца семестра нужно оформить с презентацией и показать её на любой паре.","fileId":null,"previewId":null}},{"id":5,"parentId":3,"parameters":{"type":2,"name":"Матан 👨‍🔬🔬","message":"*13.11.2019* желательно сдать уже лабораторную №5\n*14.11.2019* будет *практическая лекция* с дополнительными баллами.","fileId":null,"previewId":null}},{"id":6,"parentId":3,"parameters":{"type":2,"name":"Квант. мех ⚛ ⚛","message":"Нужно сделать лабораторную №4","fileId":null,"previewId":null}},{"id":7,"parentId":0,"parameters":{"type":5,"name":"Написать отзыв 📨","message":"Напишите замечание или пожелание по поводу функциональности бота. ✍ 🏣 ⚖️ 🌠 🔃 🛠 🤖","fileId":null,"inputType":"1"}},{"id":8,"parentId":7,"parameters":{"type":6,"name":"Отправить заказ","message":"Ваш отзыв был отправлен.","fileId":null,"statusGroupId":"1000001"}}]</value>
+  </data>
+  <data name="PIZZERIA" xml:space="preserve">
+    <value>разметка 3</value>
+  </data>
+  <data name="ORGANIZATION" xml:space="preserve">
+    <value>разметка 4</value>
+  </data>
+  <data name="PROPOSAL" xml:space="preserve">
+    <value>разметка 5</value>
+  </data>
+  <data name="PERSONAL" xml:space="preserve">
+    <value>[{"id":0,"parameters":{"type":1,"name":"Тут корень","message":"Добро пожаловать в начало! Этот прекрасный бот был создан на сайте botsconstructor.com","fileId":null,"previewId":"AgADAgADvKsxG900EUrFJJF_4wg06Qx3wQ8ABAEAAwIAA20AA0ERAAIWBA"}},{"id":1,"parentId":0,"parameters":{"type":2,"name":"📞 🔢Контакты📧","message":"Теlegram @TeacherTelegramLogin\nEmail teacher@gmail.com\nМожно писать с 9 00 до 20 00. \n🚫 📨 ⏮ 9⃣ 🕜 ⏭ 2⃣0⃣ 🕜","fileId":null,"previewId":"AgADAgADvKsxG900EUrFJJF_4wg06Qx3wQ8ABAEAAwIAA20AA0ERAAIWBA"}},{"id":2,"parentId":0,"parameters":{"type":2,"name":"📚 👨‍🎓Учебные материалы📚 👨‍🎓","message":"Все материалы лежат на [диске](https://drive.google.com/drive/folders/1IC-AYLKrwYXkVIHiwa-nHkM8BgQK4IYI)\n","fileId":null,"previewId":"AgADAgADfawxG-a4eUuD3NTPV4iZU3PPug8ABAEAAwIAA20AA5WWBgABFgQ"}},{"id":3,"parentId":0,"parameters":{"type":5,"name":"Отправить курсовую📨👷","message":"Отправьте мне один документ или архив, если документов много. 📨 👤 1⃣ 📄 ⚖️ 🗃 ↪️ 📚 📄.","fileId":null,"inputType":"6"}},{"id":4,"parentId":3,"parameters":{"type":5,"name":"Тут нужно ввести название группы","message":"В какой вы группе? 👆 ❔ 👪   ","fileId":null,"inputType":"1"}},{"id":5,"parentId":4,"parameters":{"type":5,"name":"Тут нужно ввести имя","message":"Введите ваше имя. ❔ 👆  💬","fileId":null,"inputType":"1"}},{"id":6,"parentId":5,"parameters":{"type":6,"name":"Отправить","message":"Ваша курсовая была отправлена. 👆 🐾 ✔️ 📨.","fileId":null,"statusGroupId":"1"}},{"id":7,"parentId":0,"parameters":{"type":2,"name":"❔🔎 Где найти?","message":"Вот моё расписание. 👇👤📆.  \n***Для групп IT:***\n    ***12.12.2019*** будет К.р. (и Л.р. №7) - явка обязательна!\n    ***19.12.2019*** в 10:25 лекции не будет.\n    ***20.12.2019*** - последний день сдачи курсовой. \n    В 12:20 в 523 аудитории будет приём курсовых и \n    выставление зачётов.\n\n    Дополнительные дни сдачи:\n    ***11.12.2019*** - 4 пара\n    ***12.12.2019*** - 3-4 пары\n    ***13.12.2019*** - с утра до 15\n    ***18.12.2019*** - 4 пара","fileId":null,"previewId":null}}]</value>
+  </data>  
+</root>

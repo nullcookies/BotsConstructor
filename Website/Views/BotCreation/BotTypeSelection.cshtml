@@ -1,41 +1,65 @@
 ﻿@{
     Layout = "_LayoutHome";
 }
+<style>
+    .card{
+        min-width: 300px;
+        max-width: 500px;
+    }
+</style>
 <div style="padding:5px;">
 
     <div class="card-group">
         <div class="card">
-            <img src="@Url.Content("~/images/shoppingCart.png")" class="card-img-top" alt="...">
+            <img src="@Url.Content("~/images/people.png")" class="card-img-top" alt="..." >
             <div class="card-body">
-                <h5 class="card-title">Бот для продаж</h5>
-                <a class="btn btn-success btn-lg btn-block" asp-controller="BotCreation" asp-action="BotForSalesTokenEntry">Создать</a>
+                <h5 class="card-title">Бот для расписания группы</h5>
+                <a class="btn btn-success btn-lg btn-block" asp-controller="BotCreation" asp-action="BotForSalesTokenEntry" asp-route-botType="GROUP">Создать</a>
                 <a class="btn btn-outline-success btn-lg btn-block disabled" asp-controller="" asp-action="">Смотреть примеры</a>
                 <hr />
-                <p class="card-text" style="text-align: justify;">С помощью такого бота можно создать небольшой каталог с товарами. Пользователь может добавить товары в корзину, а после ввести свои данные и отправить заказ.
+                <p class="card-text" style="text-align: justify;">Этот шаблон бота можно использовать для хранения полезной информации для группы людей. Расписание, важная информация. Также можно отправить сообщение
                 Заказ тут же станет виден во вкладке <a asp-controller="Orders" asp-action="Orders2"><b>"Заказы"</b></a>, где на него можно будет ответить.</p>
             </div>
-
         </div>
-        <div class="card" style="visibility:hidden;">
-            <img src="@Url.Content("~/images/shoppingCart.png")" class="card-img-top" alt="...">
+        <div class="card" >
+            <img src="@Url.Content("~/images/robot.png")" class="card-img-top" alt="...">
             <div class="card-body">
-                <h5 class="card-title">Бот для продаж</h5>
-                <a class="btn btn-success btn-lg btn-block" asp-controller="BotCreation" asp-action="BotForSalesTokenEntry">Создать</a>
+                <h5 class="card-title">Личный бот</h5>
+                <a class="btn btn-success btn-lg btn-block" asp-controller="BotCreation" asp-action="BotForSalesTokenEntry" asp-route-botType="PERSONAL">Создать</a>
                 <a class="btn btn-outline-success btn-lg btn-block" asp-controller="" asp-action="">Смотреть примеры</a>
                 <hr />
-                <p class="card-text"> С помощью такого можно создать небольшой каталог с товарами. Пользователь может добавить товары в корзину, а после ввести свои данные и отправить заказ. Заказ тут же станет виден во вкладке "Заказы" (неожиданно)</p>
+                <p class="card-text"> С помощью такого бота можно хранить информацию для конкретного человека. Информация о том как связаться, тыры-пыры ну вы поняли. Ещё можно отправлять документы.</p>
             </div>
-
-        </div> <div class="card" style="visibility:hidden;">
-            <img src="@Url.Content("~/images/shoppingCart.png")" class="card-img-top" alt="...">
+        </div> 
+        <div class="card" >
+            <img src="@Url.Content("~/images/organixation.png")" class="card-img-top" alt="...">
             <div class="card-body">
-                <h5 class="card-title">Бот для продаж</h5>
-                <a class="btn btn-success btn-lg btn-block" asp-controller="BotCreation" asp-action="BotForSalesTokenEntry">Создать</a>
+                <h5 class="card-title">Бот для учреждения</h5>
+                <a class="btn btn-success btn-lg btn-block" asp-controller="BotCreation" asp-action="BotForSalesTokenEntry"  asp-route-botType="ORGANIZATION">Создать</a>
                 <a class="btn btn-outline-success btn-lg btn-block" asp-controller="" asp-action="">Смотреть примеры</a>
                 <hr />
-                <p class="card-text"> С помощью такого можно создать небольшой каталог с товарами. Пользователь может добавить товары в корзину, а после ввести свои данные и отправить заказ. Заказ тут же станет виден во вкладке "Заказы" (неожиданно)</p>
+                <p class="card-text"> Такой бот может хранить информации для небольшой организации. Тут можно разместить данные о её местонахождении, о событиях или любую промо-иниформацию.</p>
             </div>
-
+        </div>
+        <div class="card" >
+            <img src="@Url.Content("~/images/offer.png")" class="card-img-top" alt="...">
+            <div class="card-body">
+                <h5 class="card-title">Бот для предложки</h5>
+                <a class="btn btn-success btn-lg btn-block" asp-controller="BotCreation" asp-action="BotForSalesTokenEntry"  asp-route-botType="PROPOSAL">Создать</a>
+                <a class="btn btn-outline-success btn-lg btn-block" asp-controller="" asp-action="">Смотреть примеры</a>
+                <hr />
+                <p class="card-text"> Такой бот может хранить информации для небольшой организации. Тут можно разместить данные о её местонахождении, о событиях или любую промо-иниформацию.</p>
+            </div>
+        </div>
+        <div class="card" >
+                <img src="@Url.Content("~/images/pizza.jpg")" class="card-img-top" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title">Бот для пиццерии</h5>
+                    <a class="btn btn-success btn-lg btn-block" asp-controller="BotCreation" asp-action="BotForSalesTokenEntry"  asp-route-botType="PIZZERIA">Создать</a>
+                    <a class="btn btn-outline-success btn-lg btn-block" asp-controller="" asp-action="">Смотреть примеры</a>
+                    <hr />
+                    <p class="card-text"> Такой бот может хранить информации для небольшой организации. Тут можно разместить данные о её местонахождении, о событиях или любую промо-иниформацию.</p>
+                </div>
         </div>
     </div>
 </div>

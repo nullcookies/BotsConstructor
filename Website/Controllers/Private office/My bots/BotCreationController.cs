@@ -2,6 +2,7 @@
 using System.Runtime.Serialization;
 using DataLayer;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using MyLibrary;
 using Website.ViewModels;
 using Telegram.Bot;
@@ -10,13 +11,17 @@ namespace Website.Controllers
 {
     public class BotCreationController : Controller
     {
-        readonly SimpleLogger _logger;
-        readonly ApplicationContext _contextDb;
+        readonly SimpleLogger logger;
+        readonly ApplicationContext contextDb;
+        private readonly IStringLocalizer localizer;
 
-        public BotCreationController(ApplicationContext contextDb, SimpleLogger logger)
+        public BotCreationController(ApplicationContext contextDb, 
+            SimpleLogger logger, 
+            IStringLocalizer<BotCreationController> localizer)
         {
-            _contextDb = contextDb;
-            _logger = logger;
+            this.contextDb = contextDb;
+            this.logger = logger;
+            this.localizer = localizer;
         }
 
         [HttpGet]
@@ -26,35 +31,46 @@ namespace Website.Controllers
         }
 
         [HttpGet]
-        public IActionResult BotForSalesTokenEntry()
+        public IActionResult BotForSalesTokenEntry(BotType botType)
         {
+            ViewData["botType"] = botType;
             return View();
         }
         
         [HttpPost]
-        public IActionResult CreateNewBotForSales(TokenChange tokenModel)
+        public IActionResult CreateNewBotForSales(TokenChange tokenModel, BotType botType)
         {
-
             int accountId = (int)HttpContext.Items["accountId"];
-
+            
             try
             {
                 string token = tokenModel?.Token;
                 string botUsername = new TelegramBotClient(token).GetMeAsync().Result.Username;
+                string jsonBotMarkup = localizer[botType.ToString()];
+                
+                
+                BotDB bot = new BotDB
+                {
+                    OwnerId = accountId,
+                    BotType = "BotForSales",
+                    Token = token,
+                    BotName = botUsername,
+                    Markup = jsonBotMarkup
+                };
 
-                //Создание нового бота для продаж с пустой разметкой
-                BotDB bot = new BotDB() { OwnerId = accountId, BotType = "BotForSales", Token = token, BotName = botUsername };
-
-                _contextDb.Bots.Add(bot);
+                contextDb.Bots.Add(bot);
 
                 //Создание статистики для бота
-                BotForSalesStatistics botForSalesStatistics = new BotForSalesStatistics() { Bot = bot, NumberOfOrders = 0, NumberOfUniqueMessages = 0, NumberOfUniqueUsers = 0 };
+                BotForSalesStatistics botForSalesStatistics = new BotForSalesStatistics
+                {
+                    Bot = bot, NumberOfOrders = 0, NumberOfUniqueMessages = 0, NumberOfUniqueUsers = 0
+                };
 
-                _contextDb.BotForSalesStatistics.Add(botForSalesStatistics);
+                contextDb.BotForSalesStatistics.Add(botForSalesStatistics);
 
                 try
                 {
-                    _contextDb.SaveChanges();
+                    contextDb.SaveChanges();
                 }
                 catch(Exception exception)
                 {
@@ -66,7 +82,7 @@ namespace Website.Controllers
             }
             catch (TokenMatchException ex)
             {
-                _logger.Log(LogLevel.USER_ERROR, Source.WEBSITE, $"Сайт. Создание нового бота. При " +
+                logger.Log(LogLevel.USER_ERROR, Source.WEBSITE, $"Сайт. Создание нового бота. При " +
                    $"запросе botUsername было выброшено исключение (возможно, введённый" +
                    $"токен был специально испорчен)" + ex.Message, accountId: accountId);
 
@@ -75,7 +91,7 @@ namespace Website.Controllers
             }
             catch (Exception ee)
             {
-                _logger.Log(LogLevel.USER_ERROR, Source.WEBSITE, $"Сайт. Создание нового бота. При " +
+                logger.Log(LogLevel.USER_ERROR, Source.WEBSITE, $"Сайт. Создание нового бота. При " +
                     $"запросе botUsername было выброшено исключение (возможно, введённый" +
                     $"токен был специально испорчен)"+ee.Message, accountId:accountId);
 
@@ -115,4 +131,14 @@ namespace Website.Controllers
         {
         }
     }
+
+    public enum BotType:byte
+    {
+        GROUP,
+        PIZZERIA,
+        ORGANIZATION,
+        PROPOSAL,
+        PERSONAL
+    }
+    
 }

@@ -1,7 +1,9 @@
 ﻿@{
-Layout = "_LayoutHome";
+    Layout = "_LayoutHome";
+    BotType botType =  ViewData["botType"] as BotType? ?? BotType.PERSONAL ;
 }
 
+@using Website.Controllers
 @model Website.ViewModels.TokenChange
 <style>
     .myText {
@@ -27,7 +29,7 @@ Layout = "_LayoutHome";
                     BotFather выдаст вам строку с токеном, который выглядит примерно так:<br />
                     827524495:AAHpX89DtCNgIgTgz7k5WKmX_E6BRU-d5Hk<br />
                 </p>
-
+                <input type="hidden" asp-for="BotType" value="@(botType)"/>
                 <div class="input-group">
                     <div class="input-group-prepend">
                         <span class="input-group-text" id="tokenSpan">Токен</span>

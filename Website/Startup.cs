@@ -8,10 +8,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Claims;
 using System.Threading;
+using Microsoft.AspNetCore.Localization;
 using MyLibrary;
 using Website.Other.Middlewares;
 using Website.Services;
@@ -34,14 +36,12 @@ namespace Website
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-            
-
             services
                 .AddMvc()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
                 .AddViewLocalization();
 
-
+         
 
             services.AddEntityFrameworkNpgsql()
                 .AddDbContext<ApplicationContext>(opt => opt.UseNpgsql(DbContextFactory.GetConnectionString()))
@@ -107,6 +107,22 @@ namespace Website
 //                app.UseHttpsRedirection();
             }
 
+
+            var supportedCultures = new[]
+            {
+                new CultureInfo("en"),
+                new CultureInfo("ru"),
+            };
+
+            app.UseRequestLocalization(new RequestLocalizationOptions
+            {
+                DefaultRequestCulture = new RequestCulture("en"),
+                // Formatting numbers, dates, etc.
+                SupportedCultures = supportedCultures,
+                // UI strings that we have localized.
+                SupportedUICultures = supportedCultures
+            });
+            
 
             app.UseStaticFiles();
             app.UseCookiePolicy();
