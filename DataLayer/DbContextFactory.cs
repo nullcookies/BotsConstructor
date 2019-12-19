@@ -15,8 +15,8 @@ namespace DataLayer
                 {"User ID", "postgres"},
                 {"Password", "3t0ssszheM3G4MMM0Ch~n`yparollb_wubfubrkmdbwiyro38" },
                 { "Port", 5432 },
-                // { "Database", "MainDB001" },
-                { "Database", "19_12_2019_number1" },
+                { "Database", "MainDB001" },
+                // { "Database", "19_12_2019_number1" },
                 { "Integrated Security", true },
                 { "Pooling", true }
             };
