@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Linq;
 using System.Runtime.Serialization;
 using DataLayer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 using MyLibrary;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Website.ViewModels;
 using Telegram.Bot;
 
@@ -47,6 +50,39 @@ namespace Website.Controllers
                 string token = tokenModel?.Token;
                 string botUsername = new TelegramBotClient(token).GetMeAsync().Result.Username;
                 string jsonBotMarkup = localizer[botType.ToString()];
+                
+                int? statusGroupId = contextDb.OrderStatusGroups.FirstOrDefault(stat => stat.OwnerId==accountId)?.Id;
+                
+                if (statusGroupId == null)
+                {
+                    //нужно создать группу статусов
+                    var orderStatusGroup = new OrderStatusGroup
+                    {
+                        Name = "Автоматически сгенерированная группа статусов",
+                        IsOld = false,
+                        OwnerId = accountId
+                    };
+                    contextDb.OrderStatusGroups.Add(orderStatusGroup);
+                    contextDb.SaveChanges();
+                    statusGroupId = orderStatusGroup.Id;
+
+                    var orderStatus = new OrderStatus
+                    {
+                        Message = "Просмотрено",
+                        Name = "Просмотрено",
+                        GroupId = orderStatusGroup.Id,
+                        IsOld = false
+                    };
+                    contextDb.OrderStatuses.Add(orderStatus);
+                    contextDb.SaveChanges();
+                }
+                
+                
+                //нужно установить групппу статусов
+                if (jsonBotMarkup.Contains("1000001"))
+                {
+                    jsonBotMarkup = jsonBotMarkup.Replace("1000001", statusGroupId.ToString());
+                }
                 
                 
                 BotDB bot = new BotDB
@@ -106,13 +142,7 @@ namespace Website.Controllers
     
     public class TokenMatchException : Exception
     {
-        //
-        // For guidelines regarding the creation of new exception types, see
-        //    http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpgenref/html/cpconerrorraisinghandlingguidelines.asp
-        // and
-        //    http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dncscol/html/csharp07192001.asp
-        //
-
+      
         public TokenMatchException()
         {
         }
