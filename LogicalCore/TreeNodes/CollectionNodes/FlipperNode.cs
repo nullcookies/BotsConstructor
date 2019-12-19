@@ -86,10 +86,18 @@ namespace LogicalCore
 
         protected virtual async Task<Message> EditMessage(Session session, Message divisionMessage, int page)
         {
-            return await session.BotClient.EditMessageReplyMarkupAsync(
-                session.telegramId,
-                divisionMessage.MessageId,
-                GetInlineMarkup(session, page));
+	        try
+	        {
+		        return await session.BotClient.EditMessageReplyMarkupAsync(
+			        session.telegramId,
+			        divisionMessage.MessageId,
+			        GetInlineMarkup(session, page));
+	        }
+	        catch (Exception e)
+	        {
+		        ConsoleWriter.WriteLine(e.Message, ConsoleColor.Red);
+		        return divisionMessage;
+	        }
         }
 
 		protected virtual InlineKeyboardMarkup GetInlineMarkup(Session session, int page)
@@ -176,11 +184,13 @@ namespace LogicalCore
 		protected virtual void FillInlineButtons(Session session, List<List<InlineKeyboardButton>> buttons, int from, int to)
 		{
 			int index = 0;
-			foreach (var row in (message as IMetaMessage<MetaInlineKeyboardMarkup>)?.
-				MetaKeyboard.TranslateMarkup(session).InlineKeyboard)
-			{
-				buttons.Insert(index++, new List<InlineKeyboardButton>(row));
-			}
+			var inlineKeyboard = (message as IMetaMessage<MetaInlineKeyboardMarkup>)?.MetaKeyboard
+				.TranslateMarkup(session).InlineKeyboard;
+			if (inlineKeyboard != null)
+				foreach (var row in inlineKeyboard)
+				{
+					buttons.Insert(index++, new List<InlineKeyboardButton>(row));
+				}
 
 			for (int i = from; i < to; i++)
 			{

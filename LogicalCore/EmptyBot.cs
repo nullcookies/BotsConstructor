@@ -47,16 +47,24 @@ namespace LogicalCore
         /// </summary>
         public virtual void Run()
         {
-            if (link == null)
-            {
-                RunLongPolling();
-                ConsoleWriter.WriteLine($"Бот {BotUsername} запущен в режиме LongPolling ", ConsoleColor.Green);
-            }
-            else
-            {
-                RunWebhook(link);
-                ConsoleWriter.WriteLine($"Бот {BotUsername} запущен в режиме Webhook ", ConsoleColor.Green);
-            }
+         
+            RunLongPolling();
+            ConsoleWriter.WriteLine($"Бот {BotUsername} запущен в режиме LongPolling ", ConsoleColor.Green);
+            
+            // else
+            // {
+            //     try
+            //     {
+            //         RunWebhook(link);
+            //         ConsoleWriter.WriteLine($"Бот {BotUsername} запущен в режиме Webhook ", ConsoleColor.Green);
+            //     }
+            //     catch (Exception e)
+            //     {
+            //         RunLongPolling();    
+            //     }
+            //     
+            //     
+            // }
         }
 
         /// <summary>
@@ -81,6 +89,7 @@ namespace LogicalCore
             {
                 ConsoleWriter.WriteLine("Не удалось установить webhook по ссылке " + link, ConsoleColor.Red);
                 ConsoleWriter.WriteLine(ee.Message, ConsoleColor.Red);
+                throw;
             }
         }
         

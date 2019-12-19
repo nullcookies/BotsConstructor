@@ -55,7 +55,7 @@ namespace DataLayer
             modelBuilder.Entity<Moderator>().HasIndex(_mo => new { _mo.AccountId, _mo.BotId}).IsUnique();
 
             //Нельзя дважды банить одного пользователя
-            modelBuilder.Entity<BannedUser>().HasIndex(_bu => new { _bu.BotUsername, _bu.UserTelegramId}).IsUnique();
+            // modelBuilder.Entity<BannedUser>().HasIndex(_bu => new { _bu.BotUsername, _bu.UserTelegramId}).IsUnique();
 
             //Пользователь считается однажды
             modelBuilder.Entity<Record_BotUsername_UserTelegramId>()
