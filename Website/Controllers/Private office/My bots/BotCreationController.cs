@@ -138,7 +138,8 @@ namespace Website.Controllers
         PIZZERIA,
         ORGANIZATION,
         PROPOSAL,
-        PERSONAL
+        PERSONAL,
+        EMPTY
     }
     
 }

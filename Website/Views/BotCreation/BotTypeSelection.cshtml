@@ -52,15 +52,25 @@
             </div>
         </div>
         <div class="card" >
-                <img src="@Url.Content("~/images/pizza.jpg")" class="card-img-top" alt="...">
-                <div class="card-body">
-                    <h5 class="card-title">Бот для пиццерии</h5>
-                    <a class="btn btn-success btn-lg btn-block" asp-controller="BotCreation" asp-action="BotForSalesTokenEntry"  asp-route-botType="PIZZERIA">Создать</a>
-                    <a class="btn btn-outline-success btn-lg btn-block" asp-controller="" asp-action="">Смотреть примеры</a>
-                    <hr />
-                    <p class="card-text"> Такой бот может хранить информации для небольшой организации. Тут можно разместить данные о её местонахождении, о событиях или любую промо-иниформацию.</p>
-                </div>
+            <img src="@Url.Content("~/images/pizza.jpg")" class="card-img-top" alt="...">
+            <div class="card-body">
+                <h5 class="card-title">Бот для пиццерии</h5>
+                <a class="btn btn-success btn-lg btn-block" asp-controller="BotCreation" asp-action="BotForSalesTokenEntry"  asp-route-botType="PIZZERIA">Создать</a>
+                <a class="btn btn-outline-success btn-lg btn-block" asp-controller="" asp-action="">Смотреть примеры</a>
+                <hr />
+                <p class="card-text"> Такой бот может хранить информации для небольшой организации. Тут можно разместить данные о её местонахождении, о событиях или любую промо-иниформацию.</p>
+            </div>
         </div>
+         <div class="card" >
+                        <img src="@Url.Content("~/images/empt.png")" class="card-img-top" alt="...">
+                        <div class="card-body">
+                            <h5 class="card-title">Пустой бот</h5>
+                            <a class="btn btn-success btn-lg btn-block" asp-controller="BotCreation" asp-action="BotForSalesTokenEntry"  asp-route-botType="EMPTY">Создать</a>
+                            <a class="btn btn-outline-success btn-lg btn-block" asp-controller="" asp-action="">Смотреть примеры</a>
+                            <hr />
+                            <p class="card-text"> Бот с пустой разметкой</p>
+                        </div>
+                </div>
     </div>
 </div>
 
