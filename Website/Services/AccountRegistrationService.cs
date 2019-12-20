@@ -32,7 +32,7 @@ namespace Website.Services
                 Name = name,
                 RegistrationDate = DateTime.UtcNow,
                 Money = 0,
-                EmailLoginInfo =emailLoginInfo,
+                EmailLoginInfo = emailLoginInfo,
                 TelegramLoginInfo = telegramLoginInfo
             };
             

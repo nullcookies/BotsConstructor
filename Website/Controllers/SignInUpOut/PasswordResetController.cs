@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DataLayer;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using MyLibrary;
 using Website.Other;
 using Website.Services;
@@ -42,6 +43,7 @@ namespace Website.Controllers.SignInUpOut
             }
             
             Account account = context.EmailLoginInfo
+                .Include(info=>info.Account)
                 .SingleOrDefault(_acc => _acc.Email == email)?.Account;
 
             if (account != null)

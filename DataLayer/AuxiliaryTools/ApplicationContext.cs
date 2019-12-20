@@ -50,10 +50,18 @@ namespace DataLayer
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // modelBuilder.Entity<RoleType>().HasIndex(role => new { role.Name }).IsUnique();
+                modelBuilder.Entity<Moderator>().HasIndex(_mo => new { _mo.AccountId, _mo.BotId}).IsUnique();
+            
+            modelBuilder.Entity<EmailLoginInfo>().HasIndex(info => info.Email).IsUnique();
+            modelBuilder.Entity<EmailLoginInfo>().HasIndex(info => info.AccountId).IsUnique();
+            
+            modelBuilder.Entity<TelegramLoginInfo>().HasIndex(info => info.TelegramId).IsUnique();
+            modelBuilder.Entity<TemporaryAccountWithUsernameAndPassword>()
+                .HasIndex(tmp => tmp.Email).IsUnique();
+            
+            modelBuilder.Entity<TemporaryAccountWithUsernameAndPassword>()
+                .HasIndex(tmp => tmp.Guid).IsUnique();
 
-            //Нельзя добавить модератора дважды к аккаунту
-            modelBuilder.Entity<Moderator>().HasIndex(_mo => new { _mo.AccountId, _mo.BotId}).IsUnique();
 
            //Пользователь считается однажды
             modelBuilder.Entity<Record_BotUsername_UserTelegramId>()
@@ -73,13 +81,7 @@ namespace DataLayer
                 _wl.DateTime
             }).IsUnique();
 
-            // var roles = new List<RoleType>()
-            // {
-            //     new RoleType(){ Id = 1, Name="admin"},
-            //     new RoleType(){ Id = 2, Name = "user"},
-            //     new RoleType(){ Id = 3, Name = "moderator"}
-            // };
-            // modelBuilder.Entity<RoleType>().HasData(roles);
+        
 
             modelBuilder.Entity<EmailLoginInfo>()
                 .HasIndex(a => a.Email)
@@ -101,25 +103,25 @@ namespace DataLayer
                 .Property(_acc => _acc.Money)
                 .HasDefaultValue(0);
 
-            var accounts = new List<Account>
-            {
-                new Account
-                {
-                    Id = 2, 
-                    Name="Иван Иванов",
-                    RegistrationDate = DateTime.UtcNow
-                }
-            };
-            var emailPasswordLoginInfo=new List<EmailLoginInfo>
-            {
-                new EmailLoginInfo
-                {
-                    Id = 2,
-                    Email = "qqq@qqq",
-                    AccountId = 2,
-                    Password = "qqq"
-                }
-            };
+            // var accounts = new List<Account>
+            // {
+            //     new Account
+            //     {
+            //         Id = 2, 
+            //         Name="Иван Иванов",
+            //         RegistrationDate = DateTime.UtcNow
+            //     }
+            // };
+            // var emailPasswordLoginInfo=new List<EmailLoginInfo>
+            // {
+            //     new EmailLoginInfo
+            //     {
+            //         Id = 2,
+            //         Email = "qqq@qqq",
+            //         AccountId = 2,
+            //         Password = "qqq"
+            //     }
+            // };
             
 
             BotForSalesPrice price =
@@ -137,8 +139,8 @@ namespace DataLayer
 
 
 
-            modelBuilder.Entity<Account>().HasData(accounts);
-            modelBuilder.Entity<EmailLoginInfo>().HasData(emailPasswordLoginInfo);
+            // modelBuilder.Entity<Account>().HasData(accounts);
+            // modelBuilder.Entity<EmailLoginInfo>().HasData(emailPasswordLoginInfo);
 
             modelBuilder.Entity<BotForSalesStatistics>()
                  .Property(_botStat => _botStat.NumberOfUniqueMessages)

@@ -16,7 +16,8 @@ namespace DataLayer
                 {"Password", "3t0ssszheM3G4MMM0Ch~n`yparollb_wubfubrkmdbwiyro38" },
                 { "Port", 5432 },
                 // { "Database", "MainDB001" },
-                { "Database", "20_12_2019_number5" },
+                // { "Database", "20_12_2019_number5" },
+                { "Database", "BotsConstructor" },
                 { "Integrated Security", true },
                 { "Pooling", true }
             };

@@ -12,6 +12,7 @@ using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Claims;
+using System.Text;
 using System.Threading;
 using Microsoft.AspNetCore.Localization;
 using MyLibrary;
@@ -139,18 +140,23 @@ namespace Website
 
             app.UseWebSockets(wsOptions);
 
-            //Костыльное отлавливание ошибок
-            app.Use(async (context, next) =>
+            if (!env.IsDevelopment())
             {
-                try
+                //Костыльное отлавливание ошибок
+                app.Use(async (context, next) =>
                 {
-                    await next.Invoke();
-                }
-                catch (Exception exception)
-                {
-                    logger.Log(LogLevel.FATAL, Source.WEBSITE, "Сайт навернулся", ex:exception);
-                }
-            });
+                    try
+                    {
+                        await next.Invoke();
+                    }
+                    catch (Exception exception)
+                    {
+                        logger.Log(LogLevel.FATAL, Source.WEBSITE, "Сайт навернулся", ex:exception);
+                        string message = "Oh! Something went wrong ((";
+                        context.Response.Redirect($"/StaticMessage/Failure?message={message}");
+                    }
+                });
+            }
 
 
             //сохранение в удобном виде для настроек локализации

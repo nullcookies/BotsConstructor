@@ -3,6 +3,8 @@ using System;
 using System.Linq;
 using DataLayer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Rewrite.Internal;
+using Microsoft.EntityFrameworkCore;
 using MyLibrary;
 using Website.Other.Filters;
 
@@ -27,16 +29,24 @@ namespace Website.Controllers
 		public IActionResult SalesTreeEditor(int botId)
 		{
 			var info = context.Bots
-				.Where((_bot) => _bot.Id == botId)
-				.Select((_bot) => new { _bot.Owner.TelegramLoginInfo.TelegramId, _bot.Token, _bot.Markup, _bot.OwnerId })
+				.Where(_bot => _bot.Id == botId)
+				.Select(_bot => new { _bot.Token, _bot.Markup, _bot.OwnerId })
 				.SingleOrDefault();
+			
+			
 			
             var statusGroups = context.OrderStatusGroups.Where(group => group.OwnerId == info.OwnerId)
                 .Select(group => new {group.Id, group.Name, group.IsOld}).ToDictionary(group => group.Id, group => new {group.Name, group.IsOld});
-
+    
             if (info != null)
             {
-	            ViewData["userId"] = info.TelegramId;
+	            //TODO узнать telegramId из первого запроса 
+	            int telegramId = context.TelegramLoginInfo
+		            .Where(loginInfo => loginInfo.AccountId == info.OwnerId)
+		            .Select(telInfo => telInfo.TelegramId)
+		            .SingleOrDefault();
+		            
+	            ViewData["userId"] = telegramId;
 				ViewData["token"] = info.Token;
 				ViewData["json"] = info.Markup;
 	            ViewData["statusGroups"] = statusGroups;
@@ -49,6 +59,7 @@ namespace Website.Controllers
 				return StatusCode(500);
             }
 
+			
 		}
 
 		[HttpPost]
