@@ -22,7 +22,7 @@ namespace MyLibrary
             _spyMessages = new ConcurrentQueue<SpyRecord>();
             _dbContextFactory = new DbContextFactory();
 
-            PeriodicFooAsync(TimeSpan.FromSeconds(30), CancellationToken.None);
+            // PeriodicFooAsync(TimeSpan.FromSeconds(30), CancellationToken.None);
         }
 
         public void LogSpyRecord(string pathCurrent, string pathFrom, int accountId)

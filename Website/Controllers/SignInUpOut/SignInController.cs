@@ -9,7 +9,9 @@ using DataLayer;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Website.Services;
 using Website.ViewModels;
 
 namespace Website.Controllers.SignInUpOut
@@ -17,10 +19,12 @@ namespace Website.Controllers.SignInUpOut
     public class SignInController : Controller
     {
         private readonly ApplicationContext context;
-
-        public SignInController(ApplicationContext context)
+        private readonly AccountRegistrationService registrationService;
+        
+        public SignInController(ApplicationContext context, AccountRegistrationService registrationService)
         {
             this.context = context;
+            this.registrationService = registrationService;
         }
         
         [HttpGet]
@@ -38,7 +42,7 @@ namespace Website.Controllers.SignInUpOut
 
 
         [HttpGet]
-        public IActionResult LoginWithTelegram(string id,
+        public async Task<IActionResult> LoginWithTelegram(string id,
             [FromQuery(Name = "first_name")] string firstName,
             [FromQuery(Name = "last_name")]  string lastName,
             [FromQuery(Name = "username")]   string username,
@@ -75,18 +79,15 @@ namespace Website.Controllers.SignInUpOut
                     .SingleOrDefault(_acc => _acc.TelegramId == telegramId)
                     ?.Account;
                 
+                
                 if (account == null)
                 {
-                    account = new Account
+                    string name = firstName + " " + lastName;
+                    TelegramLoginInfo telegramLoginInfo = new TelegramLoginInfo()
                     {
-                       Name = firstName + " " + lastName,
-                       TelegramLoginInfo = new TelegramLoginInfo()
-                       {
-                           TelegramId = telegramId
-                       }
+                        TelegramId = telegramId
                     };
-                    context.Accounts.Add(account);
-                    context.SaveChanges();
+                    await registrationService.RegisterAccount(name, telegramLoginInfo);
                 }
 
                 Authenticate(account);
@@ -126,7 +127,8 @@ namespace Website.Controllers.SignInUpOut
         {
             if (ModelState.IsValid)
             {
-                Account account = context.EmailLoginInfo
+                var account = context.EmailLoginInfo
+                    .Include(info => info.Account)
                     .FirstOrDefault(a => a.Email == model.Email && a.Password == model.Password)
                     ?.Account;
 

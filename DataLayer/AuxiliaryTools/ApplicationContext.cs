@@ -8,7 +8,7 @@ namespace DataLayer
 	public sealed class ApplicationContext: DbContext
     {
         public DbSet<Account> Accounts { get; set; }
-        public DbSet<RoleType> AuthRoles { get; set; }
+        // public DbSet<RoleType> AuthRoles { get; set; }
         public DbSet<BotDB> Bots { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderStatus> OrderStatuses { get; set; }
@@ -43,13 +43,14 @@ namespace DataLayer
         public ApplicationContext(DbContextOptions<ApplicationContext> options)
            : base(options)
         {
+            
              Database.EnsureCreated();
         }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<RoleType>().HasIndex(role => new { role.Name }).IsUnique();
+            // modelBuilder.Entity<RoleType>().HasIndex(role => new { role.Name }).IsUnique();
 
             //Нельзя добавить модератора дважды к аккаунту
             modelBuilder.Entity<Moderator>().HasIndex(_mo => new { _mo.AccountId, _mo.BotId}).IsUnique();
@@ -72,13 +73,13 @@ namespace DataLayer
                 _wl.DateTime
             }).IsUnique();
 
-            var roles = new List<RoleType>()
-            {
-                new RoleType(){ Id = 1, Name="admin"},
-                new RoleType(){ Id = 2, Name = "user"},
-                new RoleType(){ Id = 3, Name = "moderator"}
-            };
-            modelBuilder.Entity<RoleType>().HasData(roles);
+            // var roles = new List<RoleType>()
+            // {
+            //     new RoleType(){ Id = 1, Name="admin"},
+            //     new RoleType(){ Id = 2, Name = "user"},
+            //     new RoleType(){ Id = 3, Name = "moderator"}
+            // };
+            // modelBuilder.Entity<RoleType>().HasData(roles);
 
             modelBuilder.Entity<EmailLoginInfo>()
                 .HasIndex(a => a.Email)
@@ -100,20 +101,26 @@ namespace DataLayer
                 .Property(_acc => _acc.Money)
                 .HasDefaultValue(0);
 
-            var accounts = new List<Account>()
+            var accounts = new List<Account>
             {
                 new Account
                 {
-                    Id = 0,
-                    EmailLoginInfo = new EmailLoginInfo
-                        {
-                            Email = "qqq@qqq",
-                            Password = "qqq"
-                        }, 
-                    Name="Иван Иванов"  
+                    Id = 2, 
+                    Name="Иван Иванов",
+                    RegistrationDate = DateTime.UtcNow
                 }
             };
-
+            var emailPasswordLoginInfo=new List<EmailLoginInfo>
+            {
+                new EmailLoginInfo
+                {
+                    Id = 2,
+                    Email = "qqq@qqq",
+                    AccountId = 2,
+                    Password = "qqq"
+                }
+            };
+            
 
             BotForSalesPrice price =
                 new BotForSalesPrice
@@ -131,6 +138,7 @@ namespace DataLayer
 
 
             modelBuilder.Entity<Account>().HasData(accounts);
+            modelBuilder.Entity<EmailLoginInfo>().HasData(emailPasswordLoginInfo);
 
             modelBuilder.Entity<BotForSalesStatistics>()
                  .Property(_botStat => _botStat.NumberOfUniqueMessages)
@@ -153,22 +161,9 @@ namespace DataLayer
             
 
             
-            modelBuilder.Entity<BotLaunchRecord>().HasData(new List<BotLaunchRecord>
-            {
-                new BotLaunchRecord(){
-                    Id = int.MinValue,
-                    BotId = 1_000_000,
-                    Time  = DateTime.UtcNow.AddHours(-5)                   
-                }
-            });
+          
 
 
-            modelBuilder.Entity<Moderator>().HasData(new Moderator()
-            {
-                Id = 1_000_000,
-                AccountId = 1_000_002,
-                BotId= 1_000_000
-            });
         }
     }
 

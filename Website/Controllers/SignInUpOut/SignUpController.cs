@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using MyLibrary;
 using Website.Services;
@@ -18,13 +19,15 @@ namespace Website.Controllers.SignInUpOut
         private readonly ApplicationContext context;
         private readonly EmailMessageSender emailSender;
         private readonly SimpleLogger logger;
+        private AccountRegistrationService registrationService;
 
         public SignUpController(ApplicationContext context, 
-            EmailMessageSender emailSender, SimpleLogger logger)
+            EmailMessageSender emailSender, SimpleLogger logger, AccountRegistrationService registrationService)
         {
             this.context = context;
             this.emailSender = emailSender;
             this.logger = logger;
+            this.registrationService = registrationService;
         }
 
 
@@ -87,7 +90,7 @@ namespace Website.Controllers.SignInUpOut
 
 
         [HttpGet]
-        public IActionResult EmailCheckSuccess(Guid guid, [FromQuery(Name = "email")] string email)
+        public async Task<IActionResult> EmailCheckSuccess(Guid guid, [FromQuery(Name = "email")] string email)
         {
             var tmpAccount = context.TemporaryAccountWithUsernameAndPassword.
                 FirstOrDefault(tmp => tmp.Email == email);
@@ -97,7 +100,18 @@ namespace Website.Controllers.SignInUpOut
                 Guid guidFromDb = tmpAccount.Guid;
                 if (guidFromDb == guid)
                 {
-                   
+                    var emailPasswordLoginInfo = new EmailLoginInfo
+                    {
+                        Email = tmpAccount.Email,
+                        Password = tmpAccount.Password
+                    };
+
+                    await registrationService.RegisterAccount(tmpAccount.Name, emailPasswordLoginInfo);
+
+                    context.TemporaryAccountWithUsernameAndPassword.Remove(tmpAccount);
+                    await context.SaveChangesAsync();
+                    
+                    
                     string message = "Поздравляем, ваш email подтверждён";
                     return RedirectToAction("Success", "StaticMessage", new { message });
                 }

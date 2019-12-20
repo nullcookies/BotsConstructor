@@ -22,12 +22,7 @@ namespace Website
 {
     public class Startup
     {
-        private readonly IHostingEnvironment _environment;
-        public Startup(IConfiguration configuration, IHostingEnvironment environment)
-        {
-            _environment = environment;
-        }
-
+        
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<CookiePolicyOptions>(options =>
@@ -44,7 +39,12 @@ namespace Website
          
 
             services.AddEntityFrameworkNpgsql()
-                .AddDbContext<ApplicationContext>(opt => opt.UseNpgsql(DbContextFactory.GetConnectionString()))
+                .AddDbContext<ApplicationContext>(delegate(DbContextOptionsBuilder opt)
+                {
+                    opt.UseNpgsql(DbContextFactory.GetConnectionString());
+                    // opt.EnableDetailedErrors();
+                    // opt.EnableSensitiveDataLogging();
+                })
                 .BuildServiceProvider();
 
 

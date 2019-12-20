@@ -13,7 +13,16 @@ namespace Website.Services
             this.dbContext = dbContext;
         }
 
-        public async Task RegisterAccount(string name, EmailLoginInfo emailLoginInfo, TelegramLoginInfo telegramLoginInfo)
+        public async Task RegisterAccount(string name, EmailLoginInfo emailLoginInfo )
+        {
+            await RegisterAccount(name, emailLoginInfo,null);
+        }
+        public async Task RegisterAccount(string name, TelegramLoginInfo telegramLoginInfo )
+        {
+            await RegisterAccount(name, null,telegramLoginInfo);
+        }
+        
+        private async Task RegisterAccount(string name, EmailLoginInfo emailLoginInfo , TelegramLoginInfo telegramLoginInfo)
         {
             if (emailLoginInfo == null && telegramLoginInfo == null)
                 throw new ArgumentException();

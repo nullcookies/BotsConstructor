@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DataLayer
 {
-    [Table("Accounts")]
+    [Table("TemporaryAccountsWithUsernameAndPassword")]
     public class TemporaryAccountWithUsernameAndPassword
     {
         [Key]
