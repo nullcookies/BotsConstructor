@@ -13,17 +13,17 @@ namespace Website.Controllers.SignInUpOut
     public class PasswordResetController : Controller
     {
 
-        private readonly SimpleLogger _logger;
-        private readonly ApplicationContext _context;
-        private readonly EmailMessageSender _emailSender;
+        private readonly SimpleLogger logger;
+        private readonly ApplicationContext context;
+        private readonly EmailMessageSender emailSender;
 
         public PasswordResetController(ApplicationContext context, 
             EmailMessageSender emailSender,
             SimpleLogger logger)
         {
-            _context = context;
-            _emailSender = emailSender;
-            _logger = logger;
+            this.context = context;
+            this.emailSender = emailSender;
+            this.logger = logger;
         }
 
         [HttpGet]
@@ -40,26 +40,26 @@ namespace Website.Controllers.SignInUpOut
                 ModelState.AddModelError("", "Введённый email неверный");
                 return View();
             }
-            email = email.Trim();
-            Account acc = _context.Accounts
-                .SingleOrDefault(_acc => _acc.Email == email);
+            
+            Account account = context.EmailLoginInfo
+                .SingleOrDefault(_acc => _acc.Email == email)?.Account;
 
-            if (acc != null)
+            if (account != null)
             {
                 //Отправка сообщения
 
                 Guid guid = Guid.NewGuid();
 
-                AccountToResetPassword tmpRecordDb = new AccountToResetPassword() { AccountId = acc.Id, GuidPasswordSentToEmail = guid };
+                AccountToResetPassword tmpRecordDb = new AccountToResetPassword() { AccountId = account.Id, GuidPasswordSentToEmail = guid };
 
                 //TODO Перезаписывать запрос на смену пароля если уже он уже есть
-                List<AccountToResetPassword> recordsWithTheSameAccountId = _context.AccountsToResetPassword
-                    .Where(_tmpRecord => _tmpRecord.AccountId == acc.Id)
+                List<AccountToResetPassword> recordsWithTheSameAccountId = context.AccountsToResetPassword
+                    .Where(_tmpRecord => _tmpRecord.AccountId == account.Id)
                     .ToList();
 
                 if (!recordsWithTheSameAccountId.Any())
                 {
-                    _context.AccountsToResetPassword.Add(tmpRecordDb);
+                    context.AccountsToResetPassword.Add(tmpRecordDb);
                 }
                 else if (recordsWithTheSameAccountId.Count() == 1)
                 {
@@ -71,18 +71,18 @@ namespace Website.Controllers.SignInUpOut
                 }
 
                 string domain = HttpContext.Request.Host.Value;
-                var link = $"https://{domain}/PasswordReset/PasswordResetOnlyNewPass?guid={guid.ToString()}&accountId={acc.Id}";
+                var link = $"https://{domain}/PasswordReset/PasswordResetOnlyNewPass?guid={guid.ToString()}&accountId={account.Id}";
 
 
-                bool sendIsOk = _emailSender.SendPasswordReset(email, acc.Name, link);
+                bool sendIsOk = emailSender.SendPasswordReset(email, account.Name, link);
 
 
                 if (!sendIsOk)
                 {
                     //если email не отправился, то удалить из БД запись о возможности сброса пароля
-                    _context.AccountsToResetPassword.Remove(tmpRecordDb);
+                    context.AccountsToResetPassword.Remove(tmpRecordDb);
                 }
-                _context.SaveChanges();
+                context.SaveChanges();
 
                 string message = "На вашу почту отправлено письмо. Для того, чтобы сбросить пароль следуйте инструкциям в письме. ";
                 return RedirectToAction("Success","StaticMessage", new { message });
@@ -100,7 +100,7 @@ namespace Website.Controllers.SignInUpOut
         [HttpGet]
         public IActionResult PasswordResetOnlyNewPass(Guid guid, int accountId)
         {
-            var tmpRecord = _context.AccountsToResetPassword
+            var tmpRecord = context.AccountsToResetPassword
                 .SingleOrDefault(_acc => _acc.AccountId == accountId);
 
             if (tmpRecord != null)
@@ -129,7 +129,7 @@ namespace Website.Controllers.SignInUpOut
         public IActionResult PasswordResetOnlyNewPass(ResetPasswordOnlyNewPassModel passModel, [FromQuery(Name = "targetAccountId")] int targetAccountId, Guid guid)
         {
             //Проверка guid-a
-            var accountToResetPass = _context.AccountsToResetPassword
+            var accountToResetPass = context.AccountsToResetPassword
                .SingleOrDefault(_acc => _acc.AccountId == targetAccountId);
 
 
@@ -142,7 +142,7 @@ namespace Website.Controllers.SignInUpOut
                     return StatusCode(403);
                 }
 
-                _logger.Log(LogLevel.UNAUTHORIZED_ACCESS_ATTEMPT,
+                logger.Log(LogLevel.UNAUTHORIZED_ACCESS_ATTEMPT,
                     Source.PASSWORD_RESET,
                     $"Аккаунт {targetAccountId} запросил смену пароля. В это время пришёл post запрос " +
                     $"с новым паролем, но guid был неверным. guid={guid}, accountId из cookie = {accountId}");
@@ -160,16 +160,17 @@ namespace Website.Controllers.SignInUpOut
                     if (passModel.NewPassword == passModel.ConfirmNewPassword)
                     {
                         {
-                            Account acc = _context.Accounts.Find(targetAccountId);
+                            var emailLoginInfo = context.EmailLoginInfo
+                                .SingleOrDefault(info => info.AccountId==targetAccountId);
 
-                            if (acc != null)
+                            if (emailLoginInfo != null)
                             {
                                 //удаление запроса на смену пароля
-                                _context.AccountsToResetPassword.Remove(accountToResetPass);
+                                context.AccountsToResetPassword.Remove(accountToResetPass);
                                 //смена пароля
-                                acc.Password = passModel.NewPassword;
+                                emailLoginInfo.Password = passModel.NewPassword;
 
-                                _context.SaveChanges();
+                                context.SaveChanges();
 
                                 return RedirectToAction("Index", "Main");
                             }

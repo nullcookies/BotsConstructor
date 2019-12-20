@@ -20,7 +20,9 @@ namespace DataLayer
 
 		public DbSet<SessionFile> SessionFiles { get; set; }
 		public DbSet<ImageMy> Images { get; set; }
-        public DbSet<UnconfirmedEmail> UnconfirmedEmails { get; set; }
+        public DbSet<TemporaryAccountWithUsernameAndPassword> TemporaryAccountWithUsernameAndPassword { get; set; }
+        public DbSet<EmailLoginInfo>EmailLoginInfo { get; set; }
+        public DbSet<TelegramLoginInfo> TelegramLoginInfo { get; set; }
         public DbSet<AccountToResetPassword> AccountsToResetPassword { get; set; }
         public DbSet<RouteRecord> RouteRecords { get; set; }
         public DbSet<LogMessage> LogMessages { get; set; }
@@ -52,10 +54,7 @@ namespace DataLayer
             //Нельзя добавить модератора дважды к аккаунту
             modelBuilder.Entity<Moderator>().HasIndex(_mo => new { _mo.AccountId, _mo.BotId}).IsUnique();
 
-            //Нельзя дважды банить одного пользователя
-            // modelBuilder.Entity<BannedUser>().HasIndex(_bu => new { _bu.BotUsername, _bu.UserTelegramId}).IsUnique();
-
-            //Пользователь считается однажды
+           //Пользователь считается однажды
             modelBuilder.Entity<Record_BotUsername_UserTelegramId>()
                 .HasIndex(_rec => 
                     new
@@ -81,8 +80,20 @@ namespace DataLayer
             };
             modelBuilder.Entity<RoleType>().HasData(roles);
 
-            modelBuilder.Entity<Account>()
+            modelBuilder.Entity<EmailLoginInfo>()
                 .HasIndex(a => a.Email)
+                .IsUnique();
+            
+            modelBuilder.Entity<EmailLoginInfo>()
+                .HasIndex(a => a.AccountId)
+                .IsUnique();
+            
+            modelBuilder.Entity<TelegramLoginInfo>()
+                .HasIndex(a => a.TelegramId)
+                .IsUnique();
+            
+            modelBuilder.Entity<TelegramLoginInfo>()
+                .HasIndex(a => a.AccountId)
                 .IsUnique();
 
             modelBuilder.Entity<Account>()
@@ -91,14 +102,21 @@ namespace DataLayer
 
             var accounts = new List<Account>()
             {
-                new Account(){Id = 1_000_000,Email="qqq1@qqq" , Password="qqq", Name="Иван Иванов", RoleTypeId = 1 },
-                new Account(){Id = 1_000_001,Email="qqq2@qqq" ,  Password="qqq", Name="Пётр Петров",  RoleTypeId = 2 , Money = 1000},
-                new Account(){Id = 1_000_002,Email="qqq3@qqq" ,  Password="qqq", Name="Сидор Сидоров",  RoleTypeId = 1 }
+                new Account
+                {
+                    Id = 0,
+                    EmailLoginInfo = new EmailLoginInfo
+                        {
+                            Email = "qqq@qqq",
+                            Password = "qqq"
+                        }, 
+                    Name="Иван Иванов"  
+                }
             };
 
 
             BotForSalesPrice price =
-                new BotForSalesPrice()
+                new BotForSalesPrice
                 {
                     Id = int.MinValue,
                     MaxPrice = 3,
@@ -132,17 +150,7 @@ namespace DataLayer
 
 
             modelBuilder.Entity<BotDB>().HasIndex(_bot => _bot.Token).IsUnique();
-
-            modelBuilder.Entity<BotDB>().HasData(new List<object>
-			{
-				new {
-                    Id = 1_000_000,
-                    BotName = "my_pizzeria_bot",
-                    OwnerId = 1_000_001,
-                    BotType ="BotForSales",
-                    Token = "724246784:AAHLOtr3Vz_q0Cf5iQvuY_bf-kVm0s-JAMU"
-                }
-			});
+            
 
             
             modelBuilder.Entity<BotLaunchRecord>().HasData(new List<BotLaunchRecord>
@@ -161,31 +169,6 @@ namespace DataLayer
                 AccountId = 1_000_002,
                 BotId= 1_000_000
             });
-
-            modelBuilder.Entity<BotForSalesStatistics>().HasData(new List<BotForSalesStatistics>
-            {
-                new BotForSalesStatistics(){BotId=1_000_000}
-            });
-
-            var statusGroups = new List<object>()
-			{
-				new {Id = 1_000_001, Name = "Стандартный набор статусов", OwnerId = 1_000_001}
-			};
-
-			modelBuilder.Entity<OrderStatusGroup>().HasData(statusGroups);
-
-            var statuses = new List<object>()
-			{
-				new {Id = 1_000_001, GroupId = 1_000_001, Name = "В обработке", Message = "Ваш заказ находится в обработке."},
-				new {Id = 1_000_002, GroupId = 1_000_001, Name = "В пути", Message = "Ваш заказ в пути."},
-				new {Id = 1_000_003, GroupId = 1_000_001, Name = "Принят", Message = "Ваш заказ был принят."},
-				new {Id = 1_000_004, GroupId = 1_000_001, Name = "Отменён", Message = "Ваш заказ был отменён."}
-			};
-
-			modelBuilder.Entity<OrderStatus>().HasData(statuses);
-
-			
-
         }
     }
 

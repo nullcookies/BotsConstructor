@@ -60,6 +60,7 @@ namespace Website
             services.AddLocalization(options => options.ResourcesPath = "Resources");
 
             services.AddTransient<EmailMessageSender>();
+            services.AddTransient<AccountRegistrationService>();
 
             services.AddSingleton<SimpleLogger>();
             services.AddSingleton<OrdersCountNotificationService>();

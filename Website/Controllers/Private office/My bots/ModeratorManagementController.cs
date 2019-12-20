@@ -14,13 +14,13 @@ namespace Website.Controllers
 {
     public class ModeratorManagementController : Controller
     {
-        readonly ApplicationContext _contextDb;
-        readonly SimpleLogger _logger;
+        readonly ApplicationContext contextDb;
+        readonly SimpleLogger logger;
 
         public ModeratorManagementController(ApplicationContext contextDb, SimpleLogger logger)
         {
-            _contextDb = contextDb;
-            _logger = logger;
+            this.contextDb = contextDb;
+            this.logger = logger;
         }
 
         [HttpGet]
@@ -45,7 +45,7 @@ namespace Website.Controllers
 				return Json(jObject);
 			}
 
-            Account searchedAccount = _contextDb.Accounts.SingleOrDefault(_acc => _acc.Email == email.Trim());
+            Account searchedAccount = contextDb.Accounts.SingleOrDefault(_acc => _acc.EmailLoginInfo.Email == email.Trim());
 
             //себя нельзя сделать модератором своего бота
             //просто получится самоспам
@@ -65,7 +65,7 @@ namespace Website.Controllers
             {
                 //TODO отправить запрос стать модератором на почту
 
-                bool accountIsModeratingThisBot = _contextDb.Moderators.Any(_mo => _mo.AccountId == searchedAccount.Id && _mo.BotId == botId);
+                bool accountIsModeratingThisBot = contextDb.Moderators.Any(_mo => _mo.AccountId == searchedAccount.Id && _mo.BotId == botId);
 
                 JObject jObject;
 
@@ -82,9 +82,9 @@ namespace Website.Controllers
                 }
                 else
                 {
-                    _contextDb.Moderators.Add(new Moderator() { AccountId = searchedAccount.Id, BotId = botId });
+                    contextDb.Moderators.Add(new Moderator() { AccountId = searchedAccount.Id, BotId = botId });
 
-                    _contextDb.SaveChanges();
+                    contextDb.SaveChanges();
 
                     jObject = new JObject()
                     {
@@ -114,8 +114,8 @@ namespace Website.Controllers
         public IActionResult GetListOfModerators(int botId)
         {
             //как из этого сделать одну оперецию?
-            List<int> moderatorIds = _contextDb.Moderators.Where(_mo => _mo.BotId == botId).Select(_mo=>_mo.AccountId).ToList();
-            var accountsInfo = _contextDb.Accounts.Where(_acc => moderatorIds.Contains(_acc.Id)).Select(_acc=>new {_acc.Name, _acc.Email, _acc.Id }).ToList();
+            List<int> moderatorIds = contextDb.Moderators.Where(_mo => _mo.BotId == botId).Select(_mo=>_mo.AccountId).ToList();
+            var accountsInfo = contextDb.Accounts.Where(_acc => moderatorIds.Contains(_acc.Id)).Select(_acc=>new {_acc.Name, _acc.EmailLoginInfo.Email, _acc.Id }).ToList();
 
             JArray jArray = new JArray();
 
@@ -139,13 +139,13 @@ namespace Website.Controllers
         public IActionResult RemoveModerator(int botId, int accountId)
         {
             //поиск по таблице модераторов
-            Moderator moderator = _contextDb.Moderators.SingleOrDefault(_mo => _mo.AccountId == accountId);
+            Moderator moderator = contextDb.Moderators.SingleOrDefault(_mo => _mo.AccountId == accountId);
             JObject answer = null;
 
             if (moderator != null)
             {
-                _contextDb.Moderators.Remove(moderator);
-                _contextDb.SaveChanges();
+                contextDb.Moderators.Remove(moderator);
+                contextDb.SaveChanges();
 
                 answer = new JObject()
                 {
@@ -154,7 +154,7 @@ namespace Website.Controllers
             }
             else
             {
-                _logger.Log(LogLevel.USER_INTERFACE_ERROR_OR_HACKING_ATTEMPT, Source.WEBSITE, $"Сайт. Аккаунт " +
+                logger.Log(LogLevel.USER_INTERFACE_ERROR_OR_HACKING_ATTEMPT, Source.WEBSITE, $"Сайт. Аккаунт " +
                     $"{Stub.GetAccountIdFromCookies(HttpContext)} пытается удалить из списка модераторов" +
                     $"аккаунт с id = {accountId}. Но удаляемый аккаунт и так не модерирует этого бота.");
 
