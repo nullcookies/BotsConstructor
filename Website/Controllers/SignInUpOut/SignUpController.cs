@@ -54,22 +54,6 @@ namespace Website.Controllers.SignInUpOut
                         RoleTypeId = 1
                     };
 
-                    //TODO: менять сообщения и названия в зависимости от языка владельца бота
-                    var statusGroup = new OrderStatusGroup()
-                    {
-                        Name = "Стандартный набор статусов",
-                        Owner = account,
-                        OrderStatuses = new List<OrderStatus>()
-                        {
-                            new OrderStatus() {Name = "Просмотрено", Message = ""},
-                            new OrderStatus() {Name = "В обработке", Message = "Ваш заказ находится в обработке."},
-                            new OrderStatus() {Name = "В пути", Message = "Ваш заказ в пути."},
-                            new OrderStatus() {Name = "Принят", Message = "Ваш заказ был принят."},
-                            new OrderStatus() {Name = "Отменён", Message = "Ваш заказ был отменён."}
-                        }
-                    };
-
-                    _context.OrderStatusGroups.Add(statusGroup);
                     _context.Accounts.Add(account);
                     _context.SaveChanges();
 
@@ -146,6 +130,8 @@ namespace Website.Controllers.SignInUpOut
                                 acc.Email = unconfirmedEmail.Email;
                                 //убрать запись из таблицы неподтверждённых email
                                 _context.UnconfirmedEmails.Remove(unconfirmedEmail);
+                                //Добавляет группу статусов
+                                AddStatusGroup(accountId);
                                 _context.SaveChanges();
 
                             }
@@ -187,5 +173,26 @@ namespace Website.Controllers.SignInUpOut
             
         }
 
+        //TODO: вынести регистрацию в отдельный класс, чтобы этот метод по наполнению аккаунта можно было вызывать без нарушения инкапсуляции и без дублирования кода
+        private void AddStatusGroup(int accountId, bool save = false)
+        {
+            //Создать стандартную группу статусов
+            //TODO: менять сообщения и названия в зависимости от языка владельца бота
+            var statusGroup = new OrderStatusGroup
+            {
+                Name = "Стандартный набор статусов",
+                OwnerId = accountId,
+                OrderStatuses = new[]
+                {
+                    new OrderStatus {Name = "Просмотрено", Message = ""},
+                    new OrderStatus {Name = "⏳В обработке", Message = "⏳Ваш заказ находится в обработке."},
+                    new OrderStatus {Name = "🚚В пути", Message = "🚚Ваш заказ в пути."},
+                    new OrderStatus {Name = "✅Принят", Message = "✅Ваш заказ был принят."},
+                    new OrderStatus {Name = "❌Отменён", Message = "❌Ваш заказ был отменён."}
+                }
+            };
+            _context.OrderStatusGroups.Add(statusGroup);
+            if (save) _context.SaveChanges();
+        }
     }
 }

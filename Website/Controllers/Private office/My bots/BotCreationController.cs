@@ -51,37 +51,14 @@ namespace Website.Controllers
                 string botUsername = new TelegramBotClient(token).GetMeAsync().Result.Username;
                 string jsonBotMarkup = localizer[botType.ToString()];
                 
-                int? statusGroupId = contextDb.OrderStatusGroups.FirstOrDefault(stat => stat.OwnerId==accountId)?.Id;
+                int statusGroupId = contextDb.OrderStatusGroups.First(stat => stat.OwnerId==accountId).Id;
                 
-                if (statusGroupId == null)
-                {
-                    //нужно создать группу статусов
-                    var orderStatusGroup = new OrderStatusGroup
-                    {
-                        Name = "Автоматически сгенерированная группа статусов",
-                        IsOld = false,
-                        OwnerId = accountId
-                    };
-                    contextDb.OrderStatusGroups.Add(orderStatusGroup);
-                    contextDb.SaveChanges();
-                    statusGroupId = orderStatusGroup.Id;
-
-                    var orderStatus = new OrderStatus
-                    {
-                        Message = "Просмотрено",
-                        Name = "Просмотрено",
-                        GroupId = orderStatusGroup.Id,
-                        IsOld = false
-                    };
-                    contextDb.OrderStatuses.Add(orderStatus);
-                    contextDb.SaveChanges();
-                }
                 
                 
                 //нужно установить групппу статусов
                 if (jsonBotMarkup.Contains("1000001"))
                 {
-                    jsonBotMarkup = jsonBotMarkup.Replace("1000001", statusGroupId.Value.ToString());
+                    jsonBotMarkup = jsonBotMarkup.Replace("1000001", statusGroupId.ToString());
                 }
                 
                 
