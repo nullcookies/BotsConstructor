@@ -17,14 +17,15 @@ namespace Website.Controllers.SignInUpOut
         private readonly SimpleLogger logger;
         private readonly ApplicationContext context;
         private readonly EmailMessageSender emailSender;
-
+        private DomainNameService domainNameService;
         public PasswordResetController(ApplicationContext context, 
             EmailMessageSender emailSender,
-            SimpleLogger logger)
+            SimpleLogger logger, DomainNameService domainNameService)
         {
             this.context = context;
             this.emailSender = emailSender;
             this.logger = logger;
+            this.domainNameService = domainNameService;
         }
 
         [HttpGet]
@@ -72,7 +73,7 @@ namespace Website.Controllers.SignInUpOut
                     throw new Exception("В базе не должно быть больше одной записи для смены пароля");
                 }
 
-                string domain = "botsconstructor.com";
+                string domain = domainNameService.GetDomainName();
                 var link = $"https://{domain}/PasswordReset/PasswordResetOnlyNewPass?guid={guid.ToString()}&accountId={account.Id}";
 
 

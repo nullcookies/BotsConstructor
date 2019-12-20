@@ -17,7 +17,8 @@ namespace DataLayer
                 { "Port", 5432 },
                 // { "Database", "MainDB001" },
                 // { "Database", "20_12_2019_number5" },
-                { "Database", "BotsConstructor" },
+                // { "Database", "BotsConstructor" },
+                { "Database", "BotsConstructorAAA" },
                 { "Integrated Security", true },
                 { "Pooling", true }
             };

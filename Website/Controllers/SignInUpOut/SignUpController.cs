@@ -19,15 +19,17 @@ namespace Website.Controllers.SignInUpOut
         private readonly ApplicationContext context;
         private readonly EmailMessageSender emailSender;
         private readonly SimpleLogger logger;
-        private AccountRegistrationService registrationService;
-
+        private readonly AccountRegistrationService registrationService;
+        private readonly DomainNameService domainNameService;
+        
         public SignUpController(ApplicationContext context, 
-            EmailMessageSender emailSender, SimpleLogger logger, AccountRegistrationService registrationService)
+            EmailMessageSender emailSender, SimpleLogger logger, AccountRegistrationService registrationService, DomainNameService domainNameService)
         {
             this.context = context;
             this.emailSender = emailSender;
             this.logger = logger;
             this.registrationService = registrationService;
+            this.domainNameService = domainNameService;
         }
 
 
@@ -81,9 +83,9 @@ namespace Website.Controllers.SignInUpOut
             return View(model);
         }
 
-        private static string GetEmailConfirmationLink(RegisterModel model, Guid guid)
+        private string GetEmailConfirmationLink(RegisterModel model, Guid guid)
         {
-            string domain = "botsconstructor.com";
+            string domain = domainNameService.GetDomainName();
             string link = $"https://{domain}/SignUp/EmailCheckSuccess?guid={guid.ToString()}&email={model.Email}";
             return link;
         }

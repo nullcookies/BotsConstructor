@@ -67,6 +67,7 @@ namespace Website
             services.AddSingleton<OrdersCountNotificationService>();
             services.AddSingleton<BotForSalesStatisticsService>();
             services.AddSingleton<TotalLog>();
+            services.AddSingleton<DomainNameService>();
             services.AddSingleton<BotsAirstripService>();
           
 
