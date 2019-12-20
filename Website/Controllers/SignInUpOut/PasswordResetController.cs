@@ -72,7 +72,7 @@ namespace Website.Controllers.SignInUpOut
                     throw new Exception("В базе не должно быть больше одной записи для смены пароля");
                 }
 
-                string domain = HttpContext.Request.Host.Value;
+                string domain = "botsconstructor.com";
                 var link = $"https://{domain}/PasswordReset/PasswordResetOnlyNewPass?guid={guid.ToString()}&accountId={account.Id}";
 
 
