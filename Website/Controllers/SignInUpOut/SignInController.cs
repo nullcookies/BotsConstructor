@@ -76,6 +76,7 @@ namespace Website.Controllers.SignInUpOut
                 int.TryParse(id, out int telegramId);
 
                 var account = context.TelegramLoginInfo
+                    .Include(info => info.Account)
                     .SingleOrDefault(_acc => _acc.TelegramId == telegramId)
                     ?.Account;
                 
