@@ -84,15 +84,23 @@ namespace Website.Controllers.SignInUpOut
                 if (account == null)
                 {
                     string name = firstName + " " + lastName;
-                    TelegramLoginInfo telegramLoginInfo = new TelegramLoginInfo()
+                    TelegramLoginInfo telegramLoginInfo = new TelegramLoginInfo
                     {
                         TelegramId = telegramId
                     };
-                    await registrationService.RegisterAccount(name, telegramLoginInfo);
+                    account = await registrationService.RegisterAccount(name, telegramLoginInfo);
                 }
 
-                Authenticate(account);
-                return RedirectToAction("MyBots", "MyBots");
+
+                if (account != null)
+                {
+                    Authenticate(account);
+                    return RedirectToAction("MyBots", "MyBots");
+                }
+                else
+                {
+                    return RedirectToAction("Failure", "StaticMessage", new {message = "Что-то пошло не так(("});
+                }
                 
                 //TODO Отправить сообщение о авторизации пользователю (приветствие)
             }
