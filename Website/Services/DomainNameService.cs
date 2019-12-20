@@ -1,14 +1,15 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using System.Runtime.InteropServices;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.CodeAnalysis;
 
 namespace Website.Services
 {
     public class DomainNameService
     {
         private readonly string domainName;
-
-        public DomainNameService(IHostingEnvironment environment)
+        public DomainNameService()
         {
-            domainName = !environment.IsDevelopment() ? "botsconstructor.com" : "localhost:5001";
+            domainName = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "botsconstructor.com" : "localhost:5001";
         }
 
         public string GetDomainName()
