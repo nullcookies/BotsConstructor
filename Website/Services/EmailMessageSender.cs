@@ -46,10 +46,10 @@ namespace Website.Services
                 MailMessage mail = new MailMessage();
                 SmtpClient smtpServer = new SmtpClient("smtp.gmail.com");
 
-                mail.From = new MailAddress(Email, "Bots constructor");
+                mail.From = new MailAddress(Email, "Bots Constructor");
                 mail.To.Add(email);
                 mail.Subject = "Уведомление о регистрации";
-                mail.Body =  $"Поздравляем с регистрацией на платформе Interactive bots 🤗👍🏻\nДля подтверждения своего email перейдите по ссылке {link} .";
+                mail.Body =  $"Поздравляем с регистрацией на платформе Bots Constructor! 🤖🛠\nДля подтверждения своего email перейдите по ссылке {link}";
 
                 smtpServer.Port = 587;
                 smtpServer.Credentials = new System.Net.NetworkCredential(Email, EmailPassword);
@@ -73,10 +73,10 @@ namespace Website.Services
                 MailMessage mail = new MailMessage();
                 SmtpClient smtpServer = new SmtpClient("smtp.gmail.com");
 
-                mail.From = new MailAddress(Email, "Bots constructor");
+                mail.From = new MailAddress(Email, "Bots Constructor");
                 mail.To.Add(email);
                 mail.Subject = "Сброс пароля";
-                mail.Body = $"Для сброса пароля на платформе Interactive bots перейдите по ссылке {link} . Если не вы пытаетесь сбросить пароль, то кто-то имеет доступ к вашему аккаунту. Для предотвращения урона нажмите на кнопку \"Завершить все сессии\" во вкладке\"Аккаунт\"";
+                mail.Body = $"Для сброса пароля на платформе Bots Constructor перейдите по ссылке {link} .\n Если это не Вы пытаетесь сбросить пароль, то кто-то имеет доступ к Вашему аккаунту. Для предотвращения урона нажмите на кнопку \"Завершить все сессии\" во вкладке\"Аккаунт\".";
 
                 smtpServer.Port = 587;
                 smtpServer.Credentials = new System.Net.NetworkCredential(Email, EmailPassword);
