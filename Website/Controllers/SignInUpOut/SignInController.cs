@@ -106,6 +106,9 @@ namespace Website.Controllers.SignInUpOut
                         TelegramId = telegramId,
                         RoleTypeId = 1
                     };
+
+                    user.AddDefaultStatusGroup();
+
                     _context.Accounts.Add(user);
                     _context.SaveChanges();
                 }

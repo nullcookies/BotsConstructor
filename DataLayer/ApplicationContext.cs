@@ -196,10 +196,11 @@ namespace DataLayer
     [Table("Accounts")]
     public class Account
     {
-		//public Account()
-		//{
-		//	Bots = new HashSet<BotDB>();
-		//}
+        public Account()
+        {
+            Bots = new HashSet<BotDB>();
+            OrderStatusGroups = new HashSet<OrderStatusGroup>();
+        }
 
         [Key]
 		[Column("AccountId")]
@@ -228,6 +229,8 @@ namespace DataLayer
         public decimal Money { get; set; }
 
         public virtual ICollection<BotDB> Bots { get; set; }
+
+        public virtual ICollection<OrderStatusGroup> OrderStatusGroups { get; set; }
     }
 
     [Table("RoleTypesMy")]
