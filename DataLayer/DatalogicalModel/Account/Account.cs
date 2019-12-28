@@ -9,6 +9,12 @@ namespace DataLayer
     [Table("Accounts")]
     public class Account
     {
+        public Account()
+        {
+            Bots = new HashSet<BotDB>();
+            OrderStatusGroups = new HashSet<OrderStatusGroup>();
+        }
+
         [Key]
         [Column("AccountId")]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -21,5 +27,9 @@ namespace DataLayer
         
         public EmailLoginInfo EmailLoginInfo { get; set; }
         public TelegramLoginInfo TelegramLoginInfo { get; set; }
+
+        public virtual ICollection<BotDB> Bots { get; set; }
+
+        public virtual ICollection<OrderStatusGroup> OrderStatusGroups { get; set; }
     }
 }

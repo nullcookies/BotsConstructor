@@ -6,7 +6,7 @@ namespace Website.Services
 {
     public class AccountRegistrationService
     {
-        private ApplicationContext dbContext;
+        private readonly ApplicationContext dbContext;
 
         public AccountRegistrationService(ApplicationContext dbContext)
         {
@@ -22,7 +22,7 @@ namespace Website.Services
             return await RegisterAccount(name, null,telegramLoginInfo);
         }
         
-        private async Task<Account> RegisterAccount(string name, EmailLoginInfo emailLoginInfo , TelegramLoginInfo telegramLoginInfo)
+        private async Task<Account> RegisterAccount(string name, EmailLoginInfo emailLoginInfo, TelegramLoginInfo telegramLoginInfo)
         {
             if (emailLoginInfo == null && telegramLoginInfo == null)
                 throw new ArgumentException();
@@ -33,26 +33,24 @@ namespace Website.Services
                 RegistrationDate = DateTime.UtcNow,
                 Money = 0,
                 EmailLoginInfo = emailLoginInfo,
-                TelegramLoginInfo = telegramLoginInfo
+                TelegramLoginInfo = telegramLoginInfo,
+                OrderStatusGroups = {
+                    new OrderStatusGroup
+                    {
+                        Name = "Стандартный набор статусов",
+                        OrderStatuses = new[]
+                        {
+                            new OrderStatus {Name = "Просмотрено", Message = ""},
+                            new OrderStatus {Name = "⏳В обработке", Message = "⏳Ваш заказ находится в обработке."},
+                            new OrderStatus {Name = "🚚В пути", Message = "🚚Ваш заказ в пути."},
+                            new OrderStatus {Name = "✅Принят", Message = "✅Ваш заказ был принят."},
+                            new OrderStatus {Name = "❌Отменён", Message = "❌Ваш заказ был отменён."}
+                        }
+                    }
+                }
             };
             
             await dbContext.Accounts.AddAsync(account);
-            await dbContext.SaveChangesAsync();
-            
-            var statusGroup = new OrderStatusGroup
-            {
-                Name = "Стандартный набор статусов",
-                OwnerId = account.Id,
-                OrderStatuses = new[]
-                {
-                    new OrderStatus {Name = "Просмотрено", Message = ""},
-                    new OrderStatus {Name = "⏳В обработке", Message = "⏳Ваш заказ находится в обработке."},
-                    new OrderStatus {Name = "🚚В пути", Message = "🚚Ваш заказ в пути."},
-                    new OrderStatus {Name = "✅Принят", Message = "✅Ваш заказ был принят."},
-                    new OrderStatus {Name = "❌Отменён", Message = "❌Ваш заказ был отменён."}
-                }
-            };
-            await dbContext.OrderStatusGroups.AddAsync(statusGroup);
             await dbContext.SaveChangesAsync();
 
             return account;
