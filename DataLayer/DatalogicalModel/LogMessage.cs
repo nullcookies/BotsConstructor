@@ -58,7 +58,8 @@ namespace DataLayer
         WARNING,
         SPYING,
         IMPORTANT_INFO,
-        EMAIL_SEND_FAILURE
+        EMAIL_SEND_FAILURE,
+        TELEGRAM_MESSAGE
     }
 
 }
