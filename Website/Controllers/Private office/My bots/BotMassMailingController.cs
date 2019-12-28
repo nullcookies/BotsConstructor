@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -29,11 +30,16 @@ namespace Website.Controllers.Private_office.My_bots
         [TypeFilter(typeof(CheckAccessToTheBot))]
         public async Task<IActionResult> Index(int botId, BotMassMailingViewModel viewModel)
         {
-            List<int> stubUSerIds = new List<int>();
-            stubUSerIds.Add(389063743);
-            stubUSerIds.Add(440090552);
             
-            await botMassMailingService.MakeMassMailing(botId, viewModel, stubUSerIds);
+            try
+            {
+                await botMassMailingService.MakeMassMailing(botId, viewModel);
+            }
+            catch (Exception e)
+            {
+                return RedirectToAction("Failure", "StaticMessage", new {message=e.Message});
+            }
+            
             
             return RedirectToAction("MyBots", "MyBots");
         }
@@ -46,4 +52,4 @@ namespace Website.Controllers.Private_office.My_bots
     }
 
  
-}
+}    
