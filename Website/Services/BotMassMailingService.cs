@@ -56,13 +56,25 @@ namespace Website.Services
             else
             {
                 var fileType = model.File.ContentType.Split('/').FirstOrDefault();
-                Func<int, InputOnlineFile, string, Task<Message>> senderFunc = fileType switch
+                Func<int, InputOnlineFile, string, Task<Message>> senderFunc;
+                switch (fileType)
                 {
-                    "image" => (userId, file, text) => bot.SendPhotoAsync(userId, file, text, ParseMode.Markdown),
-                    "audio" => ((userId, file, text) => bot.SendAudioAsync(userId, file, text, ParseMode.Markdown)),
-                    "video" => ((userId, file, text) => bot.SendVideoAsync(userId, file, caption: text, parseMode: ParseMode.Markdown)),
-                    _ => ((userId, file, text) => bot.SendDocumentAsync(userId, file, text, ParseMode.Markdown))
-                };
+                    case "image":
+                        senderFunc = (userId, file, text) => bot.SendPhotoAsync(userId, file, text, ParseMode.Markdown);
+                        break;
+                    case "audio":
+                        senderFunc =
+                            ((userId, file, text) => bot.SendAudioAsync(userId, file, text, ParseMode.Markdown));
+                        break;
+                    case "video":
+                        senderFunc = ((userId, file, text) =>
+                            bot.SendVideoAsync(userId, file, caption: text, parseMode: ParseMode.Markdown));
+                        break;
+                    default:
+                        senderFunc = ((userId, file, text) =>
+                            bot.SendDocumentAsync(userId, file, text, ParseMode.Markdown));
+                        break;
+                }
 
                 InputOnlineFile file;
 
@@ -71,13 +83,7 @@ namespace Website.Services
                 {
                     file = new InputOnlineFile(stream);
                     var msg = await senderFunc(firstUserId, file, model.Text);
-                    file = fileType switch
-                    {
-                        "image" => new InputOnlineFile(msg.Animation?.FileId ?? msg.Sticker?.FileId ?? msg.Photo?.FirstOrDefault()?.FileId),
-                        "audio" => new InputOnlineFile(msg.Audio?.FileId ?? msg.Voice?.FileId),
-                        "video" => new InputOnlineFile(msg.Animation?.FileId ?? msg.VideoNote?.FileId ?? msg.Video?.FileId),
-                        _ => new InputOnlineFile(msg.Document?.FileId ?? msg.Photo?.FirstOrDefault()?.FileId)
-                    };
+
                     switch (msg.Type)
                     {
                         case Telegram.Bot.Types.Enums.MessageType.Photo:
