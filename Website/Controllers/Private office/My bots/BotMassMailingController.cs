@@ -33,7 +33,7 @@ namespace Website.Controllers.Private_office.My_bots
             
             try
             {
-                await botMassMailingService.MakeMassMailing(botId, viewModel, new List<int> { 389063743, 440090552 });
+                await botMassMailingService.MakeMassMailing(botId, viewModel);
             }
             catch (Exception e)
             {
