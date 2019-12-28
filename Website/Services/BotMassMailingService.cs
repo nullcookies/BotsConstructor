@@ -76,43 +76,43 @@ namespace Website.Services
                         break;
                 }
 
-                InputOnlineFile file;
+                InputOnlineFile onlineFile;
 
                 var firstUserId = botUsers.First();
                 using (var stream = model.File.OpenReadStream())
                 {
-                    file = new InputOnlineFile(stream);
-                    var msg = await senderFunc(firstUserId, file, model.Text);
+                    onlineFile = new InputOnlineFile(stream);
+                    var msg = await senderFunc(firstUserId, onlineFile, model.Text);
 
                     switch (msg.Type)
                     {
                         case Telegram.Bot.Types.Enums.MessageType.Photo:
-                            file = new InputOnlineFile(msg.Photo.First().FileId);
+                            onlineFile = new InputOnlineFile(msg.Photo.First().FileId);
                             senderFunc = (userId, file, text) =>
                                 bot.SendPhotoAsync(userId, file, text, ParseMode.Markdown);
                             break;
                         case Telegram.Bot.Types.Enums.MessageType.Audio:
-                            file = new InputOnlineFile(msg.Audio.FileId);
+                            onlineFile = new InputOnlineFile(msg.Audio.FileId);
                             senderFunc = (userId, file, text) =>
                                 bot.SendAudioAsync(userId, file, text, ParseMode.Markdown);
                             break;
                         case Telegram.Bot.Types.Enums.MessageType.Video:
-                            file = new InputOnlineFile(msg.Video.FileId);
+                            onlineFile = new InputOnlineFile(msg.Video.FileId);
                             senderFunc = (userId, file, text) =>
                                 bot.SendVideoAsync(userId, file, caption: text, parseMode: ParseMode.Markdown);
                             break;
                         case Telegram.Bot.Types.Enums.MessageType.Voice:
-                            file = new InputOnlineFile(msg.Voice.FileId);
+                            onlineFile = new InputOnlineFile(msg.Voice.FileId);
                             senderFunc = (userId, file, text) =>
                                 bot.SendVoiceAsync(userId, file, text, ParseMode.Markdown);
                             break;
                         case Telegram.Bot.Types.Enums.MessageType.Document:
-                            file = new InputOnlineFile(msg.Document.FileId);
+                            onlineFile = new InputOnlineFile(msg.Document.FileId);
                             senderFunc = (userId, file, text) =>
                                 bot.SendDocumentAsync(userId, file, text, ParseMode.Markdown);
                             break;
                         case Telegram.Bot.Types.Enums.MessageType.Sticker:
-                            file = new InputOnlineFile(msg.Sticker.FileId);
+                            onlineFile = new InputOnlineFile(msg.Sticker.FileId);
                             senderFunc = (userId, file, text) =>
                                 bot.SendStickerAsync(userId, file);
                             break;
@@ -126,7 +126,7 @@ namespace Website.Services
                 {
                     try
                     {
-                        await senderFunc(userId, file, model.Text);
+                        await senderFunc(userId, onlineFile, model.Text);
                     }
                     catch (Exception e)
                     {
