@@ -12,17 +12,17 @@ namespace MyLibrary
 {
     public class SimpleLogger
     {
-        readonly DbContextFactory _dbContextFactory;
-        readonly ConcurrentQueue<LogMessage> _logMessages;
-        readonly ConcurrentQueue<SpyRecord> _spyMessages;
+        readonly DbContextFactory dbContextFactory;
+        readonly ConcurrentQueue<LogMessage> logMessages;
+        readonly ConcurrentQueue<SpyRecord> spyMessages;
 
         public SimpleLogger()
         {
-            _logMessages = new ConcurrentQueue<LogMessage>();
-            _spyMessages = new ConcurrentQueue<SpyRecord>();
-            _dbContextFactory = new DbContextFactory();
+            logMessages = new ConcurrentQueue<LogMessage>();
+            spyMessages = new ConcurrentQueue<SpyRecord>();
+            dbContextFactory = new DbContextFactory();
 
-            PeriodicFooAsync(TimeSpan.FromSeconds(30), CancellationToken.None);
+            PeriodicFooAsync(TimeSpan.FromSeconds(1), CancellationToken.None);
         }
 
         public void LogSpyRecord(string pathCurrent, string pathFrom, int accountId)
@@ -39,7 +39,7 @@ namespace MyLibrary
             };
 
 
-            _spyMessages.Enqueue(spyRecord);
+            spyMessages.Enqueue(spyRecord);
         }
 
         private async void PeriodicFooAsync(TimeSpan interval, CancellationToken cancellationToken)
@@ -53,16 +53,16 @@ namespace MyLibrary
 
         private void SaveLogsToDb()
         {
-            ApplicationContext contextDb = _dbContextFactory.GetNewDbContext();
+            ApplicationContext contextDb = dbContextFactory.GetNewDbContext();
 
-            if (!_logMessages.IsEmpty)
+            if (!logMessages.IsEmpty)
             {
-                int numberOfMessages = this._logMessages.Count;
+                int numberOfMessages = this.logMessages.Count;
                 List<LogMessage> logMessages = new List<LogMessage>();
 
                 for (int i = 0; i < numberOfMessages; i++)
                 {                    
-                    bool successfully = this._logMessages.TryDequeue(out LogMessage mes);
+                    bool successfully = this.logMessages.TryDequeue(out LogMessage mes);
 
                     if (successfully)
                     {
@@ -72,12 +72,12 @@ namespace MyLibrary
                 }
                 contextDb.LogMessages.AddRange(logMessages);
 
-                int numberOfSpyMessages = this._spyMessages.Count;
+                int numberOfSpyMessages = this.spyMessages.Count;
                 List<SpyRecord> spyMessages = new List<SpyRecord>();
 
                 for (int i = 0; i < numberOfSpyMessages; i++)
                 {
-                    bool successfully = this._spyMessages.TryDequeue(out SpyRecord mes);
+                    bool successfully = this.spyMessages.TryDequeue(out SpyRecord mes);
 
                     if (successfully)
                     {
@@ -119,7 +119,7 @@ namespace MyLibrary
                 AccountId = accountId
             };
 
-            _logMessages.Enqueue(logRecord);
+            logMessages.Enqueue(logRecord);
 
             Console.WriteLine();
             Console.WriteLine(logLevel.ToString() + "   " + errorSource.ToString() + "   " + comment + " date=" + dt);

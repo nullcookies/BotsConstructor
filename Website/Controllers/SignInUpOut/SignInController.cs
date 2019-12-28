@@ -9,17 +9,22 @@ using DataLayer;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
+using Website.Services;
 using Website.ViewModels;
 
 namespace Website.Controllers.SignInUpOut
 {
     public class SignInController : Controller
     {
-        private readonly ApplicationContext _context;
-
-        public SignInController(ApplicationContext context)
+        private readonly ApplicationContext context;
+        private readonly AccountRegistrationService registrationService;
+        
+        public SignInController(ApplicationContext context, AccountRegistrationService registrationService)
         {
-            _context = context;
+            this.context = context;
+            this.registrationService = registrationService;
         }
         
         [HttpGet]
@@ -37,7 +42,7 @@ namespace Website.Controllers.SignInUpOut
 
 
         [HttpGet]
-        public IActionResult LoginWithTelegram(string id,
+        public async Task<IActionResult> LoginWithTelegram(string id,
             [FromQuery(Name = "first_name")] string firstName,
             [FromQuery(Name = "last_name")]  string lastName,
             [FromQuery(Name = "username")]   string username,
@@ -61,61 +66,47 @@ namespace Website.Controllers.SignInUpOut
             if (photoUrl != null) myList.Add($"photo_url={photoUrl}");
 
             string[] myArr = myList.ToArray();
-
             Array.Sort(myArr);
-
             string dataCheckString = string.Join("\n", myArr);
-
-            //Console.WriteLine(data_check_string);
-
-            bool authorizationIsValid = false;
-
-            using (SHA256 mySha256 = SHA256.Create())
-            {
-                byte[] botTokenByteArr = Encoding.UTF8.GetBytes(botToken);
-                byte[] secretKey = mySha256.ComputeHash(botTokenByteArr);
-
-                byte[] allUSerData = Encoding.UTF8.GetBytes(dataCheckString);
-
-                using (HMACSHA256 hmac = new HMACSHA256(secretKey))
-                {
-                    byte[] myValueByteArr = hmac.ComputeHash(allUSerData);
-
-                    string calculatedHashString = BitConverter.ToString(myValueByteArr).Replace("-", string.Empty);
-
-                    //Console.WriteLine("Правильный ответ = " + hash);
-                    //Console.WriteLine("Мой ответ        = "+ calculatedHashString);
-
-                    if (hash == calculatedHashString.ToLower()) authorizationIsValid = true;
-                }
-            }
+            
+            var authorizationIsValid = CheckTelegramAuthorization(hash, botToken, dataCheckString);
 
             if (authorizationIsValid)
             {
                 int.TryParse(id, out int telegramId);
 
-                Account user = _context.Accounts
-                    .SingleOrDefault(_acc => _acc.TelegramId == telegramId);
-
-                if (user == null)
+                var account = context.TelegramLoginInfo
+                    .Include(info => info.Account)
+                    .SingleOrDefault(_acc => _acc.TelegramId == telegramId)
+                    ?.Account;
+                
+                
+                if (account == null)
                 {
-                    user = new Account
+                    string name = firstName + " " + lastName;
+                    TelegramLoginInfo telegramLoginInfo = new TelegramLoginInfo
                     {
-                        //TODO имя при логине через телеграм можно обновлять
-                        Name = firstName + " " + lastName,
-                        TelegramId = telegramId,
-                        RoleTypeId = 1
+                        TelegramId = telegramId
                     };
 
                     user.AddDefaultStatusGroup();
 
                     _context.Accounts.Add(user);
                     _context.SaveChanges();
+                    account = await registrationService.RegisterAccount(name, telegramLoginInfo);
                 }
 
-                Authenticate(user);
 
-                return RedirectToAction("MyBots", "MyBots");
+                if (account != null)
+                {
+                    Authenticate(account);
+                    return RedirectToAction("MyBots", "MyBots");
+                }
+                else
+                {
+                    return RedirectToAction("Failure", "StaticMessage", new {message = "Что-то пошло не так(("});
+                }
+                
                 //TODO Отправить сообщение о авторизации пользователю (приветствие)
             }
 
@@ -123,20 +114,41 @@ namespace Website.Controllers.SignInUpOut
             return RedirectToAction("Login", "SignIn");
         }
 
+        private static bool CheckTelegramAuthorization(string hash, string botToken, string dataCheckString)
+        {
+            using (SHA256 mySha256 = SHA256.Create())
+            {
+                byte[] botTokenByteArr = Encoding.UTF8.GetBytes(botToken);
+                byte[] secretKey = mySha256.ComputeHash(botTokenByteArr);
+                byte[] allUSerData = Encoding.UTF8.GetBytes(dataCheckString);
+
+                using (HMACSHA256 hmac = new HMACSHA256(secretKey))
+                {
+                    byte[] myValueByteArr = hmac.ComputeHash(allUSerData);
+                    string calculatedHashString = BitConverter.ToString(myValueByteArr)
+                        .Replace("-", string.Empty);
+
+                    if (hash == calculatedHashString.ToLower()) return true;
+                }
+            }
+            return false;
+        }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Login(LoginModel model)
+        public IActionResult Login(EmailPasswordLoginModel model)
         {
             if (ModelState.IsValid)
             {
-                Account account = _context.Accounts
-                    .FirstOrDefault(a => a.Email == model.Email && a.Password == model.Password);
+                var account = context.EmailLoginInfo
+                    .Include(info => info.Account)
+                    .FirstOrDefault(a => a.Email == model.Email && a.Password == model.Password)
+                    ?.Account;
 
                 if (account != null)
                 {
                     Authenticate(account);
-
                     return RedirectToAction("MyBots", "MyBots");
                 }
 
@@ -145,7 +157,19 @@ namespace Website.Controllers.SignInUpOut
 
             return View(model);
         }
-
+        
+      
+        
+        [HttpGet]
+        public async Task<IActionResult> ChangeAccount()
+        {
+            if (HttpContext.User.Identity.IsAuthenticated)
+            {
+                await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            }
+            return RedirectToAction("Login", "SignIn");
+        }
+        
         private void Authenticate(Account user)
         {
             var claims = new List<Claim>
@@ -162,19 +186,6 @@ namespace Website.Controllers.SignInUpOut
             {
                 ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7)
             });
-        }
-
-      
-        
-        [HttpGet]
-        public async Task<IActionResult> ChangeLogin()
-        {
-            if (HttpContext.User.Identity.IsAuthenticated)
-            {
-                await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            }
-
-            return RedirectToAction("Login", "SignIn");
         }
     }
 }

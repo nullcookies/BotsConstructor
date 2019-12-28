@@ -15,8 +15,10 @@ namespace DataLayer
                 {"User ID", "postgres"},
                 {"Password", "3t0ssszheM3G4MMM0Ch~n`yparollb_wubfubrkmdbwiyro38" },
                 { "Port", 5432 },
-                { "Database", "MainDB001" },
-                // { "Database", "19_12_2019_number1" },
+                // { "Database", "MainDB001" },
+                // { "Database", "20_12_2019_number5" },
+                { "Database", "BotsConstructor" },
+                // { "Database", "BotsConstructorAAA1" },
                 { "Integrated Security", true },
                 { "Pooling", true }
             };
@@ -39,8 +41,7 @@ namespace DataLayer
         {
             return new ApplicationContext(
                 new DbContextOptionsBuilder<ApplicationContext>()
-                    .UseNpgsql(GetConnectionString())
-                    .Options);
+                    .UseNpgsql(GetConnectionString()).Options);
         }
     }
 }

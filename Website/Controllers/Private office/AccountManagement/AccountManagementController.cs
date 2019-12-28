@@ -10,19 +10,19 @@ namespace Website.Controllers.Private_office.AccountManagement
     [Authorize]
     public class AccountManagementController : Controller
     {
-        readonly ApplicationContext _contextDb;
-        readonly SimpleLogger _logger;
+        readonly ApplicationContext contextDb;
+        readonly SimpleLogger logger;
 
         public AccountManagementController(ApplicationContext applicationContext, SimpleLogger logger)
         {
-            _contextDb = applicationContext;
-            this._logger = logger;
+            contextDb = applicationContext;
+            this.logger = logger;
         }
        
         public IActionResult Index()
         {
             int accountId = (int)HttpContext.Items["accountId"];
-            Account user = _contextDb.Accounts.Find(accountId);
+            Account user = contextDb.Accounts.Find(accountId);
 
             //Показ двух знаков после запятой
             ViewData["money"] = $"{user.Money:0.00}";
@@ -34,9 +34,9 @@ namespace Website.Controllers.Private_office.AccountManagement
         public IActionResult ResetPassword()
         {
             int accountId = (int)HttpContext.Items["accountId"];
-            Account user = _contextDb.Accounts.Find(accountId);
+            Account user = contextDb.Accounts.Find(accountId);
 
-            if (user.Password == null)
+            if (user.EmailLoginInfo.Password == null)
             {
                 //TODO Заглушка. Если пользователь логинится через телеграм, то пароля у него может и не быть
                 //TODO Нужно редиректить на страницу с пояснением
@@ -54,9 +54,9 @@ namespace Website.Controllers.Private_office.AccountManagement
         {
 
             int accountId = (int) HttpContext.Items["accountId"];
-            Account account = _contextDb.Accounts.Find(accountId);
+            Account account = contextDb.Accounts.Find(accountId);
 
-            if (account.Password != passModel.OldPassword)
+            if (account.EmailLoginInfo.Password != passModel.OldPassword)
             {
                 ModelState.AddModelError("", "Текущий пароль введён неверно");
             }
@@ -73,8 +73,8 @@ namespace Website.Controllers.Private_office.AccountManagement
                 //Все данные введены правильно
                 //Заменить пароль
                 //TODO проверка пароля
-                account.Password = passModel.NewPassword;
-                _contextDb.SaveChanges();
+                account.EmailLoginInfo.Password = passModel.NewPassword;
+                contextDb.SaveChanges();
                 return RedirectToAction("Index", "AccountManagement");
             }
 

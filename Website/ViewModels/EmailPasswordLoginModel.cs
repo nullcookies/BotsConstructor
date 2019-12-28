@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Website.ViewModels
 {
-    public class LoginModel
+    public class EmailPasswordLoginModel
     {
        
         [DataType(DataType.EmailAddress)]
