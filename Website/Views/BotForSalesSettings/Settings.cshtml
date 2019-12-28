@@ -183,26 +183,54 @@
 
 
     @* Запуск и остановка *@
-    <div class="container border border-info  rounded  " style="margin-bottom:1.5rem;  padding-right:0;padding-left:0;">
+<div class="container border border-info  rounded  " style="margin-bottom:1.5rem;  padding-right:0;padding-left:0;">
+    <div class="col ">
+
+        <div class="row card-header border-info">
+            <div class="h5 ">
+                Настройки запуска
+            </div>
+        </div>
+
+        <div class="p-2">
+
+            <div class="row">
+                <button type="button" id="btnStartBot" class="btn btn-success btn-lg btn-block" onclick="runBot()" disabled>Запустить каталог из черновика</button>
+                <button type="button" id="btnStopBot" class="btn btn-danger btn-lg btn-block" onclick="stopBot()" disabled>Остановить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+ @* Массовая рассылка *@
+    <div class="container border border-info  rounded  " style="margin-bottom:1.5rem; padding-right:0;padding-left:0;">
+
         <div class="col ">
 
             <div class="row card-header border-info">
                 <div class="h5 ">
-                    Настройки запуска
+                    Массовая рассылка
                 </div>
             </div>
 
             <div class="p-2">
-
                 <div class="row">
-                    <button type="button" id="btnStartBot" class="btn btn-success btn-lg btn-block" onclick="runBot()" disabled>Запустить каталог из черновика</button>
-                    <button type="button" id="btnStopBot" class="btn btn-danger btn-lg btn-block" onclick="stopBot()" disabled>Остановить</button>
+                    <div class="col ">
+                        <div class="row alert alert-primary align-items-center" style="overflow:hidden;">
+                            <div class="col text-break h5">
+                                Отослать сообщение всем пользователям бота:
+                            </div>
+                            <div class="col-4">
+                                <a class="btn btn-info btn-lg btn-block" asp-controller="BotMassMailing" asp-action="Index" asp-route-botId="@ViewData["botId"]">Отослать</a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    @* Редактирование каталога *@
+@* Редактирование каталога *@
     <div class="container border border-info  rounded  " style="margin-bottom:1.5rem; padding-right:0;padding-left:0;">
 
         <div class="col ">

@@ -18,7 +18,8 @@ namespace DataLayer
                 // { "Database", "MainDB001" },
                 // { "Database", "20_12_2019_number5" },
                 { "Database", "BotsConstructor" },
-                // { "Database", "BotsConstructorAAA1" },
+                { "Database", "BotsConstructor" },
+                { "Database", "Zhopa1" },
                 { "Integrated Security", true },
                 { "Pooling", true }
             };

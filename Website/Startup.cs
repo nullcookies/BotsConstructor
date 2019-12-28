@@ -62,6 +62,7 @@ namespace Website
 
             services.AddTransient<EmailMessageSender>();
             services.AddTransient<AccountRegistrationService>();
+            services.AddTransient<BotMassMailingService>();
 
             services.AddSingleton<SimpleLogger>();
             services.AddSingleton<OrdersCountNotificationService>();
