@@ -25,12 +25,13 @@ namespace Website.Services
 
         public async Task MakeMassMailing(int botId, BotMassMailingViewModel model, List<int> stubUSerIds = null)
         {
-            string token = dbContext.Bots.SingleOrDefault(botDb => botDb.Id == botId)?.Token;
-            if (token == null)
-                throw new Exception();
+            var botDb = dbContext.Bots.Find(botId);
+            if(botDb == null) throw new Exception("Bot was null.");
+
+            string token = botDb.Token;
 
             List<int> botUsers = dbContext.BotUsers
-                .Where(botUser => botUser.BotUserTelegramId == botId)
+                .Where(botUser => botUser.BotUsername == botDb.BotName)
                 .Select(botUser => botUser.BotUserTelegramId)
                 .ToList();
 
