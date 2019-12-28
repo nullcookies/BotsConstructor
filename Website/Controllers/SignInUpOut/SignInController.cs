@@ -89,10 +89,6 @@ namespace Website.Controllers.SignInUpOut
                         TelegramId = telegramId
                     };
 
-                    user.AddDefaultStatusGroup();
-
-                    _context.Accounts.Add(user);
-                    _context.SaveChanges();
                     account = await registrationService.RegisterAccount(name, telegramLoginInfo);
                 }
 
