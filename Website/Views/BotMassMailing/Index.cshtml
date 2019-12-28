@@ -6,13 +6,15 @@
 <div class="container">
     <form asp-controller="BotMassMailing" asp-action="Index" asp-route-botId="@ViewData["botId"]"  method="post" enctype="multipart/form-data">
         <div class="form-group">
-            <label asp-for="Text">Введите текст сообщения</label>
-            <textarea class="form-control" asp-for="Text" rows="3"></textarea>
+            <label asp-for="Text">Введите текст сообщения:</label>
+            <textarea class="form-control" asp-for="Text" rows="3" placeholder="Текст сообщения"></textarea>
         </div>
-        <div class="form-group">
-            <label asp-for="File">Выберите фото (опционально)</label>
-            <input type="file" class="form-control-file" asp-for="File">
-          </div>
-        <button class="btn btn-primary" type="submit">Разослать сообщение</button>
+        <div class="form-group custom-file">
+            <label asp-for="File" class="custom-file-label">Прикрепите файл (опционально)</label>
+            <input type="file" class="form-control-file custom-file-input" asp-for="File">
+        </div>
+        <div class="form-group mt-4 text-center">
+            <button class="btn btn-primary" type="submit">Разослать сообщение</button>
+        </div>
     </form>
 </div>

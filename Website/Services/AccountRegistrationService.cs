@@ -31,7 +31,7 @@ namespace Website.Services
             {
                 Name = name,
                 RegistrationDate = DateTime.UtcNow,
-                Money = 0,
+                Money = 49.99M,
                 EmailLoginInfo = emailLoginInfo,
                 TelegramLoginInfo = telegramLoginInfo,
                 OrderStatusGroups = {
