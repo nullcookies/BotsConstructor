@@ -6,15 +6,8 @@
 
 
 <div class="container p-2 ">
-
-    @*<button onclick="giveMeMoney()" style="width:100px;height:100px;"> +++++</button>
-    <button onclick="takeItAway()" style="width:100px;height:100px;"> ------</button>*@
-
     @* Пополнение счета*@
     <div class="container border border-info  rounded  " style="margin-bottom:1.5rem; padding-right:0;padding-left:0;">
-
-
-
         <div class="col">
 
             <div class="row card-header border-info">
@@ -151,8 +144,6 @@
                     </div>
                 </div>
             </div>
-
-
         </div>
     </div>
 
@@ -160,9 +151,7 @@
 
     @* Данные аккаунта*@
     <div class="container border border-info  rounded  " style="margin-bottom:1.5rem; padding-right:0;padding-left:0;">
-
         <div class="col">
-
             <div class="row card-header border-info">
                 <div class="h5 ">
                     Данные аккаунта
@@ -170,7 +159,6 @@
             </div>
 
             <div class="p-2 ">
-
                 <div class="row  align-items-center m-1">
                     <div class="col">
                         <div class="row">
@@ -190,7 +178,6 @@
             </div>
 
             <div class="p-2 ">
-
                 <div class="row  align-items-center m-1">
                     <div class="col">
                         <div class="row">
@@ -210,7 +197,6 @@
             </div>
 
             <div class="p-2 ">
-
                 <div class="row  align-items-center m-1">
                     <div class="col">
                         <div class="row">
@@ -228,58 +214,6 @@
                     </div>
                 </div>
             </div>
-
-
-
-
         </div>
     </div>
-
-
-
 </div>
-
-<script>
-    function giveMeMoney() {
-
-        const url = `/AccountManagement/GiveMeMoney`;
-
-        $.ajax({
-            cache: false,
-            type: "GET",
-            url: url,
-            contentType: 'application/json',
-            success: function () {
-                location.reload();
-            },
-            error: function (xhr) {
-             
-                console.log(`Error occurred . ${xhr.responseText}`);
-             
-
-            }
-        });
-    }
-
-    function takeItAway() {
-
-        const url = `/AccountManagement/TakeItAway`;
-
-        $.ajax({
-            cache: false,
-            type: "GET",
-            url: url,
-            contentType: 'application/json',
-            success: function () {
-                location.reload();
-            },
-            error: function (xhr) {
-
-                console.log(`Error occurred . ${xhr.responseText}`);
-
-
-            }
-        });
-    }
-
-</script>
