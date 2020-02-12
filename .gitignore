@@ -260,3 +260,7 @@ paket-files/
 __pycache__/
 *.pyc
 Website/App.config
+
+# Configuration files
+appsettings.json
+App.config
