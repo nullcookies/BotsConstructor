@@ -12,26 +12,17 @@ namespace DataLayer
         {
             var conStrBuilder = new DbConnectionStringBuilder
             {
+#warning Нужно указать адрес сервера перед запуском
+                {"Server", ""},
                 {"User ID", "postgres"},
-                {"Password", "3t0ssszheM3G4MMM0Ch~n`yparollb_wubfubrkmdbwiyro38" },
+#warning Нужно указать пароль перед запуском
+                {"Password", "" },
                 { "Port", 5432 },
-                //{ "Database", "MainDB001" },
-                //{ "Database", "20_12_2019_number5" },
-                { "Database", "BotsConstructor" },
-                //{ "Database", "Zhopa1" },
+#warning Нужно указать БД перед запуском
+                { "Database", "" },
                 { "Integrated Security", true },
                 { "Pooling", true }
             };
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                conStrBuilder["Database"] += "Rel";
-                conStrBuilder.Add("Server", "127.0.0.1");
-            }
-            else
-            {
-                conStrBuilder["Database"] += "Dev";
-                conStrBuilder.Add("Server", "52.232.35.74");
-            }
             ConnectionString = conStrBuilder.ConnectionString;
         }
 
