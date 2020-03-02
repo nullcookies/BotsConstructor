@@ -11,13 +11,13 @@ namespace LogicalCore
     public class BotWrapper : EmptyBot
     {
         public IMarkupTree MarkupTree { get; set; }
-        private readonly ConcurrentDictionary<int, Session> sessionsDictionary;
+        private readonly ConcurrentDictionary<int, ISession> sessionsDictionary;
         public BotOwner BotOwner { get; private set; }
         public readonly ITextMessagesManager tmm;
-        public readonly GlobalFilter globalFilter; // Глобальный фильтр сообщений и нажатий, которые выполняются с любого узла
-        public readonly VariablesContainer globalVars; // Глобальные переменные, которые видны для всех сессий
+        public IGlobalFilter GlobalFilter { get; } // Глобальный фильтр сообщений и нажатий, которые выполняются с любого узла
+        public IVariablesContainer GlobalVars { get; } // Глобальные переменные, которые видны для всех сессий
         public List<string> Languages => tmm.Languages;
-        public Action<VariablesContainer> InitializeSessionVars { get; set; } // вызывается для каждой сессии в конструкторе
+        public Action<IVariablesContainer> InitializeSessionVars { get; set; } // вызывается для каждой сессии в конструкторе
 
         public BotStatisticsForest StatisticsContainer;
         public StupidBotAntispam StupidBotAntispam;
@@ -37,11 +37,11 @@ namespace LogicalCore
 
             StatisticsContainer = botStatistics ?? new BotStatisticsForest();
             StupidBotAntispam = antispam ?? new StupidBotAntispam();
-            sessionsDictionary = new ConcurrentDictionary<int, Session>();
+            sessionsDictionary = new ConcurrentDictionary<int, ISession>();
             tmm = textManager ?? new UntranslatableTextMessagesManager();
             //MarkupTree = tree ?? throw new ArgumentNullException(nameof(tree));
-            globalFilter = filter ?? new GlobalFilter();
-            globalVars = globalVariables ?? new VariablesContainer();
+            GlobalFilter = filter ?? new GlobalFilter();
+            GlobalVars = globalVariables ?? new VariablesContainer();
             //BotOwner = new BotOwner(ownerID, this);
 
         }
@@ -106,7 +106,7 @@ namespace LogicalCore
             
             try
             {
-                Session session = GetSessionByTelegramId(telegramId);
+                var session = GetSessionByTelegramId(telegramId);
                 session.TakeControl(message);
             }
             catch(Exception exception)
@@ -146,13 +146,13 @@ namespace LogicalCore
                 return;
             }
 
-            Session session = GetSessionByTelegramId(telegramId);
+            var session = GetSessionByTelegramId(telegramId);
             session.TakeControl(callbackQuerry);
         }
 
 
 
-        public bool TryGetSessionByTelegramId(int id, out Session session)
+        public bool TryGetSessionByTelegramId(int id, out ISession session)
         {
             bool chatIsFound = BotClient.GetChatAsync(id).ContinueWith((chatTask) => chatTask.IsCompletedSuccessfully).Result;
 
@@ -164,9 +164,9 @@ namespace LogicalCore
             return chatIsFound;
         }
 
-        public Session GetSessionByTelegramId(int id)
+        public ISession GetSessionByTelegramId(int id)
         {
-            Session session = sessionsDictionary.GetOrAdd(id, new Session(MarkupTree.Root, id, this));
+            var session = sessionsDictionary.GetOrAdd(id, new Session(MarkupTree.Root, id, this));
 
             if (BotOwner != null && BotOwner.Session == null && BotOwner.id == id)
             {

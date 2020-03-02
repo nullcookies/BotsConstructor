@@ -9,8 +9,8 @@ namespace LogicalCore
 	/// </summary>
 	public class UniversalOrderContainer
 	{
-		public static Func<IEnumerable<(Type varType, string varName)>, Func<Session, UniversalOrderContainer>> generateContainerCreator =
-			(IEnumerable<(Type varType, string varName)> variablesInfo) => (Session session) =>
+		public static Func<IEnumerable<(Type varType, string varName)>, Func<ISession, UniversalOrderContainer>> generateContainerCreator =
+			(IEnumerable<(Type varType, string varName)> variablesInfo) => (session) =>
             {
 				var items = new List<(int ID, int Count)>();
 				var texts = new List<string>();
@@ -19,30 +19,30 @@ namespace LogicalCore
 				{
 					if (varType == typeof(MetaValuedContainer<decimal>))
 					{
-						items.AddRange(session.vars.GetVar<MetaValuedContainer<decimal>>(varName).Select(_pair => (_pair.Key.ID ?? 0, _pair.Value)));
+						items.AddRange(session.Vars.GetVar<MetaValuedContainer<decimal>>(varName).Select(_pair => (_pair.Key.ID ?? 0, _pair.Value)));
 					}
 					else
 					{
 						if (varType == typeof(string))
 						{
-							texts.Add(session.vars.GetVar<string>(varName));
+							texts.Add(session.Vars.GetVar<string>(varName));
 						}
 						else
 						{
 							if (varType == typeof((string FileId, string PreviewId, string Description)))
 							{
-								files.Add(session.vars.GetVar<(string FileId, string PreviewId, string Description)>(varName));
+								files.Add(session.Vars.GetVar<(string FileId, string PreviewId, string Description)>(varName));
 							}
 							else
 							{
-								texts.Add(session.vars.GetVar(varType, varName).ToString());
+								texts.Add(session.Vars.GetVar(varType, varName).ToString());
 								ConsoleWriter.WriteLine("Попытка отправить необрабатываемый тип данных: " + varType.Name, ConsoleColor.Red);
 							}
 						}
 					}
 				}
 
-				return new UniversalOrderContainer(session.telegramId)
+				return new UniversalOrderContainer(session.TelegramId)
 				{
 					Items = items,
 					Texts = texts,

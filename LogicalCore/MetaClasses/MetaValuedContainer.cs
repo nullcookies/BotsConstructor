@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using LogicalCore.TreeNodes;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -13,9 +14,9 @@ namespace LogicalCore
     /// Контейнер <see cref="MetaValued{T}"/>, позволяющий хранить количество элементов и удаляющий их, если их количество меньше 0.
     /// </summary>
     /// <typeparam name="T">Тип в <see cref="MetaValued{T}"/>.</typeparam>
-    public class MetaValuedContainer<T> : IDictionary<MetaValued<T>, int>, ISessionTranslatable, ISendingMessage, IClearable
+    public class MetaValuedContainer<T> : IDictionary<MetaValued<T>, int>, IWithName, ITranslatable, ISendingMessage, IClearable
 	{
-        public readonly string name;
+        public string Name { get; }
         private readonly Dictionary<MetaValued<T>, int> mainDict;
         private readonly Dictionary<int, MetaValued<T>> translatingDict;
         private readonly string middleSeparator;
@@ -34,7 +35,7 @@ namespace LogicalCore
         /// <param name="finalFunc">Функция, которая создаёт последнюю строку в сообщении по данным словаря.</param>
         public MetaValuedContainer(string containerName, string pairsSep = "\n", string midSep = ": ", Func<Dictionary<MetaValued<T>, int>, MetaText> finalFunc = null)
         {
-            name = containerName;
+            Name = containerName;
             mainDict = new Dictionary<MetaValued<T>, int>();
             translatingDict = new Dictionary<int, MetaValued<T>>();
             pairsSeparator = pairsSep;
@@ -64,11 +65,11 @@ namespace LogicalCore
 
         public static implicit operator MetaText(MetaValuedContainer<T> container) => container.ToMetaText();
 
-        public string ToString(Session session) => ToMetaText().ToString(session);
+        public string ToString(ITranslator session) => ToMetaText().ToString(session);
 
-        private void PrepareMessage(Session session, out string text, out InlineKeyboardMarkup inlineKeyboard)
+        private void PrepareMessage(ISession session, out string text, out InlineKeyboardMarkup inlineKeyboard)
         {
-            text = aggregator?.Invoke(mainDict).ToString(session) ?? session.Translate(name);
+            text = aggregator?.Invoke(mainDict).ToString(session) ?? session.Translate(Name);
 
             InlineKeyboardButton[,] buttons = new InlineKeyboardButton[mainDict.Count, 4];
 
@@ -77,9 +78,9 @@ namespace LogicalCore
             {
                 string translatedText = pair.Key.ToString(session), elementHash = pair.Key.ToString().GetHashCode().ToString();
                 buttons[i, 0] = InlineKeyboardButton.WithCallbackData(translatedText, DefaultStrings.DoNothing);
-                buttons[i, 1] = InlineKeyboardButton.WithCallbackData(session.Translate(DefaultStrings.Minus), $"{DefaultStrings.Minus}_{name}_{elementHash}");
+                buttons[i, 1] = InlineKeyboardButton.WithCallbackData(session.Translate(DefaultStrings.Minus), $"{DefaultStrings.Minus}_{Name}_{elementHash}");
                 buttons[i, 2] = InlineKeyboardButton.WithCallbackData(pair.Value.ToString(), DefaultStrings.DoNothing);
-                buttons[i, 3] = InlineKeyboardButton.WithCallbackData(session.Translate(DefaultStrings.Plus), $"{DefaultStrings.Plus}_{name}_{elementHash}");
+                buttons[i, 3] = InlineKeyboardButton.WithCallbackData(session.Translate(DefaultStrings.Plus), $"{DefaultStrings.Plus}_{Name}_{elementHash}");
                 i++;
             }
 
@@ -91,11 +92,11 @@ namespace LogicalCore
         /// </summary>
         /// <param name="session">Сессия, для которой нужно сделать перевод и отправку сообщения.</param>
         /// <returns>Возвращает <see cref="Task{Message}"/> с отправкой сообщения.</returns>
-        public async Task<Message> SendMessage(Session session)
+        public async Task<Message> SendMessage(ISession session)
         {
             PrepareMessage(session, out string text, out InlineKeyboardMarkup inlineKeyboard);
 
-            return await session.BotClient.SendTextMessageAsync(session.telegramId,
+            return await session.BotClient.SendTextMessageAsync(session.TelegramId,
                 text,
                 ParseMode.Markdown,
                 true,
@@ -109,7 +110,7 @@ namespace LogicalCore
         /// <param name="chatId">ID чата.</param>
         /// <param name="messageId">ID сообщения</param>
         /// <returns>Возвращает <see cref="Task"/> с редактированием сообщения.</returns>
-        public async Task EditMessage(Session session, ChatId chatId, int messageId)
+        public async Task EditMessage(ISession session, ChatId chatId, int messageId)
         {
             PrepareMessage(session, out string text, out InlineKeyboardMarkup inlineKeyboard);
 

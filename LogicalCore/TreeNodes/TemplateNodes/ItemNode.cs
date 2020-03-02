@@ -12,12 +12,12 @@ namespace LogicalCore.TreeNodes.TemplateNodes
 		public ItemNode(string itemsContainer, int itemID, string sessionContainer, MetaInlineMessage metaMessage = null, string name = null)
 			: base((session) =>
 				{
-					var item = session.BotWrapper.globalVars.GetVar<Dictionary<int, MetaValued<T>>>(itemsContainer)[itemID];
-					var container = session.vars.GetVar<MetaValuedContainer<T>>(sessionContainer);
+					var item = session.BotWrapper.GlobalVars.GetVar<Dictionary<int, MetaValued<T>>>(itemsContainer)[itemID];
+					var container = session.Vars.GetVar<MetaValuedContainer<T>>(sessionContainer);
 					if(container == null)
 					{
 						container = new MetaValuedContainer<T>(sessionContainer);
-						session.vars.SetVar(container);
+						session.Vars.SetVar(container);
 					}
 					container.Add(item, 1);
 				}, metaMessage, name ?? DefaultStrings.Add) { }

@@ -30,7 +30,7 @@ namespace LogicalCore.TreeNodes
 			if (needAddBack) message.InsertBackButton(parent);
 		}
 
-		public override async Task<Message> SendMessage(Session session)
+		public override async Task<Message> SendMessage(ISession session)
         {
             Task<Message> task = base.SendMessage(session);
             return await task.ContinueWith((prevTask) =>
@@ -41,7 +41,7 @@ namespace LogicalCore.TreeNodes
             TaskContinuationOptions.NotOnFaulted);
         }
 
-        protected bool TryGoBack(Session session, Message message)
+        protected bool TryGoBack(ISession session, Message message)
         {
             if (KeyboardActionsManager.CheckNeeding(needBackButton, this.message.HaveReplyKeyboard, session, message, DefaultStrings.Back))
             {
@@ -54,7 +54,7 @@ namespace LogicalCore.TreeNodes
             }
         }
 
-        protected bool TryGoBack(Session session, CallbackQuery callbackQuerry)
+        protected bool TryGoBack(ISession session, CallbackQuery callbackQuerry)
         {
             if (KeyboardActionsManager.CheckNeeding(needBackButton, message.HaveInlineKeyboard, session, callbackQuerry, DefaultStrings.Back, () =>
                 ButtonIdManager.GetIDFromCallbackData(callbackQuerry.Data) == Parent.Id))
@@ -68,9 +68,9 @@ namespace LogicalCore.TreeNodes
             }
         }
 
-        protected virtual void GoToChildNode(Session session, ITreeNode child) => session.GoToNode(child);
+        protected virtual void GoToChildNode(ISession session, ITreeNode child) => session.GoToNode(child);
 
-        protected virtual bool TryGoToChild(Session session, Message message)
+        protected virtual bool TryGoToChild(ISession session, Message message)
         {
             foreach (var child in Children)
             {
@@ -85,7 +85,7 @@ namespace LogicalCore.TreeNodes
             return false;
         }
 
-        protected virtual bool TryGoToChild(Session session, CallbackQuery callbackQuerry)
+        protected virtual bool TryGoToChild(ISession session, CallbackQuery callbackQuerry)
         {
             int childID = ButtonIdManager.GetIDFromCallbackData(callbackQuerry.Data);
             if (Children.Find((node) => node.Id == childID) is Node child &&
@@ -101,10 +101,10 @@ namespace LogicalCore.TreeNodes
             }
         }
 
-        protected override bool TryFilter(Session session, Message message) =>
+        protected override bool TryFilter(ISession session, Message message) =>
             base.TryFilter(session, message) || TryGoBack(session, message) || TryGoToChild(session, message);
 
-        protected override bool TryFilter(Session session, CallbackQuery callbackQuerry) =>
+        protected override bool TryFilter(ISession session, CallbackQuery callbackQuerry) =>
             base.TryFilter(session, callbackQuerry) || TryGoBack(session, callbackQuerry) || TryGoToChild(session, callbackQuerry);
     }
 }

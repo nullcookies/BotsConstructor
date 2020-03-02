@@ -20,7 +20,7 @@ namespace LogicalCore
             string checkedSymbol = defaultChecked, string uncheckedSymbol = defaultUnchecked, Func<T, string> btnCallbackFunc = null,
             byte pageSize = 6, FlipperArrowsType flipperArrows = FlipperArrowsType.Double, bool needBack = true, bool useGlobalCallbacks = false)
             : base(name, options,
-                  (session, element) => (session.vars.GetVar<List<T>>(varName)?.Contains(element) ?? false ? // если элемент есть,
+                  (session, element) => (session.Vars.GetVar<List<T>>(varName)?.Contains(element) ?? false ? // если элемент есть,
                   checkedSymbol : uncheckedSymbol) + element.ToString(session), // то добавляем checkedSymbol, иначе uncheckedSymbol
                   btnCallbackFunc, metaMessage ?? new MetaDoubleKeyboardedMessage(name),
                   pageSize, needBack, flipperArrows, useGlobalCallbacks)
@@ -46,11 +46,11 @@ namespace LogicalCore
                   btnCallbackFunc, pageSize, flipperArrows, needBack, useGlobalCallbacks)
         { }
 
-        public void SetVar(Session session, List<T> variable) => session.vars.SetVar(VarName, variable);
+        public void SetVar(ISession session, List<T> variable) => session.Vars.SetVar(VarName, variable);
 
-        public void SetVar(Session session, T variable)
+        public void SetVar(ISession session, T variable)
         {
-            List<T> selected = session.vars.GetVar<List<T>>(VarName);
+            List<T> selected = session.Vars.GetVar<List<T>>(VarName);
             if (selected.Contains(variable))
             {
                 selected.Remove(variable);
@@ -61,9 +61,9 @@ namespace LogicalCore
             }
         }
 
-        public override Task<Message> SendMessage(Session session)
+        public override Task<Message> SendMessage(ISession session)
         {
-            if (!session.vars.TryGetVar<List<T>>(VarName, out var list) || list == null) SetVar(session, new List<T>(Options.Count));
+            if (!session.Vars.TryGetVar<List<T>>(VarName, out var list) || list == null) SetVar(session, new List<T>(Options.Count));
             return base.SendMessage(session);
         }
 
@@ -74,7 +74,7 @@ namespace LogicalCore
             message.AddNodeButton(child);
         }
 
-        protected bool TrySelectElement(Session session, Message message)
+        protected bool TrySelectElement(ISession session, Message message)
         {
             if (Converter.Invoke(message.Text, out T variable))
             {
@@ -88,7 +88,7 @@ namespace LogicalCore
             }
         }
 
-        protected bool TrySelectElement(Session session, CallbackQuery callbackQuerry)
+        protected bool TrySelectElement(ISession session, CallbackQuery callbackQuerry)
         {
             if (Converter.Invoke(callbackQuerry.Data, out T variable))
             {
@@ -102,10 +102,10 @@ namespace LogicalCore
             }
         }
 
-        protected override bool TryFilter(Session session, Message message) =>
+        protected override bool TryFilter(ISession session, Message message) =>
             base.TryFilter(session, message) || TrySelectElement(session, message);
 
-        protected override bool TryFilter(Session session, CallbackQuery callbackQuerry) =>
+        protected override bool TryFilter(ISession session, CallbackQuery callbackQuerry) =>
             base.TryFilter(session, callbackQuerry) || TrySelectElement(session, callbackQuerry);
     }
 }

@@ -13,10 +13,10 @@ namespace LogicalCore
         public TryConvert<MetaValued<T>> Converter { get; private set; }
         public bool Required => false;
         public List<MetaValued<T>> Options => collection;
-        public readonly Action<Session, MetaValuedContainer<T>> finalisator;
+        public readonly Action<ISession, MetaValuedContainer<T>> finalisator;
         
         public MetaValuedContainerInputNode(string name, string varName, List<MetaValued<T>> options, IMetaMessage<MetaInlineKeyboardMarkup> metaMessage = null,
-            Action<Session, MetaValuedContainer<T>> endAction = null, Func<Session, MetaValued<T>, string> btnNameFunc = null, Func<MetaValued<T>, string> btnCallbackFunc = null,
+            Action<ISession, MetaValuedContainer<T>> endAction = null, Func<ISession, MetaValued<T>, string> btnNameFunc = null, Func<MetaValued<T>, string> btnCallbackFunc = null,
             byte pageSize = 6, FlipperArrowsType flipperArrows = FlipperArrowsType.Double, bool needBack = true, bool useGlobalCallbacks = false)
             : base(name, options, btnNameFunc, btnCallbackFunc ?? ((element) => DefaultStrings.DoNothing), metaMessage ?? new MetaDoubleKeyboardedMessage(name),
                   pageSize, needBack, flipperArrows, useGlobalCallbacks)
@@ -36,34 +36,34 @@ namespace LogicalCore
         }
 
         public MetaValuedContainerInputNode(string name, string varName, List<MetaValued<T>> options, string description,
-            Action<Session, MetaValuedContainer<T>> endAction = null, Func<Session, MetaValued<T>, string> btnNameFunc = null, Func<MetaValued<T>, string> btnCallbackFunc = null,
+            Action<ISession, MetaValuedContainer<T>> endAction = null, Func<ISession, MetaValued<T>, string> btnNameFunc = null, Func<MetaValued<T>, string> btnCallbackFunc = null,
             byte pageSize = 6, FlipperArrowsType flipperArrows = FlipperArrowsType.Double, bool needBack = true, bool useGlobalCallbacks = false)
             : this(name, varName, options, new MetaDoubleKeyboardedMessage(description ?? name), endAction, btnNameFunc,
                   btnCallbackFunc, pageSize, flipperArrows, needBack, useGlobalCallbacks)
         { }
 
-        public void SetVar(Session session, MetaValuedContainer<T> variable) => session.vars.SetVar(VarName, variable);
+        public void SetVar(ISession session, MetaValuedContainer<T> variable) => session.Vars.SetVar(VarName, variable);
 
-        public void SetVar(Session session, MetaValued<T> variable) => IncreaseVar(session, variable);
+        public void SetVar(ISession session, MetaValued<T> variable) => IncreaseVar(session, variable);
 
-        public void IncreaseVar(Session session, MetaValued<T> variable)
+        public void IncreaseVar(ISession session, MetaValued<T> variable)
         {
-            MetaValuedContainer<T> container = session.vars.GetVar<MetaValuedContainer<T>>(VarName);
+            MetaValuedContainer<T> container = session.Vars.GetVar<MetaValuedContainer<T>>(VarName);
             container.Add(variable, 1);
         }
 
-        public void DecreaseVar(Session session, MetaValued<T> variable)
+        public void DecreaseVar(ISession session, MetaValued<T> variable)
         {
-            MetaValuedContainer<T> container = session.vars.GetVar<MetaValuedContainer<T>>(VarName);
+            MetaValuedContainer<T> container = session.Vars.GetVar<MetaValuedContainer<T>>(VarName);
             container.Add(variable, -1);
         }
 
-        private bool MoreThanZero(Session session, MetaValued<T> variable) =>
-            session.vars.GetVar<MetaValuedContainer<T>>(VarName).ContainsKey(variable);
+        private bool MoreThanZero(ISession session, MetaValued<T> variable) =>
+            session.Vars.GetVar<MetaValuedContainer<T>>(VarName).ContainsKey(variable);
 
-        public override Task<Message> SendMessage(Session session)
+        public override Task<Message> SendMessage(ISession session)
         {
-            if (!session.vars.TryGetVar<MetaValuedContainer<T>>(VarName, out var container) || container == null)
+            if (!session.Vars.TryGetVar<MetaValuedContainer<T>>(VarName, out var container) || container == null)
                 SetVar(session, new MetaValuedContainer<T>(VarName));
             return base.SendMessage(session);
         }
@@ -75,18 +75,18 @@ namespace LogicalCore
             message.AddNodeButton(child);
         }
 
-        protected override List<InlineKeyboardButton> GetRowForElement(Session session, MetaValued<T> element) =>
+        protected override List<InlineKeyboardButton> GetRowForElement(ISession session, MetaValued<T> element) =>
             new List<InlineKeyboardButton>(4)
             {
                 InlineKeyboardButton.WithCallbackData(nameFunc(session, element), callbackFunc(element)),
                 InlineKeyboardButton.WithCallbackData(session.Translate(DefaultStrings.Minus), $"{DefaultStrings.Decrease}_{VarName}_{element.ToString()}"),
-                InlineKeyboardButton.WithCallbackData(session.vars.GetVar<MetaValuedContainer<T>>(VarName).
+                InlineKeyboardButton.WithCallbackData(session.Vars.GetVar<MetaValuedContainer<T>>(VarName).
                     TryGetValue(element, out int value) ? value.ToString() : "0", DefaultStrings.DoNothing), // количество, если есть, или 0
                 InlineKeyboardButton.WithCallbackData(session.Translate(DefaultStrings.Plus), $"{DefaultStrings.Increase}_{VarName}_{element.ToString()}")
 
 			};
 
-        protected bool TryChangeElement(Session session, CallbackQuery callbackQuerry)
+        protected bool TryChangeElement(ISession session, CallbackQuery callbackQuerry)
         {
             string action = ButtonIdManager.GetActionNameFromCallbackData(callbackQuerry.Data);
 
@@ -139,27 +139,27 @@ namespace LogicalCore
             }
         }
 
-        protected override bool TryGoToChild(Session session, Message message)
+        protected override bool TryGoToChild(ISession session, Message message)
         {
             if(base.TryGoToChild(session, message))
             {
-                finalisator?.Invoke(session, session.vars.GetVar<MetaValuedContainer<T>>(VarName));
+                finalisator?.Invoke(session, session.Vars.GetVar<MetaValuedContainer<T>>(VarName));
                 return true;
             }
             return false;
         }
 
-        protected override bool TryGoToChild(Session session, CallbackQuery callbackQuerry)
+        protected override bool TryGoToChild(ISession session, CallbackQuery callbackQuerry)
         {
             if (base.TryGoToChild(session, callbackQuerry))
             {
-                finalisator?.Invoke(session, session.vars.GetVar<MetaValuedContainer<T>>(VarName));
+                finalisator?.Invoke(session, session.Vars.GetVar<MetaValuedContainer<T>>(VarName));
                 return true;
             }
             return false;
         }
 
-        protected override bool TryFilter(Session session, CallbackQuery callbackQuerry) =>
+        protected override bool TryFilter(ISession session, CallbackQuery callbackQuerry) =>
             base.TryFilter(session, callbackQuerry) || TryChangeElement(session, callbackQuerry);
     }
 }

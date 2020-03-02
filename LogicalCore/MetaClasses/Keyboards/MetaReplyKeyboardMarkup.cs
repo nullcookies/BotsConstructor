@@ -12,22 +12,22 @@ namespace LogicalCore
 
         public override bool HaveInlineKeyboard => false;
 
-        public MetaReplyKeyboardMarkup(List<List<(KeyboardButton button, List<Predicate<Session>> rules)>> buttons) : base (buttons) { }
+        public MetaReplyKeyboardMarkup(List<List<(KeyboardButton button, List<Predicate<ISession>> rules)>> buttons) : base (buttons) { }
         public MetaReplyKeyboardMarkup(int rowsCount = 2) : base(rowsCount) { }
 
 		public override MetaKeyboardMarkup<KeyboardButton> Clone()
 		{
-			var newButtons = new List<List<(KeyboardButton button, List<Predicate<Session>> rules)>>(buttons.Count);
+			var newButtons = new List<List<(KeyboardButton button, List<Predicate<ISession>> rules)>>(buttons.Count);
 			foreach (var row in buttons)
 			{
-				var newRow = new List<(KeyboardButton button, List<Predicate<Session>> rules)>(row.Count);
+				var newRow = new List<(KeyboardButton button, List<Predicate<ISession>> rules)>(row.Count);
 				newRow.AddRange(row);
 				newButtons.Add(newRow);
 			}
 			return new MetaReplyKeyboardMarkup(newButtons);
 		}
 
-		public override void AddNodeButton(ITreeNode node, params Predicate<Session>[] rules)
+		public override void AddNodeButton(ITreeNode node, params Predicate<ISession>[] rules)
         {
             var (button, rulesList) = buttons.SelectMany((list) => list).FirstOrDefault((btnTuple) => btnTuple.button.Text == node.Name);
             if (button != null)
@@ -40,10 +40,10 @@ namespace LogicalCore
             }
         }
 
-		public override void AddNodeButton(int rowNumber, ITreeNode node, params Predicate<Session>[] rules) =>
+		public override void AddNodeButton(int rowNumber, ITreeNode node, params Predicate<ISession>[] rules) =>
             AddButton(rowNumber, new KeyboardButton(node.Name), rules);
 
-        public override void InsertNodeButton(int rowNumber, int columnNumber, ITreeNode node, params Predicate<Session>[] rules) =>
+        public override void InsertNodeButton(int rowNumber, int columnNumber, ITreeNode node, params Predicate<ISession>[] rules) =>
             InsertButton(rowNumber, columnNumber, new KeyboardButton(node.Name), rules);
 
         public override void InsertBackButton(ITreeNode parent, int rowNumber = 0, int columnNumber = 0) =>
@@ -55,18 +55,18 @@ namespace LogicalCore
         public override void InsertPreviousButton(int rowNumber = 1, int columnNumber = 0) =>
             InsertButton(rowNumber, columnNumber, new KeyboardButton(DefaultStrings.Previous));
 
-        public override void AddSpecialButton(string name, params Predicate<Session>[] rules) =>
+        public override void AddSpecialButton(string name, params Predicate<ISession>[] rules) =>
             AddButton(new KeyboardButton(name), rules);
 
-        public override void AddSpecialButton(int rowNumber, string name, params Predicate<Session>[] rules) =>
+        public override void AddSpecialButton(int rowNumber, string name, params Predicate<ISession>[] rules) =>
             AddButton(rowNumber, new KeyboardButton(name), rules);
 
-        public override void InsertSpecialButton(int rowNumber, int columnNumber, string name, params Predicate<Session>[] rules) =>
+        public override void InsertSpecialButton(int rowNumber, int columnNumber, string name, params Predicate<ISession>[] rules) =>
             InsertButton(rowNumber, columnNumber, new KeyboardButton(name), rules);
 
-        public override IReplyMarkup Translate(Session session) => TranslateMarkup(session);
+        public override IReplyMarkup Translate(ISession session) => TranslateMarkup(session);
 
-        public ReplyKeyboardMarkup TranslateMarkup(Session session)
+        public ReplyKeyboardMarkup TranslateMarkup(ISession session)
         {
             KeyboardButton[][] translatedButtons = new KeyboardButton[buttons.Count][];
 

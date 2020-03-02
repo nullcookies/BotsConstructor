@@ -30,7 +30,7 @@ namespace LogicalCore
         }
         public IMetaReplyMarkup MetaKeyboard => messages[defaultMessageIndex].MetaKeyboard;
 		public MessageType MessageType => messages[defaultMessageIndex].MessageType;
-		public ISessionTranslatable Text => messages[defaultMessageIndex].Text;
+		public ITranslatable Text => messages[defaultMessageIndex].Text;
 		public InputOnlineFile File => messages[defaultMessageIndex].File;
 
 		public MetaMultiMessage(int count = 2)
@@ -81,10 +81,10 @@ namespace LogicalCore
         public void AddNextButton(int rowNumber = 1) =>
             messages[defaultMessageIndex].AddNextButton(rowNumber);
 
-        public void AddNodeButton(ITreeNode node, params Predicate<Session>[] rules) =>
+        public void AddNodeButton(ITreeNode node, params Predicate<ISession>[] rules) =>
             messages[defaultMessageIndex].AddNodeButton(node, rules);
 
-        public void AddNodeButton(int rowNumber, ITreeNode node, params Predicate<Session>[] rules) =>
+        public void AddNodeButton(int rowNumber, ITreeNode node, params Predicate<ISession>[] rules) =>
             messages[defaultMessageIndex].AddNodeButton(rowNumber, node, rules);
 
         public void InsertBackButton(ITreeNode parent, int rowNumber = 0, int columnNumber = 0) =>
@@ -93,7 +93,7 @@ namespace LogicalCore
         public void InsertPreviousButton(int rowNumber = 1, int columnNumber = 0) =>
             messages[defaultMessageIndex].InsertPreviousButton(rowNumber, columnNumber);
 
-        public async Task<Message> SendMessage(Session session)
+        public async Task<Message> SendMessage(ISession session)
         {
             Task<Message> lastTask = messages[0].SendMessage(session);
 

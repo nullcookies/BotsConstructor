@@ -10,6 +10,6 @@ namespace LogicalCore
         /// </summary>
         /// <param name="session">Сессия, для которой нужно сделать перевод и отправку сообщения.</param>
         /// <returns>Возвращает <see cref="Task{Message}"/> с отправкой сообщения.</returns>
-        Task<Message> SendMessage(Session session);
+        Task<Message> SendMessage(ISession session);
     }
 }

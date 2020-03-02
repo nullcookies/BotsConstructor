@@ -20,7 +20,7 @@ namespace LogicalCore
             string description, bool required = true, bool needBack = true, bool stickers = false)
             : this(name, varName, converter, new MetaMessage(description ?? name), required, needBack, stickers) { }
 
-		protected override bool TryGoToChild(Session session, Message message)
+		protected override bool TryGoToChild(ISession session, Message message)
 		{
 			if (!base.TryGoToChild(session, message))
 			{

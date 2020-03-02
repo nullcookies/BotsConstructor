@@ -40,7 +40,7 @@ namespace LogicalCore
 		/// </summary>
 		/// <param name="node">Узел, для которого необходимо добавить кнопку.</param>
 		/// <param name="rules">Список правил, при выполнении которых кнопка должна быть показана.</param>
-		void AddNodeButton(ITreeNode node, params Predicate<Session>[] rules);
+		void AddNodeButton(ITreeNode node, params Predicate<ISession>[] rules);
 
 		/// <summary>
 		/// Добавляет кнопку для узла в указанную строку.
@@ -48,7 +48,7 @@ namespace LogicalCore
 		/// <param name="rowNumber">Строка, в которую необходимо добавить кнопку.</param>
 		/// <param name="node">Узел, для которого необходимо добавить кнопку.</param>
 		/// <param name="rules">Список правил, при выполнении которых кнопка должна быть показана.</param>
-		void AddNodeButton(int rowNumber, ITreeNode node, params Predicate<Session>[] rules);
+		void AddNodeButton(int rowNumber, ITreeNode node, params Predicate<ISession>[] rules);
 
 		/// <summary>
 		/// Вставляет кнопку "Назад" в указанное место.
@@ -84,7 +84,7 @@ namespace LogicalCore
         /// <summary>
         /// Метатекст сообщения.
         /// </summary>
-        ISessionTranslatable Text { get; }
+        ITranslatable Text { get; }
         /// <summary>
         /// Файл сообщения.
         /// </summary>

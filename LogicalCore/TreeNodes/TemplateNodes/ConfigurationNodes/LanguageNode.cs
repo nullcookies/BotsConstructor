@@ -15,7 +15,7 @@
 				requestMessage == null ? null : new MetaDoubleKeyboardedMessage(requestMessage),
 				pageSize, needBack: needBack),
 			new ActionNode(
-				(session) => session.Language = session.vars.GetVar<string>(DefaultStrings.Language),
+				(session) => session.Language = session.Vars.GetVar<string>(DefaultStrings.Language),
 				answerMessage == null ? null : new MetaInlineMessage(answerMessage)
 				)
 			)

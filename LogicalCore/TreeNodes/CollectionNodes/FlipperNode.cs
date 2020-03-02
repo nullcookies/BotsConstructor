@@ -30,12 +30,12 @@ namespace LogicalCore
     {
         public readonly FlipperArrowsType arrowsType;
         public bool GlobalCallbacks { get; }
-        protected readonly Func<Session, T, string> nameFunc;
+        protected readonly Func<ISession, T, string> nameFunc;
         protected readonly Func<T, string> callbackFunc;
 		protected virtual int MaxPage => (collection.Count - 1) / pageSize;
 		protected virtual bool OnePage => pageSize >= collection.Count;
 
-		public FlipperNode(string name, List<T> elements, Func<Session, T, string> btnNameFunc = null, Func<T, string> btnCallbackFunc = null,
+		public FlipperNode(string name, List<T> elements, Func<ISession, T, string> btnNameFunc = null, Func<T, string> btnCallbackFunc = null,
             IMetaMessage<MetaInlineKeyboardMarkup> metaMessage = null, byte pageSize = 6, bool needBack = true,
             FlipperArrowsType flipperArrows = FlipperArrowsType.Double, bool useGlobalCallbacks = true)
             : base(name, pageSize, metaMessage ?? new MetaDoubleKeyboardedMessage(name), elements, needBack)
@@ -47,17 +47,17 @@ namespace LogicalCore
 		}
 
         public FlipperNode(string name, List<T> elements, string description,
-            Func<Session, T, string> btnNameFunc = null, Func<T, string> btnCallbackFunc = null,
+            Func<ISession, T, string> btnNameFunc = null, Func<T, string> btnCallbackFunc = null,
             byte pageSize = 6, bool needBack = true, FlipperArrowsType flipperArrows = FlipperArrowsType.Double, bool useGlobalCallbacks = true)
             : this(name, elements, btnNameFunc, btnCallbackFunc, description == null ? null : new MetaDoubleKeyboardedMessage(description),
                   pageSize, needBack, flipperArrows, useGlobalCallbacks) { }
 
-        public override async Task<Message> SendMessage(Session session) =>
+        public override async Task<Message> SendMessage(ISession session) =>
             await await base.SendMessage(session).
                 ContinueWith(async (prevTask) => await SendPage(session, await prevTask),
                 TaskContinuationOptions.NotOnFaulted);
 
-        public virtual async Task<Message> SendPage(Session session, Message divisionMessage, int pageNumber = 0)
+        public virtual async Task<Message> SendPage(ISession session, Message divisionMessage, int pageNumber = 0)
         {
             if (divisionMessage == null) return await SendMessage(session);
 
@@ -67,7 +67,7 @@ namespace LogicalCore
         }
 
         // Этот метод используется, когда страницы можно листать только находясь на текущем узле (globalCallbacks = false)
-        protected virtual async void SendPageBySessionInfo(Session session, bool goForward, Message divisionMessage)
+        protected virtual async void SendPageBySessionInfo(ISession session, bool goForward, Message divisionMessage)
         {
             if (divisionMessage == null)
             {
@@ -84,12 +84,12 @@ namespace LogicalCore
             await EditMessage(session, divisionMessage, pageNumber);
         }
 
-        protected virtual async Task<Message> EditMessage(Session session, Message divisionMessage, int page)
+        protected virtual async Task<Message> EditMessage(ISession session, Message divisionMessage, int page)
         {
 	        try
 	        {
 		        return await session.BotClient.EditMessageReplyMarkupAsync(
-			        session.telegramId,
+			        session.TelegramId,
 			        divisionMessage.MessageId,
 			        GetInlineMarkup(session, page));
 	        }
@@ -100,7 +100,7 @@ namespace LogicalCore
 	        }
         }
 
-		protected virtual InlineKeyboardMarkup GetInlineMarkup(Session session, int page)
+		protected virtual InlineKeyboardMarkup GetInlineMarkup(ISession session, int page)
         {
             if (page < 0) page = 0;
 
@@ -178,10 +178,10 @@ namespace LogicalCore
             return inlineKeyboard;
         }
 
-		protected virtual void AddSpecialRow(Session session, int page, List<List<InlineKeyboardButton>> inlineKeyboardButtons)
+		protected virtual void AddSpecialRow(ISession session, int page, List<List<InlineKeyboardButton>> inlineKeyboardButtons)
 		{ }
 
-		protected virtual void FillInlineButtons(Session session, List<List<InlineKeyboardButton>> buttons, int from, int to)
+		protected virtual void FillInlineButtons(ISession session, List<List<InlineKeyboardButton>> buttons, int from, int to)
 		{
 			int index = 0;
 			var inlineKeyboard = (message as IMetaMessage<MetaInlineKeyboardMarkup>)?.MetaKeyboard
@@ -218,12 +218,12 @@ namespace LogicalCore
 
 		protected int GetPageByElement(T element) => collection.IndexOf(element) / pageSize;
 
-        protected virtual List<InlineKeyboardButton> GetRowForElement(Session session, T element) =>
+        protected virtual List<InlineKeyboardButton> GetRowForElement(ISession session, T element) =>
             new List<InlineKeyboardButton>(1) { InlineKeyboardButton.WithCallbackData(nameFunc(session, element), callbackFunc(element)) };
 
         //Отправка узлов, обработка кнопок, ...
-        protected override void SendNext(Session session, Message divisionMessage) => SendPageBySessionInfo(session, true, divisionMessage);
+        protected override void SendNext(ISession session, Message divisionMessage) => SendPageBySessionInfo(session, true, divisionMessage);
 
-        protected override void SendPrevious(Session session, Message divisionMessage) => SendPageBySessionInfo(session, false, divisionMessage);
+        protected override void SendPrevious(ISession session, Message divisionMessage) => SendPageBySessionInfo(session, false, divisionMessage);
     }
 }

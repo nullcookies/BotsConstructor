@@ -8,7 +8,7 @@ namespace LogicalCore
     /// </summary>
     public static class KeyboardActionsManager
     {
-        public static bool CheckNeeding(bool haveButton, bool haveReplyKeyboard, Session session, Message message, string neededKey, Func<bool> func = null)
+        public static bool CheckNeeding(bool haveButton, bool haveReplyKeyboard, ISession session, Message message, string neededKey, Func<bool> func = null)
         {
             if (haveButton && haveReplyKeyboard)
             {
@@ -28,7 +28,7 @@ namespace LogicalCore
             }
         }
 
-        public static bool CheckNeeding(bool haveButton, bool haveInlineKeyboard, Session session, CallbackQuery callbackQuerry, string neededAction, Func<bool> func = null)
+        public static bool CheckNeeding(bool haveButton, bool haveInlineKeyboard, ISession session, CallbackQuery callbackQuerry, string neededAction, Func<bool> func = null)
         {
             if (haveButton && haveInlineKeyboard)
             {

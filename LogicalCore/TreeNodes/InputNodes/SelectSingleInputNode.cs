@@ -14,7 +14,7 @@ namespace LogicalCore
 
         public SelectSingleInputNode(string name, string varName, List<T> options,
             IMetaMessage<MetaInlineKeyboardMarkup> metaMessage = null, byte pageSize = 6,
-            Func<Session, T, string> btnNameFunc = null, Func<T, string> btnCallbackFunc = null, bool required = true,
+            Func<ISession, T, string> btnNameFunc = null, Func<T, string> btnCallbackFunc = null, bool required = true,
             FlipperArrowsType flipperArrows = FlipperArrowsType.Double, bool needBack = true, bool useGlobalCallbacks = false)
             : base(name, options, btnNameFunc, btnCallbackFunc, metaMessage ?? new MetaDoubleKeyboardedMessage(name),
                   pageSize, needBack, flipperArrows, useGlobalCallbacks)
@@ -34,14 +34,14 @@ namespace LogicalCore
         }
 
         public SelectSingleInputNode(string name, string varName, List<T> options, string description = null, 
-            byte pageSize = 6, Func<Session, T, string> btnNameFunc = null, Func<T, string> btnCallbackFunc = null,
+            byte pageSize = 6, Func<ISession, T, string> btnNameFunc = null, Func<T, string> btnCallbackFunc = null,
             bool required = true, FlipperArrowsType flipperArrows = FlipperArrowsType.Double,
             bool needBack = true, bool useGlobalCallbacks = false)
             : this(name, varName, options, new MetaDoubleKeyboardedMessage(description ?? name), pageSize,
                   btnNameFunc, btnCallbackFunc, required, flipperArrows, needBack, useGlobalCallbacks)
         { }
 
-        public void SetVar(Session session, T variable) => session.vars.SetVar(VarName, variable);
+        public void SetVar(ISession session, T variable) => session.Vars.SetVar(VarName, variable);
 
         protected override void AddChild(ITreeNode child)
         {
@@ -52,7 +52,7 @@ namespace LogicalCore
 
         //У инпутов переход к ребёнку выполняется только после успешного ввода данных или если инпут необязательный
 
-        protected override bool TryGoToChild(Session session, Message message)
+        protected override bool TryGoToChild(ISession session, Message message)
         {
             if (!base.TryGoToChild(session, message))
             {
@@ -73,7 +73,7 @@ namespace LogicalCore
             }
         }
 
-        protected override bool TryGoToChild(Session session, CallbackQuery callbackQuerry)
+        protected override bool TryGoToChild(ISession session, CallbackQuery callbackQuerry)
         {
             if (!base.TryGoToChild(session, callbackQuerry))
             {

@@ -4,7 +4,7 @@ namespace LogicalCore.TreeNodes
 {
     public interface ISessionInputHandler
     {
-        void TakeControl(Session session, Message message);
-        void TakeControl(Session session, CallbackQuery callbackQuery);
+        void TakeControl(ISession session, Message message);
+        void TakeControl(ISession session, CallbackQuery callbackQuery);
     }
 }

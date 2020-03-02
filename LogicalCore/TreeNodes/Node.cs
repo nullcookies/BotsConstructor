@@ -16,7 +16,7 @@ namespace LogicalCore.TreeNodes
         public List<ITreeNode> Children { get; protected set; }
         protected IMetaMessage message;
 		public MessageType MessageType => message.MessageType;
-		public ISessionTranslatable Text => message.Text;
+		public ITranslatable Text => message.Text;
 		public InputOnlineFile File => message.File;
 
 		public Node(string name, IMetaMessage metaMessage)
@@ -32,7 +32,7 @@ namespace LogicalCore.TreeNodes
 
         public void SetButtonsLocation(ElementsLocation locationType) => message.MetaKeyboard.SetButtonsLocation(locationType);
 
-        public virtual void AddChildWithButtonRules(ITreeNode child, params Predicate<Session>[] rules)
+        public virtual void AddChildWithButtonRules(ITreeNode child, params Predicate<ISession>[] rules)
         {
             child.SetParent(this);
             message.AddNodeButton(child, rules);
@@ -58,27 +58,27 @@ namespace LogicalCore.TreeNodes
 			Parent = parent;
 		}
 
-		public void AddSpecialButton(string name, params Predicate<Session>[] rules) =>
+		public void AddSpecialButton(string name, params Predicate<ISession>[] rules) =>
             message.MetaKeyboard.AddSpecialButton(name, rules);
 
-        public void AddSpecialButton(int rowNumber, string name, params Predicate<Session>[] rules) =>
+        public void AddSpecialButton(int rowNumber, string name, params Predicate<ISession>[] rules) =>
             message.MetaKeyboard.AddSpecialButton(rowNumber, name, rules);
 
-        public void InsertSpecialButton(int rowNumber, int columnNumber, string name, params Predicate<Session>[] rules) =>
+        public void InsertSpecialButton(int rowNumber, int columnNumber, string name, params Predicate<ISession>[] rules) =>
             message.MetaKeyboard.InsertSpecialButton(rowNumber, columnNumber, name, rules);
 
-        public bool CanExecute(string action, Session session) => message.MetaKeyboard.CanShowButton(action, session);
+        public bool CanExecute(string action, ISession session) => message.MetaKeyboard.CanShowButton(action, session);
 
-        public virtual async Task<Message> SendMessage(Session session) => await message.SendMessage(session);
+        public virtual async Task<Message> SendMessage(ISession session) => await message.SendMessage(session);
 
-        public void TakeControl(Session session, Message message)
+        public void TakeControl(ISession session, Message message)
         {
             MandatoryActions(session, message);
 
             if (!TryFilter(session, message)) session.GlobalFilter.Filter(session, message);
         }
 
-        public void TakeControl(Session session, CallbackQuery callbackQuery)
+        public void TakeControl(ISession session, CallbackQuery callbackQuery)
         {
             MandatoryActions(session, callbackQuery);
 
@@ -89,14 +89,14 @@ namespace LogicalCore.TreeNodes
 
         //Обязательные действия, которые должны выполняться всегда при TakeControl
 
-        protected virtual void MandatoryActions(Session session, Message message)
+        protected virtual void MandatoryActions(ISession session, Message message)
         {
             string nameOfUser = message.From.FirstName + " " + message.From.LastName;
 
             ConsoleWriter.WriteLine($"Пользователь '{nameOfUser}' покинул узел '{Name}'.", ConsoleColor.Gray);
         }
 
-        protected virtual void MandatoryActions(Session session, CallbackQuery callbackQuerry)
+        protected virtual void MandatoryActions(ISession session, CallbackQuery callbackQuerry)
         {
             string nameOfUser = callbackQuerry.From.FirstName + " " + callbackQuerry.From.LastName;
 
@@ -105,8 +105,8 @@ namespace LogicalCore.TreeNodes
 
         //TryFilter - аналог FilterChain, возвращает true, если был выполнен, иначе false
 
-        protected virtual bool TryFilter(Session session, Message message) => false;
+        protected virtual bool TryFilter(ISession session, Message message) => false;
 
-        protected virtual bool TryFilter(Session session, CallbackQuery callbackQuerry) => false;
+        protected virtual bool TryFilter(ISession session, CallbackQuery callbackQuerry) => false;
     }
 }

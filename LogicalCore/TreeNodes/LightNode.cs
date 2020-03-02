@@ -37,7 +37,7 @@ namespace LogicalCore.TreeNodes
 			message.AddNodeButton(child);
 		}
 
-        public override void AddChildWithButtonRules(ITreeNode child, params Predicate<Session>[] rules)
+        public override void AddChildWithButtonRules(ITreeNode child, params Predicate<ISession>[] rules)
 		{
 			Children.Add(child);
 			child.SetBackLink(Parent);

@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using LogicalCore.TreeNodes;
 
 namespace LogicalCore
 {
     /// <summary>
-    /// Контейнер переменных любых типов (словарь: {(<see cref="Type"/> тип, <see cref="string"/> название), <see cref="object"/> значение}).
-    /// </summary>
-    public class VariablesContainer
-    {
+	/// Контейнер переменных любых типов (словарь: {(<see cref="Type"/> тип, <see cref="string"/> название), <see cref="object"/> значение}).
+	/// </summary>
+	public class VariablesContainer : IVariablesContainer
+	{
         /// <summary>
         /// Словарь переменных {(<see cref="Type"/> тип, <see cref="string"/> название), <see cref="object"/> значение}.
         /// </summary>
@@ -75,12 +76,12 @@ namespace LogicalCore
 		public void SetVar<T>(string varName, T varValue) => vars[(typeof(T), varName)] = varValue;
 
 		/// <summary>
-		/// Позволяет установить или изменить значение контейнера.
+		/// Позволяет установить или изменить значение объекта с именем.
 		/// </summary>
-		/// <typeparam name="T">Тип контейнера.</typeparam>
-		/// <param name="container">Контейнер.</param>
-		public void SetVar<T>(MetaValuedContainer<T> container) =>
-			vars[(typeof(MetaValuedContainer<T>), container.name)] = container;
+		/// <typeparam name="T">Тип объекта с именем.</typeparam>
+		/// <param name="withName">Объект.</param>
+		public void SetVar<T>(T withName) where T : IWithName =>
+			vars[(typeof(T), withName.Name)] = withName;
 
 		/// <summary>
 		/// Позволяет удалить переменную.

@@ -4,7 +4,7 @@ namespace LogicalCore
 {
     public interface IWithCollectionInput<VariableType> : IWithInput<VariableType>
     {
-        void SetVar(Session session, List<VariableType> variable);
+        void SetVar(ISession session, List<VariableType> variable);
     }
 
     public interface IWithSelectionInput<VariableType> : IWithInput<VariableType>
@@ -22,7 +22,7 @@ namespace LogicalCore
 
         TryConvert<VariableType> Converter { get; }
 
-        void SetVar(Session session, VariableType variable);
+        void SetVar(ISession session, VariableType variable);
 
         //T GetVar(Session session);
 

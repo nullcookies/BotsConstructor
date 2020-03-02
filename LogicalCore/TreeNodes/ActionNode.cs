@@ -7,9 +7,9 @@ namespace LogicalCore.TreeNodes
 {
     public class ActionNode : Node, ITeleportable
 	{
-        private readonly Action<Session> action;
+        private readonly Action<ISession> action;
 
-        public ActionNode(Action<Session> nodeAction, MetaInlineMessage metaMessage = null, string name = null)
+        public ActionNode(Action<ISession> nodeAction, MetaInlineMessage metaMessage = null, string name = null)
             : base(name ?? DefaultStrings.Next, metaMessage)
         {
             Children = new List<ITreeNode>(1);
@@ -17,10 +17,10 @@ namespace LogicalCore.TreeNodes
             action = nodeAction ?? ((session) => { });
         }
 
-        public ActionNode(Action<Session> nodeAction, string description, string name = null)
+        public ActionNode(Action<ISession> nodeAction, string description, string name = null)
 			: this(nodeAction, description == null ? null : new MetaInlineMessage(description), name) { }
         
-        public override async Task<Message> SendMessage(Session session)
+        public override async Task<Message> SendMessage(ISession session)
         {
             Message msg;
 
@@ -49,7 +49,7 @@ namespace LogicalCore.TreeNodes
             return msg;
         }
 
-		protected virtual Task<Message> SendMarkupIfNoChildren(Session session) => Parent.SendMessage(session);
+		protected virtual Task<Message> SendMarkupIfNoChildren(ISession session) => Parent.SendMessage(session);
 
 		protected override void AddChild(ITreeNode child)
         {
@@ -59,7 +59,7 @@ namespace LogicalCore.TreeNodes
 
         public void SetPortal(ITreeNode child) => AddChild(child);
 
-        public override void AddChildWithButtonRules(ITreeNode child, params Predicate<Session>[] rules) =>
+        public override void AddChildWithButtonRules(ITreeNode child, params Predicate<ISession>[] rules) =>
             throw new NotSupportedException("У узлов действий не должно быть правил для перехода.");
 
 		public void SetChildrenList(List<ITreeNode> children)

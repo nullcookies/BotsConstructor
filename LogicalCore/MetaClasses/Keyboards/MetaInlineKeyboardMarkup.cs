@@ -12,22 +12,22 @@ namespace LogicalCore
 
         public override bool HaveInlineKeyboard => true;
 
-        public MetaInlineKeyboardMarkup(List<List<(InlineKeyboardButton button, List<Predicate<Session>> rules)>> buttons) : base(buttons) { }
+        public MetaInlineKeyboardMarkup(List<List<(InlineKeyboardButton button, List<Predicate<ISession>> rules)>> buttons) : base(buttons) { }
         public MetaInlineKeyboardMarkup(int rowsCount = 1) : base(rowsCount) { }
 
 		public override MetaKeyboardMarkup<InlineKeyboardButton> Clone()
 		{
-			var newButtons = new List<List<(InlineKeyboardButton button, List<Predicate<Session>> rules)>>(buttons.Count);
+			var newButtons = new List<List<(InlineKeyboardButton button, List<Predicate<ISession>> rules)>>(buttons.Count);
 			foreach (var row in buttons)
 			{
-				var newRow = new List<(InlineKeyboardButton button, List<Predicate<Session>> rules)>(row.Count);
+				var newRow = new List<(InlineKeyboardButton button, List<Predicate<ISession>> rules)>(row.Count);
 				newRow.AddRange(row);
 				newButtons.Add(newRow);
 			}
 			return new MetaInlineKeyboardMarkup(newButtons);
 		}
 
-		public override void AddNodeButton(ITreeNode node, params Predicate<Session>[] rules)
+		public override void AddNodeButton(ITreeNode node, params Predicate<ISession>[] rules)
         {
             var (button, rulesList) = buttons.SelectMany((list) => list).FirstOrDefault((btnTuple) => btnTuple.button.Text == node.Name);
             if(button != null)
@@ -40,10 +40,10 @@ namespace LogicalCore
             }
 		}
 
-		public override void AddNodeButton(int rowNumber, ITreeNode node, params Predicate<Session>[] rules) =>
+		public override void AddNodeButton(int rowNumber, ITreeNode node, params Predicate<ISession>[] rules) =>
             AddButton(rowNumber, InlineKeyboardButton.WithCallbackData(node.Name, ButtonIdManager.GetInlineButtonId(node)), rules);
 
-        public override void InsertNodeButton(int rowNumber, int columnNumber, ITreeNode node, params Predicate<Session>[] rules) =>
+        public override void InsertNodeButton(int rowNumber, int columnNumber, ITreeNode node, params Predicate<ISession>[] rules) =>
             InsertButton(rowNumber, columnNumber, InlineKeyboardButton.WithCallbackData(node.Name, ButtonIdManager.GetInlineButtonId(node)), rules);
 
         public override void InsertBackButton(ITreeNode parent, int rowNumber = 0, int columnNumber = 0) =>
@@ -55,18 +55,18 @@ namespace LogicalCore
         public override void InsertPreviousButton(int rowNumber = 1, int columnNumber = 0)
             => throw new NotSupportedException("Кнопка 'Previous' должна добавляться из узла.");
 
-        public override void AddSpecialButton(string name, params Predicate<Session>[] rules) =>
+        public override void AddSpecialButton(string name, params Predicate<ISession>[] rules) =>
             AddButton(InlineKeyboardButton.WithCallbackData(name), rules);
 
-        public override void AddSpecialButton(int rowNumber, string name, params Predicate<Session>[] rules) =>
+        public override void AddSpecialButton(int rowNumber, string name, params Predicate<ISession>[] rules) =>
             AddButton(rowNumber, InlineKeyboardButton.WithCallbackData(name), rules);
 
-        public override void InsertSpecialButton(int rowNumber, int columnNumber, string name, params Predicate<Session>[] rules) =>
+        public override void InsertSpecialButton(int rowNumber, int columnNumber, string name, params Predicate<ISession>[] rules) =>
             InsertButton(rowNumber, columnNumber, InlineKeyboardButton.WithCallbackData(name), rules);
 
-        public override IReplyMarkup Translate(Session session) => TranslateMarkup(session);
+        public override IReplyMarkup Translate(ISession session) => TranslateMarkup(session);
 
-        public InlineKeyboardMarkup TranslateMarkup(Session session)
+        public InlineKeyboardMarkup TranslateMarkup(ISession session)
         {
             InlineKeyboardButton[][] translatedButtons = new InlineKeyboardButton[buttons.Count][];
 

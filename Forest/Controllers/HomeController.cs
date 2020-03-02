@@ -402,7 +402,7 @@ namespace Forest.Controllers
 					}
 				}
 
-				botWrapper.InitializeSessionVars = (VariablesContainer vars) =>
+				botWrapper.InitializeSessionVars = (vars) =>
 				{
 					vars.SetVar(new MetaValuedContainer<decimal>("ShoppingCart", finalFunc: (dict) =>
 					{
@@ -426,7 +426,7 @@ namespace Forest.Controllers
 						return result;
 					}));
 				};
-				botWrapper.globalVars.SetVar("Products", Products);
+				botWrapper.GlobalVars.SetVar("Products", Products);
 
 				
 				//there are no data entry nodes in the markup that are not in the same branch

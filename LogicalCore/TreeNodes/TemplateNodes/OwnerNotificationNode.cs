@@ -11,7 +11,7 @@ namespace LogicalCore.TreeNodes.TemplateNodes
 	public class OwnerNotificationNode : ActionNode
 	{
         public OwnerNotificationNode(string name, MetaInlineMessage metaMessage = null, IOrdersSendable sendable = null,
-            int statusGroupID = 0, Func<Session, UniversalOrderContainer> containerCreator = null,
+            int statusGroupID = 0, Func<ISession, UniversalOrderContainer> containerCreator = null,
             IEnumerable<(Type varType, string varName)> variables = null)
             : base(SessionActionsCreator.JoinActions(
                 SessionActionsCreator.SendOrder(sendable, statusGroupID, containerCreator),
@@ -20,7 +20,7 @@ namespace LogicalCore.TreeNodes.TemplateNodes
         { }
 
         public OwnerNotificationNode(string name, MetaInlineMessage metaMessage = null, IOrdersSendable sendable = null,
-			int statusGroupID = 0, Func<Session, UniversalOrderContainer> containerCreator = null,
+			int statusGroupID = 0, Func<ISession, UniversalOrderContainer> containerCreator = null,
 			params (Type varType, string varName)[] variables)
 			: base(SessionActionsCreator.JoinActions(
 				SessionActionsCreator.SendOrder(sendable, statusGroupID, containerCreator),
@@ -28,13 +28,13 @@ namespace LogicalCore.TreeNodes.TemplateNodes
 				), metaMessage, name) { }
 
 		public OwnerNotificationNode(string name, string description, IOrdersSendable sendable = null,
-			int statusGroupID = 0, Func<Session, UniversalOrderContainer> containerCreator = null,
+			int statusGroupID = 0, Func<ISession, UniversalOrderContainer> containerCreator = null,
 			params (Type varType, string varName)[] variables)
 			: this(name, description == null ? null : new MetaInlineMessage(description), sendable, statusGroupID,
 				  containerCreator, variables) { }
 
 		public OwnerNotificationNode(string name, MetaInlineMessage metaMessage = null, bool disableNotification = false,
-			bool writeUser = true, string separator = "\n", Func<Session, MetaInlineKeyboardMarkup> keyboardCreator = null,
+			bool writeUser = true, string separator = "\n", Func<ISession, MetaInlineKeyboardMarkup> keyboardCreator = null,
 			params (Type varType, string varName)[] variables)
 			: base(SessionActionsCreator.JoinActions(
 				SessionActionsCreator.SendNotificationToOwner(disableNotification, writeUser, separator,
@@ -44,11 +44,11 @@ namespace LogicalCore.TreeNodes.TemplateNodes
 				), metaMessage, name) { }
 
 		public OwnerNotificationNode(string name, string description, bool disableNotification = false,
-			bool writeUser = true, string separator = "\n", Func<Session, MetaInlineKeyboardMarkup> keyboardCreator = null,
+			bool writeUser = true, string separator = "\n", Func<ISession, MetaInlineKeyboardMarkup> keyboardCreator = null,
 			params (Type varType, string varName)[] variables)
 			: this(name, description == null ? null : new MetaInlineMessage(description), disableNotification,
 				  writeUser, separator, keyboardCreator, variables) { }
 
-		protected override Task<Message> SendMarkupIfNoChildren(Session session) => session.MarkupTree.Root.SendMessage(session);
+		protected override Task<Message> SendMarkupIfNoChildren(ISession session) => session.MarkupTree.Root.SendMessage(session);
 	}
 }

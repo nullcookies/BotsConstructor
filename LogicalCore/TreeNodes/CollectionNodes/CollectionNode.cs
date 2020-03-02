@@ -26,7 +26,7 @@ namespace LogicalCore
         public CollectionNode(string name, byte pageSize, string description, List<T> elements = null, bool needBack = false)
             : this(name, pageSize, new MetaMessage(description), elements, needBack) { }
 
-        protected void GetStartFinish(Session session, bool goForward, out int start, out int finish)
+        protected void GetStartFinish(ISession session, bool goForward, out int start, out int finish)
         {
             if (goForward)
             {
@@ -63,11 +63,11 @@ namespace LogicalCore
             }
         }
 
-        protected abstract void SendNext(Session session, Message divisionMessage = null);
+        protected abstract void SendNext(ISession session, Message divisionMessage = null);
 
-        protected abstract void SendPrevious(Session session, Message divisionMessage = null);
+        protected abstract void SendPrevious(ISession session, Message divisionMessage = null);
 
-        protected bool TryShowNext(Session session, Message message)
+        protected bool TryShowNext(ISession session, Message message)
         {
             if (KeyboardActionsManager.CheckNeeding(NeedNextButton, this.message.HaveReplyKeyboard, session, message, DefaultStrings.Next))
             {
@@ -80,7 +80,7 @@ namespace LogicalCore
             }
         }
 
-        protected bool TryShowNext(Session session, CallbackQuery callbackQuerry)
+        protected bool TryShowNext(ISession session, CallbackQuery callbackQuerry)
         {
             if (KeyboardActionsManager.CheckNeeding(NeedNextButton, message.HaveInlineKeyboard, session, callbackQuerry, DefaultStrings.Next, () =>
                 ButtonIdManager.GetIDFromCallbackData(callbackQuerry.Data) == Id))
@@ -94,7 +94,7 @@ namespace LogicalCore
             }
         }
 
-        protected bool TryShowPrevious(Session session, Message message)
+        protected bool TryShowPrevious(ISession session, Message message)
         {
             if (KeyboardActionsManager.CheckNeeding(NeedPreviousButton, this.message.HaveReplyKeyboard, session, message, DefaultStrings.Previous))
             {
@@ -107,7 +107,7 @@ namespace LogicalCore
             }
         }
 
-        protected bool TryShowPrevious(Session session, CallbackQuery callbackQuerry)
+        protected bool TryShowPrevious(ISession session, CallbackQuery callbackQuerry)
         {
             if (KeyboardActionsManager.CheckNeeding(NeedPreviousButton, message.HaveInlineKeyboard, session, callbackQuerry, DefaultStrings.Previous, () =>
                 ButtonIdManager.GetIDFromCallbackData(callbackQuerry.Data) == Id))
@@ -121,10 +121,10 @@ namespace LogicalCore
             }
         }
 
-        protected override bool TryFilter(Session session, Message message) =>
+        protected override bool TryFilter(ISession session, Message message) =>
             base.TryFilter(session, message) || TryShowNext(session, message) || TryShowPrevious(session, message);
 
-        protected override bool TryFilter(Session session, CallbackQuery callbackQuerry) =>
+        protected override bool TryFilter(ISession session, CallbackQuery callbackQuerry) =>
             base.TryFilter(session, callbackQuerry) || TryShowNext(session, callbackQuerry) || TryShowPrevious(session, callbackQuerry);
     }
 }

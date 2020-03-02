@@ -9,8 +9,8 @@ namespace LogicalCore
 {
 	public static class SessionActionsCreator
 	{
-		public static Action<Session> JoinActions(params Action<Session>[] actions) =>
-			(Session session) =>
+		public static Action<ISession> JoinActions(params Action<ISession>[] actions) =>
+			(ISession session) =>
 			{
 				foreach (var action in actions)
 				{
@@ -18,63 +18,63 @@ namespace LogicalCore
 				}
 			};
 
-		public static Action<Session> RemoveVariable(Type varType, string varName) =>
-			(Session session) =>
+		public static Action<ISession> RemoveVariable(Type varType, string varName) =>
+			(session) =>
 			{
-				session.vars.RemoveVar(varType, varName);
+				session.Vars.RemoveVar(varType, varName);
 			};
 
-        public static Action<Session> ClearVariables(IEnumerable<(Type varType, string varName)> variables) =>
-            (Session session) =>
+        public static Action<ISession> ClearVariables(IEnumerable<(Type varType, string varName)> variables) =>
+            (session) =>
             {
                 foreach (var (varType, varName) in variables)
                 {
-                    session.vars.ClearVar(varType, varName);
+                    session.Vars.ClearVar(varType, varName);
                 }
             };
 
-        public static Action<Session> ClearVariables(params (Type varType, string varName)[] variables) =>
-			(Session session) =>
+        public static Action<ISession> ClearVariables(params (Type varType, string varName)[] variables) =>
+			(session) =>
 			{
 				foreach (var (varType, varName) in variables)
 				{
-					session.vars.ClearVar(varType, varName);
+					session.Vars.ClearVar(varType, varName);
 				}
 			};
 
-		public static Action<Session> SendTextToOwner(Type varType, string varName, bool disableNotification = false) =>
-			(Session session) =>
+		public static Action<ISession> SendTextToOwner(Type varType, string varName, bool disableNotification = false) =>
+			(session) =>
 			{
 				session.BotClient.SendTextMessageAsync(
 					session.BotOwner.id,
-					session.vars.GetVar(varType, varName).ToString(session.BotOwner.Session),
+					session.Vars.GetVar(varType, varName).ToString(session.BotOwner.Session),
 					ParseMode.Markdown,
 					true,
 					disableNotification);
 			};
 
-		public static Action<Session> SendDocumentToOwner(string onlineFileName,
+		public static Action<ISession> SendDocumentToOwner(string onlineFileName,
 			Type descVarType = null, string descVarName = null, bool disableNotification = false) =>
-			(Session session) =>
+			(session) =>
 			{
 				session.BotClient.SendDocumentAsync(
 					session.BotOwner.id,
-					session.vars.GetVar<InputOnlineFile>(onlineFileName),
+					session.Vars.GetVar<InputOnlineFile>(onlineFileName),
 					(descVarType == null || descVarName == null) ? null :
-					(session.vars.TryGetVar(descVarType, descVarName, out object description) ?
+					(session.Vars.TryGetVar(descVarType, descVarName, out object description) ?
 					description.ToString(session.BotOwner.Session) : null),
 					disableNotification: disableNotification);
 			};
 
-		public static Action<Session> SendOrder(IOrdersSendable sendable, int statusGroupID,
-			Func<Session, UniversalOrderContainer> contFunc) =>
-			(Session session) =>
+		public static Action<ISession> SendOrder(IOrdersSendable sendable, int statusGroupID,
+			Func<ISession, UniversalOrderContainer> contFunc) =>
+			(session) =>
 			{
 				sendable.SendOrder(session, contFunc?.Invoke(session), statusGroupID);
 			};
 
-		public static Action<Session> SendNotificationToOwner(bool disableNotification = false, bool writeUser = true,
-			string separator = "\n", Func<Session, MetaInlineKeyboardMarkup> keyboardCreator = null, params (Type varType, string varName)[] variables)
+		public static Action<ISession> SendNotificationToOwner(bool disableNotification = false, bool writeUser = true,
+			string separator = "\n", Func<ISession, MetaInlineKeyboardMarkup> keyboardCreator = null, params (Type varType, string varName)[] variables)
 		{
 			List<string> files = new List<string>();
 			var notFiles = new List<(Type type, string name)>();
@@ -93,7 +93,7 @@ namespace LogicalCore
 
 			if (files.Count > 0)
 			{
-				return async (Session session) =>
+				return async (session) =>
 				{
 					bool needSendToOwner = session.BotOwner != null;
 
@@ -101,7 +101,7 @@ namespace LogicalCore
 
 					foreach (var (type, name) in notFiles)
 					{
-						var variable = session.vars.GetVar(type, name);
+						var variable = session.Vars.GetVar(type, name);
 						if (variable != null)
 						{
 							messageBuilder.Append(variable.ToString(session.BotOwner.Session));
@@ -123,7 +123,7 @@ namespace LogicalCore
 
 					foreach (var fileName in files)
 					{
-						var file = session.vars.GetVar<InputOnlineFile>(fileName);
+						var file = session.Vars.GetVar<InputOnlineFile>(fileName);
 						if(file != null)
 						{
 							if(needSendToOwner)
@@ -142,7 +142,7 @@ namespace LogicalCore
 			}
 			else
 			{
-				return async (Session session) =>
+				return async (session) =>
 				{
 					bool needSendToOwner = session.BotOwner != null;
 
@@ -150,7 +150,7 @@ namespace LogicalCore
 
 					foreach (var (type, name) in notFiles)
 					{
-						var variable = session.vars.GetVar(type, name);
+						var variable = session.Vars.GetVar(type, name);
 						if(variable != null)
 						{
 							messageBuilder.Append(variable.ToString(session.BotOwner.Session));

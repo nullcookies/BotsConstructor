@@ -9,7 +9,7 @@ namespace LogicalCore
 {
 	public static class SessionMetaKeyboardCreator
 	{
-		public static Func<Session, MetaInlineKeyboardMarkup> OwnerAnswerToUser(List<int> buttonsInRows = null, string deleteButtonName = null, params (string button, MetaText answer)[] tuples)
+		public static Func<ISession, MetaInlineKeyboardMarkup> OwnerAnswerToUser(List<int> buttonsInRows = null, string deleteButtonName = null, params (string button, MetaText answer)[] tuples)
 		{
 			bool firstTime = true;
 
@@ -59,7 +59,7 @@ namespace LogicalCore
 				}
 			}
 
-			return (Session session) =>
+			return (session) =>
 			{
 				if (firstTime)
 				{
@@ -81,7 +81,7 @@ namespace LogicalCore
 								}
 								else
 								{
-									text = $"[{text.Substring(0, firstLineIndex)}](tg://user?Id={userSession.telegramId})\n{text.Substring(firstLineIndex + 1)}";
+									text = $"[{text.Substring(0, firstLineIndex)}](tg://user?Id={userSession.TelegramId})\n{text.Substring(firstLineIndex + 1)}";
 								}
 
 								text = text.Substring(0, text.LastIndexOf('\n') + 1); // удаляем последнюю строку статуса
@@ -93,25 +93,25 @@ namespace LogicalCore
 												text,
 												ParseMode.Markdown,
 												disableWebPagePreview: true,
-												replyMarkup: GetMarkup(userSession.telegramId));
+												replyMarkup: GetMarkup(userSession.TelegramId));
 
 								string answerMsg = answer.ToString(userSession);
 
 								if (!string.IsNullOrWhiteSpace(answerMsg))
 								{
-									userSession.BotClient.SendTextMessageAsync(userSession.telegramId, answerMsg);
+									userSession.BotClient.SendTextMessageAsync(userSession.TelegramId, answerMsg);
 								}
 							});
 					}
 
 					if (deleteButtonName != null)
 					{
-						void deleteMsg(Session userSession) =>
+						void deleteMsg(ISession userSession) =>
 						 userSession.BotClient.DeleteMessageAsync(
 							 userSession.BotOwner.Session.LastCallback.Message.Chat.Id,
 							 userSession.BotOwner.Session.LastCallback.Message.MessageId);
 
-						if(session.BotOwner.actions.TryGetValue(deleteButtonName, out Action<Session> currentAction))
+						if(session.BotOwner.actions.TryGetValue(deleteButtonName, out Action<ISession> currentAction))
 						{
 							session.BotOwner.actions[deleteButtonName] = SessionActionsCreator.JoinActions(currentAction, deleteMsg);
 						}
@@ -124,12 +124,12 @@ namespace LogicalCore
 					firstTime = false;
 				}
 
-				var keyboard = new List<List<(InlineKeyboardButton button, List<Predicate<Session>> rules)>>(baseKeyboard.Count);
+				var keyboard = new List<List<(InlineKeyboardButton button, List<Predicate<ISession>> rules)>>(baseKeyboard.Count);
 
 				int index = 0;
-				foreach (var btnRow in GetMarkup(session.telegramId).InlineKeyboard)
+				foreach (var btnRow in GetMarkup(session.TelegramId).InlineKeyboard)
 				{
-					keyboard.Add(new List<(InlineKeyboardButton button, List<Predicate<Session>> rules)>());
+					keyboard.Add(new List<(InlineKeyboardButton button, List<Predicate<ISession>> rules)>());
 					foreach(var btn in btnRow)
 					{
 						keyboard[index].Add((btn, null));

@@ -39,7 +39,7 @@ namespace LogicalCore
 			}
         }
 
-        public override async Task<Message> SendMessage(Session session)
+        public override async Task<Message> SendMessage(ISession session)
         {
             Task<Message> task = base.SendMessage(session);
             return await task.ContinueWith((prevTask) =>
@@ -50,7 +50,7 @@ namespace LogicalCore
             TaskContinuationOptions.NotOnFaulted);
         }
         
-        private async void SendBlock(Session session, bool goForward = true)
+        private async void SendBlock(ISession session, bool goForward = true)
         {
             GetStartFinish(session, goForward, out int start, out int finish);
 
@@ -62,8 +62,8 @@ namespace LogicalCore
             }
         }
 
-        protected override void SendNext(Session session, Message divisionMessage = null) => SendBlock(session, true);
+        protected override void SendNext(ISession session, Message divisionMessage = null) => SendBlock(session, true);
 
-        protected override void SendPrevious(Session session, Message divisionMessage = null) => SendBlock(session, false);
+        protected override void SendPrevious(ISession session, Message divisionMessage = null) => SendBlock(session, false);
     }
 }

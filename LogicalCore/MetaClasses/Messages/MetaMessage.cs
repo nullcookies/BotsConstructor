@@ -10,7 +10,7 @@ namespace LogicalCore
     public class MetaMessage : MetaMessage<IMetaReplyMarkup>
     {
         public MetaMessage(
-            ISessionTranslatable metaText = null,
+            ITranslatable metaText = null,
             MessageType messageType = MessageType.Text,
             InputOnlineFile messageFile = null,
             IMetaReplyMarkup messageKeyboard = null,
@@ -29,7 +29,7 @@ namespace LogicalCore
     public class MetaInlineMessage : MetaMessage<MetaInlineKeyboardMarkup>
     {
         public MetaInlineMessage(
-            ISessionTranslatable metaText = null,
+            ITranslatable metaText = null,
             MessageType messageType = MessageType.Text,
             InputOnlineFile messageFile = null,
             MetaInlineKeyboardMarkup messageKeyboard = null,
@@ -48,7 +48,7 @@ namespace LogicalCore
     public class MetaReplyMessage : MetaMessage<MetaReplyKeyboardMarkup>
     {
         public MetaReplyMessage(
-            ISessionTranslatable metaText = null,
+            ITranslatable metaText = null,
             MessageType messageType = MessageType.Text,
             InputOnlineFile messageFile = null,
             MetaReplyKeyboardMarkup messageKeyboard = null,
@@ -67,7 +67,7 @@ namespace LogicalCore
     public class MetaMessage<KeyboardType> : IMetaMessage<KeyboardType>, IMetaMessage where KeyboardType : class, IMetaReplyMarkup
     {
         public MessageType MessageType { get; }
-        public ISessionTranslatable Text { get; }
+        public ITranslatable Text { get; }
         public InputOnlineFile File { get; private set; }
         public KeyboardType MetaKeyboard { get; protected set; }
         IMetaReplyMarkup IMetaMessage.MetaKeyboard => MetaKeyboard;
@@ -76,7 +76,7 @@ namespace LogicalCore
         public readonly ParseMode parseMode;
 
         public MetaMessage(
-            ISessionTranslatable metaText = null,
+            ITranslatable metaText = null,
             MessageType messageType = MessageType.Text,
             InputOnlineFile messageFile = null,
             KeyboardType messageKeyboard = null,
@@ -98,7 +98,7 @@ namespace LogicalCore
         /// </summary>
         /// <param name="node">Узел, для которого необходимо добавить кнопку.</param>
         /// <param name="rules">Список правил, при выполнении которых кнопка должна быть показана.</param>
-        public void AddNodeButton(ITreeNode node, params Predicate<Session>[] rules) => MetaKeyboard.AddNodeButton(node, rules);
+        public void AddNodeButton(ITreeNode node, params Predicate<ISession>[] rules) => MetaKeyboard.AddNodeButton(node, rules);
 
         /// <summary>
         /// Добавляет кнопку для узла в указанную строку.
@@ -106,7 +106,7 @@ namespace LogicalCore
         /// <param name="rowNumber">Строка, в которую необходимо добавить кнопку.</param>
         /// <param name="node">Узел, для которого необходимо добавить кнопку.</param>
         /// <param name="rules">Список правил, при выполнении которых кнопка должна быть показана.</param>
-        public void AddNodeButton(int rowNumber, ITreeNode node, params Predicate<Session>[] rules) => MetaKeyboard.AddNodeButton(rowNumber, node, rules);
+        public void AddNodeButton(int rowNumber, ITreeNode node, params Predicate<ISession>[] rules) => MetaKeyboard.AddNodeButton(rowNumber, node, rules);
 
         /// <summary>
         /// Вставляет кнопку "Назад" в указанное место.
@@ -149,7 +149,7 @@ namespace LogicalCore
         /// </summary>
         /// <param name="session">Сессия, для которой нужно сделать перевод и отправку сообщения.</param>
         /// <returns>Возвращает Task<Message> с отправкой сообщения.</returns>
-        public async Task<Message> SendMessage(Session session)
+        public async Task<Message> SendMessage(ISession session)
         {
             Task<Message> sendingTask = null;
             switch (MessageType)
@@ -158,14 +158,14 @@ namespace LogicalCore
                 //    break;
                 case MessageType.Text:
                     sendingTask = session.BotClient.SendTextMessageAsync(
-                        session.telegramId,
+                        session.TelegramId,
                         Text.ToString(session),
                         parseMode,
                         replyMarkup: MetaKeyboard?.Translate(session));
                     break;
                 case MessageType.Photo:
                     sendingTask = session.BotClient.SendPhotoAsync(
-                        session.telegramId,
+                        session.TelegramId,
                         File,
                         Text.ToString(session),
                         parseMode,
@@ -174,7 +174,7 @@ namespace LogicalCore
                     break;
                 case MessageType.Audio:
                     sendingTask = session.BotClient.SendAudioAsync(
-                        session.telegramId,
+                        session.TelegramId,
                         File,
                         Text.ToString(session),
                         parseMode,
@@ -183,7 +183,7 @@ namespace LogicalCore
                     break;
                 case MessageType.Video:
                     sendingTask = session.BotClient.SendVideoAsync(
-                        session.telegramId,
+                        session.TelegramId,
                         File,
                         caption: Text.ToString(session),
                         parseMode: parseMode,
@@ -192,7 +192,7 @@ namespace LogicalCore
                     break;
                 case MessageType.Voice:
                     sendingTask = session.BotClient.SendVoiceAsync(
-                        session.telegramId,
+                        session.TelegramId,
                         File,
                         Text.ToString(session),
                         parseMode,
@@ -201,7 +201,7 @@ namespace LogicalCore
                     break;
                 case MessageType.Document:
                     sendingTask = session.BotClient.SendDocumentAsync(
-                        session.telegramId,
+                        session.TelegramId,
                         File,
                         Text.ToString(session),
                         parseMode,
@@ -210,7 +210,7 @@ namespace LogicalCore
                     break;
                 case MessageType.Sticker:
                     sendingTask = session.BotClient.SendStickerAsync(
-                        session.telegramId,
+                        session.TelegramId,
                         File,
                         replyMarkup: MetaKeyboard?.Translate(session));
                     FileIdSaving((await sendingTask).Sticker);

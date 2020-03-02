@@ -23,7 +23,7 @@ namespace LogicalCore.TreeNodes
 			Children = TailNode.Children;
 		}
 
-		public override void AddChildWithButtonRules(ITreeNode child, params Predicate<Session>[] rules) =>
+		public override void AddChildWithButtonRules(ITreeNode child, params Predicate<ISession>[] rules) =>
 			throw new NotSupportedException("У узлов действий не должно быть правил для перехода.");
 
 		protected override void AddChild(ITreeNode child)

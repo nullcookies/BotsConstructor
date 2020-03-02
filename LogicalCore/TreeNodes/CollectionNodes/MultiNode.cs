@@ -50,7 +50,7 @@ namespace LogicalCore
 			this(name, elements, description == null ? null : new MetaDoubleKeyboardedMessage(description),
 				pageSize, needBack, flipperArrows, useGlobalCallbacks) { }
 
-		public override async Task<Message> SendPage(Session session, Message divisionMessage, int pageNumber = 0)
+		public override async Task<Message> SendPage(ISession session, Message divisionMessage, int pageNumber = 0)
 		{
 			if (divisionMessage == null) return await SendMessage(session);
 
@@ -59,7 +59,7 @@ namespace LogicalCore
 			return await EditMessage(session, divisionMessage, pageNumber);
 		}
 
-		protected override async void SendPageBySessionInfo(Session session, bool goForward, Message divisionMessage)
+		protected override async void SendPageBySessionInfo(ISession session, bool goForward, Message divisionMessage)
 		{
 			if (divisionMessage == null)
 			{
@@ -106,10 +106,10 @@ namespace LogicalCore
 			if (finish > sections.Length) finish = sections.Length;
 		}
 
-		protected override async Task<Message> EditMessage(Session session, Message divisionMessage, int page)
+		protected override async Task<Message> EditMessage(ISession session, Message divisionMessage, int page)
 		{
 			return await session.BotClient.EditMessageTextAsync(
-				session.telegramId,
+				session.TelegramId,
 				divisionMessage.MessageId,
 				GetText(session, page),
 				Telegram.Bot.Types.Enums.ParseMode.Default,
@@ -117,7 +117,7 @@ namespace LogicalCore
 				GetInlineMarkup(session, page));
 		}
 
-		protected override void AddSpecialRow(Session session, int page, List<List<InlineKeyboardButton>> inlineKeyboardButtons)
+		protected override void AddSpecialRow(ISession session, int page, List<List<InlineKeyboardButton>> inlineKeyboardButtons)
 		{
             ITreeNode child = Children[page % Children.Count];
 
@@ -127,7 +127,7 @@ namespace LogicalCore
 			{ InlineKeyboardButton.WithCallbackData(nameFunc(session, child.Name), ButtonIdManager.GetInlineButtonId(child)) });
 		}
 
-		private string GetText(Session session, int page)
+		private string GetText(ISession session, int page)
 		{
 			MetaText metaText = new MetaText();
 
@@ -152,7 +152,7 @@ namespace LogicalCore
 			return metaText.ToString(session);
 		}
 
-		protected override void FillInlineButtons(Session session, List<List<InlineKeyboardButton>> buttons, int from, int to)
+		protected override void FillInlineButtons(ISession session, List<List<InlineKeyboardButton>> buttons, int from, int to)
 		{
 			int index = 0;
 			foreach (var row in (message as IMetaMessage<MetaInlineKeyboardMarkup>)?.
@@ -167,7 +167,7 @@ namespace LogicalCore
 			}
 		}
 
-		protected List<InlineKeyboardButton> GetRowForSection(Session session, int section)
+		protected List<InlineKeyboardButton> GetRowForSection(ISession session, int section)
 		{
 			int currentPage = session.BlockNodePosition;
 			var (sectionSize, sectionIncrement, sectionCount) = sections[section];

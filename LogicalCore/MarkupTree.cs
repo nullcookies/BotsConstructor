@@ -46,7 +46,7 @@ namespace LogicalCore
             }
 		}
 
-		public void AddEdge(ITreeNode parent, ITreeNode child, params Predicate<Session>[] rules)
+		public void AddEdge(ITreeNode parent, ITreeNode child, params Predicate<ISession>[] rules)
         {
             if (parent != child)
             {

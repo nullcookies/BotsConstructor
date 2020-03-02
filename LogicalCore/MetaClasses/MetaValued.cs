@@ -7,7 +7,7 @@ namespace LogicalCore
 	/// Структура для хранения метатекста со специальным значением и единицей измерения.
 	/// </summary>
 	/// <typeparam name="T">Тип хранимого непереводимого значения.</typeparam>
-	public struct MetaValued<T> : ISessionTranslatable
+	public struct MetaValued<T> : ITranslatable
     {
 		public int? ID { get; } // ID может и не быть
         public MetaText Text { get; }
@@ -49,7 +49,7 @@ namespace LogicalCore
             return result;
         }
 
-        public string ToString(Session session)
+        public string ToString(ITranslator session)
         {
             string result = Text.ToString(session);
 

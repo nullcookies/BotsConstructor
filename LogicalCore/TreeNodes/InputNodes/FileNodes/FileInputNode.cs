@@ -14,7 +14,7 @@ namespace LogicalCore
             string description, bool required = true, bool needBack = true)
             : this(name, varName, converter, new MetaMessage(description ?? name), required, needBack) { }
 
-		protected override bool TryGoToChild(Session session, Message message)
+		protected override bool TryGoToChild(ISession session, Message message)
 		{
 			var child = Children[0];
 			if (KeyboardActionsManager.CheckNeeding(this.message.MetaKeyboard?.CanShowButton(child.Name, session) ?? false,
@@ -26,7 +26,7 @@ namespace LogicalCore
 			else
 			{
 				return false;
-				//#region Тестирование типов файлов
+				#region Тестирование типов файлов
 				//if (Converter.Invoke(message.Text, out (string FileId, string PreviewId, string Description) variable))
 				//{
 				//	switch (message.MessageType) //Просто чтобы видеть список обрабатываемых типов и для тестирования
@@ -122,12 +122,12 @@ namespace LogicalCore
 				//{
 				//	return false;
 				//}
-				//#endregion
+				#endregion
 			}
 		}
 
 		// Файл нельзя передать через Callback в этот узел
-		protected override bool TryGoToChild(Session session, CallbackQuery callbackQuerry) =>
+		protected override bool TryGoToChild(ISession session, CallbackQuery callbackQuerry) =>
 			base.TryGoToChild(session, callbackQuerry);
 	}
 }

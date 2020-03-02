@@ -9,14 +9,14 @@ namespace LogicalCore
     /// <summary>
     /// Глобальный фильтр действий, которые могут быть вызваны с любого узла.
     /// </summary>
-    public class GlobalFilter
+    public class GlobalFilter : IGlobalFilter
     {
-        private readonly Dictionary<string, Func<Session, Message, Task>> messageFuncs;
-        private readonly Dictionary<string, Func<Session, CallbackQuery, Task>> callbackFuncs;
+        private readonly Dictionary<string, Func<ISession, Message, Task>> messageFuncs;
+        private readonly Dictionary<string, Func<ISession, CallbackQuery, Task>> callbackFuncs;
 
         public GlobalFilter()
         {
-            messageFuncs = new Dictionary<string, Func<Session, Message, Task>>()
+            messageFuncs = new Dictionary<string, Func<ISession, Message, Task>>()
             {
                 {"/start", async (session, message) =>
                     {
@@ -36,7 +36,7 @@ namespace LogicalCore
                             return;
                         }
                         string containerName = command.Substring(6);
-						if(session.vars.TryGetVar(containerName, out MetaValuedContainer<decimal> container))
+						if(session.Vars.TryGetVar(containerName, out MetaValuedContainer<decimal> container))
 						{
 							await container.SendMessage(session);
 						}
@@ -48,7 +48,7 @@ namespace LogicalCore
                 }
             };
 
-            callbackFuncs = new Dictionary<string, Func<Session, CallbackQuery, Task>>()
+            callbackFuncs = new Dictionary<string, Func<ISession, CallbackQuery, Task>>()
             {
                 //Переход к узлу
                 {DefaultStrings.GoTo, async (session, callbackQuerry) =>
@@ -71,7 +71,7 @@ namespace LogicalCore
                         }
                         else
                         {
-							await session.BotClient.EditMessageTextAsync(session.telegramId, callbackQuerry.Message.MessageId, session.Translate(DefaultStrings.Error));
+							await session.BotClient.EditMessageTextAsync(session.TelegramId, callbackQuerry.Message.MessageId, session.Translate(DefaultStrings.Error));
                         }
                     }
                 },
@@ -81,15 +81,15 @@ namespace LogicalCore
                         string containerName = ButtonIdManager.GetNextSubstring(callbackQuerry.Data, DefaultStrings.Plus.Length, out int nextUnder);
                         string varHash = ButtonIdManager.GetNextSubstring(callbackQuerry.Data, nextUnder);
 
-                        if(session.vars.TryGetVar(containerName, out MetaValuedContainer<decimal> container)
+                        if(session.Vars.TryGetVar(containerName, out MetaValuedContainer<decimal> container)
                         && int.TryParse(varHash, out int varHashCode) && container.ContainsKey(varHashCode))
                         {
                             container[varHashCode]++;
-                            await container.EditMessage(session, session.telegramId, callbackQuerry.Message.MessageId);
+                            await container.EditMessage(session, session.TelegramId, callbackQuerry.Message.MessageId);
                         }
                         else
                         {
-                            await session.BotClient.EditMessageTextAsync(session.telegramId, callbackQuerry.Message.MessageId, session.Translate(DefaultStrings.Error));
+                            await session.BotClient.EditMessageTextAsync(session.TelegramId, callbackQuerry.Message.MessageId, session.Translate(DefaultStrings.Error));
                         }
                     }
                 },
@@ -99,15 +99,15 @@ namespace LogicalCore
                         string containerName = ButtonIdManager.GetNextSubstring(callbackQuerry.Data, DefaultStrings.Minus.Length, out int nextUnder);
                         string varHash = ButtonIdManager.GetNextSubstring(callbackQuerry.Data, nextUnder);
 
-                        if(session.vars.TryGetVar(containerName, out MetaValuedContainer<decimal> container)
+                        if(session.Vars.TryGetVar(containerName, out MetaValuedContainer<decimal> container)
                         && int.TryParse(varHash, out int varHashCode) && container.ContainsKey(varHashCode))
                         {
                             container[varHashCode]--;
-                            await container.EditMessage(session, session.telegramId, callbackQuerry.Message.MessageId);
+                            await container.EditMessage(session, session.TelegramId, callbackQuerry.Message.MessageId);
                         }
                         else
                         {
-                            await session.BotClient.EditMessageTextAsync(session.telegramId, callbackQuerry.Message.MessageId, session.Translate(DefaultStrings.Error));
+                            await session.BotClient.EditMessageTextAsync(session.TelegramId, callbackQuerry.Message.MessageId, session.Translate(DefaultStrings.Error));
                         }
                     }
                 },
@@ -140,9 +140,9 @@ namespace LogicalCore
             };
         }
 
-        private bool CanExecuteAction(Session session, string specialName) => session.CurrentNode.CanExecute(specialName, session);
+        private bool CanExecuteAction(ISession session, string specialName) => session.CurrentNode.CanExecute(specialName, session);
 
-        public void Filter(Session session, Message message)
+        public void Filter(ISession session, Message message)
         {
             try
             {
@@ -157,7 +157,7 @@ namespace LogicalCore
                 }
                 else
                 {
-                    session.BotClient.SendTextMessageAsync(session.telegramId, session.Translate(DefaultStrings.UnknownCommand)).Wait();
+                    session.BotClient.SendTextMessageAsync(session.TelegramId, session.Translate(DefaultStrings.UnknownCommand)).Wait();
                     session.GoToNode(session.CurrentNode);
                 }
             }
@@ -167,26 +167,26 @@ namespace LogicalCore
             }
         }
 
-        public void Filter(Session session, CallbackQuery callbackQuerry)
+        public void Filter(ISession session, CallbackQuery callbackQuery)
         {
             try
             {
-                string key = ButtonIdManager.GetActionNameFromCallbackData(callbackQuerry.Data);
+                string key = ButtonIdManager.GetActionNameFromCallbackData(callbackQuery.Data);
 
                 if (callbackFuncs.TryGetValue(key, out var func))
                 {
-                    func.Invoke(session, callbackQuerry).Wait();
+                    func.Invoke(session, callbackQuery).Wait();
                 }
                 else
                 {
-                    session.BotClient.EditMessageTextAsync(session.telegramId, callbackQuerry.Message.MessageId, session.Translate(DefaultStrings.Error)).Wait();
+                    session.BotClient.EditMessageTextAsync(session.TelegramId, callbackQuery.Message.MessageId, session.Translate(DefaultStrings.Error)).Wait();
                 }
             }
             catch (Exception)
             {
                 try
                 {
-                    session.BotClient.DeleteMessageAsync(session.telegramId, callbackQuerry.Message.MessageId).Wait();
+                    session.BotClient.DeleteMessageAsync(session.TelegramId, callbackQuery.Message.MessageId).Wait();
                     session.GoToNode(session.CurrentNode);
                 }
                 catch (Exception e)
@@ -194,7 +194,7 @@ namespace LogicalCore
                     ConsoleWriter.WriteLine("Не удалось удалить сообщение: " + e.Message, ConsoleColor.Red);
                 }
 
-                session.BotClient.SendTextMessageAsync(session.telegramId, session.Translate(DefaultStrings.UnknownCommand));
+                session.BotClient.SendTextMessageAsync(session.TelegramId, session.Translate(DefaultStrings.UnknownCommand));
             }
         }
     }

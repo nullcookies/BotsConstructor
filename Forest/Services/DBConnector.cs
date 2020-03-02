@@ -22,7 +22,7 @@ namespace Forest.Services
 			);
 		}
 
-		public async Task<bool> SendOrder(Session session, UniversalOrderContainer order, int statGroupId)
+		public async Task<bool> SendOrder(ISession session, UniversalOrderContainer order, int statGroupId)
 		{
 			if (order == null) return false;
 			bool noItems = order.Items == null || order.Items.Count == 0;
@@ -34,7 +34,7 @@ namespace Forest.Services
 			{
 				_contextDb.Orders.Add(new Order()
 				{
-					SenderId = session.telegramId,
+					SenderId = session.TelegramId,
 					SenderNickname = session.User.FirstName + " " + session.User.LastName,
 					BotId = session.BotWrapper.BotID,
 					DateTime = DateTime.UtcNow,
@@ -56,7 +56,7 @@ namespace Forest.Services
 				Inventory currentInventory = new Inventory()
 				{
 					Parent = parent,
-					SessionId = session.telegramId,
+					SessionId = session.TelegramId,
 					Items = currentOrder.Items.Select(tuple => new InventoryItem()
 					{
 						ItemId = tuple.ID,

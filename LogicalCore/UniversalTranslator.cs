@@ -9,9 +9,9 @@
 		/// <param name="variable">Переменная.</param>
 		/// <param name="session">Сессия.</param>
 		/// <returns>Возвращает переведённую строку.</returns>
-		public static string ToString<T>(this T variable, Session session)
+		public static string ToString<T>(this T variable, ITranslator session)
 		{
-			if(variable is ISessionTranslatable translatable)
+			if(variable is ITranslatable translatable)
 			{
 				return translatable.ToString(session);
 			}

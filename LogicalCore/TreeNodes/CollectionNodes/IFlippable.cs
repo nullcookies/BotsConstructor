@@ -6,6 +6,6 @@ namespace LogicalCore
     public interface IFlippable
     {
 		bool GlobalCallbacks { get; }
-		Task<Message> SendPage(Session session, Message divisionMessage, int pageNumber = 0);
+		Task<Message> SendPage(ISession session, Message divisionMessage, int pageNumber = 0);
     }
 }

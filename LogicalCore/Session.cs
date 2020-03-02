@@ -6,11 +6,11 @@ using Telegram.Bot.Types;
 
 namespace LogicalCore
 {
-	public class Session
+    public class Session : ISession
     {
-        public int telegramId;
-        public readonly VariablesContainer vars;
-		public string Me => vars.GetVar<string>("Me");
+        public int TelegramId { get; }
+        public IVariablesContainer Vars { get; }
+		public string Me => Vars.GetVar<string>("Me");
         public Func<string, string> Translate { get; private set; }
 		private string language;
 		public string Language
@@ -27,7 +27,7 @@ namespace LogicalCore
         public ITelegramBotClient BotClient => BotWrapper.BotClient;
         public IMarkupTree MarkupTree => BotWrapper.MarkupTree;
         private ITextMessagesManager TMM => BotWrapper.tmm;
-        public GlobalFilter GlobalFilter => BotWrapper.globalFilter;
+        public IGlobalFilter GlobalFilter => BotWrapper.GlobalFilter;
         private ITreeNode currentNode;
         public ITreeNode CurrentNode
         {
@@ -48,13 +48,13 @@ namespace LogicalCore
         public Session(ITreeNode node, int id, BotWrapper wrapper)
         {
             CurrentNode = node;
-            telegramId = id;
+            TelegramId = id;
             BotWrapper = wrapper;
 			Language = TMM.DefaultLanguage;
-            vars = new VariablesContainer();
-			BotWrapper.InitializeSessionVars?.Invoke(vars);
+            Vars = new VariablesContainer();
+			BotWrapper.InitializeSessionVars?.Invoke(Vars);
             User = BotClient.GetChatMemberAsync(id, id).Result.User;
-			vars.SetVar("Me", $"[{User.FirstName} {User.LastName}](tg://user?Id={User.Id})\n");
+			Vars.SetVar("Me", $"[{User.FirstName} {User.LastName}](tg://user?Id={User.Id})\n");
         }
 
        // public Session(int Id, BotWrapper botWrapper) : this(botWrapper.MarkupTree.root, Id, botWrapper) { }
@@ -66,21 +66,21 @@ namespace LogicalCore
 			{
 				ConsoleWriter.WriteLine($"Пользователь '{User.FirstName} {User.LastName}' изменил свои данные.");
 				User = message.From;
-				vars.SetVar("Me", $"[{User.FirstName} {User.LastName}](tg://user?Id={User.Id})\n");
+				Vars.SetVar("Me", $"[{User.FirstName} {User.LastName}](tg://user?Id={User.Id})\n");
 			}
             CurrentNode.TakeControl(this, message);
         }
 
-        public void TakeControl(CallbackQuery callbackQuerry)
+        public void TakeControl(CallbackQuery callbackQuery)
         {
-            LastCallback = callbackQuerry;
-			if (User != callbackQuerry.From)
+            LastCallback = callbackQuery;
+			if (User != callbackQuery.From)
 			{
 				ConsoleWriter.WriteLine($"Пользователь '{User.FirstName} {User.LastName}' изменил свои данные.");
-				User = callbackQuerry.From;
-				vars.SetVar("Me", $"[{User.FirstName} {User.LastName}](tg://user?Id={User.Id})\n");
+				User = callbackQuery.From;
+				Vars.SetVar("Me", $"[{User.FirstName} {User.LastName}](tg://user?Id={User.Id})\n");
 			}
-			CurrentNode.TakeControl(this, callbackQuerry);
+			CurrentNode.TakeControl(this, callbackQuery);
         }
 
         /// <summary>

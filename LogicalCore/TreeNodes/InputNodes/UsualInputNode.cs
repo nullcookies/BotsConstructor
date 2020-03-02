@@ -31,7 +31,7 @@ namespace LogicalCore
             string description = null, bool required = true, bool needBack = true, bool useCallbacks = false)
             : this(name, varName, converter, new MetaMessage(description ?? name), required, needBack, useCallbacks) { }
 
-        public void SetVar(Session session, T variable) => session.vars.SetVar(VarName, variable);
+        public void SetVar(ISession session, T variable) => session.Vars.SetVar(VarName, variable);
 
         //public T GetVar(Session session) => session.vars.GetVar<T>(VarName);
 
@@ -46,7 +46,7 @@ namespace LogicalCore
 
         //У инпутов переход к ребёнку выполняется только после успешного ввода данных или если инпут необязательный
 
-        protected override bool TryGoToChild(Session session, Message message)
+        protected override bool TryGoToChild(ISession session, Message message)
         {
             if(!base.TryGoToChild(session, message))
             {
@@ -68,7 +68,7 @@ namespace LogicalCore
             }
         }
 
-        protected override bool TryGoToChild(Session session, CallbackQuery callbackQuerry)
+        protected override bool TryGoToChild(ISession session, CallbackQuery callbackQuerry)
         {
             if (!base.TryGoToChild(session, callbackQuerry))
             {

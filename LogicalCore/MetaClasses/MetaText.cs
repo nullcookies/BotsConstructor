@@ -9,7 +9,7 @@ namespace LogicalCore
     /// <summary>
     /// Класс для хранения непереведённых данных и их удобного перевода.
     /// </summary>
-    public class MetaText : ISessionTranslatable, IEnumerable<string>, IEquatable<MetaText>, IClearable
+    public class MetaText : ITranslatable, IEnumerable<string>, IEquatable<MetaText>, IClearable
 	{
         private readonly Queue<string> parts;
 
@@ -111,7 +111,7 @@ namespace LogicalCore
         /// </summary>
         /// <param name="session">Сессия, язык которой необходимо использовать.</param>
         /// <returns>Возвращает переведённый текст.</returns>
-        public string ToString(Session session)
+        public string ToString(ITranslator session)
         {
             StringBuilder stringBuilder = new StringBuilder();
 
