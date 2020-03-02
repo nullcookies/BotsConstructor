@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using LogicalCore.TreeNodes;
 using Telegram.Bot.Types;
 
 namespace LogicalCore
@@ -82,7 +83,7 @@ namespace LogicalCore
         protected bool TryShowNext(Session session, CallbackQuery callbackQuerry)
         {
             if (KeyboardActionsManager.CheckNeeding(NeedNextButton, message.HaveInlineKeyboard, session, callbackQuerry, DefaultStrings.Next, () =>
-                ButtonIdManager.GetIDFromCallbackData(callbackQuerry.Data) == id))
+                ButtonIdManager.GetIDFromCallbackData(callbackQuerry.Data) == Id))
             {
                 SendNext(session, callbackQuerry.Message);
                 return true;
@@ -109,7 +110,7 @@ namespace LogicalCore
         protected bool TryShowPrevious(Session session, CallbackQuery callbackQuerry)
         {
             if (KeyboardActionsManager.CheckNeeding(NeedPreviousButton, message.HaveInlineKeyboard, session, callbackQuerry, DefaultStrings.Previous, () =>
-                ButtonIdManager.GetIDFromCallbackData(callbackQuerry.Data) == id))
+                ButtonIdManager.GetIDFromCallbackData(callbackQuerry.Data) == Id))
             {
                 SendPrevious(session, callbackQuerry.Message);
                 return true;

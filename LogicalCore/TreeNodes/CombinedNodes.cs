@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-using Telegram.Bot.Types;
 
-namespace LogicalCore
+namespace LogicalCore.TreeNodes
 {
 	/// <summary>
 	/// Некоторое количество узлов, соединённых определённым образом.
@@ -14,7 +10,7 @@ namespace LogicalCore
 		/// <summary>
 		/// Первый узел в цепи (точка входа).
 		/// </summary>
-		public Node HeadNode { get; }
+		public ITreeNode HeadNode { get; }
 		/// <summary>
 		/// Последний узел в цепи (точка выхода).
 		/// </summary>
@@ -27,17 +23,17 @@ namespace LogicalCore
 			Children = TailNode.Children;
 		}
 
-		public override void AddChildWithButtonRules(Node child, params Predicate<Session>[] rules) =>
+		public override void AddChildWithButtonRules(ITreeNode child, params Predicate<Session>[] rules) =>
 			throw new NotSupportedException("У узлов действий не должно быть правил для перехода.");
 
-		protected override void AddChild(Node child)
+		protected override void AddChild(ITreeNode child)
 		{
 			if (Children.Count > 0) throw new ArgumentException("Узел действия уже содержит один выходной узел.");
 			Children.Add(child);
 		}
 
-		public void SetPortal(Node child) => AddChild(child);
+		public void SetPortal(ITreeNode child) => AddChild(child);
 
-		public override void SetParent(Node parent) => HeadNode.SetParent(parent);
+		public override void SetParent(ITreeNode parent) => HeadNode.SetParent(parent);
 	}
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using LogicalCore.TreeNodes;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace LogicalCore
@@ -57,7 +58,7 @@ namespace LogicalCore
         /// </summary>
         /// <param name="node">Узел, для которого необходимо добавить кнопку.</param>
         /// <param name="rules">Список правил, при выполнении которых кнопка должна быть показана.</param>
-        void AddNodeButton(Node node, params Predicate<Session>[] rules);
+        void AddNodeButton(ITreeNode node, params Predicate<Session>[] rules);
 
         /// <summary>
         /// Добавляет кнопку для узла в указанную строку.
@@ -65,7 +66,7 @@ namespace LogicalCore
         /// <param name="rowNumber">Строка, в которую необходимо добавить кнопку.</param>
         /// <param name="node">Узел, для которого необходимо добавить кнопку.</param>
         /// <param name="rules">Список правил, при выполнении которых кнопка должна быть показана.</param>
-        void AddNodeButton(int rowNumber, Node node, params Predicate<Session>[] rules);
+        void AddNodeButton(int rowNumber, ITreeNode node, params Predicate<Session>[] rules);
 
         /// <summary>
         /// Вставляет кнопку для узла в указанное место.
@@ -74,7 +75,7 @@ namespace LogicalCore
         /// <param name="columnNumber">Номер столбца.</param>
         /// <param name="node">Узел, для которого необходимо добавить кнопку.</param>
         /// <param name="rules">Список правил, при выполнении которых кнопка должна быть показана.</param>
-        void InsertNodeButton(int rowNumber, int columnNumber, Node node, params Predicate<Session>[] rules);
+        void InsertNodeButton(int rowNumber, int columnNumber, ITreeNode node, params Predicate<Session>[] rules);
 
         /// <summary>
         /// Вставляет кнопку "Назад" в указанное место.
@@ -82,7 +83,7 @@ namespace LogicalCore
         /// <param name="parent">Родитель узла, для которого нужна кнопка.</param>
         /// <param name="rowNumber">Номер строки.</param>
         /// <param name="columnNumber">Номер столбца.</param>
-        void InsertBackButton(Node parent, int rowNumber = 0, int columnNumber = 0);
+        void InsertBackButton(ITreeNode parent, int rowNumber = 0, int columnNumber = 0);
 
         /// <summary>
         /// Добавляет кнопку "Дальше" в указанное место.

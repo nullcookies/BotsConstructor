@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace LogicalCore
+namespace LogicalCore.TreeNodes.TemplateNodes
 {
 	public abstract class ProductNode<T> : BranchingCombinedNodes
 	{
-		public ProductNode(Node head, List<ActionNode> tails) : base(head, tails) { }
+		public ProductNode(ITreeNode head, List<ActionNode> tails) : base(head, tails) { }
 
 		protected static List<ActionNode> CreateItemNodes(string name, string itemsContainer, List<List<string>> sections,
 			List<int> productsIds, string sessionContainer, string addedPrefix, bool useBtnName = false, string addBtnName = DefaultStrings.Add)

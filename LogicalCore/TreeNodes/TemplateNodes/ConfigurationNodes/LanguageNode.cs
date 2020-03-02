@@ -1,4 +1,4 @@
-﻿namespace LogicalCore
+﻿namespace LogicalCore.TreeNodes.TemplateNodes.ConfigurationNodes
 {
 	/// <summary>
 	/// Узел, позволяющий сменить язык сессии.

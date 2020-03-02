@@ -5,26 +5,26 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
 
-namespace LogicalCore
+namespace LogicalCore.TreeNodes
 {
-    public abstract class Node
+    public abstract class Node : ITreeNode
     {
         private static int nextID = 0;
-        public readonly int id;
-        public readonly string name;
-        public Node Parent { get; private set; }
-        public List<Node> Children { get; protected set; }
+        public int Id { get; }
+        public string Name { get; }
+        public ITreeNode Parent { get; private set; }
+        public List<ITreeNode> Children { get; protected set; }
         protected IMetaMessage message;
-		public MessageType MessageType => message.Type;
-		public MetaText Text => message.Text;
+		public MessageType MessageType => message.MessageType;
+		public ISessionTranslatable Text => message.Text;
 		public InputOnlineFile File => message.File;
 
 		public Node(string name, IMetaMessage metaMessage)
         {
-            id = nextID++; // получать из БД
+            Id = nextID++; // получать из БД
             if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
-            this.name = name;
-            Children = new List<Node>();
+            this.Name = name;
+            Children = new List<ITreeNode>();
             message = metaMessage ?? new MetaMessage(name, ". ");
         }
 
@@ -32,25 +32,27 @@ namespace LogicalCore
 
         public void SetButtonsLocation(ElementsLocation locationType) => message.MetaKeyboard.SetButtonsLocation(locationType);
 
-        public virtual void AddChildWithButtonRules(Node child, params Predicate<Session>[] rules)
+        public virtual void AddChildWithButtonRules(ITreeNode child, params Predicate<Session>[] rules)
         {
             child.SetParent(this);
             message.AddNodeButton(child, rules);
         }
 
-        protected virtual void AddChild(Node child)
+        void ITreeNode.AddChild(ITreeNode child) => AddChild(child);
+
+        protected virtual void AddChild(ITreeNode child)
         {
             Children.Add(child);
 		}
 
-		public virtual void SetParent(Node parent)
+		public virtual void SetParent(ITreeNode parent)
         {
             if (Parent != null) throw new NotSupportedException("У узла не может быть 2 родителя.");
             Parent = parent;
             parent.AddChild(this);
         }
 
-		public virtual void SetBackLink(Node parent)
+		public virtual void SetBackLink(ITreeNode parent)
 		{
 			if (Parent != null) ConsoleWriter.WriteLine("Родитель узла был заменён на иную обратную ссылку.", ConsoleColor.Yellow);
 			Parent = parent;
@@ -65,24 +67,24 @@ namespace LogicalCore
         public void InsertSpecialButton(int rowNumber, int columnNumber, string name, params Predicate<Session>[] rules) =>
             message.MetaKeyboard.InsertSpecialButton(rowNumber, columnNumber, name, rules);
 
-        internal bool CanExecute(string action, Session session) => message.MetaKeyboard.CanShowButton(action, session);
+        public bool CanExecute(string action, Session session) => message.MetaKeyboard.CanShowButton(action, session);
 
-        internal virtual async Task<Message> SendReplyMarkup(Session session) => await message.SendMessage(session);
+        public virtual async Task<Message> SendMessage(Session session) => await message.SendMessage(session);
 
-        internal void TakeControl(Session session, Message message)
+        public void TakeControl(Session session, Message message)
         {
             MandatoryActions(session, message);
 
             if (!TryFilter(session, message)) session.GlobalFilter.Filter(session, message);
         }
 
-        internal void TakeControl(Session session, CallbackQuery callbackQuerry)
+        public void TakeControl(Session session, CallbackQuery callbackQuery)
         {
-            MandatoryActions(session, callbackQuerry);
+            MandatoryActions(session, callbackQuery);
 
-            if (!TryFilter(session, callbackQuerry)) session.GlobalFilter.Filter(session, callbackQuerry);
+            if (!TryFilter(session, callbackQuery)) session.GlobalFilter.Filter(session, callbackQuery);
             //Потенциально опасное место
-            session.BotClient.AnswerCallbackQueryAsync(callbackQuerry.Id);
+            session.BotClient.AnswerCallbackQueryAsync(callbackQuery.Id);
         }
 
         //Обязательные действия, которые должны выполняться всегда при TakeControl
@@ -91,7 +93,7 @@ namespace LogicalCore
         {
             string nameOfUser = message.From.FirstName + " " + message.From.LastName;
 
-            ConsoleWriter.WriteLine($"Пользователь '{nameOfUser}' покинул узел '{name}'.", ConsoleColor.Gray);
+            ConsoleWriter.WriteLine($"Пользователь '{nameOfUser}' покинул узел '{Name}'.", ConsoleColor.Gray);
         }
 
         protected virtual void MandatoryActions(Session session, CallbackQuery callbackQuerry)

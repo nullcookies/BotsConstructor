@@ -31,7 +31,7 @@ namespace Forest.Controllers
                     botWrapper.AcceptUpdate(update);
                     if (update?.Message?.Text != null)
                     {
-                        logger.Log(LogLevel.TELEGRAM_MESSAGE, Source.FOREST, $"телеграм сообщение от ползователя с id={update?.Message?.From?.Id} text={update.Message.Text}" );
+                        logger.Log(LogLevel.TELEGRAM_MESSAGE, Source.FOREST, $"телеграм сообщение от ползователя с Id={update?.Message?.From?.Id} text={update.Message.Text}" );
                     }
                     
                 }

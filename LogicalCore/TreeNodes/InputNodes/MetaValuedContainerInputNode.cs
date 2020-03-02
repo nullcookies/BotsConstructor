@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using LogicalCore.TreeNodes;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 
@@ -21,7 +22,7 @@ namespace LogicalCore
                   pageSize, needBack, flipperArrows, useGlobalCallbacks)
         {
             VarName = varName ?? throw new ArgumentNullException(nameof(varName));
-            Children = new List<Node>(1);
+            Children = new List<ITreeNode>(1);
             if (collection.Count == 0) throw new ArgumentException(nameof(options));
 
             Dictionary<string, MetaValued<T>> callbackToValue = new Dictionary<string, MetaValued<T>>(collection.Count);
@@ -60,14 +61,14 @@ namespace LogicalCore
         private bool MoreThanZero(Session session, MetaValued<T> variable) =>
             session.vars.GetVar<MetaValuedContainer<T>>(VarName).ContainsKey(variable);
 
-        internal override Task<Message> SendReplyMarkup(Session session)
+        public override Task<Message> SendMessage(Session session)
         {
             if (!session.vars.TryGetVar<MetaValuedContainer<T>>(VarName, out var container) || container == null)
                 SetVar(session, new MetaValuedContainer<T>(VarName));
-            return base.SendReplyMarkup(session);
+            return base.SendMessage(session);
         }
 
-        protected override void AddChild(Node child)
+        protected override void AddChild(ITreeNode child)
         {
             if (Children.Count > 0) throw new NotImplementedException("Input может иметь только одного ребёнка.");
             base.AddChild(child);

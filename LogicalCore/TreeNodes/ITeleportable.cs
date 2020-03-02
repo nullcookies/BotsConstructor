@@ -1,7 +1,7 @@
-﻿namespace LogicalCore
+﻿namespace LogicalCore.TreeNodes
 {
 	public interface ITeleportable
 	{
-		void SetPortal(Node child);
+		void SetPortal(ITreeNode child);
 	}
 }

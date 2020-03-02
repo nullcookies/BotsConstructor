@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Telegram.Bot.Types;
 
-namespace LogicalCore
+namespace LogicalCore.TreeNodes
 {
     /// <summary>
     /// Нормальный узел, на который выполняется переход.
@@ -17,22 +17,22 @@ namespace LogicalCore
 
         public NormalNode(string name, string description, bool needBack) : this(name, new MetaMessage(description), needBack) { }
 
-        public override void SetParent(Node parent)
+        public override void SetParent(ITreeNode parent)
         {
             base.SetParent(parent);
             if (needBackButton) message.InsertBackButton(parent);
         }
 
-		public override void SetBackLink(Node parent)
+		public override void SetBackLink(ITreeNode parent)
 		{
 			bool needAddBack = needBackButton && Parent == null && parent != null;
 			base.SetBackLink(parent);
 			if (needAddBack) message.InsertBackButton(parent);
 		}
 
-		internal override async Task<Message> SendReplyMarkup(Session session)
+		public override async Task<Message> SendMessage(Session session)
         {
-            Task<Message> task = base.SendReplyMarkup(session);
+            Task<Message> task = base.SendMessage(session);
             return await task.ContinueWith((prevTask) =>
             {
                 session.CurrentNode = this;
@@ -57,7 +57,7 @@ namespace LogicalCore
         protected bool TryGoBack(Session session, CallbackQuery callbackQuerry)
         {
             if (KeyboardActionsManager.CheckNeeding(needBackButton, message.HaveInlineKeyboard, session, callbackQuerry, DefaultStrings.Back, () =>
-                ButtonIdManager.GetIDFromCallbackData(callbackQuerry.Data) == Parent.id))
+                ButtonIdManager.GetIDFromCallbackData(callbackQuerry.Data) == Parent.Id))
             {
                 session.GoToNode(Parent);
                 return true;
@@ -68,14 +68,14 @@ namespace LogicalCore
             }
         }
 
-        protected virtual void GoToChildNode(Session session, Node child) => session.GoToNode(child);
+        protected virtual void GoToChildNode(Session session, ITreeNode child) => session.GoToNode(child);
 
         protected virtual bool TryGoToChild(Session session, Message message)
         {
-            foreach (Node child in Children)
+            foreach (var child in Children)
             {
-                if (KeyboardActionsManager.CheckNeeding(this.message.MetaKeyboard?.CanShowButton(child.name, session) ?? false,
-                    this.message.HaveReplyKeyboard, session, message, child.name))
+                if (KeyboardActionsManager.CheckNeeding(this.message.MetaKeyboard?.CanShowButton(child.Name, session) ?? false,
+                    this.message.HaveReplyKeyboard, session, message, child.Name))
                 {
                     GoToChildNode(session, child);
                     return true;
@@ -88,9 +88,9 @@ namespace LogicalCore
         protected virtual bool TryGoToChild(Session session, CallbackQuery callbackQuerry)
         {
             int childID = ButtonIdManager.GetIDFromCallbackData(callbackQuerry.Data);
-            if (Children.Find((node) => node.id == childID) is Node child &&
-                KeyboardActionsManager.CheckNeeding(message.MetaKeyboard?.CanShowButton(child.name, session) ?? false,
-                    message.HaveInlineKeyboard, session, callbackQuerry, child.name))
+            if (Children.Find((node) => node.Id == childID) is Node child &&
+                KeyboardActionsManager.CheckNeeding(message.MetaKeyboard?.CanShowButton(child.Name, session) ?? false,
+                    message.HaveInlineKeyboard, session, callbackQuerry, child.Name))
             {
                 GoToChildNode(session, child);
                 return true;

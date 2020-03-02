@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using LogicalCore.TreeNodes;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace LogicalCore
@@ -26,26 +27,26 @@ namespace LogicalCore
 			return new MetaInlineKeyboardMarkup(newButtons);
 		}
 
-		public override void AddNodeButton(Node node, params Predicate<Session>[] rules)
+		public override void AddNodeButton(ITreeNode node, params Predicate<Session>[] rules)
         {
-            var (button, rulesList) = buttons.SelectMany((list) => list).FirstOrDefault((btnTuple) => btnTuple.button.Text == node.name);
+            var (button, rulesList) = buttons.SelectMany((list) => list).FirstOrDefault((btnTuple) => btnTuple.button.Text == node.Name);
             if(button != null)
             {
                 rulesList.AddRange(rules);
             }
             else
             {
-                AddButton(InlineKeyboardButton.WithCallbackData(node.name, ButtonIdManager.GetInlineButtonId(node)), rules);
+                AddButton(InlineKeyboardButton.WithCallbackData(node.Name, ButtonIdManager.GetInlineButtonId(node)), rules);
             }
 		}
 
-		public override void AddNodeButton(int rowNumber, Node node, params Predicate<Session>[] rules) =>
-            AddButton(rowNumber, InlineKeyboardButton.WithCallbackData(node.name, ButtonIdManager.GetInlineButtonId(node)), rules);
+		public override void AddNodeButton(int rowNumber, ITreeNode node, params Predicate<Session>[] rules) =>
+            AddButton(rowNumber, InlineKeyboardButton.WithCallbackData(node.Name, ButtonIdManager.GetInlineButtonId(node)), rules);
 
-        public override void InsertNodeButton(int rowNumber, int columnNumber, Node node, params Predicate<Session>[] rules) =>
-            InsertButton(rowNumber, columnNumber, InlineKeyboardButton.WithCallbackData(node.name, ButtonIdManager.GetInlineButtonId(node)), rules);
+        public override void InsertNodeButton(int rowNumber, int columnNumber, ITreeNode node, params Predicate<Session>[] rules) =>
+            InsertButton(rowNumber, columnNumber, InlineKeyboardButton.WithCallbackData(node.Name, ButtonIdManager.GetInlineButtonId(node)), rules);
 
-        public override void InsertBackButton(Node parent, int rowNumber = 0, int columnNumber = 0) =>
+        public override void InsertBackButton(ITreeNode parent, int rowNumber = 0, int columnNumber = 0) =>
             InsertButton(rowNumber, columnNumber, InlineKeyboardButton.WithCallbackData(DefaultStrings.Back, ButtonIdManager.GetInlineButtonId(parent)));
 
         public override void AddNextButton(int rowNumber = 1)

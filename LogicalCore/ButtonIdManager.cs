@@ -1,4 +1,6 @@
-﻿namespace LogicalCore
+﻿using LogicalCore.TreeNodes;
+
+namespace LogicalCore
 {
     internal class ButtonIdManager
     {
@@ -13,7 +15,7 @@
             return firstPart;
         }
 
-        internal static string GetInlineButtonId(Node node) => DefaultStrings.GoTo + '_' + node.id;
+        internal static string GetInlineButtonId(ITreeNode node) => DefaultStrings.GoTo + '_' + node.Id;
 
         internal static string GetNextSubstring(string data, int indexOfPrevUnderscore, out int indexOfNextUnderscore)
         {

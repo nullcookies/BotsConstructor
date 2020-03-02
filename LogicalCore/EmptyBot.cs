@@ -159,7 +159,7 @@ namespace LogicalCore
 		{
 			string logMessage = $"{ message.From.FirstName} { message.From.LastName} " +
 			   $"(nick = {message.From.Username}) " +
-			   $"(id =  {message.From.Id}) " +
+			   $"(Id =  {message.From.Id}) " +
 			   $"(message type = {message.Type.ToString()}) " +
 			   $"(date = {message.Date}): { message.Text }.";
 

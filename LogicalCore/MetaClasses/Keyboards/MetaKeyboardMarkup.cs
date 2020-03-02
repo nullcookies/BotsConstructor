@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using LogicalCore.TreeNodes;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace LogicalCore
@@ -50,13 +51,13 @@ namespace LogicalCore
 
         public abstract void InsertSpecialButton(int rowNumber, int columnNumber, string name, params Predicate<Session>[] rules);
 
-        public abstract void AddNodeButton(Node node, params Predicate<Session>[] rules);
+        public abstract void AddNodeButton(ITreeNode node, params Predicate<Session>[] rules);
 
-        public abstract void AddNodeButton(int rowNumber, Node node, params Predicate<Session>[] rules);
+        public abstract void AddNodeButton(int rowNumber, ITreeNode node, params Predicate<Session>[] rules);
 
-        public abstract void InsertNodeButton(int rowNumber, int columnNumber, Node node, params Predicate<Session>[] rules);
+        public abstract void InsertNodeButton(int rowNumber, int columnNumber, ITreeNode node, params Predicate<Session>[] rules);
 
-        public abstract void InsertBackButton(Node parent, int rowNumber = 0, int columnNumber = 0);
+        public abstract void InsertBackButton(ITreeNode parent, int rowNumber = 0, int columnNumber = 0);
 
         public abstract void AddNextButton(int rowNumber = 1);
 

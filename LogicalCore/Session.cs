@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using LogicalCore.TreeNodes;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
@@ -27,8 +28,8 @@ namespace LogicalCore
         public MegaTree MegaTree => BotWrapper.MegaTree;
         private BaseTextMessagesManager TMM => BotWrapper.tmm;
         public GlobalFilter GlobalFilter => BotWrapper.globalFilter;
-        private Node currentNode;
-        public Node CurrentNode
+        private ITreeNode currentNode;
+        public ITreeNode CurrentNode
         {
             get => currentNode;
             set
@@ -44,7 +45,7 @@ namespace LogicalCore
 
         public int BlockNodePosition { get; set; }
 
-        public Session(Node node, int id, BotWrapper wrapper)
+        public Session(ITreeNode node, int id, BotWrapper wrapper)
         {
             CurrentNode = node;
             telegramId = id;
@@ -53,10 +54,10 @@ namespace LogicalCore
             vars = new VariablesContainer();
 			BotWrapper.InitializeSessionVars?.Invoke(vars);
             User = BotClient.GetChatMemberAsync(id, id).Result.User;
-			vars.SetVar("Me", $"[{User.FirstName} {User.LastName}](tg://user?id={User.Id})\n");
+			vars.SetVar("Me", $"[{User.FirstName} {User.LastName}](tg://user?Id={User.Id})\n");
         }
 
-       // public Session(int id, BotWrapper botWrapper) : this(botWrapper.MegaTree.root, id, botWrapper) { }
+       // public Session(int Id, BotWrapper botWrapper) : this(botWrapper.MegaTree.root, Id, botWrapper) { }
 
         public void TakeControl(Message message)
         {
@@ -65,7 +66,7 @@ namespace LogicalCore
 			{
 				ConsoleWriter.WriteLine($"Пользователь '{User.FirstName} {User.LastName}' изменил свои данные.");
 				User = message.From;
-				vars.SetVar("Me", $"[{User.FirstName} {User.LastName}](tg://user?id={User.Id})\n");
+				vars.SetVar("Me", $"[{User.FirstName} {User.LastName}](tg://user?Id={User.Id})\n");
 			}
             CurrentNode.TakeControl(this, message);
         }
@@ -77,7 +78,7 @@ namespace LogicalCore
 			{
 				ConsoleWriter.WriteLine($"Пользователь '{User.FirstName} {User.LastName}' изменил свои данные.");
 				User = callbackQuerry.From;
-				vars.SetVar("Me", $"[{User.FirstName} {User.LastName}](tg://user?id={User.Id})\n");
+				vars.SetVar("Me", $"[{User.FirstName} {User.LastName}](tg://user?Id={User.Id})\n");
 			}
 			CurrentNode.TakeControl(this, callbackQuerry);
         }
@@ -86,14 +87,14 @@ namespace LogicalCore
         /// Позволяет отправить разметку узла текущей сессии и перейти на него, если это возможно.
         /// </summary>
         /// <param name="node">Узел, показ которого необходимо выполнить.</param>
-        public async void GoToNode(Node node) => await node.SendReplyMarkup(this);
+        public async void GoToNode(ISendingMessage node) => await node.SendMessage(this);
 
         /// <summary>
         /// Позволяет отправить разметку узла текущей сессии и перейти на него, если это возможно.
         /// </summary>
         /// <param name="node">Узел, показ которого необходимо выполнить.</param>
         /// <param name="msgTask">Task отправки сообщения.</param>
-        public void GoToNode(Node node, out Task<Message> msgTask) => msgTask = node.SendReplyMarkup(this);
+        public void GoToNode(ISendingMessage node, out Task<Message> msgTask) => msgTask = node.SendMessage(this);
 
         public string Retranslate(string text) => TMM.GetKeyFromTextIfExists(text);
 

@@ -1,4 +1,4 @@
-﻿namespace LogicalCore
+﻿namespace LogicalCore.TreeNodes
 {
     /// <summary>
     /// Обычный узел с разметкой.
@@ -9,7 +9,7 @@
 
         public SimpleNode(string name, string description, bool needBack = true) : this(name, new MetaMessage(description), needBack) { }
 
-        protected override void AddChild(Node child)
+        protected override void AddChild(ITreeNode child)
         {
             base.AddChild(child);
             message.AddNodeButton(child);

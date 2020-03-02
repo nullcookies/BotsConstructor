@@ -1,4 +1,5 @@
 ﻿using System;
+using LogicalCore.TreeNodes;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
 
@@ -8,7 +9,7 @@ namespace LogicalCore
 	/// Интерфейс метасообщений с метаклавиатурой определённого типа.
 	/// </summary>
 	/// <typeparam name="KeyboardType">Тип метаклавиатуры.</typeparam>
-	public interface IMetaMessage<KeyboardType> : IMetaMessage where KeyboardType : class, IMetaReplyMarkup
+	public interface IMetaMessage<out KeyboardType> : IMetaMessage where KeyboardType : class, IMetaReplyMarkup
     {
 		/// <summary>
 		/// Метаклавиатура указанного типа.
@@ -19,20 +20,8 @@ namespace LogicalCore
 	/// <summary>
 	/// Интерфейс метасообщений.
 	/// </summary>
-    public interface IMetaMessage : ISendingMessage
-    {
-		/// <summary>
-		/// Тип сообщения.
-		/// </summary>
-		MessageType Type { get; }
-		/// <summary>
-		/// Метатекст сообщения.
-		/// </summary>
-		MetaText Text { get; }
-		/// <summary>
-		/// Файл сообщения.
-		/// </summary>
-		InputOnlineFile File { get; }
+    public interface IMetaMessage : IWithTextAndFile, ISendingMessage
+	{
 		/// <summary>
 		/// Метаклавиатура.
 		/// </summary>
@@ -51,7 +40,7 @@ namespace LogicalCore
 		/// </summary>
 		/// <param name="node">Узел, для которого необходимо добавить кнопку.</param>
 		/// <param name="rules">Список правил, при выполнении которых кнопка должна быть показана.</param>
-		void AddNodeButton(Node node, params Predicate<Session>[] rules);
+		void AddNodeButton(ITreeNode node, params Predicate<Session>[] rules);
 
 		/// <summary>
 		/// Добавляет кнопку для узла в указанную строку.
@@ -59,7 +48,7 @@ namespace LogicalCore
 		/// <param name="rowNumber">Строка, в которую необходимо добавить кнопку.</param>
 		/// <param name="node">Узел, для которого необходимо добавить кнопку.</param>
 		/// <param name="rules">Список правил, при выполнении которых кнопка должна быть показана.</param>
-		void AddNodeButton(int rowNumber, Node node, params Predicate<Session>[] rules);
+		void AddNodeButton(int rowNumber, ITreeNode node, params Predicate<Session>[] rules);
 
 		/// <summary>
 		/// Вставляет кнопку "Назад" в указанное место.
@@ -67,7 +56,7 @@ namespace LogicalCore
 		/// <param name="parent">Родитель узла, для которого нужна кнопка.</param>
 		/// <param name="rowNumber">Номер строки.</param>
 		/// <param name="columnNumber">Номер столбца.</param>
-		void InsertBackButton(Node parent, int rowNumber = 0, int columnNumber = 0);
+		void InsertBackButton(ITreeNode parent, int rowNumber = 0, int columnNumber = 0);
 
 		/// <summary>
 		/// Добавляет кнопку "Дальше" в указанное место.
@@ -81,5 +70,24 @@ namespace LogicalCore
 		/// <param name="rowNumber">Номер строки.</param>
 		/// <param name="columnNumber">Номер столбца.</param>
 		void InsertPreviousButton(int rowNumber = 1, int columnNumber = 0);
+	}
+
+    /// <summary>
+    /// Интерфейс примитивных метасообщений без клавиатуры.
+    /// </summary>
+	public interface IWithTextAndFile
+	{
+        /// <summary>
+        /// Тип сообщения.
+        /// </summary>
+        MessageType MessageType { get; }
+        /// <summary>
+        /// Метатекст сообщения.
+        /// </summary>
+        ISessionTranslatable Text { get; }
+        /// <summary>
+        /// Файл сообщения.
+        /// </summary>
+        InputOnlineFile File { get; }
 	}
 }

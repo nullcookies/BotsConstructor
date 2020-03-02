@@ -313,7 +313,7 @@ namespace LogicalCore
                 {
                     //залогировать это событие
                     Console.WriteLine("Из списка забаненых пользователей пропал" +
-                        $"пользователь с id={telegramId}");
+                        $"пользователь с Id={telegramId}");
                 }
             }
 

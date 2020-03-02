@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace LogicalCore
+namespace LogicalCore.TreeNodes.TemplateNodes
 {
 	/// <summary>
 	/// Узел, позволяющий добавить привязанный к нему элемент для сессии.

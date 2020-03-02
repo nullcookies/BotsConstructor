@@ -1,7 +1,7 @@
-﻿namespace LogicalCore
+﻿namespace LogicalCore.TreeNodes
 {
 	public interface ICombined
 	{
-		Node HeadNode { get; }
+        ITreeNode HeadNode { get; }
 	}
 }

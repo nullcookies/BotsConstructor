@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using LogicalCore.TreeNodes;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
@@ -9,7 +10,7 @@ namespace LogicalCore
     public class MetaMessage : MetaMessage<IMetaReplyMarkup>
     {
         public MetaMessage(
-            MetaText metaText = null,
+            ISessionTranslatable metaText = null,
             MessageType messageType = MessageType.Text,
             InputOnlineFile messageFile = null,
             IMetaReplyMarkup messageKeyboard = null,
@@ -28,7 +29,7 @@ namespace LogicalCore
     public class MetaInlineMessage : MetaMessage<MetaInlineKeyboardMarkup>
     {
         public MetaInlineMessage(
-            MetaText metaText = null,
+            ISessionTranslatable metaText = null,
             MessageType messageType = MessageType.Text,
             InputOnlineFile messageFile = null,
             MetaInlineKeyboardMarkup messageKeyboard = null,
@@ -47,7 +48,7 @@ namespace LogicalCore
     public class MetaReplyMessage : MetaMessage<MetaReplyKeyboardMarkup>
     {
         public MetaReplyMessage(
-            MetaText metaText = null,
+            ISessionTranslatable metaText = null,
             MessageType messageType = MessageType.Text,
             InputOnlineFile messageFile = null,
             MetaReplyKeyboardMarkup messageKeyboard = null,
@@ -65,8 +66,8 @@ namespace LogicalCore
 
     public class MetaMessage<KeyboardType> : IMetaMessage<KeyboardType>, IMetaMessage where KeyboardType : class, IMetaReplyMarkup
     {
-        public MessageType Type { get; }
-        public MetaText Text { get; }
+        public MessageType MessageType { get; }
+        public ISessionTranslatable Text { get; }
         public InputOnlineFile File { get; private set; }
         public KeyboardType MetaKeyboard { get; protected set; }
         IMetaReplyMarkup IMetaMessage.MetaKeyboard => MetaKeyboard;
@@ -75,13 +76,13 @@ namespace LogicalCore
         public readonly ParseMode parseMode;
 
         public MetaMessage(
-            MetaText metaText = null,
+            ISessionTranslatable metaText = null,
             MessageType messageType = MessageType.Text,
             InputOnlineFile messageFile = null,
             KeyboardType messageKeyboard = null,
             ParseMode parsing = ParseMode.Markdown)
         {
-            Type = messageType;
+            MessageType = messageType;
             Text = metaText ?? new MetaText();
             if (messageType != MessageType.Text && messageFile == null)
                 throw new ArgumentNullException(nameof(File), "Отсутствие файла разрешено только при MessageType.Text.");
@@ -90,14 +91,14 @@ namespace LogicalCore
             parseMode = parsing;
         }
 
-        public MetaMessage(params string[] textData) : this(metaText: textData) { }
+        public MetaMessage(params string[] textData) : this(new MetaText(textData)) { }
 
         /// <summary>
         /// Добавляет кнопку для узла.
         /// </summary>
         /// <param name="node">Узел, для которого необходимо добавить кнопку.</param>
         /// <param name="rules">Список правил, при выполнении которых кнопка должна быть показана.</param>
-        public void AddNodeButton(Node node, params Predicate<Session>[] rules) => MetaKeyboard.AddNodeButton(node, rules);
+        public void AddNodeButton(ITreeNode node, params Predicate<Session>[] rules) => MetaKeyboard.AddNodeButton(node, rules);
 
         /// <summary>
         /// Добавляет кнопку для узла в указанную строку.
@@ -105,7 +106,7 @@ namespace LogicalCore
         /// <param name="rowNumber">Строка, в которую необходимо добавить кнопку.</param>
         /// <param name="node">Узел, для которого необходимо добавить кнопку.</param>
         /// <param name="rules">Список правил, при выполнении которых кнопка должна быть показана.</param>
-        public void AddNodeButton(int rowNumber, Node node, params Predicate<Session>[] rules) => MetaKeyboard.AddNodeButton(rowNumber, node, rules);
+        public void AddNodeButton(int rowNumber, ITreeNode node, params Predicate<Session>[] rules) => MetaKeyboard.AddNodeButton(rowNumber, node, rules);
 
         /// <summary>
         /// Вставляет кнопку "Назад" в указанное место.
@@ -113,7 +114,7 @@ namespace LogicalCore
         /// <param name="parent">Родитель узла, для которого нужна кнопка.</param>
         /// <param name="rowNumber">Номер строки.</param>
         /// <param name="columnNumber">Номер столбца.</param>
-        public void InsertBackButton(Node parent, int rowNumber = 0, int columnNumber = 0)
+        public void InsertBackButton(ITreeNode parent, int rowNumber = 0, int columnNumber = 0)
             => MetaKeyboard.InsertBackButton(parent, rowNumber, columnNumber);
 
         /// <summary>
@@ -151,7 +152,7 @@ namespace LogicalCore
         public async Task<Message> SendMessage(Session session)
         {
             Task<Message> sendingTask = null;
-            switch (Type)
+            switch (MessageType)
             {
                 //case MessageType.Unknown:
                 //    break;
@@ -257,7 +258,7 @@ namespace LogicalCore
                 //case MessageType.Poll:
                 //    break;
                 default:
-                    throw new NotImplementedException($"Поддержка сообщений типа {Type} не реализована.");
+                    throw new NotImplementedException($"Поддержка сообщений типа {MessageType} не реализована.");
                     //break;
             }
 

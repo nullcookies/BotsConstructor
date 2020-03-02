@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace LogicalCore
+namespace LogicalCore.TreeNodes.TemplateNodes
 {
 	public class ProductMultiNode<T> : ProductNode<T>
 	{

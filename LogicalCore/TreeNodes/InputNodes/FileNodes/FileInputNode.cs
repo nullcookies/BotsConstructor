@@ -17,8 +17,8 @@ namespace LogicalCore
 		protected override bool TryGoToChild(Session session, Message message)
 		{
 			var child = Children[0];
-			if (KeyboardActionsManager.CheckNeeding(this.message.MetaKeyboard?.CanShowButton(child.name, session) ?? false,
-					this.message.HaveReplyKeyboard, session, message, child.name))
+			if (KeyboardActionsManager.CheckNeeding(this.message.MetaKeyboard?.CanShowButton(child.Name, session) ?? false,
+					this.message.HaveReplyKeyboard, session, message, child.Name))
 			{
 				GoToChildNode(session, child);
 				return true;
@@ -29,7 +29,7 @@ namespace LogicalCore
 				//#region Тестирование типов файлов
 				//if (Converter.Invoke(message.Text, out (string FileId, string PreviewId, string Description) variable))
 				//{
-				//	switch (message.Type) //Просто чтобы видеть список обрабатываемых типов и для тестирования
+				//	switch (message.MessageType) //Просто чтобы видеть список обрабатываемых типов и для тестирования
 				//	{
 				//		case MessageType.Unknown:
 				//			ConsoleWriter.WriteLine($"Пользователь {message.From.Username} отправил сообщение неизвестного типа.", ConsoleColor.Red);
@@ -87,7 +87,7 @@ namespace LogicalCore
 				//		//case MessageType.Venue:
 				//		//	break;
 				//		default:
-				//			ConsoleWriter.WriteLine($"Пользователь {message.From.Username} отправил сообщение неподдерживаемого типа {message.Type}.", ConsoleColor.DarkYellow);
+				//			ConsoleWriter.WriteLine($"Пользователь {message.From.Username} отправил сообщение неподдерживаемого типа {message.MessageType}.", ConsoleColor.DarkYellow);
 				//			return false;
 				//	}
 				//	//if(Memoization)

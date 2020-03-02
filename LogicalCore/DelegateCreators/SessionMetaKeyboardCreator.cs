@@ -77,11 +77,11 @@ namespace LogicalCore
 																			 // обновляем ссылку (она удаляется)
 								if (sender != null)
 								{
-									text = $"[{sender.FirstName} {sender.LastName}](tg://user?id={sender.Id})\n{text.Substring(firstLineIndex + 1)}";
+									text = $"[{sender.FirstName} {sender.LastName}](tg://user?Id={sender.Id})\n{text.Substring(firstLineIndex + 1)}";
 								}
 								else
 								{
-									text = $"[{text.Substring(0, firstLineIndex)}](tg://user?id={userSession.telegramId})\n{text.Substring(firstLineIndex + 1)}";
+									text = $"[{text.Substring(0, firstLineIndex)}](tg://user?Id={userSession.telegramId})\n{text.Substring(firstLineIndex + 1)}";
 								}
 
 								text = text.Substring(0, text.LastIndexOf('\n') + 1); // удаляем последнюю строку статуса

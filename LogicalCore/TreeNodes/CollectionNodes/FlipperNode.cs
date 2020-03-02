@@ -52,14 +52,14 @@ namespace LogicalCore
             : this(name, elements, btnNameFunc, btnCallbackFunc, description == null ? null : new MetaDoubleKeyboardedMessage(description),
                   pageSize, needBack, flipperArrows, useGlobalCallbacks) { }
 
-        internal override async Task<Message> SendReplyMarkup(Session session) =>
-            await await base.SendReplyMarkup(session).
+        public override async Task<Message> SendMessage(Session session) =>
+            await await base.SendMessage(session).
                 ContinueWith(async (prevTask) => await SendPage(session, await prevTask),
                 TaskContinuationOptions.NotOnFaulted);
 
         public virtual async Task<Message> SendPage(Session session, Message divisionMessage, int pageNumber = 0)
         {
-            if (divisionMessage == null) return await SendReplyMarkup(session);
+            if (divisionMessage == null) return await SendMessage(session);
 
             if (!GlobalCallbacks) session.BlockNodePosition = Math.Min((pageNumber + 1) * pageSize, collection.Count);
 
@@ -71,7 +71,7 @@ namespace LogicalCore
         {
             if (divisionMessage == null)
             {
-                await SendReplyMarkup(session);
+                await SendMessage(session);
                 return;
             }
 
@@ -125,13 +125,13 @@ namespace LogicalCore
 
             if(GlobalCallbacks)
             {
-                callbackDataPrevious = $"{DefaultStrings.ShowPage}_{id}_{leftPage}";
-				callbackDataNext = $"{DefaultStrings.ShowPage}_{id}_{rightPage}";
+                callbackDataPrevious = $"{DefaultStrings.ShowPage}_{Id}_{leftPage}";
+				callbackDataNext = $"{DefaultStrings.ShowPage}_{Id}_{rightPage}";
             }
             else
             {
-                callbackDataPrevious = $"{DefaultStrings.Previous}_{id}";
-                callbackDataNext = $"{DefaultStrings.Next}_{id}";
+                callbackDataPrevious = $"{DefaultStrings.Previous}_{Id}";
+                callbackDataNext = $"{DefaultStrings.Next}_{Id}";
             }
 
             InlineKeyboardButton previous = InlineKeyboardButton.WithCallbackData(session.Translate(DefaultStrings.Previous), callbackDataPrevious);

@@ -1,27 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
+using LogicalCore.TreeNodes;
 
 namespace LogicalCore
 {
 	public class MegaTree
     {
-        public readonly Node root;
+        public readonly ITreeNode root;
         
-        private readonly Dictionary<int, Node> nodeIdDict;
+        private readonly Dictionary<int, ITreeNode> nodeIdDict;
 
-        internal Node GetNodeById(int nodeId) => nodeIdDict[nodeId];
+        internal ITreeNode GetNodeById(int nodeId) => nodeIdDict[nodeId];
 
-        public MegaTree(Node nodeRoot)
+        public MegaTree(ITreeNode nodeRoot)
         {
             root = nodeRoot;
-            nodeIdDict = new Dictionary<int, Node>
+            nodeIdDict = new Dictionary<int, ITreeNode>
             {
-                { root.id, root }
+                { root.Id, root }
             };
-            ConsoleWriter.WriteLine($"К общему списку узлов добавлен корень с именем {root.name}", ConsoleColor.DarkGray);
+            ConsoleWriter.WriteLine($"К общему списку узлов добавлен корень с именем {root.Name}", ConsoleColor.DarkGray);
         }
 
-		public void AddEdge(Node parent, Node child)
+		public void AddEdge(ITreeNode parent, ITreeNode child)
         {
             if (parent != child)
             {
@@ -36,7 +37,7 @@ namespace LogicalCore
 
 				AddChildrenIfNeed(child);
 
-				ConsoleWriter.WriteLine($"К общему списку узлов добавлен узел с именем {child.name}", ConsoleColor.DarkGray);
+				ConsoleWriter.WriteLine($"К общему списку узлов добавлен узел с именем {child.Name}", ConsoleColor.DarkGray);
             }
             else
             {
@@ -45,14 +46,14 @@ namespace LogicalCore
             }
 		}
 
-		public void AddEdge(Node parent, Node child, params Predicate<Session>[] rules)
+		public void AddEdge(ITreeNode parent, ITreeNode child, params Predicate<Session>[] rules)
         {
             if (parent != child)
             {
                 parent.AddChildWithButtonRules(child, rules);
 				AddChildrenIfNeed(child);
 
-                ConsoleWriter.WriteLine($"К общему списку узлов добавлен узел с именем {child.name}", ConsoleColor.DarkGray);
+                ConsoleWriter.WriteLine($"К общему списку узлов добавлен узел с именем {child.Name}", ConsoleColor.DarkGray);
             }
             else
             {
@@ -61,23 +62,23 @@ namespace LogicalCore
             }
 		}
 
-		private void AddChildrenIfNeed(Node node)
+		private void AddChildrenIfNeed(ITreeNode node)
 		{
 			if(node is ICombined combined)
 			{
 				node = combined.HeadNode;
 			}
 
-			if (!nodeIdDict.TryAdd(node.id, node))
+			if (!nodeIdDict.TryAdd(node.Id, node))
 			{
-				ConsoleWriter.WriteLine($"Узел {node.name} с ID {node.id} встречается в дереве несколько раз. Возможная причина - порталы.", ConsoleColor.Yellow);
+				ConsoleWriter.WriteLine($"Узел {node.Name} с ID {node.Id} встречается в дереве несколько раз. Возможная причина - порталы.", ConsoleColor.Yellow);
 			}
 
 			if(node.Children != null)
 			{
 				foreach (var child in node.Children)
 				{
-					if (!nodeIdDict.ContainsKey(child.id)) AddChildrenIfNeed(child);
+					if (!nodeIdDict.ContainsKey(child.Id)) AddChildrenIfNeed(child);
 				}
 			}
 		}

@@ -4,6 +4,8 @@ using System.Linq;
 using DataLayer;
 using Forest.Services;
 using LogicalCore;
+using LogicalCore.TreeNodes;
+using LogicalCore.TreeNodes.TemplateNodes;
 using Microsoft.AspNetCore.Mvc;
 using MyLibrary;
 using Newtonsoft.Json;
@@ -124,7 +126,7 @@ namespace Forest.Controllers
 				JArray allNodes = JsonConvert.DeserializeObject<JArray>(bot.Markup);
 
 				List<OwnerNotificationNode> ownerNotificationNodes = new List<OwnerNotificationNode>();
-				List<Node> inputNodes = new List<Node>();
+				List<ITreeNode> inputNodes = new List<ITreeNode>();
 
 				if (allNodes.Count == 0)
 				{
@@ -143,9 +145,9 @@ namespace Forest.Controllers
 				{
 					return StatusCode(403, "First node is not root node.");
 				}
-				MegaTree megaTree = new MegaTree(new SimpleNode(((string)rootParams["name"]).Trim(), GetReplyMsgFromParams(rootParams), false));
+				MegaTree megaTree = new MegaTree(new SimpleNode(((string)rootParams["Name"]).Trim(), GetReplyMsgFromParams(rootParams), false));
 				botWrapper.MegaTree = megaTree;
-				var treeNodes = new Node[allNodesCount];
+				var treeNodes = new ITreeNode[allNodesCount];
 				treeNodes[0] = megaTree.root;
 				var variablesInfo = new HashSet<(Type type, string name)>()
 				{
@@ -154,8 +156,8 @@ namespace Forest.Controllers
 				for (int i = 1; i < allNodesCount; i++)
 				{
 					var nodeParams = allNodes[i]["parameters"];
-					string nodeName = ((string)nodeParams["name"]).Trim();
-					Node node = null;
+					string nodeName = ((string)nodeParams["Name"]).Trim();
+					ITreeNode node = null;
 					switch ((NodeType)(int)nodeParams["type"])
 					{
 						case NodeType.Info:
@@ -241,17 +243,17 @@ namespace Forest.Controllers
 									case DisplayType.Simple:
 										List<MetaReplyMessage> foldersMsgs = nodeParams["properties"].Select(GetReplyMsgFromParams).ToList();
 										node = new ProductSimpleNode<decimal>(nodeName, elements, "Products", IDs, foldersMsgs, "ShoppingCart", "Добавлено: ", "Добавить", GetInlineMsgFromParams(nodeParams));
-										Node parentNode = treeNodes[(int)allNodes[i]["parentId"]];
+										var parentNode = treeNodes[(int)allNodes[i]["parentId"]];
 										if (parentNode is BlockNode)
 										{
-											Node middleNode = new LightNode(nodeName, GetInlineMsgFromParams(nodeParams));
+                                            ITreeNode middleNode = new LightNode(nodeName, GetInlineMsgFromParams(nodeParams));
 											middleNode.AddChildWithButtonRules(((ICombined)node).HeadNode);
 											((ITeleportable)node).SetPortal(parentNode);
 											node = middleNode;
 										}
 										break;
 									case DisplayType.Multi:
-										List<MetaText> foldersNames = nodeParams["properties"].Select((section) => new MetaText(((string)section["name"]).Trim())).ToList();
+										List<MetaText> foldersNames = nodeParams["properties"].Select((section) => new MetaText(((string)section["Name"]).Trim())).ToList();
 										node = new ProductMultiNode<decimal>(nodeName, elements, "Products", IDs, foldersNames, "ShoppingCart", "Добавлено: ", "Добавить", GetDoubleMsgFromParams(nodeParams));
 										break;
 									default:
@@ -320,7 +322,7 @@ namespace Forest.Controllers
 					}
 					else
 					{
-						string name = ((string)parameters["name"]).Trim();
+						string name = ((string)parameters["Name"]).Trim();
 						if (!string.IsNullOrWhiteSpace(name))
 						{
 							return new MetaText(name);
@@ -391,12 +393,12 @@ namespace Forest.Controllers
 					string fileId = (string)parameters["fileId"];
 					if (!string.IsNullOrWhiteSpace(fileId))
 					{
-						return new MetaDoubleKeyboardedMessage(metaReplyText: (string)parameters["message"], metaInlineText: ((string)parameters["name"]).Trim(),
+						return new MetaDoubleKeyboardedMessage(metaReplyText: (string)parameters["message"], metaInlineText: ((string)parameters["Name"]).Trim(),
 							useReplyMsgForFile: true, messageType: GetMessageTypeByFileId(fileId), messageFile: fileId);
 					}
 					else
 					{
-						return new MetaDoubleKeyboardedMessage(metaReplyText: (string)parameters["message"], metaInlineText: ((string)parameters["name"]).Trim());
+						return new MetaDoubleKeyboardedMessage(metaReplyText: (string)parameters["message"], metaInlineText: ((string)parameters["Name"]).Trim());
 					}
 				}
 
@@ -475,7 +477,7 @@ namespace Forest.Controllers
 			}
 		}
 		
-		bool CheckForLackOfShit(List<OwnerNotificationNode> ownerNotificationNodes, List<Node> inputNodes)
+		bool CheckForLackOfShit(List<OwnerNotificationNode> ownerNotificationNodes, List<ITreeNode> inputNodes)
 		{
 			if (inputNodes.Count > 0 )
 			{
@@ -486,7 +488,7 @@ namespace Forest.Controllers
 					case 1:
 					{
 						var notificationNode = ownerNotificationNodes[0];
-						Node current = notificationNode.Parent;
+                        ITreeNode current = notificationNode.Parent;
 						while (current != null)
 						{
 							inputNodes.Remove(current);

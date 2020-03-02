@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace LogicalCore
+namespace LogicalCore.TreeNodes
 {
 	/// <summary>
 	/// Некоторое количество узлов, соединённых определённым образом и с несколькими точками выхода.
@@ -11,13 +11,13 @@ namespace LogicalCore
 		/// <summary>
 		/// Первый узел в цепи (точка входа).
 		/// </summary>
-		public Node HeadNode { get; }
+		public ITreeNode HeadNode { get; }
 		/// <summary>
 		/// Последние узлы в цепи (точки выхода).
 		/// </summary>
 		public List<ActionNode> TailNodes { get; }
 
-		public BranchingCombinedNodes(Node head, List<ActionNode> tails) : base("<Combined>", (IMetaMessage)null)
+		public BranchingCombinedNodes(ITreeNode head, List<ActionNode> tails) : base("<Combined>", (IMetaMessage)null)
 		{
 			HeadNode = head ?? throw new ArgumentNullException(nameof(head));
 			TailNodes = tails ?? throw new ArgumentNullException(nameof(tails));
@@ -28,17 +28,17 @@ namespace LogicalCore
 			}
 		}
 
-		public override void AddChildWithButtonRules(Node child, params Predicate<Session>[] rules) =>
+		public override void AddChildWithButtonRules(ITreeNode child, params Predicate<Session>[] rules) =>
 			throw new NotSupportedException("У узлов действий не должно быть правил для перехода.");
 
-		protected override void AddChild(Node child)
+		protected override void AddChild(ITreeNode child)
 		{
 			if (Children.Count > 0) throw new ArgumentException("Узел действия уже содержит один выходной узел.");
 			Children.Add(child);
 		}
 
-		public void SetPortal(Node child) => AddChild(child);
+		public void SetPortal(ITreeNode child) => AddChild(child);
 
-		public override void SetParent(Node parent) => HeadNode.SetParent(parent);
+		public override void SetParent(ITreeNode parent) => HeadNode.SetParent(parent);
 	}
 }

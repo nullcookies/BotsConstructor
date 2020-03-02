@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using LogicalCore.TreeNodes;
 using Telegram.Bot.Types;
 
 namespace LogicalCore
@@ -53,7 +54,7 @@ namespace LogicalCore
                 {DefaultStrings.GoTo, async (session, callbackQuerry) =>
                     {
                         int nodeId = ButtonIdManager.GetIDFromCallbackData(callbackQuerry.Data);
-                        Node node = session.MegaTree.GetNodeById(nodeId);
+                        var node = session.MegaTree.GetNodeById(nodeId);
                         session.GoToNode(node, out var task);
                         await task;
                     }

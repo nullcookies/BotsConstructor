@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace LogicalCore
+namespace LogicalCore.TreeNodes
 {
     /// <summary>
     /// Лёгкий узел, на который не выполняется переход.
@@ -12,7 +12,7 @@ namespace LogicalCore
 
         public LightNode(string name, string description) : this(name, new MetaInlineMessage(description)) { }
 
-		public override void SetParent(Node parent)
+		public override void SetParent(ITreeNode parent)
 		{
 			base.SetParent(parent);
 			foreach (var child in Children)
@@ -21,7 +21,7 @@ namespace LogicalCore
 			}
 		}
 
-		public override void SetBackLink(Node parent)
+		public override void SetBackLink(ITreeNode parent)
 		{
 			base.SetBackLink(parent);
 			foreach (var child in Children)
@@ -30,14 +30,14 @@ namespace LogicalCore
 			}
 		}
 
-		protected override void AddChild(Node child)
+		protected override void AddChild(ITreeNode child)
 		{
 			Children.Add(child);
 			child.SetBackLink(Parent);
 			message.AddNodeButton(child);
 		}
 
-        public override void AddChildWithButtonRules(Node child, params Predicate<Session>[] rules)
+        public override void AddChildWithButtonRules(ITreeNode child, params Predicate<Session>[] rules)
 		{
 			Children.Add(child);
 			child.SetBackLink(Parent);

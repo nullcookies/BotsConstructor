@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace LogicalCore
+namespace LogicalCore.TreeNodes.TemplateNodes
 {
 	public class ProductSimpleNode<T> : ProductNode<T>
 	{
@@ -18,7 +18,7 @@ namespace LogicalCore
 			int itemNumber = 0;
 			RecursiveSections(HeadNode);
 
-			void RecursiveSections(Node parent, int index = 0)
+			void RecursiveSections(ITreeNode parent, int index = 0)
 			{
 				if (index < elements.Count - 1)
 				{
@@ -26,7 +26,7 @@ namespace LogicalCore
 					{
 						var foldersMsg = foldersMsgs[index + 1];
 						var clonedMsg = new MetaMessage<MetaKeyboardMarkup<Telegram.Bot.Types.ReplyMarkups.KeyboardButton>>(foldersMsg.Text,
-							foldersMsg.Type, foldersMsg.File, foldersMsg.MetaKeyboard.Clone(), foldersMsg.parseMode);
+							foldersMsg.MessageType, foldersMsg.File, foldersMsg.MetaKeyboard.Clone(), foldersMsg.parseMode);
 						SimpleNode folder = new SimpleNode(elements[index][i], clonedMsg);
 						folder.SetParent(parent);
 						RecursiveSections(folder, index + 1);
@@ -43,7 +43,7 @@ namespace LogicalCore
 			}
 		}
 
-		private static Node CreateHead(string name, MetaReplyMessage folderMsg, MetaInlineMessage previewMsg)
+		private static ITreeNode CreateHead(string name, MetaReplyMessage folderMsg, MetaInlineMessage previewMsg)
 		{
 			if(previewMsg != null && (previewMsg.Text.ToString() != name || previewMsg.File != null))
 			{

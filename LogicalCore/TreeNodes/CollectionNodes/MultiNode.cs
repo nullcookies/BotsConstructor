@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using LogicalCore.TreeNodes;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 
@@ -51,7 +52,7 @@ namespace LogicalCore
 
 		public override async Task<Message> SendPage(Session session, Message divisionMessage, int pageNumber = 0)
 		{
-			if (divisionMessage == null) return await SendReplyMarkup(session);
+			if (divisionMessage == null) return await SendMessage(session);
 
 			if (!GlobalCallbacks) session.BlockNodePosition = pageNumber;
 
@@ -62,7 +63,7 @@ namespace LogicalCore
 		{
 			if (divisionMessage == null)
 			{
-				await SendReplyMarkup(session);
+				await SendMessage(session);
 				return;
 			}
 
@@ -118,12 +119,12 @@ namespace LogicalCore
 
 		protected override void AddSpecialRow(Session session, int page, List<List<InlineKeyboardButton>> inlineKeyboardButtons)
 		{
-			Node child = Children[page % Children.Count];
+            ITreeNode child = Children[page % Children.Count];
 
 			base.AddSpecialRow(session, page, inlineKeyboardButtons);
 
 			inlineKeyboardButtons.Add(new List<InlineKeyboardButton>(1)
-			{ InlineKeyboardButton.WithCallbackData(nameFunc(session, child.name), ButtonIdManager.GetInlineButtonId(child)) });
+			{ InlineKeyboardButton.WithCallbackData(nameFunc(session, child.Name), ButtonIdManager.GetInlineButtonId(child)) });
 		}
 
 		private string GetText(Session session, int page)
@@ -189,9 +190,9 @@ namespace LogicalCore
 
 			return new List<InlineKeyboardButton>(3)
 			{
-				InlineKeyboardButton.WithCallbackData(session.Translate(DefaultStrings.Previous), $"{DefaultStrings.ShowPage}_{id}_{decreasedPage}"),
+				InlineKeyboardButton.WithCallbackData(session.Translate(DefaultStrings.Previous), $"{DefaultStrings.ShowPage}_{Id}_{decreasedPage}"),
 				InlineKeyboardButton.WithCallbackData(nameFunc(session, element), callbackFunc(element)),
-				InlineKeyboardButton.WithCallbackData(session.Translate(DefaultStrings.Next), $"{DefaultStrings.ShowPage}_{id}_{increasedPage}")
+				InlineKeyboardButton.WithCallbackData(session.Translate(DefaultStrings.Next), $"{DefaultStrings.ShowPage}_{Id}_{increasedPage}")
 			};
 		}
 	}

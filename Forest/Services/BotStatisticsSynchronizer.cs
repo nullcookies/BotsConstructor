@@ -124,7 +124,7 @@ namespace Forest.Services
 
                 List<int> newUsersTelegramIds = null;
 
-                //Упадёт, если в памяти не будет хотя бы одного id из БД
+                //Упадёт, если в памяти не будет хотя бы одного Id из БД
                 try
                 {
                     newUsersTelegramIds = botWrapper

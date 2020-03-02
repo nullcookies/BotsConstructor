@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using LogicalCore.TreeNodes;
 using Telegram.Bot.Types;
 
 namespace LogicalCore
@@ -19,7 +20,7 @@ namespace LogicalCore
             : base(name, metaMessage, needBack)
         {
             VarName = varName ?? throw new ArgumentNullException(nameof(varName));
-            Children = new List<Node>(1);
+            Children = new List<ITreeNode>(1);
             Required = required;
             //Memoization = needSave;
             Converter = converter ?? throw new ArgumentNullException(nameof(converter));
@@ -36,7 +37,7 @@ namespace LogicalCore
 
         //public bool TryGetVar(Session session, out T variable) => session.vars.TryGetVar(VarName, out variable);
 
-        protected override void AddChild(Node child)
+        protected override void AddChild(ITreeNode child)
         {
             if (Children.Count > 0) throw new NotImplementedException("Input может иметь только одного ребёнка.");
             base.AddChild(child);

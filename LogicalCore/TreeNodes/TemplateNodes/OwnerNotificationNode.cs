@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Telegram.Bot.Types;
 
-namespace LogicalCore
+namespace LogicalCore.TreeNodes.TemplateNodes
 {
 	/// <summary>
 	/// Оповещает владельца специальным сообщением, сформированным из данных сессии.
@@ -49,6 +49,6 @@ namespace LogicalCore
 			: this(name, description == null ? null : new MetaInlineMessage(description), disableNotification,
 				  writeUser, separator, keyboardCreator, variables) { }
 
-		protected override Task<Message> SendMarkupIfNoChildren(Session session) => session.MegaTree.root.SendReplyMarkup(session);
+		protected override Task<Message> SendMarkupIfNoChildren(Session session) => session.MegaTree.root.SendMessage(session);
 	}
 }

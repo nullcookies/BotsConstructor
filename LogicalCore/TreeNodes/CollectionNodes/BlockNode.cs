@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using LogicalCore.TreeNodes;
 using Telegram.Bot.Types;
 
 namespace LogicalCore
@@ -7,7 +8,7 @@ namespace LogicalCore
     /// <summary>
     /// Узел, отправляющий страницы детей блоками сообщений.
     /// </summary>
-    public class BlockNode : CollectionNode<Node>
+    public class BlockNode : CollectionNode<ITreeNode>
     {
         public BlockNode(string name, IMetaMessage metaMessage = null, byte pageSize = 2,
             bool needBack = true, bool needPrevious = false) : base(name, pageSize, metaMessage, null, needBack)
@@ -22,15 +23,15 @@ namespace LogicalCore
             bool needBack = true, bool needPrevious = false) :
             this(name, new MetaMessage(description), pageSize, needBack, needPrevious) { }
 
-        protected override void AddChild(Node child)
+        protected override void AddChild(ITreeNode child)
         {
             if (!(child is LightNode))
 			{
-				LightNode middleNode = new LightNode(child.name, new MetaInlineMessage(child.Text, child.MessageType, child.File));
+				LightNode middleNode = new LightNode(child.Name, new MetaInlineMessage(child.Text, child.MessageType, child.File));
 				base.AddChild(middleNode);
 				middleNode.SetBackLink(this);
 				middleNode.AddChildWithButtonRules(child);
-				ConsoleWriter.WriteLine($"Создан лёгкий узел-посредник для узла {child.name}", ConsoleColor.DarkYellow);
+				ConsoleWriter.WriteLine($"Создан лёгкий узел-посредник для узла {child.Name}", ConsoleColor.DarkYellow);
 			}
 			else
 			{
@@ -38,9 +39,9 @@ namespace LogicalCore
 			}
         }
 
-        internal override async Task<Message> SendReplyMarkup(Session session)
+        public override async Task<Message> SendMessage(Session session)
         {
-            Task<Message> task = base.SendReplyMarkup(session);
+            Task<Message> task = base.SendMessage(session);
             return await task.ContinueWith((prevTask) =>
             {
                 SendBlock(session);
@@ -57,7 +58,7 @@ namespace LogicalCore
 
             for (int i = start; i < finish; i++)
             {
-                await Children[i].SendReplyMarkup(session);
+                await Children[i].SendMessage(session);
             }
         }
 

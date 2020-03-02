@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using LogicalCore.TreeNodes;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
@@ -28,8 +29,8 @@ namespace LogicalCore
             }
         }
         public IMetaReplyMarkup MetaKeyboard => messages[defaultMessageIndex].MetaKeyboard;
-		public MessageType Type => messages[defaultMessageIndex].Type;
-		public MetaText Text => messages[defaultMessageIndex].Text;
+		public MessageType MessageType => messages[defaultMessageIndex].MessageType;
+		public ISessionTranslatable Text => messages[defaultMessageIndex].Text;
 		public InputOnlineFile File => messages[defaultMessageIndex].File;
 
 		public MetaMultiMessage(int count = 2)
@@ -80,13 +81,13 @@ namespace LogicalCore
         public void AddNextButton(int rowNumber = 1) =>
             messages[defaultMessageIndex].AddNextButton(rowNumber);
 
-        public void AddNodeButton(Node node, params Predicate<Session>[] rules) =>
+        public void AddNodeButton(ITreeNode node, params Predicate<Session>[] rules) =>
             messages[defaultMessageIndex].AddNodeButton(node, rules);
 
-        public void AddNodeButton(int rowNumber, Node node, params Predicate<Session>[] rules) =>
+        public void AddNodeButton(int rowNumber, ITreeNode node, params Predicate<Session>[] rules) =>
             messages[defaultMessageIndex].AddNodeButton(rowNumber, node, rules);
 
-        public void InsertBackButton(Node parent, int rowNumber = 0, int columnNumber = 0) =>
+        public void InsertBackButton(ITreeNode parent, int rowNumber = 0, int columnNumber = 0) =>
             messages[defaultMessageIndex].InsertBackButton(parent, rowNumber, columnNumber);
 
         public void InsertPreviousButton(int rowNumber = 1, int columnNumber = 0) =>
