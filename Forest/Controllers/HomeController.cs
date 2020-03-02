@@ -105,7 +105,7 @@ namespace Forest.Controllers
 					return Json(answer);
 				}
 
-				BotsStorage.BotsDictionary.TryGetValue(botUsername, out BotWrapper _botWrapper);
+				BotsStorage.BotsDictionary.TryGetValue(botUsername, out IBot _botWrapper);
 
 				//Если найден бот в контейнере
 				if (_botWrapper != null)
@@ -568,7 +568,7 @@ namespace Forest.Controllers
 
             string botUsername = new TelegramBotClient(botDb.Token).GetMeAsync().Result.Username;
 
-            if ( BotsStorage.BotsDictionary.TryGetValue(botUsername, out BotWrapper botWrapper))
+            if ( BotsStorage.BotsDictionary.TryGetValue(botUsername, out IBot botWrapper))
             {
                 Console.WriteLine("  BotsContainer.BotsDictionary.TryGetValue(botUsername, out BotWrapper botWrappe              ");
                 if (botWrapper != null)

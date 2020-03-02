@@ -24,7 +24,7 @@ namespace Forest.Controllers
         public IActionResult Index([FromBody] Update update)
         {
             string botUsername = RouteData.Values["telegramBotUsername"].ToString();
-            if (BotsStorage.BotsDictionary.TryGetValue(botUsername, out BotWrapper botWrapper))
+            if (BotsStorage.BotsDictionary.TryGetValue(botUsername, out var botWrapper))
             {
                 try
                 {

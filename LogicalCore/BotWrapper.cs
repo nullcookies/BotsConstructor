@@ -8,27 +8,26 @@ using Telegram.Bot.Types.Enums;
 
 namespace LogicalCore
 {
-    public class BotWrapper : EmptyBot
+    public class BotWrapper : EmptyBot, IExtendedBot
     {
         public IMarkupTree MarkupTree { get; set; }
         private readonly ConcurrentDictionary<int, ISession> sessionsDictionary;
         public BotOwner BotOwner { get; private set; }
-        public readonly ITextMessagesManager tmm;
+        public ITextMessagesManager TMM { get; }
         public IGlobalFilter GlobalFilter { get; } // Глобальный фильтр сообщений и нажатий, которые выполняются с любого узла
         public IVariablesContainer GlobalVars { get; } // Глобальные переменные, которые видны для всех сессий
-        public List<string> Languages => tmm.Languages;
+        public List<string> Languages => TMM.Languages;
         public Action<IVariablesContainer> InitializeSessionVars { get; set; } // вызывается для каждой сессии в конструкторе
-
-        public BotStatisticsForest StatisticsContainer;
-        public StupidBotAntispam StupidBotAntispam;
+        public BotStatisticsForest StatisticsContainer { get; }
+        private readonly StupidBotAntispam stupidBotAntispam;
 
         public BotWrapper(int botId,
             string link,
             string token,
             /*int ownerID, IMarkupTree tree,*/
             ITextMessagesManager textManager = null,
-            GlobalFilter filter = null,
-            VariablesContainer globalVariables = null,
+            IGlobalFilter filter = null,
+            IVariablesContainer globalVariables = null,
             BotStatisticsForest botStatistics = null,
             StupidBotAntispam antispam = null
 
@@ -36,9 +35,9 @@ namespace LogicalCore
         {
 
             StatisticsContainer = botStatistics ?? new BotStatisticsForest();
-            StupidBotAntispam = antispam ?? new StupidBotAntispam();
+            stupidBotAntispam = antispam ?? new StupidBotAntispam();
             sessionsDictionary = new ConcurrentDictionary<int, ISession>();
-            tmm = textManager ?? new UntranslatableTextMessagesManager();
+            TMM = textManager ?? new UntranslatableTextMessagesManager();
             //MarkupTree = tree ?? throw new ArgumentNullException(nameof(tree));
             GlobalFilter = filter ?? new GlobalFilter();
             GlobalVars = globalVariables ?? new VariablesContainer();
@@ -95,7 +94,7 @@ namespace LogicalCore
                 $"Message, BotUsername={BotUsername}, senderId={message.From.Id}, type ={message.Type}, text={message.Text}"
             );
             
-            bool isBlocked = StupidBotAntispam.UserIsBlockedForThisBot(telegramId);
+            bool isBlocked = stupidBotAntispam.UserIsBlockedForThisBot(telegramId);
             if (isBlocked)
             {
                 //TODO ответить, что заблокирован
@@ -138,7 +137,7 @@ namespace LogicalCore
             );
             
             
-            bool isBlocked = StupidBotAntispam.UserIsBlockedForThisBot(telegramId);
+            bool isBlocked = stupidBotAntispam.UserIsBlockedForThisBot(telegramId);
             if (isBlocked)
             {
                 //TODO ответить, что заблокирован

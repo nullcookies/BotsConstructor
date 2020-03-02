@@ -9,7 +9,7 @@ namespace LogicalCore
         int TelegramId { get; }
         IVariablesContainer Vars { get; }
         string Me { get; }
-        BotWrapper BotWrapper { get; }
+        IExtendedBot BotWrapper { get; }
         BotOwner BotOwner { get; }
         ITelegramBotClient BotClient { get; }
         IMarkupTree MarkupTree { get; }

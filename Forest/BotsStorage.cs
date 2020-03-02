@@ -6,9 +6,9 @@ namespace Forest
 	public static class BotsStorage
     {
         //BotUsername + BotWrapper
-        public static Dictionary<string, BotWrapper> BotsDictionary { get; private set; } = new Dictionary<string, BotWrapper>();
+        public static Dictionary<string, IBot> BotsDictionary { get; } = new Dictionary<string, IBot>();
         
-        public static void RunAndRegisterBot(BotWrapper botWrapper)
+        public static void RunAndRegisterBot(IBot botWrapper)
         {
             botWrapper.Run();
 

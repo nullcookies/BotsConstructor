@@ -36,7 +36,7 @@ namespace Forest.Services
 				{
 					SenderId = session.TelegramId,
 					SenderNickname = session.User.FirstName + " " + session.User.LastName,
-					BotId = session.BotWrapper.BotID,
+					BotId = session.BotWrapper.BotId,
 					DateTime = DateTime.UtcNow,
 					OrderStatusGroupId = statGroupId,
 					Container = CreateInventories(order)

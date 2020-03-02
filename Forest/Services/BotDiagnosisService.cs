@@ -5,7 +5,7 @@ namespace Forest.Services
 {
     public class BotDiagnosisService
     {
-        void DiagnoseBot(BotWrapper bot)
+        void DiagnoseBot(IBot bot)
         {
             Message message = new Message()
             {

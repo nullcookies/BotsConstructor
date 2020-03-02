@@ -59,25 +59,29 @@ namespace Forest.Services
 
             //Для всех ботов в этом лесу актуальные данные кол-ва сообщений 
             //и данные о пользователях переносит в БД
-             foreach (var botUsername in BotsStorage.BotsDictionary.Keys)
+             foreach (var (botUsername, botWrapper) in BotsStorage.BotsDictionary)
              {
-                BotWrapper botWrapper = null;
-                BotsStorage.BotsDictionary.TryGetValue(botUsername, out botWrapper);
-                
                 if (botWrapper == null)
                 {
                     _logger.Log(
                         LogLevel.WARNING,
                         Source.FOREST_BOT_STATISTICS_SYNCHRONIZER,
-                        $"При обновлении статистики не удалось получить достпук к " +
+                        $"При обновлении статистики не удалось получить доступ к " +
                         $"боту botUsername={botUsername} в статическом контейнере");
+                    continue;
+                }
+
+                if (!(botWrapper is IWithStatistics withStatistics))
+                {
+                    _logger.Log(LogLevel.IMPORTANT_INFO, Source.FOREST_BOT_STATISTICS_SYNCHRONIZER,
+                        $"При обновлении статистики обнаружен бот botUsername={botUsername} без статистики");
                     continue;
                 }
 
                 #region Обновление кол-ва сообщений в бд 
                 //запись статистики бота из бд
                 BotForSalesStatistics statisticsDb = allStatistics
-                    .SingleOrDefault(_stat => _stat.BotId == botWrapper.BotID);
+                    .SingleOrDefault(_stat => _stat.BotId == botWrapper.BotId);
                  
 
                 if (statisticsDb == null)
@@ -85,12 +89,12 @@ namespace Forest.Services
                     _logger.Log(LogLevel.ERROR,
                         Source.FOREST_BOT_STATISTICS_SYNCHRONIZER,
                         $"В бд нет статистики для бота, который запущен в лесу." +
-                        $"botUsername={botUsername}, botWrapper.BotID{botWrapper.BotID}");
+                        $"botUsername={botUsername}, botWrapper.BotID{botWrapper.BotId}");
                     continue;
                 }
                  
                 //кол-во сообщений из памяти
-                long actualNumberOfMessages = botWrapper.StatisticsContainer.NumberOfMessages;
+                long actualNumberOfMessages = withStatistics.StatisticsContainer.NumberOfMessages;
 
                 if (actualNumberOfMessages < statisticsDb.NumberOfUniqueMessages)
                 {
@@ -105,7 +109,7 @@ namespace Forest.Services
                     //которая накопилась за прошлые запуски
 
                     //Заношу в память данные из бд, чтобы такой ошибки больше не было
-                    botWrapper.StatisticsContainer.NumberOfMessages  = statisticsDb.NumberOfUniqueMessages;
+                    withStatistics.StatisticsContainer.NumberOfMessages  = statisticsDb.NumberOfUniqueMessages;
                 }
                 else
                 {
@@ -127,7 +131,7 @@ namespace Forest.Services
                 //Упадёт, если в памяти не будет хотя бы одного Id из БД
                 try
                 {
-                    newUsersTelegramIds = botWrapper
+                    newUsersTelegramIds = withStatistics
                         .StatisticsContainer
                         .GetNewUsersTelegramIds(dbBotUsers);
 
@@ -143,12 +147,12 @@ namespace Forest.Services
                 {
                     //Не удалось нормально извлечь новых пользователей
                     //Обновить память для соответствия в бд и попробовать снова
-                    bool success = botWrapper.StatisticsContainer.TryExpandTheListOfUsers(dbBotUsers);
+                    bool success = withStatistics.StatisticsContainer.TryExpandTheListOfUsers(dbBotUsers);
                     if (!success)
                     {
                         try
                         {
-                            newUsersTelegramIds = botWrapper
+                            newUsersTelegramIds = withStatistics
                               .StatisticsContainer
                               .GetNewUsersTelegramIds(dbBotUsers);
                         }catch(Exception eee)
@@ -171,21 +175,21 @@ namespace Forest.Services
 
 
 
-                int actualNumberOfUsers = botWrapper.StatisticsContainer.GetNumberOfAllUsers();
+                int actualNumberOfUsers = withStatistics.StatisticsContainer.GetNumberOfAllUsers();
 
                 if (dbBotUsers.Count > actualNumberOfUsers)
                 {
                     _logger.Log(LogLevel.WARNING,
                         Source.FOREST_BOT_STATISTICS_SYNCHRONIZER,
                         $"Обновление статистики бота. У бота " +
-                        $"botUsername {botUsername} botWrapper.BotID={botWrapper.BotID}" +
+                        $"botUsername {botUsername} botWrapper.BotID={botWrapper.BotId}" +
                         $"старое количество пользователей в БД больше актуального кол-ва " +
                         $"пользователей");
                 }
 
                 //Обновление кол-ва пользователей
                 var botStat = context.BotForSalesStatistics
-                    .Find(botWrapper.BotID);
+                    .Find(botWrapper.BotId);
 
                 botStat.NumberOfUniqueUsers = actualNumberOfUsers;
 

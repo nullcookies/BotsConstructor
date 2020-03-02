@@ -11,7 +11,7 @@ namespace LogicalCore
     /// Сущность бота. Может принимать сообщения через webhook и long polling.
     /// При надобности можно перезрузить методы обработки сообщений.
     /// </summary>
-    public class EmptyBot
+    public class EmptyBot : IBot
 	{
         /// <summary>
         /// Для запуска в режиме webhook
@@ -20,7 +20,7 @@ namespace LogicalCore
         /// <param name="token"></param>
         public EmptyBot(int botId, string link, string token) 
         {
-			BotID = botId;
+			BotId = botId;
 			this.link = link;
             BotClient = new TelegramBotClient(token);
             BotUsername = BotClient.GetMeAsync().Result.Username;
@@ -29,7 +29,7 @@ namespace LogicalCore
         /// <summary>
         /// ID бота в БД.
         /// </summary>
-        public int BotID { get; }
+        public int BotId { get; }
 
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace LogicalCore
         /// </summary>
         protected readonly string link;
 
-        public readonly string BotUsername;
+        public string BotUsername { get; }
         public ITelegramBotClient BotClient { get; }
 
         #region Запуск принятия сообщений
@@ -59,9 +59,9 @@ namespace LogicalCore
                     RunWebhook(link);
                     ConsoleWriter.WriteLine($"Бот {BotUsername} запущен в режиме Webhook ", ConsoleColor.Green);
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
-                    RunLongPolling();    
+                    RunLongPolling();
                 }
             }
         }

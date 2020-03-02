@@ -22,11 +22,11 @@ namespace LogicalCore
 				Translate = TMM.GetTranslator(language);
 			}
 		}
-		public BotWrapper BotWrapper { get; }
+		public IExtendedBot BotWrapper { get; }
 		public BotOwner BotOwner => BotWrapper.BotOwner;
         public ITelegramBotClient BotClient => BotWrapper.BotClient;
         public IMarkupTree MarkupTree => BotWrapper.MarkupTree;
-        private ITextMessagesManager TMM => BotWrapper.tmm;
+        private ITextMessagesManager TMM => BotWrapper.TMM;
         public IGlobalFilter GlobalFilter => BotWrapper.GlobalFilter;
         private ITreeNode currentNode;
         public ITreeNode CurrentNode
@@ -45,7 +45,7 @@ namespace LogicalCore
 
         public int BlockNodePosition { get; set; }
 
-        public Session(ITreeNode node, int id, BotWrapper wrapper)
+        public Session(ITreeNode node, int id, IExtendedBot wrapper)
         {
             CurrentNode = node;
             TelegramId = id;
