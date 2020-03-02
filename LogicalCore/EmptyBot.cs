@@ -38,7 +38,7 @@ namespace LogicalCore
         protected readonly string link;
 
         public readonly string BotUsername;
-        public TelegramBotClient BotClient { get; private set; }
+        public ITelegramBotClient BotClient { get; }
 
         #region Запуск принятия сообщений
 

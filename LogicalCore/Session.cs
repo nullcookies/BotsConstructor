@@ -24,9 +24,9 @@ namespace LogicalCore
 		}
 		public BotWrapper BotWrapper { get; }
 		public BotOwner BotOwner => BotWrapper.BotOwner;
-        public TelegramBotClient BotClient => BotWrapper.BotClient;
+        public ITelegramBotClient BotClient => BotWrapper.BotClient;
         public IMarkupTree MarkupTree => BotWrapper.MarkupTree;
-        private BaseTextMessagesManager TMM => BotWrapper.tmm;
+        private ITextMessagesManager TMM => BotWrapper.tmm;
         public GlobalFilter GlobalFilter => BotWrapper.globalFilter;
         private ITreeNode currentNode;
         public ITreeNode CurrentNode
@@ -50,7 +50,7 @@ namespace LogicalCore
             CurrentNode = node;
             telegramId = id;
             BotWrapper = wrapper;
-			Language = TMM.defaultLanguage;
+			Language = TMM.DefaultLanguage;
             vars = new VariablesContainer();
 			BotWrapper.InitializeSessionVars?.Invoke(vars);
             User = BotClient.GetChatMemberAsync(id, id).Result.User;

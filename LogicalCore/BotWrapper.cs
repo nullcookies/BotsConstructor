@@ -13,10 +13,10 @@ namespace LogicalCore
         public IMarkupTree MarkupTree { get; set; }
         private readonly ConcurrentDictionary<int, Session> sessionsDictionary;
         public BotOwner BotOwner { get; private set; }
-        public readonly BaseTextMessagesManager tmm;
+        public readonly ITextMessagesManager tmm;
         public readonly GlobalFilter globalFilter; // Глобальный фильтр сообщений и нажатий, которые выполняются с любого узла
         public readonly VariablesContainer globalVars; // Глобальные переменные, которые видны для всех сессий
-        public List<string> Languages => tmm.languages;
+        public List<string> Languages => tmm.Languages;
         public Action<VariablesContainer> InitializeSessionVars { get; set; } // вызывается для каждой сессии в конструкторе
 
         public BotStatisticsForest StatisticsContainer;
@@ -25,8 +25,8 @@ namespace LogicalCore
         public BotWrapper(int botId,
             string link,
             string token,
-            /*int ownerID, MarkupTree tree,*/
-            TextMessagesManager textManager = null,
+            /*int ownerID, IMarkupTree tree,*/
+            ITextMessagesManager textManager = null,
             GlobalFilter filter = null,
             VariablesContainer globalVariables = null,
             BotStatisticsForest botStatistics = null,
@@ -38,7 +38,7 @@ namespace LogicalCore
             StatisticsContainer = botStatistics ?? new BotStatisticsForest();
             StupidBotAntispam = antispam ?? new StupidBotAntispam();
             sessionsDictionary = new ConcurrentDictionary<int, Session>();
-            tmm = textManager ?? new BaseTextMessagesManager();
+            tmm = textManager ?? new UntranslatableTextMessagesManager();
             //MarkupTree = tree ?? throw new ArgumentNullException(nameof(tree));
             globalFilter = filter ?? new GlobalFilter();
             globalVars = globalVariables ?? new VariablesContainer();

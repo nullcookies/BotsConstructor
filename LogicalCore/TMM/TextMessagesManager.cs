@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace LogicalCore
 {
-	public class TextMessagesManager : BaseTextMessagesManager
+	public class TextMessagesManager : AbstractTextMessagesManager
 	{
 		/// <summary>
 		/// Словарь словарей для перевода сообщений {Язык, {Переменная, Значение}}.
@@ -27,19 +27,19 @@ namespace LogicalCore
 			translators = new Dictionary<string, Func<string, string>>(keysToValuesDicts.Count + 1)
 			{ { nullLanguage, (key) => key } }; // Изначальный переводчик без перевода
 
-			if (!keysToValuesDicts.Keys.Contains(defaultLanguage))
+			if (!keysToValuesDicts.Keys.Contains(DefaultLanguage))
 			{
 				ConsoleWriter.WriteLine($"Язык по умолчанию '{defLang}' не находится в словаре!", ConsoleColor.Red);
 			}
 
-			if (defaultLanguage != null)
+			if (DefaultLanguage != null)
 			{
-				Dictionary<string, string> defaultDict = keysToValuesDicts[defaultLanguage];
+				Dictionary<string, string> defaultDict = keysToValuesDicts[DefaultLanguage];
 
 				valuesToKeysDict = new Dictionary<string, string>(keysToValuesDicts.Count * defaultDict.Count);
 				foreach (var pair in keysToValuesDicts)
 				{
-					if (pair.Key != defaultLanguage)
+					if (pair.Key != DefaultLanguage)
 					{
 						if (pair.Value.Keys.Count != defaultDict.Keys.Count || !pair.Value.Keys.All(defaultDict.Keys.Contains))
 						{

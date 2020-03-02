@@ -122,7 +122,7 @@ namespace LogicalCore
                             string actionId = ButtonIdManager.GetActionNameFromCallbackData(cuttedData);
                             if(botOwner.actions.TryGetValue(actionId, out var action))
                             {
-                                action.Invoke(botOwner.GetSessionByID(ButtonIdManager.GetIDFromCallbackData(cuttedData)));
+                                action.Invoke(botOwner.GetSessionById(ButtonIdManager.GetIDFromCallbackData(cuttedData)));
                             }
                             else
                             {
