@@ -10,7 +10,7 @@ namespace LogicalCore
 {
     public class BotWrapper : EmptyBot
     {
-        public MegaTree MegaTree { get; set; }
+        public IMarkupTree MarkupTree { get; set; }
         private readonly ConcurrentDictionary<int, Session> sessionsDictionary;
         public BotOwner BotOwner { get; private set; }
         public readonly BaseTextMessagesManager tmm;
@@ -25,7 +25,7 @@ namespace LogicalCore
         public BotWrapper(int botId,
             string link,
             string token,
-            /*int ownerID, MegaTree tree,*/
+            /*int ownerID, MarkupTree tree,*/
             TextMessagesManager textManager = null,
             GlobalFilter filter = null,
             VariablesContainer globalVariables = null,
@@ -39,7 +39,7 @@ namespace LogicalCore
             StupidBotAntispam = antispam ?? new StupidBotAntispam();
             sessionsDictionary = new ConcurrentDictionary<int, Session>();
             tmm = textManager ?? new BaseTextMessagesManager();
-            //MegaTree = tree ?? throw new ArgumentNullException(nameof(tree));
+            //MarkupTree = tree ?? throw new ArgumentNullException(nameof(tree));
             globalFilter = filter ?? new GlobalFilter();
             globalVars = globalVariables ?? new VariablesContainer();
             //BotOwner = new BotOwner(ownerID, this);
@@ -166,7 +166,7 @@ namespace LogicalCore
 
         public Session GetSessionByTelegramId(int id)
         {
-            Session session = sessionsDictionary.GetOrAdd(id, new Session(MegaTree.root, id, this));
+            Session session = sessionsDictionary.GetOrAdd(id, new Session(MarkupTree.Root, id, this));
 
             if (BotOwner != null && BotOwner.Session == null && BotOwner.id == id)
             {

@@ -4,22 +4,22 @@ using LogicalCore.TreeNodes;
 
 namespace LogicalCore
 {
-	public class MegaTree
+    public class MarkupTree : IMarkupTree
     {
-        public readonly ITreeNode root;
+        public ITreeNode Root { get; }
         
         private readonly Dictionary<int, ITreeNode> nodeIdDict;
 
-        internal ITreeNode GetNodeById(int nodeId) => nodeIdDict[nodeId];
+        public ITreeNode GetNodeById(int nodeId) => nodeIdDict[nodeId];
 
-        public MegaTree(ITreeNode nodeRoot)
+        public MarkupTree(ITreeNode nodeRoot)
         {
-            root = nodeRoot;
+            Root = nodeRoot;
             nodeIdDict = new Dictionary<int, ITreeNode>
             {
-                { root.Id, root }
+                { Root.Id, Root }
             };
-            ConsoleWriter.WriteLine($"К общему списку узлов добавлен корень с именем {root.Name}", ConsoleColor.DarkGray);
+            ConsoleWriter.WriteLine($"К общему списку узлов добавлен корень с именем {Root.Name}", ConsoleColor.DarkGray);
         }
 
 		public void AddEdge(ITreeNode parent, ITreeNode child)

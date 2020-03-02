@@ -139,16 +139,16 @@ namespace Forest.Controllers
 				}
 
 				Dictionary<int, MetaValued<decimal>> Products = new Dictionary<int, MetaValued<decimal>>();
-				int allNodesCount = allNodes.Count();
+				int allNodesCount = allNodes.Count;
 				var rootParams = allNodes[0]["parameters"];
 				if ((int)rootParams["type"] != (int)NodeType.Root)
 				{
 					return StatusCode(403, "First node is not root node.");
 				}
-				MegaTree megaTree = new MegaTree(new SimpleNode(((string)rootParams["Name"]).Trim(), GetReplyMsgFromParams(rootParams), false));
-				botWrapper.MegaTree = megaTree;
+				var markupTree = new MarkupTree(new SimpleNode(((string)rootParams["Name"]).Trim(), GetReplyMsgFromParams(rootParams), false));
+				botWrapper.MarkupTree = markupTree;
 				var treeNodes = new ITreeNode[allNodesCount];
-				treeNodes[0] = megaTree.root;
+				treeNodes[0] = markupTree.Root;
 				var variablesInfo = new HashSet<(Type type, string name)>()
 				{
 					(typeof(MetaValuedContainer<decimal>), "ShoppingCart")
@@ -310,7 +310,7 @@ namespace Forest.Controllers
 					}
 
 					treeNodes[i] = node;
-					megaTree.AddEdge(treeNodes[(int)allNodes[i]["parentId"]], node);
+					markupTree.AddEdge(treeNodes[(int)allNodes[i]["parentId"]], node);
 				}
 
 				MetaText GetMetaTextFromParams(JToken parameters)

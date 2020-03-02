@@ -60,7 +60,7 @@
     </ShowAsCollectionAssociation>
   </Interface>
   <Interface Name="LogicalCore.IMetaMessage&lt;KeyboardType&gt;">
-    <Position X="3.75" Y="5.25" Width="2.5" />
+    <Position X="3.75" Y="5.5" Width="2.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAA=</HashCode>
       <FileName>MetaClasses\Messages\MetaInterfaces.cs</FileName>
@@ -99,6 +99,16 @@
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>TreeNodes\ISessionInputHandler.cs</FileName>
     </TypeIdentifier>
+  </Interface>
+  <Interface Name="LogicalCore.IMarkupTree">
+    <Position X="6.75" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAACAACCAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>IMarkupTree.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Root" />
+    </ShowAsAssociation>
   </Interface>
   <Font Name="Segoe UI" Size="9" />
 </ClassDiagram>

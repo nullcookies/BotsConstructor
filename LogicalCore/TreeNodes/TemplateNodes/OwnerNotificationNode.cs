@@ -49,6 +49,6 @@ namespace LogicalCore.TreeNodes.TemplateNodes
 			: this(name, description == null ? null : new MetaInlineMessage(description), disableNotification,
 				  writeUser, separator, keyboardCreator, variables) { }
 
-		protected override Task<Message> SendMarkupIfNoChildren(Session session) => session.MegaTree.root.SendMessage(session);
+		protected override Task<Message> SendMarkupIfNoChildren(Session session) => session.MarkupTree.Root.SendMessage(session);
 	}
 }

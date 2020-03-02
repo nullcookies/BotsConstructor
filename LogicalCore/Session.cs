@@ -25,7 +25,7 @@ namespace LogicalCore
 		public BotWrapper BotWrapper { get; }
 		public BotOwner BotOwner => BotWrapper.BotOwner;
         public TelegramBotClient BotClient => BotWrapper.BotClient;
-        public MegaTree MegaTree => BotWrapper.MegaTree;
+        public IMarkupTree MarkupTree => BotWrapper.MarkupTree;
         private BaseTextMessagesManager TMM => BotWrapper.tmm;
         public GlobalFilter GlobalFilter => BotWrapper.globalFilter;
         private ITreeNode currentNode;
@@ -57,7 +57,7 @@ namespace LogicalCore
 			vars.SetVar("Me", $"[{User.FirstName} {User.LastName}](tg://user?Id={User.Id})\n");
         }
 
-       // public Session(int Id, BotWrapper botWrapper) : this(botWrapper.MegaTree.root, Id, botWrapper) { }
+       // public Session(int Id, BotWrapper botWrapper) : this(botWrapper.MarkupTree.root, Id, botWrapper) { }
 
         public void TakeControl(Message message)
         {

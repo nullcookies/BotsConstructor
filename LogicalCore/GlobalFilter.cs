@@ -24,7 +24,7 @@ namespace LogicalCore
                             message.Chat.Id,
                             session.Translate(DefaultStrings.Hello));
 
-						session.GoToNode(session.MegaTree.root);
+						session.GoToNode(session.MarkupTree.Root);
                     }
                 },
                 {"/show", async (session, message) =>
@@ -54,7 +54,7 @@ namespace LogicalCore
                 {DefaultStrings.GoTo, async (session, callbackQuerry) =>
                     {
                         int nodeId = ButtonIdManager.GetIDFromCallbackData(callbackQuerry.Data);
-                        var node = session.MegaTree.GetNodeById(nodeId);
+                        var node = session.MarkupTree.GetNodeById(nodeId);
                         session.GoToNode(node, out var task);
                         await task;
                     }
@@ -63,7 +63,7 @@ namespace LogicalCore
                 {DefaultStrings.ShowPage, async (session, callbackQuerry) =>
                     {
                         int nodeID = ButtonIdManager.GetIDFromCallbackData(callbackQuerry.Data);
-						var node = session.MegaTree.GetNodeById(nodeID);
+						var node = session.MarkupTree.GetNodeById(nodeID);
 						if(node is IFlippable flipper && (flipper.GlobalCallbacks || session.CurrentNode == node))
                         {
                             int page = ButtonIdManager.GetPageFromCallbackData(callbackQuerry.Data);
