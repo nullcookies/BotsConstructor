@@ -50,7 +50,7 @@ namespace Website.Controllers
                 context.SaveChanges();
             }catch(Exception ee)
             {
-                int? accountId = Stub.GetAccountIdFromCookies(HttpContext);
+                int? accountId = HttpClientWrapper.GetAccountIdFromCookies(HttpContext);
 
                 _logger.Log(LogLevel.USER_ERROR, Source.WEBSITE, $"Сайт. Установка токена для бота " +
                     $"botId={botId}, accountId= {accountId}, token = {token}. Не удалось " +

@@ -140,7 +140,7 @@ namespace Website.Controllers.SignInUpOut
             {
                 int accountId;
                 try{
-                    accountId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("Аккаунт с таким id  не найден.");
+                    accountId = HttpClientWrapper.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("Аккаунт с таким id  не найден.");
                 }catch{
                     return StatusCode(403);
                 }

@@ -10,13 +10,14 @@ namespace Website.Services
         /// <param name="botId">Id бота в БД</param>
         /// <param name="accountId">Id аккаунта, для которого выполняется запуск. Например: создатель бота или администратор бота.</param>
         /// <returns> JObject со статусом запроса.</returns>
-        JObject StartBot(int botId, int accountId);
+        BotStartMessage StartBot(int botId, int accountId);
+        
         /// <summary>
         /// Остановка бота
         /// </summary>
         /// <param name="botId">Id бота в БД</param>
         /// <param name="accountId">Id аккаунта, для которого выполняетсся остановка. Например: создатель бота или администратор бота.</param>
         /// <returns> JObject со статусом запроса.</returns>
-        JObject StopBot(int botId, int accountId);
+        BotStopMessage StopBot(int botId, int accountId);
     }
 }

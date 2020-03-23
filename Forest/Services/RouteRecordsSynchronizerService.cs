@@ -49,7 +49,7 @@ namespace Forest.Services
                 Source.FOREST,
                 $"Старт синхронизации ботов");
             
-            var contextDb = new DbContextFactory().GetNewDbContext();
+            var contextDb = new DbContextFactory().CreateDbContext();
             var routeRecords = contextDb.RouteRecords.Include(rr=>rr.Bot).ToArray();
             
             //TODO только один лес

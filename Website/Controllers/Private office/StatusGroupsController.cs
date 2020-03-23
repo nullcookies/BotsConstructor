@@ -30,7 +30,7 @@ namespace Website.Controllers
         [HttpGet]
         public IActionResult Index()
         {
-            if (!(Stub.GetAccountIdFromCookies(HttpContext) is int accountId))
+            if (!(HttpClientWrapper.GetAccountIdFromCookies(HttpContext) is int accountId))
             {
                 return RedirectToAction("Login", "SignIn");
             }
@@ -51,7 +51,7 @@ namespace Website.Controllers
         public IActionResult SaveStatusGroups(string json)
         {
             //TODO: подумать про безопасность
-            if (!(Stub.GetAccountIdFromCookies(HttpContext) is int accountId))
+            if (!(HttpClientWrapper.GetAccountIdFromCookies(HttpContext) is int accountId))
             {
                 return RedirectToAction("Login", "SignIn");
             }

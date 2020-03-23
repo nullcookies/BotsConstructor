@@ -153,7 +153,7 @@ namespace Website.Services
         {
             get
             {
-                return _dbContextWrapper.GetNewDbContext();
+                return _dbContextWrapper.CreateDbContext();
             }
         }
 

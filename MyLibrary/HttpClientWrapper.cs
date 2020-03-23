@@ -6,9 +6,8 @@ using Microsoft.AspNetCore.Http;
 
 namespace MyLibrary
 {
-    public static class Stub
+    public static class HttpClientWrapper
     {
-
         public static int? GetAccountIdFromCookies(HttpContext httpContext)
         {
             var idStr = "";
@@ -24,11 +23,10 @@ namespace MyLibrary
                 return null;
             }
         }
-
-
 	
+        //TODO выбросить WebRequest
         /// <summary>
-        /// Using Stub.SendPost("https://localhost:8080/StopBot", "botId=" + bot.Id);
+        /// Using HttpClientWrapper.SendPost("https://localhost:8080/StopBot", "botId=" + bot.Id);
         /// </summary>
         /// <param name="url"></param>
         /// <param name="data"></param>

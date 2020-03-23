@@ -23,7 +23,6 @@ namespace Website
 {
     public class Startup
     {
-        
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<CookiePolicyOptions>(options =>
@@ -42,7 +41,7 @@ namespace Website
             services.AddEntityFrameworkNpgsql()
                 .AddDbContext<ApplicationContext>(delegate(DbContextOptionsBuilder opt)
                 {
-                    opt.UseNpgsql(DbContextFactory.GetConnectionString());
+                    opt.UseNpgsql(DbConnectionGlobals.GetConnectionString());
                     // opt.EnableDetailedErrors();
                     // opt.EnableSensitiveDataLogging();
                 })
@@ -69,7 +68,7 @@ namespace Website
             services.AddSingleton<BotForSalesStatisticsService>();
             services.AddSingleton<TotalLog>();
             services.AddSingleton<DomainNameService>();
-            services.AddSingleton<BotsAirstripService>();
+            services.AddTransient<BotsAirstripService>();
           
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

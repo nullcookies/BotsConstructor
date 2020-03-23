@@ -50,7 +50,7 @@ namespace Website.Other.Filters
             int accountId;
             try
             {
-                accountId = Stub.GetAccountIdFromCookies(context.HttpContext) ?? throw new Exception("Из cookies не удалось извлечь accountId");
+                accountId = HttpClientWrapper.GetAccountIdFromCookies(context.HttpContext) ?? throw new Exception("Из cookies не удалось извлечь accountId");
             }
             catch
             {

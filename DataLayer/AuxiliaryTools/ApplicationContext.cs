@@ -30,7 +30,6 @@ namespace DataLayer
         public DbSet<Moderator> Moderators { get; set; }
         public DbSet<BotForSalesPrice> BotForSalesPrices { get; set; }
         public DbSet<BotLaunchRecord> BotLaunchRecords { get; set; }
-
         public DbSet<WithdrawalLog> WithdrawalLog { get; set; }
         public DbSet<Record_BotUsername_UserTelegramId> BotUsers { get; set; }
         public DbSet<BannedUser> BannedUsers { get; set; }
@@ -98,7 +97,7 @@ namespace DataLayer
             modelBuilder.Entity<TelegramLoginInfo>()
                 .HasIndex(a => a.AccountId)
                 .IsUnique();
-
+            
             modelBuilder.Entity<Account>()
                 .Property(_acc => _acc.Money)
                 .HasDefaultValue(0);
@@ -145,17 +144,17 @@ namespace DataLayer
             modelBuilder.Entity<BotForSalesStatistics>()
                  .Property(_botStat => _botStat.NumberOfUniqueMessages)
                  .HasDefaultValue(0);
-
+            
             modelBuilder.Entity<BotForSalesStatistics>()
                 .Property(_botStat => _botStat.NumberOfUniqueUsers)
                 .HasDefaultValue(0);
-
+            
             modelBuilder.Entity<BotForSalesStatistics>()
                 .Property(_botStat => _botStat.NumberOfOrders)
                 .HasDefaultValue(0);
-
+            
             modelBuilder.Entity<OrderStatusGroup>().Property(group => group.IsOld).HasDefaultValue(false);
-
+            
             modelBuilder.Entity<OrderStatus>().Property(status => status.IsOld).HasDefaultValue(false);
 
 

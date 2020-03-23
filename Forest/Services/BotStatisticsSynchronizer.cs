@@ -44,7 +44,7 @@ namespace Forest.Services
                 "Старт обновления статистики ботов");
 
                          
-            ApplicationContext context = _dbContextWrapper.GetNewDbContext();
+            ApplicationContext context = _dbContextWrapper.CreateDbContext();
 
 
             List<BotForSalesStatistics> allStatistics = context

@@ -64,7 +64,7 @@ namespace Website.Controllers
             int accountId = 0;
 
             try{
-                accountId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("В cookies не найден accountId");
+                accountId = HttpClientWrapper.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("В cookies не найден accountId");
             }catch{
                 return RedirectToAction("Login", "SignIn");
             }
@@ -95,7 +95,7 @@ namespace Website.Controllers
             int accountId = 0;
 			try
 			{
-                accountId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("В cookies не найден accountId");
+                accountId = HttpClientWrapper.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("В cookies не найден accountId");
 			}
 			catch
 			{
@@ -128,7 +128,7 @@ namespace Website.Controllers
             int accountId = 0;
 			try
 			{
-                accountId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("В cookies не найден accountId");
+                accountId = HttpClientWrapper.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("В cookies не найден accountId");
 			}
 			catch
 			{
@@ -165,7 +165,7 @@ namespace Website.Controllers
                     if (string.IsNullOrWhiteSpace(orderInfo?.Message)) return GetNewOrdersCount();
                     string url = "https://api.telegram.org/bot" + orderInfo.Token + "/sendMessage";
 					string data = "chat_id=" + orderInfo.SenderId + "&text=" + System.Web.HttpUtility.UrlEncode(orderInfo.Message);
-					var sending = Stub.SendPostAsync(url, data);
+					var sending = HttpClientWrapper.SendPostAsync(url, data);
 					return sending.ContinueWith((task) => task.IsCompletedSuccessfully ? GetNewOrdersCount() : StatusCode(403, "Can't send message: " + task.Exception?.Message)).Result;
 				}
 				else
@@ -186,7 +186,7 @@ namespace Website.Controllers
 		{
 			int accountId = 0;
 			try{
-                accountId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("В cookies не найден accountId");
+                accountId = HttpClientWrapper.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("В cookies не найден accountId");
 			}catch{
 				return RedirectToAction("Login", "SignIn");
 			}
@@ -205,7 +205,7 @@ namespace Website.Controllers
 		{
 			int accountId = 0;
 			try{
-                accountId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("В cookies не найден accountId");
+                accountId = HttpClientWrapper.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("В cookies не найден accountId");
 			}catch{
 				return RedirectToAction("Login", "SignIn");
 			}
@@ -277,7 +277,7 @@ namespace Website.Controllers
 			int accountId = 0;
 			try
 			{
-				accountId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("В cookies не найден accountId");
+				accountId = HttpClientWrapper.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("В cookies не найден accountId");
 			}
 			catch
 			{
@@ -351,7 +351,7 @@ namespace Website.Controllers
 
             int accountId = 0;
             try{
-                accountId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("В cookies не найден accountId.");
+                accountId = HttpClientWrapper.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("В cookies не найден accountId.");
             }catch{
                 return RedirectToAction("Login", "SignIn");
             }
@@ -371,7 +371,7 @@ namespace Website.Controllers
 			string botToken = _contextDb.Orders.Where(_order => _order.Id == orderId).Select(_order => _order.Bot.Token).SingleOrDefault();
 			string url = "https://api.telegram.org/bot" + botToken + "/sendMessage";
 			string data = "chat_id=" + senderId + "&text=" + System.Web.HttpUtility.UrlEncode(text);
-			return Ok(Stub.SendPostAsync(url, data).Result);
+			return Ok(HttpClientWrapper.SendPostAsync(url, data).Result);
 		}
 	}
 }

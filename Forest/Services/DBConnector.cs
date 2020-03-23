@@ -15,11 +15,7 @@ namespace Forest.Services
 
 		public DbConnector(IConfiguration configuration, IHostingEnvironment environment)
 		{
-            _contextDb = new ApplicationContext(
-				new DbContextOptionsBuilder<ApplicationContext>()
-				.UseNpgsql(DbContextFactory.GetConnectionString())
-				.Options
-			);
+			_contextDb = new DbContextFactory().CreateDbContext();
 		}
 
 		public async Task<bool> SendOrder(ISession session, UniversalOrderContainer order, int statGroupId)

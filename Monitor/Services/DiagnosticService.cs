@@ -77,7 +77,7 @@ namespace Monitor.Services
 
         private async Task WriteToDatabase(string url, bool success, string errorMessage=null)
         {
-            var dbContext = new DbContextFactory().GetNewDbContext();
+            var dbContext = new DbContextFactory().CreateDbContext();
             var record = new PingRecord
             {
                 DateTime = DateTime.UtcNow,
@@ -98,7 +98,7 @@ namespace Monitor.Services
         
         private void Ping(string url)
         {
-            Stub.SendPostAsync(url).Wait();
+            HttpClientWrapper.SendPostAsync(url).Wait();
         }
 
 

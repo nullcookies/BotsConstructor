@@ -24,7 +24,7 @@ namespace Monitor
             services.AddSingleton<DiagnosticService>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddEntityFrameworkNpgsql()
-                .AddDbContext<ApplicationContext>(opt => opt.UseNpgsql(DbContextFactory.GetConnectionString()))
+                .AddDbContext<ApplicationContext>(opt => opt.UseNpgsql(DbConnectionGlobals.GetConnectionString()))
                 .BuildServiceProvider();
             
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

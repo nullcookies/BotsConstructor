@@ -13,19 +13,26 @@ namespace Website.Services
             this.dbContext = dbContext;
         }
 
-        public async Task<Account> RegisterAccount(string name, EmailLoginInfo emailLoginInfo )
+        public async Task<Account> RegisterAccountAsync(string name, EmailLoginInfo emailLoginInfo )
         {
-            return await RegisterAccount(name, emailLoginInfo,null);
+            return await RegisterAccountAsync(name, emailLoginInfo,null);
         }
-        public async Task<Account> RegisterAccount(string name, TelegramLoginInfo telegramLoginInfo )
+        public async Task<Account> RegisterAccountAsync(string name, TelegramLoginInfo telegramLoginInfo )
         {
-            return await RegisterAccount(name, null,telegramLoginInfo);
+            return await RegisterAccountAsync(name, null,telegramLoginInfo);
         }
         
-        private async Task<Account> RegisterAccount(string name, EmailLoginInfo emailLoginInfo, TelegramLoginInfo telegramLoginInfo)
+        private async Task<Account> RegisterAccountAsync(string name, EmailLoginInfo emailLoginInfo, TelegramLoginInfo telegramLoginInfo)
         {
+            if (string.IsNullOrEmpty(name))
+            {
+                throw new ArgumentException(nameof(name));
+            }
+
             if (emailLoginInfo == null && telegramLoginInfo == null)
+            {
                 throw new ArgumentException();
+            }
             
             var account = new Account
             {

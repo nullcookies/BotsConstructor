@@ -28,7 +28,7 @@ namespace Website.Services
         ApplicationContext _contextDb {
             get
             {
-                return _dbContextWrapper.GetNewDbContext();
+                return _dbContextWrapper.CreateDbContext();
             }
         }
         DbContextFactory _dbContextWrapper;

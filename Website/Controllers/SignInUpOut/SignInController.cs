@@ -89,7 +89,7 @@ namespace Website.Controllers.SignInUpOut
                         TelegramId = telegramId
                     };
 
-                    account = await registrationService.RegisterAccount(name, telegramLoginInfo);
+                    account = await registrationService.RegisterAccountAsync(name, telegramLoginInfo);
                 }
 
 

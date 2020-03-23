@@ -108,7 +108,7 @@ namespace Website.Controllers.SignInUpOut
                         Password = tmpAccount.Password
                     };
 
-                    await registrationService.RegisterAccount(tmpAccount.Name, emailPasswordLoginInfo);
+                    await registrationService.RegisterAccountAsync(tmpAccount.Name, emailPasswordLoginInfo);
 
                     context.TemporaryAccountWithUsernameAndPassword.Remove(tmpAccount);
                     await context.SaveChangesAsync();

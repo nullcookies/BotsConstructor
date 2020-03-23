@@ -49,7 +49,7 @@ namespace Website.Controllers
 
             //себя нельзя сделать модератором своего бота
             //просто получится самоспам
-            if (searchedAccount != null && searchedAccount.Id == Stub.GetAccountIdFromCookies(HttpContext))
+            if (searchedAccount != null && searchedAccount.Id == HttpClientWrapper.GetAccountIdFromCookies(HttpContext))
             {
                 JObject jObject = new JObject()
                 {
@@ -155,7 +155,7 @@ namespace Website.Controllers
             else
             {
                 logger.Log(LogLevel.USER_INTERFACE_ERROR_OR_HACKING_ATTEMPT, Source.WEBSITE, $"Сайт. Аккаунт " +
-                    $"{Stub.GetAccountIdFromCookies(HttpContext)} пытается удалить из списка модераторов" +
+                    $"{HttpClientWrapper.GetAccountIdFromCookies(HttpContext)} пытается удалить из списка модераторов" +
                     $"аккаунт с id = {accountId}. Но удаляемый аккаунт и так не модерирует этого бота.");
 
                 answer = new JObject()

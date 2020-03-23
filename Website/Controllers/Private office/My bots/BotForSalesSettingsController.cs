@@ -134,7 +134,7 @@ namespace Website.Controllers
 
             int accountId = (int)HttpContext.Items["accountId"];
 
-            JObject answer = _botsAirstripService.StopBot(botId, accountId);
+            var answer = _botsAirstripService.StopBot(botId, accountId);
 
             return Json(answer);
             
@@ -151,16 +151,18 @@ namespace Website.Controllers
         [TypeFilter(typeof(CheckAccessToTheBot))]
         public IActionResult RunBotForSalesFromDraft(int botId)
         {
-            _logger.Log(LogLevel.INFO, Source.WEBSITE, $"Сайт. Запуск бота. botId={botId}");
-
-            int accountId = 0;
-            try{
-                accountId = Stub.GetAccountIdFromCookies(HttpContext) ?? throw new Exception("Из cookies не удалось извлечь accountId");
-            }catch{
+            _logger.Log(LogLevel.INFO, Source.WEBSITE, $"Запуск бота. botId={botId}");
+            int accountId;
+            try
+            {
+                accountId = HttpClientWrapper.GetAccountIdFromCookies(HttpContext) 
+                            ?? throw new Exception("Из cookies не удалось извлечь accountId");
+            }
+            catch
+            {
                 return StatusCode(403);
             }
-
-            JObject answer = _botsAirstripService.StartBot(botId, accountId);
+            var answer = _botsAirstripService.StartBot(botId, accountId);
             return Json(answer);
         }
 

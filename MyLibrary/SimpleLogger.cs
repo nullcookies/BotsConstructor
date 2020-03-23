@@ -10,6 +10,19 @@ using Microsoft.Extensions.Configuration;
 
 namespace MyLibrary
 {
+    public interface ILogger
+    {
+        void Log(LogLevel logLevel, Source errorSource, string comment = "", int accountId = default(int),
+            Exception ex = null);
+    }
+
+    public class StubLogger:ILogger
+    {
+        public void Log(LogLevel logLevel, Source errorSource, string comment = "", int accountId = default(int), Exception ex = null)
+        {
+            Console.WriteLine(comment+" "+ex?.Message);
+        }
+    }
     public class SimpleLogger
     {
         readonly DbContextFactory dbContextFactory;
@@ -53,7 +66,7 @@ namespace MyLibrary
 
         private void SaveLogsToDb()
         {
-            ApplicationContext contextDb = dbContextFactory.GetNewDbContext();
+            ApplicationContext contextDb = dbContextFactory.CreateDbContext();
 
             if (!logMessages.IsEmpty)
             {
