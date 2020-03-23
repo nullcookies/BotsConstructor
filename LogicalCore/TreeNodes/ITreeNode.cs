@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace LogicalCore.TreeNodes
 {
-    public interface ITreeNode : IWithTextAndFile, IWithName, ISendingMessage, ISessionInputHandler
+    public interface ITreeNode : IWithTextAndFile, IWithName, ISendingMessage, IFilter
     {
         int Id { get; }
         ITreeNode Parent { get; }

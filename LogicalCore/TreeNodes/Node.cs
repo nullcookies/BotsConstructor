@@ -71,14 +71,14 @@ namespace LogicalCore.TreeNodes
 
         public virtual async Task<Message> SendMessage(ISession session) => await message.SendMessage(session);
 
-        public void TakeControl(ISession session, Message message)
+        public void Filter(ISession session, Message message)
         {
             MandatoryActions(session, message);
 
             if (!TryFilter(session, message)) session.GlobalFilter.Filter(session, message);
         }
 
-        public void TakeControl(ISession session, CallbackQuery callbackQuery)
+        public void Filter(ISession session, CallbackQuery callbackQuery)
         {
             MandatoryActions(session, callbackQuery);
 
@@ -87,7 +87,7 @@ namespace LogicalCore.TreeNodes
             session.BotClient.AnswerCallbackQueryAsync(callbackQuery.Id);
         }
 
-        //Обязательные действия, которые должны выполняться всегда при TakeControl
+        //Обязательные действия, которые должны выполняться всегда при Filter
 
         protected virtual void MandatoryActions(ISession session, Message message)
         {

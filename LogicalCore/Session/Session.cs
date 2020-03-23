@@ -68,7 +68,7 @@ namespace LogicalCore
 				User = message.From;
 				Vars.SetVar("Me", $"[{User.FirstName} {User.LastName}](tg://user?Id={User.Id})\n");
 			}
-            CurrentNode.TakeControl(this, message);
+            CurrentNode.Filter(this, message);
         }
 
         public void TakeControl(CallbackQuery callbackQuery)
@@ -80,7 +80,7 @@ namespace LogicalCore
 				User = callbackQuery.From;
 				Vars.SetVar("Me", $"[{User.FirstName} {User.LastName}](tg://user?Id={User.Id})\n");
 			}
-			CurrentNode.TakeControl(this, callbackQuery);
+			CurrentNode.Filter(this, callbackQuery);
         }
 
         /// <summary>
