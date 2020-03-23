@@ -8,7 +8,7 @@ namespace LogicalCore
         IMarkupTree MarkupTree { get; set; }
         BotOwner BotOwner { get; }
         ITextMessagesManager TMM { get; }
-        IGlobalFilter GlobalFilter { get; }
+        IFilter GlobalFilter { get; }
         IVariablesContainer GlobalVars { get; }
         List<string> Languages { get; }
         Action<IVariablesContainer> InitializeSessionVars { get; set; }

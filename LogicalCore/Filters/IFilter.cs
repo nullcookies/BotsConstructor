@@ -2,7 +2,7 @@
 
 namespace LogicalCore
 {
-    public interface IGlobalFilter
+    public interface IFilter
     {
         void Filter(ISession session, Message message);
         void Filter(ISession session, CallbackQuery callbackQuery);

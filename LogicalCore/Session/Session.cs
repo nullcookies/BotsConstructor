@@ -27,7 +27,7 @@ namespace LogicalCore
         public ITelegramBotClient BotClient => BotWrapper.BotClient;
         public IMarkupTree MarkupTree => BotWrapper.MarkupTree;
         private ITextMessagesManager TMM => BotWrapper.TMM;
-        public IGlobalFilter GlobalFilter => BotWrapper.GlobalFilter;
+        public IFilter GlobalFilter => BotWrapper.GlobalFilter;
         private ITreeNode currentNode;
         public ITreeNode CurrentNode
         {

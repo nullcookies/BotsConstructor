@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using LogicalCore.TreeNodes;
 using Telegram.Bot.Types;
 
 namespace LogicalCore
@@ -9,7 +8,7 @@ namespace LogicalCore
     /// <summary>
     /// Глобальный фильтр действий, которые могут быть вызваны с любого узла.
     /// </summary>
-    public class GlobalFilter : IGlobalFilter
+    public class GlobalFilter : IFilter
     {
         private readonly Dictionary<string, Func<ISession, Message, Task>> messageFuncs;
         private readonly Dictionary<string, Func<ISession, CallbackQuery, Task>> callbackFuncs;

@@ -125,7 +125,7 @@
     <Position X="12.25" Y="2.75" Width="1.5" />
     <AssociationLine Name="BotWrapper" Type="LogicalCore.IExtendedBot" FixedFromPoint="true" FixedToPoint="true">
       <Path>
-        <Point X="13.656" Y="5.14" />
+        <Point X="13.656" Y="5.332" />
         <Point X="13.656" Y="8.375" />
         <Point X="11.25" Y="8.375" />
       </Path>
@@ -137,7 +137,6 @@
     <ShowAsAssociation>
       <Property Name="Vars" />
       <Property Name="BotWrapper" />
-      <Property Name="GlobalFilter" />
     </ShowAsAssociation>
   </Interface>
   <Interface Name="LogicalCore.ITranslator">
@@ -186,11 +185,11 @@
       <Property Name="CurrentNode" />
     </ShowAsAssociation>
   </Interface>
-  <Interface Name="LogicalCore.IGlobalFilter">
-    <Position X="14.75" Y="2.75" Width="1.5" />
+  <Interface Name="LogicalCore.IFilter">
+    <Position X="14.5" Y="2.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>IGlobalFilter.cs</FileName>
+      <FileName>IFilter.cs</FileName>
     </TypeIdentifier>
   </Interface>
   <Interface Name="LogicalCore.IVariablesContainer">
@@ -217,12 +216,12 @@
         <Point X="7.438" Y="6.796" />
       </Path>
     </AssociationLine>
-    <AssociationLine Name="GlobalFilter" Type="LogicalCore.IGlobalFilter" ManuallyRouted="true" FixedFromPoint="true" FixedToPoint="true">
+    <AssociationLine Name="GlobalFilter" Type="LogicalCore.IFilter" ManuallyRouted="true" FixedFromPoint="true" FixedToPoint="true">
       <Path>
         <Point X="11.25" Y="8.75" />
         <Point X="16.594" Y="8.75" />
         <Point X="16.594" Y="2.875" />
-        <Point X="16.25" Y="2.875" />
+        <Point X="16" Y="2.875" />
       </Path>
     </AssociationLine>
     <AssociationLine Name="GlobalVars" Type="LogicalCore.IVariablesContainer" ManuallyRouted="true" FixedFromPoint="true" FixedToPoint="true">

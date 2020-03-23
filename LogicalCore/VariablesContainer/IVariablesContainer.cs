@@ -14,7 +14,5 @@ namespace LogicalCore
         bool RemoveVar<T>(string varName);
         bool RemoveVar(Type varType, string varName);
         bool ClearVar(Type varType, string varName);
-
-
     }
 }

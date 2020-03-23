@@ -14,7 +14,7 @@ namespace LogicalCore
         private readonly ConcurrentDictionary<int, ISession> sessionsDictionary;
         public BotOwner BotOwner { get; private set; }
         public ITextMessagesManager TMM { get; }
-        public IGlobalFilter GlobalFilter { get; } // Глобальный фильтр сообщений и нажатий, которые выполняются с любого узла
+        public IFilter GlobalFilter { get; } // Глобальный фильтр сообщений и нажатий, которые выполняются с любого узла
         public IVariablesContainer GlobalVars { get; } // Глобальные переменные, которые видны для всех сессий
         public List<string> Languages => TMM.Languages;
         public Action<IVariablesContainer> InitializeSessionVars { get; set; } // вызывается для каждой сессии в конструкторе
@@ -26,7 +26,7 @@ namespace LogicalCore
             string token,
             /*int ownerID, IMarkupTree tree,*/
             ITextMessagesManager textManager = null,
-            IGlobalFilter filter = null,
+            IFilter filter = null,
             IVariablesContainer globalVariables = null,
             BotStatisticsForest botStatistics = null,
             StupidBotAntispam antispam = null

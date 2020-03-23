@@ -12,6 +12,6 @@ namespace LogicalCore
         IExtendedBot BotWrapper { get; }
         BotOwner BotOwner { get; }
         ITelegramBotClient BotClient { get; }
-        IGlobalFilter GlobalFilter { get; }
+        IFilter GlobalFilter { get; }
     }
 }
