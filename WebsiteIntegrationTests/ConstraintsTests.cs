@@ -88,6 +88,38 @@ namespace WebsiteIntegrationTests
             Assert.Fail();
         }
         
+           
+        /// <summary>
+        /// null для пароль/email/имя не запишется
+        /// </summary>
+        /// <returns></returns>
+        [ExpectedException(typeof(DbUpdateException))]
+        [DataRow(null, "pass", "Muhammad")]
+        [DataRow("email", null, "Muhammad")]
+        [DataRow("email", "pass", null)]
+        [TestMethod]
+        public async Task TestMethod5(string email, string pass, string name)
+        {
+            //Arrange
+            var dbContext = DbContextFactory.CreateTestDbContext(nameof(ConstraintsTests));
+            Account account = new Account
+            {
+                EmailLoginInfo = new EmailLoginInfo
+                {
+                    Email = email,
+                    Password = pass
+                },
+                Name = name
+            };
+            
+            //Act
+            await dbContext.Accounts.AddAsync(account);
+            await dbContext.SaveChangesAsync();
+
+            //Assert
+            Assert.Fail();
+        }
+        
         /// <summary>
         /// Email уникален
         /// </summary>
