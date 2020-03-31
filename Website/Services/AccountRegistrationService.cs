@@ -31,7 +31,10 @@ namespace Website.Services
                 throw new ArgumentException(nameof(name));
             }
 
-            LoginInfoCheckService.CheckEmailLoginInfo(emailLoginInfo);
+            if (!LoginInfoCheckService.HasOneLoginInfo(emailLoginInfo, telegramLoginInfo))
+            {
+                throw new Exception("empty login info");
+            }
 
             var account = new Account
             {
@@ -67,7 +70,24 @@ namespace Website.Services
 
     public static class LoginInfoCheckService
     {
-        public static void CheckEmailLoginInfo([NotNull] EmailLoginInfo emailLoginInfo)
+        public static bool HasOneLoginInfo([CanBeNull] EmailLoginInfo emailLoginInfo,
+            [CanBeNull] TelegramLoginInfo telegramLoginInfo)
+        {
+            
+            if (telegramLoginInfo != null)
+            {
+                return true;
+            }
+
+            if (emailLoginInfo != null)
+            {
+                CheckEmailLoginInfo(emailLoginInfo);
+                return true;
+            }
+
+            return false;
+        }
+        private static void CheckEmailLoginInfo([NotNull] EmailLoginInfo emailLoginInfo)
         {
             if (emailLoginInfo == null)
             {

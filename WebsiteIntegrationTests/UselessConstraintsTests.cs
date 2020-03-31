@@ -1,10 +1,8 @@
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using DataLayer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Website.Services;
 
 namespace WebsiteIntegrationTests
 {
@@ -26,7 +24,7 @@ namespace WebsiteIntegrationTests
         [DataRow("test@mail.com", "0132qdv", "Muhammad")]
         [DataRow("3423423@mail.ru", "asasdvsd", "Igor")]
         [TestMethod]
-        public async Task TestMethod1(string email, string pass, string name)
+        public async Task AddingAnAccount_Ok(string email, string pass, string name)
         {
             //Arrange
             var dbContext = DbContextFactory.CreateTestDbContext(nameof(ConstraintsTests));
@@ -66,7 +64,7 @@ namespace WebsiteIntegrationTests
         [DataRow("email", "012345678901234567890123456789012345678901234567890123456789", "Muhammad")]
         [DataRow("email", "pass", "012345678901234567890123456789012345678901234567890123456789")]
         [TestMethod]
-        public async Task TestMethod2(string email, string pass, string name)
+        public async Task AddingTooLongString_Fail(string email, string pass, string name)
         {
             //Arrange
             var dbContext = DbContextFactory.CreateTestDbContext(nameof(ConstraintsTests));
@@ -98,7 +96,7 @@ namespace WebsiteIntegrationTests
         [DataRow("email", null, "Muhammad")]
         [DataRow("email", "pass", null)]
         [TestMethod]
-        public async Task TestMethod5(string email, string pass, string name)
+        public async Task AddingNullValue_Fail(string email, string pass, string name)
         {
             //Arrange
             var dbContext = DbContextFactory.CreateTestDbContext(nameof(ConstraintsTests));
@@ -126,7 +124,7 @@ namespace WebsiteIntegrationTests
         /// <returns></returns>
         [ExpectedException(typeof(DbUpdateException))]
         [TestMethod]
-        public async Task TestMethod3()
+        public async Task AddingEmailDuplicate_Fail()
         {
             //Arrange
             string email = "someString";
@@ -165,7 +163,7 @@ namespace WebsiteIntegrationTests
         /// <returns></returns>
         [ExpectedException(typeof(DbUpdateException))]
         [TestMethod]
-        public async Task TestMethod4()
+        public async Task AddingTelegramIdDuplicate_Fail()
         {
             //Arrange
             int telegramId = 4654;
