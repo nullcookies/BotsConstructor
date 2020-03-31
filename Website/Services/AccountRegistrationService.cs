@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using DataLayer;
+using JetBrains.Annotations;
 
 namespace Website.Services
 {
@@ -24,16 +25,14 @@ namespace Website.Services
         
         private async Task<Account> RegisterAccountAsync(string name, EmailLoginInfo emailLoginInfo, TelegramLoginInfo telegramLoginInfo)
         {
+            //TODO добавить сервисы для проверки входных данных
             if (string.IsNullOrEmpty(name))
             {
                 throw new ArgumentException(nameof(name));
             }
 
-            if (emailLoginInfo == null && telegramLoginInfo == null)
-            {
-                throw new ArgumentException();
-            }
-            
+            LoginInfoCheckService.CheckEmailLoginInfo(emailLoginInfo);
+
             var account = new Account
             {
                 Name = name,
@@ -61,6 +60,54 @@ namespace Website.Services
             await dbContext.SaveChangesAsync();
 
             return account;
+        }
+
+       
+    }
+
+    public static class LoginInfoCheckService
+    {
+        public static void CheckEmailLoginInfo([NotNull] EmailLoginInfo emailLoginInfo)
+        {
+            if (emailLoginInfo == null)
+            {
+                throw new ArgumentNullException(nameof(emailLoginInfo));
+            }
+
+            if (emailLoginInfo.Email == null)
+            {
+                throw new NullReferenceException(nameof(emailLoginInfo.Email));
+            }
+            
+            if (emailLoginInfo.Password == null)
+            {
+                throw new NullReferenceException(nameof(emailLoginInfo.Password));
+            }
+
+            if (!PasswordIsOk(emailLoginInfo.Password))
+            {
+                throw new Exception("Bad password");
+            }
+        }
+
+        private static bool PasswordIsOk(string pass)
+        {
+            if (pass.Length < 6)
+            {
+                return false;
+            }
+            
+            if (pass.Contains(" "))
+            {
+                return false;
+            }
+            
+            if (pass.Length > 50)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }

@@ -94,7 +94,7 @@
 //        private void Collect()
 //        {
 
-//            var contextDb = _dbContextWrapper.CreateDbContext();
+//            var contextDb = _dbContextWrapper.CreateTestDbContext();
 
 //            var yesterday_00_00 = GetTodayDate().AddDays(-1);
 //            var today_00_00 = GetTodayDate();

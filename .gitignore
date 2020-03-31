@@ -264,3 +264,4 @@ Website/App.config
 # Configuration files
 appsettings.json
 App.config
+/DataLayer/AuxiliaryTools/DbContextFactory.cs

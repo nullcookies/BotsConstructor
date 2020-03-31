@@ -42,14 +42,13 @@ namespace DataLayer
         public ApplicationContext(DbContextOptions<ApplicationContext> options)
            : base(options)
         {
-            
-             Database.EnsureCreated();
+            Database.EnsureCreated();
         }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-                modelBuilder.Entity<Moderator>().HasIndex(_mo => new { _mo.AccountId, _mo.BotId}).IsUnique();
+            modelBuilder.Entity<Moderator>().HasIndex(_mo => new { _mo.AccountId, _mo.BotId}).IsUnique();
             
             modelBuilder.Entity<EmailLoginInfo>().HasIndex(info => info.Email).IsUnique();
             modelBuilder.Entity<EmailLoginInfo>().HasIndex(info => info.AccountId).IsUnique();
@@ -101,26 +100,6 @@ namespace DataLayer
             modelBuilder.Entity<Account>()
                 .Property(_acc => _acc.Money)
                 .HasDefaultValue(0);
-
-            // var accounts = new List<Account>
-            // {
-            //     new Account
-            //     {
-            //         Id = 2, 
-            //         Name="Иван Иванов",
-            //         RegistrationDate = DateTime.UtcNow
-            //     }
-            // };
-            // var emailPasswordLoginInfo=new List<EmailLoginInfo>
-            // {
-            //     new EmailLoginInfo
-            //     {
-            //         Id = 2,
-            //         Email = "qqq@qqq",
-            //         AccountId = 2,
-            //         Password = "qqq"
-            //     }
-            // };
             
 
             BotForSalesPrice price =
@@ -159,15 +138,6 @@ namespace DataLayer
 
 
             modelBuilder.Entity<BotDB>().HasIndex(_bot => _bot.Token).IsUnique();
-            
-
-            
-          
-
-
         }
     }
-
-
-  
 }

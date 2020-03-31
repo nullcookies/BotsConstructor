@@ -18,7 +18,7 @@ namespace WebsiteTest
             AccountRegistrationService registrationService = new AccountRegistrationService(dbContext);
             EmailLoginInfo emailLoginInfo = new EmailLoginInfo
             {
-                Email = "suka@mail.com",
+                Email = "test@mail.com",
                 Password = "extraStrongPass"
             };
             string name = "Muhammad";

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Data.Common;
 using System.Runtime.InteropServices;
-using Microsoft.EntityFrameworkCore;
 
 namespace DataLayer
 {
@@ -10,16 +9,6 @@ namespace DataLayer
         ApplicationContext CreateDbContext();
     }
 
-    public class DbContextFactory:IDbContextFactory
-    {
-        public  ApplicationContext CreateDbContext()
-        {
-            return new ApplicationContext(
-                new DbContextOptionsBuilder<ApplicationContext>()
-                    .UseNpgsql(DbConnectionGlobals.GetConnectionString()).Options);
-        }
-    }
-    
     public class MockInMemoryDbContextFactory:IDbContextFactory
     {
         private ApplicationContext mock; 

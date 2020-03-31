@@ -19,8 +19,7 @@ namespace DataLayer
         [Column("AccountId")]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        [Required]
-        public string Name { get; set; }
+        [Required] [StringLength(50, MinimumLength = 6)] public string Name { get; set; }
         public decimal Money { get; set; }
         [Required]
         public DateTime RegistrationDate { get; set; }
