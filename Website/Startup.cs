@@ -108,9 +108,9 @@ namespace Website
             if (!isWindows)
             {
                 app.UseHsts();
-                app.UseHttpsRedirection();
             }
 
+            // app.UseHttpsRedirection();
 
             var supportedCultures = new[]
             {
