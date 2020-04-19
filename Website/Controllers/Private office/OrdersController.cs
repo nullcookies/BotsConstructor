@@ -155,10 +155,6 @@ namespace Website.Controllers
                                                                                              (_status.Group.OwnerId == accountId || moderator));
 					correct = status != null;
 				}
-				else
-				{
-					return GetNewOrdersCount();
-				}
 
 				if (correct)
 				{

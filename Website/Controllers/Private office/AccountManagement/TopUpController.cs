@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using DataLayer;
 using Microsoft.AspNetCore.Authorization;
 using MyLibrary;
@@ -16,39 +18,50 @@ namespace Website.Controllers.Private_office.AccountManagement
     public class TopUpController:Controller
     {
         private readonly SimpleLogger _simpleLogger;
+        private readonly ApplicationContext _dbContext;
         string publicKey = "sandbox_i36414964362";
         string privateKey = "sandbox_dvNF6rSNhZy6kAIbCo8RXxQS1XPlEa7rnHs8pqPp";
 
-        public TopUpController(SimpleLogger simpleLogger)
+        public TopUpController(SimpleLogger simpleLogger, ApplicationContext applicationContext)
         {
             _simpleLogger = simpleLogger;
+            _dbContext = applicationContext;
         }
 
         [HttpGet]
         public IActionResult Index()
         {
-            decimal hardcodedAmount = 1;
-            int accountId = (int) HttpContext.Items["accountId"];
-            var liqPayInfo = CalculateLiqPayInfo(hardcodedAmount, accountId);
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult Pay(decimal amount)
+        {
+            if(amount <= 0) return RedirectToAction("Failure", "StaticMessage", new { message = "Сумма для пополнения должна быть больше 0." });
+            int accountId = (int)HttpContext.Items["accountId"];
+            var liqPayInfo = CalculateLiqPayInfo(amount, accountId);
             ViewData["data"] = liqPayInfo.Data;
             ViewData["signature"] = liqPayInfo.Signature;
-            ViewData["amount"] = hardcodedAmount;
+            ViewData["amount"] = amount;
             return View();
         }
 
         [AllowAnonymous]
         [HttpPost]
-        public IActionResult LiqPayCallback(string data, string signature, decimal amount)
+        public IActionResult LiqPayCallback(string data, string signature)
         {
+            byte[] requestData = Convert.FromBase64String(data);
+            string decodedString = Encoding.UTF8.GetString(requestData);
+
             _simpleLogger.Log(LogLevel.IMPORTANT_INFO, Source.WEBSITE_TOP_UP,
-                $"Был получен post запрос на LiqPayCallback. Запрос : data = {data}, signature={signature}, amount = {amount}");
-            
+                $"Был получен post запрос на LiqPayCallback. Запрос : decodedData = {decodedString}, signature={signature}");
+
             string checkSignature = GetBase64EncodedSHA1Hash(privateKey + data + privateKey);
             if (checkSignature != signature)
             {
                 //Запрос пришёл не от LiqPay
                 //Идите в жопу
-                _simpleLogger.Log(LogLevel.IMPORTANT_INFO, Source.WEBSITE_TOP_UP,
+                _simpleLogger.Log(LogLevel.WARNING, Source.WEBSITE_TOP_UP,
                     $"Сигнатуры не совпали checkSignature={checkSignature} signature={signature}");
 
                 return Forbid();
@@ -56,6 +69,39 @@ namespace Website.Controllers.Private_office.AccountManagement
 
             _simpleLogger.Log(LogLevel.IMPORTANT_INFO, Source.WEBSITE_TOP_UP,
                 $"Сигнатуры совпали {checkSignature}");
+
+            var requestDataDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(decodedString);
+            
+            var regex = new Regex(@"accountId=(?<accId>\d+)");
+
+            Match match = regex.Match(requestDataDictionary["info"]);
+
+            if (!match.Success ||
+                !int.TryParse(match.Groups["accId"].Value, out var accountId) ||
+                !decimal.TryParse(requestDataDictionary["amount"], out var amount))
+            {
+                _simpleLogger.Log(LogLevel.WARNING, Source.WEBSITE_TOP_UP,
+                    $"Не удалось извлечь данные из запроса.");
+                return Forbid();
+            }
+
+            var account = _dbContext.Accounts.Find(accountId);
+
+            if (account == null)
+            {
+                _simpleLogger.Log(LogLevel.WARNING, Source.WEBSITE_TOP_UP,
+                    $"Аккаунт с id={accountId} не найден.");
+                return Forbid();
+            }
+
+            account.Money += amount;
+            _dbContext.Accounts.Attach(account);
+            _dbContext.Entry(account).Property(x => x.Money).IsModified = true;
+
+            _dbContext.SaveChanges();
+
+            _simpleLogger.Log(LogLevel.IMPORTANT_INFO, Source.WEBSITE_TOP_UP,
+                $"Успешное пополнение счёта аккаунта с id={accountId} на сумму {amount}");
 
             return Ok();
         }

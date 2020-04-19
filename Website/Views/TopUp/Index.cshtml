@@ -4,16 +4,17 @@
     Layout = "_LayoutHome";
 }
 
-<div class="container">
-    <form method="POST" accept-charset="utf-8" action="https://www.liqpay.ua/api/3/checkout">
-        <input type="hidden" name="data" value="@ViewData["data"]" />
-        <input type="hidden" name="signature" value="@ViewData["signature"]" />
-        <button style="border: none !important; display:inline-block !important;text-align: center !important;padding: 7px 20px !important;
-    		color: #fff !important; font-size:16px !important; font-weight: 600 !important; font-family:OpenSans, sans-serif; cursor: pointer !important; border-radius: 2px !important;
-    		background: rgb(122,183,43) !important;" onmouseover="this.style.opacity='0.5';" onmouseout="this.style.opacity='1';">
-            <img src="https://static.liqpay.ua/buttons/logo-small.png" name="btn_text"
-                 style="margin-right: 7px !important; vertical-align: middle !important;" />
-            <span style="vertical-align:middle;">Оплатить @ViewData["amount"] USD</span>
-        </button>
-    </form>
-</div>
+    <div class="container">
+        <form method="GET" asp-action="Pay">
+            <div class="form-group">
+                <label for="amount">Укажите сумму, на которую Вы хотите пополнить счёт</label>
+                <div class="input-group">
+                    <input id="amount" class="form-control" type="number" min="0" max="100" step="0.01" name="amount" value="1">
+                    <div class="input-group-append">
+                        <span id="currency" class="input-group-text">$</span>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-success">Оплатить</button>
+        </form>
+    </div>
