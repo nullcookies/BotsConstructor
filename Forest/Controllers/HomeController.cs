@@ -118,9 +118,9 @@ namespace Forest.Controllers
 					return Json(answer);
 				}
 				//создание сериализованного объекта дерева
-				string link = "https://botsconstructor.com:88/"+botUsername;
+				// string link = "https://botsconstructor.com:88/"+botUsername;
 //				string link = "https://2264b324.ngrok.io/"+botUsername;
-				BotWrapper botWrapper = new BotWrapper(botId, link, bot.Token);
+				BotWrapper botWrapper = new BotWrapper(botId, null, bot.Token);
 				JArray allNodes = JsonConvert.DeserializeObject<JArray>(bot.Markup);
 
 				List<OwnerNotificationNode> ownerNotificationNodes = new List<OwnerNotificationNode>();

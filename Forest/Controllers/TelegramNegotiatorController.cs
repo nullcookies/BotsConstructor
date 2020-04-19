@@ -8,6 +8,9 @@ using Telegram.Bot.Types;
 
 namespace Forest.Controllers
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class TelegramNegotiatorController:Controller
     {
         private readonly ApplicationContext contextDb;

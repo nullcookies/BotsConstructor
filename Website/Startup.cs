@@ -111,7 +111,8 @@ namespace Website
 //                app.UseHttpsRedirection();
             }
 
-
+ 
+            
             var supportedCultures = new[]
             {
                 new CultureInfo("en"),
