@@ -50,7 +50,7 @@ namespace DataLayer
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-                modelBuilder.Entity<Moderator>().HasIndex(_mo => new { _mo.AccountId, _mo.BotId}).IsUnique();
+            modelBuilder.Entity<Moderator>().HasIndex(_mo => new { _mo.AccountId, _mo.BotId}).IsUnique();
             
             modelBuilder.Entity<EmailLoginInfo>().HasIndex(info => info.Email).IsUnique();
             modelBuilder.Entity<EmailLoginInfo>().HasIndex(info => info.AccountId).IsUnique();
@@ -122,7 +122,7 @@ namespace DataLayer
             //         Password = "qqq"
             //     }
             // };
-            
+            //
 
             BotForSalesPrice price =
                 new BotForSalesPrice
@@ -160,15 +160,6 @@ namespace DataLayer
 
 
             modelBuilder.Entity<BotDB>().HasIndex(_bot => _bot.Token).IsUnique();
-            
-
-            
-          
-
-
         }
     }
-
-
-  
 }
