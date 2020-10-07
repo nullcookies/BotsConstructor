@@ -1,5 +1,7 @@
 # [BotsConstructor](https://botsconstructor.com/)
 
+An example of how the bot works: https://www.youtube.com/watch?v=SWDKTL1Z22A
+
 ### Constructor of Telegram bots for orders
 
 Designed to quickly and easily create bots for Telegram.
