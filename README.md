@@ -1,42 +1,42 @@
 # [BotsConstructor](https://botsconstructor.com/)
 
-### Конструктор Telegram-ботов для заказов
+### Constructor of Telegram bots for orders
 
-Предназначен для быстрого и простого создания ботов для Telegram.
-Позволяет любому человеку без навыков программирования собрать из предоставленных разных типов узлов своего собственного бота.
-Изначально этот конструктор был задуман как решение для малого бизнеса, поэтому в собранных ботах можно делать заказы, а на сайте есть страница для их обработки.
-Сам конструктор состоит из сайта, на котором можно собирать ботов и работать с заказами,
-и "леса" - сервера ботов, на котором запускаются боты по созданной древовидной структуре.
+Designed to quickly and easily create bots for Telegram.
+Allows anyone without programming skills to build their own bot from the provided different types of nodes.
+Initially, this constructor was conceived as a solution for small businesses, so you can place orders in the collected bots, and the site has a page for processing them.
+The constructor itself consists of a site where you can collect bots and work with orders,
+and "forests" - a server of bots, on which bots are launched according to the created tree structure.
 
-#### Древовидный редактор
-На сайте есть возможность создать разметку бота - специальную древовидную структуру из узлов разных типов.
-Узлы имеют в себе разные параметры в зависимости от типа, но все они могут иметь название, текст и прикреплённый файл.
-В запущенном боте название узла отображается на кнопке, при нажатии на которую выполнится переход на узел.
-При переходе на узел отправляется текст и прикреплённый файл (если есть).
+#### Tree editor
+The site has the ability to create a bot markup - a special tree structure of nodes of different types.
+Nodes have different parameters depending on the type, but they can all have a name, text and an attached file.
+In a running bot, the name of the node is displayed on the button, which, when clicked, will go to the node.
+When you go to the site, the text and the attached file (if any) are sent.
 
-#### Виды узлов
-* **Корень** - является обычным инфо-узлом, но его нельзя удалить, переместить или добавить.
-* **Инфо-узел** - самый простой узел, содержащий в себе информацию (текст и файл).
-* **Раздел** - специальный узел, который упрощает отображение большого количества узлов-наследников.
-Может отображать их в виде списка из названий или же отправлять по 2.
-* **Товар** - узел, который имеет параметры для работы с разными товарами (включая товары с разными подтипами, подвидами и ценами).
-Пользователь бота может добавлять товары в корзину.
-Товарный узел тоже имеет 2 подтипа, которые влияют на стиль отображения.
-* **Ввод данных** - узел, который позволяет добавить данные от пользователя к заказу. Можно вводить текст, время и прикреплять разные типы файлов.
-* **Отправить заказ** - узел, при переходе на который пользователь бота отправляет сформированный заказ.
-Внутри этого узла можно выбрать одну из групп статусов для быстрых ответов на отправленные через этот узел заказы.
+#### Types of nodes
+* ** Root ** - This is a regular InfoNode, but it cannot be deleted, moved or added.
+* ** Info node ** - the simplest node containing information (text and file).
+* ** Section ** is a special node that makes it easy to display a large number of descendant nodes.
+It can display them as a list of titles, or send by 2.
+* ** Product ** - a node that has parameters for working with different products (including products with different subtypes, subtypes and prices).
+The bot user can add products to the cart.
+Product node also has 2 subtypes that affect the display style.
+* ** Data Entry ** - node that allows you to add data from the user to the order. You can enter text, time and attach different types of files.
+* ** Send order ** - node, upon switching to which the bot user sends the generated order.
+Within this node, you can select one of the status groups for quick responses to orders sent through this node.
 
-#### Заказы
-Все сформированные пользователями заказы добавляются на страницу заказов владельца бота.
-Владельцы ботов имеют возможность отвечать на заказы, менять их статус и удалять их.
+  #### Orders
+All user generated orders are added to the bot owner's orders page.
+Bot owners have the ability to respond to orders, change their status and delete them.
 
-#### Группы статусов
-Группы статусов предназначены для удобного разделения состояний заказов и быстрых ответов на заказы с помощью коротких сообщений.
+#### Status groups
+Status groups are designed for convenient separation of order states and quick responses to orders using short messages.
 
-#### Дополнительные функции
-* **Массовая рассылка** - отправка всем пользователям бота одного сообщения (можно прикрепить файл).
-* **Смена токена** - перенос разметки на другого Telegram-бота.
-* **Модерирование** - возможность приглашать модераторов бота, которые не могут редактировать его, но способны взаимодействвать с заказами.
+#### Additional functions
+* ** Bulk mailing ** - sending one message to all users of the bot (you can attach a file).
+* ** Change token ** - transfer of markup to another Telegram bot.
+* ** Moderation ** - the ability to invite bot moderators who cannot edit it, but are able to interact with orders.
 
 <br/>Собранный бот, содержащий в себе дополнительную информацию: [@bctor_info_bot](https://telegram.me/bctor_info_bot).
 
